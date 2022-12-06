@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "mixin": [
+    "factoryapi.mixins.json"
+  ],
+  "quilt_loader": {
+    "group": "${group}",
+    "id": "factory_api",
+    "version": "${version}",
+    "name": "FactoryAPI",
+    "description": "It is an API that is the basis for the functioning of mods like Factocrafty, that work on different platforms of mod loaders.",
+    "authors": ["Wilyicaro"],
+    "contact": {
+      "sources": "https://github.com/architectury/architectury-templates"
+    },
+    "license": "MIT",
+    "icon": "icon.png",
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "environment": "*",
+    "entrypoints": {
+      "init": [
+        "wily.factoryapi.quilt.FactoryAPIQuilt"
+      ]
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "version": "*"
+      },
+      {
+        "id": "quilt_base",
+        "version": "*"
+      },
+      {
+        "id": "minecraft",
+        "version": ">=1.19.2"
+      },
+      {
+        "id": "architectury",
+        "version": ">=6.2.43"
+      }
+    ]
+  }
+}

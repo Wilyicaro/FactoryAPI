@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[43,)"
+#issueTrackerURL = ""
+license = "MIT"
+
+[[mods]]
+modId = "factory_api"
+version = "${version}"
+displayName = "FactoryAPI"
+authors = "Wilyicaro"
+description = '''
+It is an API that is the basis for the functioning of mods like Factocrafty, that work on different platforms of mod loaders.
+'''
+logoFile = "icon.png"
+
+[[dependencies.factory_api]]
+modId = "forge"
+mandatory = true
+versionRange = "[43,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.factory_api]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.factory_api]]
+modId = "architectury"
+mandatory = true
+versionRange = "[6.2.43,)"
+ordering = "AFTER"
+side = "BOTH"
