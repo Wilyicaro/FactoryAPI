@@ -13,7 +13,7 @@ public class FluidRenderUtil {
     public static void renderTiledFluid( int posX, int posY,int i, int j, int renderAmount, int sizeX, int sizeY, FluidStack fluid, boolean hasColor){
 
         TextureAtlasSprite fluidSprite = fluidSprite(fluid, hasColor);
-        RenderSystem.setShaderTexture(0, fluidSprite.atlas().location());
+        RenderSystem.setShaderTexture(0, fluidSprite.atlasLocation());
         int drawWidth = Math.min(sizeX - i, 16);
         int drawHeight = Math.min(renderAmount - j, 16);
 

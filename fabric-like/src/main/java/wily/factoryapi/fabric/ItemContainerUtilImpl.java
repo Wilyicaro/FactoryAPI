@@ -65,10 +65,9 @@ public class ItemContainerUtilImpl {
         StoragePreconditions.notBlankNotNegative(FluidStackHooksFabric.toFabric(fluidStack), fluidStack.getAmount()); // Defensive check, this is good practice.
         boolean bucket = context.getItemVariant().isOf(Items.BUCKET);
         Storage<FluidVariant> handStorage = context.find(FluidStorage.ITEM);
-        // If the context's item is not a bucket anymore, can't extract!
 
-        // Make sure that the fluid and the amount match.
         if(bucket) {
+            if (fluidStack.getAmount() >= FluidStack.bucketAmount())
                 try (Transaction transaction = Transaction.openOuter()) {
                     context.exchange(ItemVariant.of(fluidStack.getFluid().getBucket()), 1, transaction);
                     if (player != null) {
@@ -76,7 +75,7 @@ public class ItemContainerUtilImpl {
 
                         if (!player.isCreative()) transaction.commit();
                     }
-                    fluidStack.shrink(FluidConstants.BUCKET);
+                    fluidStack.setAmount(FluidConstants.BUCKET);
                     return new ItemContainerUtil.ItemFluidContext(fluidStack, context.getItemVariant().toStack((int) context.getAmount()));
                 }
 
@@ -84,7 +83,7 @@ public class ItemContainerUtilImpl {
         else if (handStorage != null)
             try (Transaction transaction = Transaction.openOuter()) {
                 try (Transaction nested = transaction.openNested()) {
-                    fluidStack.shrink(handStorage.insert(FluidStackHooksFabric.toFabric(fluidStack), fluidStack.getAmount(), nested));
+                    fluidStack.setAmount(handStorage.insert(FluidStackHooksFabric.toFabric(fluidStack), fluidStack.getAmount(), nested));
                     if (player != null) {
                          player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
 

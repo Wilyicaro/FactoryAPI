@@ -6,7 +6,7 @@ license = "MIT"
 [[mods]]
 modId = "factory_api"
 version = "${version}"
-displayName = "FactoryAPI"
+displayName = "Factory API"
 authors = "Wilyicaro"
 description = '''
 It is an API that is the basis for the functioning of mods like Factocrafty, that work on different platforms of mod loaders.

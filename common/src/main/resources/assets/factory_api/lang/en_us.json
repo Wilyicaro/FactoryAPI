@@ -14,6 +14,7 @@
   "tooltip.factory_api.config.transport.insert": "Insert",
   "tooltip.factory_api.config.transport.extract_insert": "Extract/Insert",
   "tooltip.factory_api.config.transport.none": "None",
+  "tooltip.factory_api.config.identifier.gray": "Gray",
   "tooltip.factory_api.config.identifier.water": "Water",
   "tooltip.factory_api.config.identifier.lava": "Lava",
   "tooltip.factory_api.config.identifier.input": "Input",
