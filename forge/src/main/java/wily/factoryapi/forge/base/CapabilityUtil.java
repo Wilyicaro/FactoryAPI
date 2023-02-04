@@ -12,7 +12,7 @@ public class CapabilityUtil {
         if (capability == ForgeCapabilities.FLUID_HANDLER) return Storages.FLUID;
         else if (capability == ForgeCapabilities.FLUID_HANDLER_ITEM) return Storages.FLUID_ITEM;
         else if (capability == ForgeCapabilities.ITEM_HANDLER) return Storages.ITEM;
-        else if (capability == FactoryCapabilities.ENERGY_CAPABILITY) return Storages.ENERGY;
-        else return null;
+        else if (capability == ForgeCapabilities.ENERGY) return Storages.ENERGY;
+        return  capability == FactoryCapabilities.ENERGY_CAPABILITY ? Storages.CRAFTY_ENERGY : null;
     }
 }

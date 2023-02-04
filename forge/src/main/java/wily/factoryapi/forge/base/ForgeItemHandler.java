@@ -63,7 +63,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
     public static ForgeItemHandler filtered(IPlatformItemHandler platformItemHandler, Direction d, int[] slots, TransportState transportState){
         ForgeItemHandler newItemHandler =  new ForgeItemHandler((ForgeItemHandler) platformItemHandler,transportState){
             @Override
-            public boolean canPlaceItem(int i, ItemStack arg) {
+            public boolean canPlaceItem(int i, @NotNull ItemStack arg) {
 
                 return platformItemHandler.canPlaceItem(i,arg) && getTransport().canInsert();
             }

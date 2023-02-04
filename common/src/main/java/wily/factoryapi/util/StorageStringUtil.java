@@ -6,8 +6,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.lwjgl.glfw.GLFW;
 import wily.factoryapi.base.ICraftyEnergyStorage;
+import wily.factoryapi.base.IPlatformEnergyStorage;
 import wily.factoryapi.base.IPlatformFluidHandler;
 
 import java.text.DecimalFormat;
@@ -26,8 +28,9 @@ public class StorageStringUtil {
 
     protected static String miliFluid = I18n.get("tooltip.factory_api.fluid"," m");
 
-    public static Component getEnergyTooltip(String key, ICraftyEnergyStorage cell){
-        return Component.translatable(key,  getStorageAmount(cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount(cell.getMaxEnergyStored(), false,millerEnergy, kiloEnergy, energyMeasure)).withStyle(ChatFormatting.AQUA);
+
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell){
+        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,millerEnergy, kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
     }
 
     public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell){
@@ -37,9 +40,11 @@ public class StorageStringUtil {
         return list;
     }
     public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
-        FluidStack stack = tank.getFluidStack();
+        return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid()).withStyle(tank.identifier().color());
+    }
+    public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid){
         if (stack.isFluidEqual(FluidStack.empty())) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
-        return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(tank.getMaxFluid(),1000), false,"", fluidMeasure, miliFluid)).withStyle(tank.identifier().color());
+        return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
     }
     public static String getStorageAmount(int content, boolean additionalBool, String minimal, String min, String max){
 

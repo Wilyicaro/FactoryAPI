@@ -1,5 +1,7 @@
 package wily.factoryapi.base;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 
 public interface ICraftyEnergyStorage extends IPlatformEnergyStorage
@@ -76,4 +78,8 @@ public interface ICraftyEnergyStorage extends IPlatformEnergyStorage
     }
      int getMaxConsume();
 
+    @Override
+    default Style getComponentStyle() {
+        return Style.EMPTY.applyFormat(ChatFormatting.AQUA);
+    }
 }

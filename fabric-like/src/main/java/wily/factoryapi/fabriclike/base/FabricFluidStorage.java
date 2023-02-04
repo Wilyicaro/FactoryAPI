@@ -56,6 +56,15 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
                 return(fluidHandler.getHandler().extract(extractedVariant, maxAmount, transaction));
             }
 
+            @Override
+            protected boolean canExtract(FluidVariant variant) {
+                return super.canExtract(variant) && transportState.canExtract();
+            }
+
+            @Override
+            protected boolean canInsert(FluidVariant variant) {
+                return super.canInsert(variant) && transportState.canInsert();
+            }
 
             @Override
             public void setFluid(FluidStack fluidStack) {
@@ -157,12 +166,12 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && transportState.canInsert();
+        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount()));
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && transportState.canExtract();
+        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount()));
     }
 
     @Override

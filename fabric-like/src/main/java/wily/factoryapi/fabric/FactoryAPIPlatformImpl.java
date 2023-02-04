@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import wily.factoryapi.base.*;
 import wily.factoryapi.fabriclike.base.FabricEnergyStorage;
 import wily.factoryapi.fabriclike.base.FabricFluidStorage;
+import wily.factoryapi.fabriclike.base.FabricItemFluidStorage;
 import wily.factoryapi.fabriclike.base.FabricItemStorage;
 
 import java.nio.file.Path;
@@ -46,7 +47,7 @@ public class FactoryAPIPlatformImpl {
         // Just throw an error, the content should get replaced at runtime.
         Storage<FluidVariant> handStorage = ContainerItemContext.withInitial(container).find(FluidStorage.ITEM);
         if (handStorage instanceof  IPlatformFluidHandler p) return p;
-        return null;
+        return new FabricItemFluidStorage(ContainerItemContext.withInitial(container),Capacity,validator,transportState);
     }
 
     public static IPlatformEnergyStorage getEnergyStorageApi(int Capacity, BlockEntity be) {

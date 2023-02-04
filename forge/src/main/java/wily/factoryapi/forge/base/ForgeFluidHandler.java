@@ -123,14 +123,12 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
 
     @Override
     public net.minecraftforge.fluids.@NotNull FluidStack drain(int maxDrain, FluidAction action) {
-        if (!transportState.canExtract()) return net.minecraftforge.fluids.FluidStack.EMPTY;
         return super.drain(maxDrain, action);
     }
 
 
     @Override
     public int fill(net.minecraftforge.fluids.FluidStack resource, FluidAction action) {
-        if (!transportState.canInsert()) return 0;
         return super.fill(resource, action);
     }
 

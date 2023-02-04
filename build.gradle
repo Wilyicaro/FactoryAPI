@@ -1,10 +1,12 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.0.+" apply false
+    id 'maven-publish'
 }
 
 architectury {
     minecraft = rootProject.minecraft_version
+
 }
 
 subprojects {
@@ -22,6 +24,7 @@ subprojects {
         // mappings "net.fabricmc:yarn:1.19.2+build.3:v2"
     }
 }
+
 
 allprojects {
     apply plugin: "java"

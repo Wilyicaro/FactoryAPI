@@ -75,7 +75,7 @@ public interface IFactoryStorage {
     default List<SlotsIdentifier> getSlotsIdentifiers(){
         return List.copyOf(itemSlotsIdentifiers().keySet());
     }
-    default void load(CompoundTag compoundTag) {
+    default void loadTag(CompoundTag compoundTag) {
         getStorage(Storages.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("CYEnergy")));
         if (!getTanks().isEmpty()) getTanks().forEach((tank) ->  tank.deserializeTag(compoundTag.getCompound(tank.getName())));
         getStorage(Storages.ITEM).ifPresent((e) -> e.deserializeTag(compoundTag.getCompound("inventory")));
@@ -84,7 +84,7 @@ public interface IFactoryStorage {
         energySides().ifPresent((e)->  TransportState.deserializeNBT(compoundTag.getCompound("energySides"), e));
     }
 
-    default void saveAdditional(CompoundTag compoundTag) {
+    default void saveTag(CompoundTag compoundTag) {
         getStorage(Storages.CRAFTY_ENERGY).ifPresent((e)-> compoundTag.put("CYEnergy", e.serializeTag()));
         if (!getTanks().isEmpty()) getTanks().forEach((tank) -> compoundTag.put(tank.getName(), tank.serializeTag()));
         getStorage(Storages.ITEM).ifPresent((i)-> compoundTag.put("inventory", i.serializeTag()));
