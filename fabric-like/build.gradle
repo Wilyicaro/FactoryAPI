@@ -11,6 +11,6 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
-    modCompileOnly("teamreborn:energy:2.2.0") { transitive false }
+    modCompileOnly("teamreborn:energy:2.3.0") { transitive true }
     compileClasspath(project(path: ":common", configuration: "namedElements")) { transitive false }
 }

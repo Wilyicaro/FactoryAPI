@@ -9,11 +9,15 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.impl.transfer.context.SingleSlotContainerItemContext;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -24,13 +28,13 @@ import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.ItemContainerUtil;
 
-import static wily.factoryapi.fabriclike.FactoryAPIFabricLike.hasTechReborn;
+
 
 public class ItemContainerUtilImpl {
     protected static boolean bucket(ContainerItemContext context){ return  (context.getItemVariant().getItem() instanceof BucketItem bucketItem) && FluidBucketHooksImpl.getFluid(bucketItem) != null;}
 
     public static boolean isFluidContainer(ItemStack stack){
-        ContainerItemContext context = ContainerItemContext.withInitial(stack);
+        ContainerItemContext context = ContainerItemContext.withConstant(stack);
         return (bucket(context)) || context.find(FluidStorage.ITEM) != null;
     }
 
@@ -51,7 +55,7 @@ public class ItemContainerUtilImpl {
         return getFluid(ContainerItemContext.ofPlayerHand(player, hand));
     }
     public static FluidStack getFluid(ItemStack stack){
-        return getFluid(ContainerItemContext.withInitial(stack));
+        return getFluid(ContainerItemContext.withConstant(stack));
     }
     public static ItemContainerUtil.ItemFluidContext fillItem(ItemStack stack, FluidStack fluidStack){
         ContainerItemContext context = ContainerItemContext.withInitial(stack);
@@ -139,40 +143,35 @@ public class ItemContainerUtilImpl {
         return drainItem(maxDrain,context,player).fluidStack();
     }
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack){
+        // While Fabric API don't add any context method that might alter itemStack, withInitial will be used instead
         ContainerItemContext context = ContainerItemContext.withInitial(stack);
         return drainItem(maxDrain, context,null);
     }
 
     public static boolean isEnergyContainer(ItemStack stack) {
-        if (!hasTechReborn()) return false;
         return ItemContainerEnergyCompat.isEnergyContainer(stack);
     }
 
     public static int insertEnergy(int energy, Player player, InteractionHand hand) {
-        if (!hasTechReborn()) return 0;
         return ItemContainerEnergyCompat.insertEnergy(energy,ContainerItemContext.ofPlayerHand(player,hand),player).contextEnergy();
     }
 
 
     public static ItemContainerUtil.ItemEnergyContext insertEnergy(int energy, ItemStack stack) {
-        if (!hasTechReborn()) return new ItemContainerUtil.ItemEnergyContext(0,stack);
         return ItemContainerEnergyCompat.insertEnergy(energy,ContainerItemContext.withInitial(stack),null);
     }
 
 
     public static int extractEnergy(int energy, Player player, InteractionHand hand) {
-        if (!hasTechReborn()) return 0;
         return ItemContainerEnergyCompat.extractEnergy(energy,ContainerItemContext.ofPlayerHand(player,hand),player).contextEnergy();
     }
 
     public static ItemContainerUtil.ItemEnergyContext extractEnergy(int energy, ItemStack stack) {
-        if (!hasTechReborn()) return new ItemContainerUtil.ItemEnergyContext(0,stack);
         return ItemContainerEnergyCompat.extractEnergy(energy,ContainerItemContext.withInitial(stack),null);
     }
 
 
     public static int getEnergy(ItemStack stack) {
-        if (!hasTechReborn()) return 0;
         return ItemContainerEnergyCompat.getEnergy(stack);
     }
 

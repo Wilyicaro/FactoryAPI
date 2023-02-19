@@ -26,6 +26,9 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
+    include modApi("teamreborn:energy:2.3.0") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
     common(project(path: ":fabric-like", configuration: "namedElements")) { transitive false }
@@ -34,9 +37,25 @@ dependencies {
 
 processResources {
     inputs.property "version", project.version
+    inputs.property "mod_id", "${mod_id}"
+    inputs.property "mod_name", "${mod_name}"
+    inputs.property "mod_license", "${mod_license}"
+    inputs.property "mod_description", "${mod_description}"
+    inputs.property "mod_authors", "${mod_authors}"
+    inputs.property "mod_group", project.group
+    inputs.property "mod_source", "${mod_source}"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand (
+            "version" : project.version,
+            "mod_id" : "${mod_id}",
+            "mod_name" : "${mod_name}",
+            "mod_license" : "${mod_license}",
+            "mod_description" : "${mod_description}",
+            "mod_authors" : "${mod_authors}",
+            "mod_group" : project.group,
+            "mod_source" : "${mod_source}"
+            )
     }
 }
 
@@ -67,19 +86,5 @@ sourcesJar {
 components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
         skip()
-    }
-}
-
-publishing {
-    publications {
-        mavenFabric(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
-            from components.java
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
     }
 }

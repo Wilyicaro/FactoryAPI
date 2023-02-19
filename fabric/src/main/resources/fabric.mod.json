@@ -1,17 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "factory_api",
+  "id": "${mod_id}",
   "version": "${version}",
   "name": "Factory API",
-  "description": "It is an API that is the basis for the functioning of mods like Factocrafty, that work on different platforms of mod loaders.",
+  "description": "${mod_description}",
   "authors": [
-    "Wilyicaro"
+    "${mod_authors}"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "sources": "${mod_source}"
   },
-  "license": "MIT",
+  "license": "${mod_license}",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
@@ -25,6 +24,6 @@
   "depends": {
     "fabric": "*",
     "minecraft": ">=1.19.2",
-    "architectury": ">=6.2.43"
+    "architectury": ">=6.5.69"
   }
 }

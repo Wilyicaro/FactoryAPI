@@ -2,19 +2,26 @@ package wily.factoryapi.forge.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.energy.EnergyStorage;
 import org.checkerframework.checker.units.qual.K;
 import wily.factoryapi.base.IPlatformEnergyStorage;
 import wily.factoryapi.base.TransportState;
 
-public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergyStorage {
+public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergyStorage<ForgeEnergyStorage> {
     public static final String KEY = "energy";
 
     BlockEntity be;
-    public ForgeEnergyStorage(int capacity, BlockEntity be) {
+
+    protected TransportState transportState;
+    public ForgeEnergyStorage(int capacity, BlockEntity be, TransportState transportState) {
         super(capacity);
         this.be = be;
+        this.transportState = transportState;
+    }
+    public ForgeEnergyStorage(int capacity, BlockEntity be) {
+        this(capacity,be,TransportState.EXTRACT_INSERT);
     }
     public void onChanged(){
         be.setChanged();
@@ -48,13 +55,13 @@ public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergy
     }
 
     @Override
-    public Object getHandler() {
+    public ForgeEnergyStorage getHandler() {
         return this;
     }
 
     @Override
     public TransportState getTransport() {
-        return TransportState.EXTRACT_INSERT;
+        return transportState;
     }
 
     @Override
@@ -68,5 +75,40 @@ public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergy
     public void deserializeTag(CompoundTag nbt) {
         deserializeNBT(nbt.get(KEY) instanceof IntTag ? nbt.get(KEY) : IntTag.valueOf(0));
     }
+    public static ForgeEnergyStorage filtered(IPlatformEnergyStorage<ForgeEnergyStorage> energyStorage, TransportState transportState){
+        return new ForgeEnergyStorage(energyStorage.getMaxEnergyStored(), energyStorage.getHandler().be, transportState){
+            @Override
+            public int getEnergyStored() {
+                return energyStorage.getEnergyStored();
+            }
 
+            @Override
+            public void setEnergyStored(int energy) {
+                energyStorage.setEnergyStored(energy);
+            }
+
+            @Override
+            public Tag serializeNBT() {
+                return energyStorage.getHandler().serializeNBT();
+            }
+
+            @Override
+            public void deserializeNBT(Tag nbt) {
+                energyStorage.getHandler().deserializeNBT(nbt);
+            }
+
+            @Override
+            public int receiveEnergy(int maxReceive, boolean simulate) {
+                if (!transportState.canInsert()) return 0;
+                return energyStorage.receiveEnergy(maxReceive, simulate);
+            }
+
+            @Override
+            public int extractEnergy(int maxExtract, boolean simulate) {
+                if (!transportState.canExtract()) return 0;
+                return energyStorage.consumeEnergy(maxExtract, simulate);
+            }
+
+        };
+    }
 }

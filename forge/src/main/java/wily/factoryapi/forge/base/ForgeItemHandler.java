@@ -153,7 +153,9 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
 
     @Override
     public void setChanged() {
-        be.setChanged();
+        super.setChanged();
+        if (be != null)
+            be.setChanged();
     }
 
 

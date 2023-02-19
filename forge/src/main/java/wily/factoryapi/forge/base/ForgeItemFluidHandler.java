@@ -7,10 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import org.jetbrains.annotations.NotNull;
-import wily.factoryapi.base.IPlatformFluidHandler;
-import wily.factoryapi.base.IStorageItem;
-import wily.factoryapi.base.SlotsIdentifier;
-import wily.factoryapi.base.TransportState;
+import wily.factoryapi.base.*;
 
 import java.util.function.Predicate;
 
@@ -28,6 +25,9 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
         this.container = stack;
         this.validator = validator;
         this.transportState = transportState;
+    }
+    public ForgeItemFluidHandler(ItemStack stack, IFluidItem.FluidStorageBuilder builder) {
+        this(builder.Capacity(), stack, builder.validator(), builder.transportState());
     }
 
 

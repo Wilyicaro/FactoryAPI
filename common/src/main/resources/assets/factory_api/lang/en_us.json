@@ -28,6 +28,7 @@
   "tooltip.factory_api.fluid_stored": "%s: %s/%s",
   "tooltip.factory_api.energy_stored": "Energy: %s/%s",
   "tooltip.factory_api.energy": "%sCY",
+  "tooltip.factory_api.crafty_energy": "%sCY",
   "tooltip.factory_api.fluid": "%sB",
   "tooltip.factory_api.empty": "Empty"
 }

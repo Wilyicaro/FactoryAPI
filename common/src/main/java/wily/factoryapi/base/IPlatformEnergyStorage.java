@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Style;
 import wily.factoryapi.FactoryAPIPlatform;
 
-public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>,IPlatformHandlerApi
+public interface IPlatformEnergyStorage <T> extends ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>
 {
 
 

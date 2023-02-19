@@ -11,7 +11,7 @@ import wily.factoryapi.ItemContainerUtil;
 
 public class ItemContainerEnergyCompat {
     public static boolean isEnergyContainer(ItemStack stack) {
-        ContainerItemContext context = ContainerItemContext.withInitial(stack);
+        ContainerItemContext context = ContainerItemContext.withConstant(stack);
         return context.find(EnergyStorage.ITEM) != null;
     }
 
@@ -50,7 +50,7 @@ public class ItemContainerEnergyCompat {
     }
 
     public static int getEnergy(ItemStack stack) {
-        EnergyStorage handStorage = ContainerItemContext.withInitial(stack).find(EnergyStorage.ITEM);
+        EnergyStorage handStorage = ContainerItemContext.withConstant(stack).find(EnergyStorage.ITEM);
         if (handStorage != null)
             return (int) handStorage.getAmount();
         return 0;

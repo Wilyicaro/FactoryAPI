@@ -31,9 +31,8 @@ public class FactoryAPIPlatformImpl {
         return new ForgeItemHandler(inventorySize, be, TransportState.EXTRACT_INSERT);
     }
 
-    public static IPlatformFluidHandler<?> getFluidItemHandlerApi(long Capacity, ItemStack container, Predicate<FluidStack> validator, TransportState transportState) {
-
-        return new ForgeItemFluidHandler(Capacity,container,validator, transportState);
+    public static IPlatformFluidHandler<?> getFluidItemHandlerApi(ItemStack container, IFluidItem.FluidStorageBuilder builder) {
+        return new ForgeItemFluidHandler(container,builder);
     }
 
 
@@ -52,5 +51,9 @@ public class FactoryAPIPlatformImpl {
 
     public static Component getPlatformEnergyComponent() {
         return Component.literal("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
+    }
+
+    public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage energyStorage, TransportState transportState) {
+        return ForgeEnergyStorage.filtered(energyStorage,transportState);
     }
 }

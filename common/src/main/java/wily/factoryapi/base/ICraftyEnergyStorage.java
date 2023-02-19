@@ -4,7 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 
-public interface ICraftyEnergyStorage extends IPlatformEnergyStorage
+public interface ICraftyEnergyStorage extends IPlatformEnergyStorage<ICraftyEnergyStorage>
 {
 
 

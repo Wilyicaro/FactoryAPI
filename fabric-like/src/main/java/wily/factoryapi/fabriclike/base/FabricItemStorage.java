@@ -30,7 +30,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
 
     protected BiPredicate<Integer,ItemStack> extractableSlots = (i,stack)-> true;
     protected BiPredicate<Integer,ItemStack> insertableSlots = (i,stack)-> true;
-    public FabricItemStorage(int inventorySize, BlockEntity be,TransportState transportState){
+    public FabricItemStorage(int inventorySize, @Nullable BlockEntity be,TransportState transportState){
         super(inventorySize);
         this.be = be;
         this.transportState = transportState;
@@ -239,7 +239,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     @Override
     public void setChanged() {
         super.setChanged();
-        be.setChanged();
+        if (be != null) be.setChanged();
     }
     protected Storage<ItemVariant> inventoryStorage = InventoryStorage.of(this, null);
 

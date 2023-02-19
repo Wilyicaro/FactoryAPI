@@ -12,10 +12,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import wily.factoryapi.base.IPlatformFluidHandler;
-import wily.factoryapi.base.IStorageItem;
-import wily.factoryapi.base.SlotsIdentifier;
-import wily.factoryapi.base.TransportState;
+import wily.factoryapi.base.*;
 
 
 import java.util.function.Predicate;
@@ -31,6 +28,9 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     protected TransportState transportState;
     public FabricItemFluidStorage(ContainerItemContext c, long Capacity){
         this(c, Capacity, f -> true, TransportState.EXTRACT_INSERT);
+    }
+    public FabricItemFluidStorage(ContainerItemContext c, IFluidItem.FluidStorageBuilder builder){
+        this(c,builder.Capacity(), builder.validator(),builder.transportState());
     }
 public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<FluidStack> validator, TransportState transportState){
     super(c);

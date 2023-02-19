@@ -35,7 +35,7 @@ public class FactoryAPIPlatform {
     }
 
     @ExpectPlatform
-    public static IPlatformFluidHandler getFluidItemHandlerApi(long Capacity, ItemStack container, Predicate<FluidStack> validator, TransportState transportState) {
+    public static IPlatformFluidHandler getFluidItemHandlerApi(ItemStack container, IFluidItem.FluidStorageBuilder builder) {
 
         throw new AssertionError();
     }
@@ -52,6 +52,10 @@ public class FactoryAPIPlatform {
 
     @ExpectPlatform
     public static IPlatformFluidHandler filteredOf(IPlatformFluidHandler fluidHandler, TransportState transportState) {
+        throw new AssertionError();
+    }
+    @ExpectPlatform
+    public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage fluidHandler, TransportState transportState) {
         throw new AssertionError();
     }
 

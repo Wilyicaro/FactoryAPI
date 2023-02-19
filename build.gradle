@@ -1,6 +1,7 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.0.+" apply false
+    id("org.jetbrains.changelog") version "2.0.0"
     id 'maven-publish'
 }
 
@@ -31,7 +32,10 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-    archivesBaseName = rootProject.archives_base_name + "-" + project.name[0].toUpperCase() + project.name.substring(1)
+
+    var modPlatformName = project.name[0].toUpperCase() + project.name.substring(1)
+
+    archivesBaseName = rootProject.archives_base_name + "-" + modPlatformName
     version = minecraft_version + "-" + mod_version
     group = rootProject.maven_group
 
@@ -42,7 +46,65 @@ allprojects {
         // See https://docs.gradle.org/current/userguide/declaring_repositories.html
         // for more information about repositories.
     }
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = "${project.mod_id}-${project.name}"
+                version = version
 
+                pom {
+                    name = "${mod_name} [${modPlatformName}]"
+                    description = "${mod_description}"
+                    url = "${mod_source}"
+                    scm {
+                        url = "${mod_source}"
+                        connection = "${mod_source}".replace("https", "scm:git:git").concat(".git")
+                        developerConnection = "${mod_source}".replace("https://github.com/", "scm:git:git@github.com:").concat(".git")
+                    }
+                    issueManagement {
+                        system = 'github'
+                        url = "${mod_source}/issues"
+                    }
+                    licenses {
+                        license {
+                            name = 'MPL-2'
+                            url = 'https://www.mozilla.org/en-US/MPL/2.0/'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "${mod_authors}".toLowerCase()
+                            name = "${mod_authors}"
+                        }
+                    }
+                }
+                // this is necessary when not using 'from components.java', otherwise dependencies block will still be empty at this point
+                afterEvaluate {
+                    // exclude certain dependencies when publishing to maven
+                    // from https://stackoverflow.com/a/50121790
+                    pom.withXml {
+                        asNode().dependencies.dependency.each { dep ->
+                            // use this approach to make excluding dependencies from Curse Maven more convenient
+                            if (["curse.maven:","dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
+                                assert dep.parent().remove(dep)
+                            } 
+                        }
+                    }
+                }
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                name = 'GitHubPackages'
+                url uri("$mod_mvngit_source")
+                credentials{
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
+                }
+            }
+        }
+    }
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
         options.release = 17

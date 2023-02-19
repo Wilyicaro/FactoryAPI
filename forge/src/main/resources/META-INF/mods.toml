@@ -1,16 +1,14 @@
 modLoader = "javafml"
 loaderVersion = "[43,)"
 #issueTrackerURL = ""
-license = "MIT"
+license = "${mod_license}"
 
 [[mods]]
-modId = "factory_api"
+modId = "${mod_id}"
 version = "${version}"
-displayName = "Factory API"
-authors = "Wilyicaro"
-description = '''
-It is an API that is the basis for the functioning of mods like Factocrafty, that work on different platforms of mod loaders.
-'''
+displayName = "${mod_name}"
+authors = "${mod_authors}"
+description = "${mod_description}"
 logoFile = "icon.png"
 
 [[dependencies.factory_api]]
