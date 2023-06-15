@@ -10,12 +10,16 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantItemStorage
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
 
 
 import java.util.function.Predicate;
+
+import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
 public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVariant> implements IPlatformFluidHandler<Storage<FluidVariant>>, IStorageItem {
 
@@ -32,13 +36,14 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     public FabricItemFluidStorage(ContainerItemContext c, IFluidItem.FluidStorageBuilder builder){
         this(c,builder.Capacity(), builder.validator(),builder.transportState());
     }
-public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<FluidStack> validator, TransportState transportState){
-    super(c);
-    context = c;
-    this.Capacity = Capacity;
-    this.validator = validator;
-    this.transportState = transportState;
-}
+
+    public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<FluidStack> validator, TransportState transportState){
+        super(c);
+        context = c;
+        this.Capacity = Capacity;
+        this.validator = validator;
+        this.transportState = transportState;
+    }
 
 
     @Override
@@ -71,17 +76,19 @@ public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<Fl
 
     private CompoundTag getUpdatedTag(FluidStack newStack){
         ItemStack stack = context.getItemVariant().toStack();
+        boolean b = (ItemContainerUtil.isBlockItem(stack));
         CompoundTag tag = stack.getOrCreateTag();
+        if (b) tag = tag.getCompound(BLOCK_ENTITY_TAG);
         CompoundTag newTag = new CompoundTag();
         newTag.put("fluidVariant",FluidStackHooksFabric.toFabric(newStack).toNbt());
         newTag.putLong("amount", newStack.getAmount());
-        tag.put("fluidStorage", newTag);
-        return tag;
+        tag.put( b ? "singleTank" : "fluidStorage", newTag);
+        if (b) stack.getTag().put(BLOCK_ENTITY_TAG, tag);
+        return stack.getTag();
     }
 
-
     private CompoundTag getFluidCompound(ItemStack stack){
-        return stack.getOrCreateTag().getCompound("fluidStorage");
+        return ItemContainerUtil.isBlockItem(stack) ?  stack.getOrCreateTag().getCompound(BLOCK_ENTITY_TAG).getCompound("singleTank") :stack.getOrCreateTag().getCompound("fluidStorage");
     }
 
 

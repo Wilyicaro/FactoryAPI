@@ -75,6 +75,10 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
         return newFluidHandler;
     }
 
+    @Override
+    protected void onContentsChanged() {
+        be.setChanged();
+    }
 
     @Override
     public @NotNull FluidStack getFluidStack() {

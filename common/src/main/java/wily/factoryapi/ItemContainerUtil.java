@@ -4,6 +4,7 @@ import dev.architectury.fluid.FluidStack;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemContainerUtil {
@@ -14,6 +15,7 @@ public class ItemContainerUtil {
     public record ItemEnergyContext(int contextEnergy, ItemStack container) {
 
     }
+    public static boolean isBlockItem(ItemStack s){return s.getItem() instanceof BlockItem;}
     @ExpectPlatform
     public static boolean isFluidContainer(ItemStack stack){
         throw new AssertionError();

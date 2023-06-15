@@ -10,11 +10,11 @@ import dev.architectury.hooks.fluid.FluidStackHooks;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 public class FluidRenderUtil {
-    public static void renderTiledFluid( int posX, int posY,int i, int j, int renderAmount, int sizeX, int sizeY, FluidStack fluid, boolean hasColor){
+    public static void renderTiledFluid( int posX, int posY,int i, int j, int renderAmount, int width, int height, FluidStack fluid, boolean hasColor){
 
         TextureAtlasSprite fluidSprite = fluidSprite(fluid, hasColor);
         RenderSystem.setShaderTexture(0, fluidSprite.atlasLocation());
-        int drawWidth = Math.min(sizeX - i, 16);
+        int drawWidth = Math.min(width - i, 16);
         int drawHeight = Math.min(renderAmount - j, 16);
 
         int drawX = posX + i;

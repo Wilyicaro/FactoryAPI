@@ -7,6 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.inventory.AbstractFurnaceMenu;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ICraftyEnergyStorage;
@@ -51,32 +54,39 @@ public class StorageStringUtil {
         return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,millerEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
     }
 
-    public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell){
+    public static List<Component> getCompleteEnergyTooltip(String key, @Nullable Component burned, ICraftyEnergyStorage cell){
         List<Component> list = new ArrayList<>(List.of());
-        list.add(getEnergyTooltip(key,cell));
-        if (isShiftKeyDown() || cell.getStoredTier().isBurned()) list.add(cell.getStoredTier().getEnergyTierComponent());
+        if (burned == null || !cell.getStoredTier().isBurned())list.add(getEnergyTooltip(key,cell));
+        else list.add(burned.copy().withStyle(ChatFormatting.DARK_RED));
+        list.add(cell.getStoredTier().getEnergyTierComponent(true));
+        if (isShiftKeyDown()) list.add(cell.getSupportedTier().getEnergyTierComponent(false));
         return list;
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
-        return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid()).withStyle(tank.identifier().color());
+    public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell) {
+        return getCompleteEnergyTooltip(key,null,cell);
     }
-    public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid){
-        if (stack.isFluidEqual(FluidStack.empty())) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
+        return getFluidTooltip(key,tank,true);
+    }
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank, boolean showEmpty){
+        return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid(),showEmpty).withStyle(tank.identifier().color());
+    }
+    public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid, boolean showEmpty){
+        if (stack.isEmpty() && !isShiftKeyDown() && showEmpty) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
         return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
     }
     public static String getStorageAmount(int content, boolean additionalBool, String minimal, String min, String max){
-
         String amount = formatMinAmount( (float) content / 1000) + min;
         if (content >= 1000000) amount = formatMinAmount( (float) content / 1000000) + minimal;
         if (additionalBool || content < 1000) amount = formatAmount(content) + max;
         return amount;
     }
-    protected static String formatAmount(long i){
+    public static String formatAmount(long i){
         return String.format( "%,d", i).replace(',', '.');
     }
 
-    protected static String formatMinAmount(float i){ return  new DecimalFormat("0.####").format(Float.parseFloat(String.format(Locale.US,"%.1f",i)));}
-    protected static long calculateFluid(long amount, int multiplier){
+    public static String formatMinAmount(float i){ return  new DecimalFormat("0.####").format(Float.parseFloat(String.format(Locale.US,"%.1f",i)));}
+    public static long calculateFluid(long amount, int multiplier){
         return amount * multiplier / FluidStack.bucketAmount();
     }
     public static String getBetweenParenthesis(String name){

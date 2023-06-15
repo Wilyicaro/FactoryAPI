@@ -75,7 +75,7 @@ public class ItemContainerUtilImpl {
                 try (Transaction transaction = Transaction.openOuter()) {
                     context.exchange(ItemVariant.of(fluidStack.getFluid().getBucket()), 1, transaction);
                     if (player != null) {
-                        player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
+                        player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
 
                         if (!player.isCreative()) transaction.commit();
                     }
@@ -89,7 +89,7 @@ public class ItemContainerUtilImpl {
                 try (Transaction nested = transaction.openNested()) {
                     fluidStack.setAmount(handStorage.insert(FluidStackHooksFabric.toFabric(fluidStack), fluidStack.getAmount(), nested));
                     if (player != null) {
-                         player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
+                         player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
 
                         if (!player.isCreative()) nested.commit();
                     }else nested.commit();
@@ -110,7 +110,7 @@ public class ItemContainerUtilImpl {
                 try (Transaction transaction = Transaction.openOuter()) {
                     context.exchange(ItemVariant.of(Items.BUCKET), 1, transaction);
                     if (player != null) {
-                        player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(FluidVariant.of(bucketFluid)), SoundSource.BLOCKS, 1.0F, 1.0F);
+                        player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(FluidVariant.of(bucketFluid)), SoundSource.BLOCKS, 1.0F, 1.0F);
                         if (!player.isCreative()) {
                             transaction.commit();
                         }
@@ -126,7 +126,7 @@ public class ItemContainerUtilImpl {
                 try (Transaction transaction = Transaction.openOuter()) {
                     long amount = view.extract(storedResource ,maxDrain, transaction);
                     if (player != null) {
-                        player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(storedResource), SoundSource.BLOCKS, 1.0F, 1.0F);
+                        if (amount > 0)player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(storedResource), SoundSource.BLOCKS, 1.0F, 1.0F);
                         if (!player.isCreative()) {
                             transaction.commit();
                         }

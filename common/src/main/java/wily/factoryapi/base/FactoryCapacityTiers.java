@@ -1,6 +1,7 @@
 package wily.factoryapi.base;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import wily.factoryapi.FactoryAPI;
@@ -33,8 +34,15 @@ public enum FactoryCapacityTiers {
         this.capacityMultiplier = multiplier;
     }
 
-    public MutableComponent getEnergyTierComponent(){
-        return Component.translatable("tier.factory_api.energy").withStyle(ChatFormatting.AQUA).append(localizedName);
+    public MutableComponent getEnergyTierComponent(boolean isStored){
+        return getComponent("energy",isStored);
+    }
+    public MutableComponent getTierComponent(boolean isStored){
+        return getComponent("capacity",isStored);
+    }
+    public MutableComponent getComponent(String keyType, boolean isStored){
+        String stored = isStored ? I18n.get("tier.factory_api.stored") : "";
+        return Component.translatable("tier.factory_api.display",I18n.get("tier.factory_api." + keyType,stored)).withStyle(ChatFormatting.AQUA).append(localizedName);
     }
     public boolean supportTier(FactoryCapacityTiers tier){return tier.ordinal() >= ordinal();}
     public double getConductivity() {

@@ -71,7 +71,7 @@ public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
 
     @Override
     public SlotsIdentifier identifier() {
-        return SlotsIdentifier.AQUA;
+        return SlotsIdentifier.ENERGY;
     }
 
 
