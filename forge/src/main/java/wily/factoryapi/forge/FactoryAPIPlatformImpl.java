@@ -1,13 +1,13 @@
 package wily.factoryapi.forge;
 
-import dev.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.loading.FMLPaths;
-import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.*;
 import wily.factoryapi.forge.base.ForgeEnergyStorage;
 import wily.factoryapi.forge.base.ForgeFluidHandler;
@@ -50,10 +50,14 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static Component getPlatformEnergyComponent() {
-        return Component.literal("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
+        return new TextComponent("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
     }
 
     public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage energyStorage, TransportState transportState) {
         return ForgeEnergyStorage.filtered(energyStorage,transportState);
+    }
+
+    public static long getBucketAmount() {
+        return 1000;
     }
 }

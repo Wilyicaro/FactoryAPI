@@ -3,6 +3,7 @@ package wily.factoryapi.base;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Map;
@@ -31,7 +32,7 @@ public enum TransportState implements StringRepresentable, IHasIdentifier {
         return this.name;
     }
     public Component getTooltip(){
-        return Component.translatable("tooltip.factory_api.config.transport." + name);
+        return new TranslatableComponent("tooltip.factory_api.config.transport." + name);
     }
 
     public boolean isUsable() {
@@ -71,7 +72,7 @@ public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
 
     @Override
     public SlotsIdentifier identifier() {
-        return SlotsIdentifier.AQUA;
+        return SlotsIdentifier.ENERGY;
     }
 
 

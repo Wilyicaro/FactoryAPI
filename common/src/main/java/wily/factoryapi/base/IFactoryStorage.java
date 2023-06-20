@@ -1,5 +1,6 @@
 package wily.factoryapi.base;
 
+import com.google.common.collect.Lists;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -19,13 +20,16 @@ public interface IFactoryStorage {
 
 
     default <T> void replaceSidedStorage(BlockSide blockSide,Map<Direction, T> side, T replacement){
-        if (this instanceof BlockEntity be) side.replace(blockSide.blockStateToFacing(be.getBlockState()), replacement);
+        if (this instanceof BlockEntity) {
+            BlockEntity be = (BlockEntity) this;
+            side.replace(blockSide.blockStateToFacing(be.getBlockState()), replacement);
+        }
     }
 
 
 
     default List<IPlatformFluidHandler> getTanks(){
-        List<IPlatformFluidHandler> list = new ArrayList<>(List.of());
+        List<IPlatformFluidHandler> list = new ArrayList<>();
         addTanks(list);
         return list;
     }
@@ -59,11 +63,11 @@ public interface IFactoryStorage {
     }
 
     default Map<SlotsIdentifier, int[]> itemSlotsIdentifiers() {
-        Map<SlotsIdentifier, int[]> map = new TreeMap<>(Comparator.comparingInt(SlotsIdentifier::differential));
+        Map<SlotsIdentifier, int[]> map = new TreeMap<>(Comparator.comparingInt((d)-> d.differential));
         for( FactoryItemSlot slot : getSlots(null)){
             int[] list =  map.getOrDefault(slot.identifier(), new int[]{});
-            if (ArrayUtils.contains(list,slot.getContainerSlot())) continue;
-            list = ArrayUtils.add(list,slot.getContainerSlot());
+            if (ArrayUtils.contains(list,slot.slot)) continue;
+            list = ArrayUtils.add(list,slot.slot);
             map.put(slot.identifier(),list);
         }
         return map;
@@ -73,7 +77,7 @@ public interface IFactoryStorage {
         return Collections.emptyList();
     }
     default List<SlotsIdentifier> getSlotsIdentifiers(){
-        return List.copyOf(itemSlotsIdentifiers().keySet());
+        return Lists.newArrayList(itemSlotsIdentifiers().keySet());
     }
     default void loadTag(CompoundTag compoundTag) {
         getStorage(Storages.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("CYEnergy")));

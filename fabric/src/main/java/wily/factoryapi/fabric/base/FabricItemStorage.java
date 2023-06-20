@@ -6,7 +6,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,7 +37,14 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
         this.be = be;
         this.transportState = transportState;
     }
-
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        if (be.getLevel().getBlockEntity(be.getBlockPos()) != be) {
+            return false;
+        } else {
+            return player.distanceToSqr((double)be.getBlockPos().getX() + 0.5, (double)be.getBlockPos().getY() + 0.5, (double)be.getBlockPos().getZ() + 0.5) <= 64.0;
+        }
+    }
 
     @Override
     public boolean canTakeItemThroughFace(int i, ItemStack itemStack, @Nullable Direction direction) {
@@ -201,7 +210,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
 
     @Override
     public boolean canPlaceItem(int i, ItemStack itemStack) {
-        if (be instanceof IFactoryStorage storage) return storage.getSlots(null).get(i).mayPlace(itemStack);
+        if (be instanceof IFactoryStorage) return ((IFactoryStorage)be).getSlots(null).get(i).mayPlace(itemStack);
         return true;
     }
 

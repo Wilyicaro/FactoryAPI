@@ -24,9 +24,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
+    modApi "me.shedaniel:architectury-fabric:${rootProject.architectury_version}"
 
-    include modApi("teamreborn:energy:2.3.0") {
+    include modApi("teamreborn:energy:0.1.1") {
         exclude(group: "net.fabricmc.fabric-api")
     }
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
@@ -61,18 +61,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier = "dev-shadow"
 }
 
 remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier = null
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier = "dev"
 }
 
 sourcesJar {

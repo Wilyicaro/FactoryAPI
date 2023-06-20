@@ -1,8 +1,10 @@
 package wily.factoryapi.base;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import wily.factoryapi.FactoryAPI;
 
 import java.util.ArrayList;
@@ -11,12 +13,12 @@ import java.util.Optional;
 
 public enum FactoryCapacityTiers {
 
-    BURNED(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".burned").withStyle(ChatFormatting.DARK_RED),0, 0 ,0),
-    BASIC(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".basic").withStyle(ChatFormatting.GRAY),0.2, 800 ,1),
-    ADVANCED(Component.translatable("tier."+FactoryAPI.MOD_ID + ".advanced").withStyle(ChatFormatting.RED),0.6, 2000,3),
-    HIGH(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".high").withStyle(ChatFormatting.BLUE),0.5, 4000,8),
-    ULTIMATE(Component.translatable("tier."+FactoryAPI.MOD_ID + ".ultimate").withStyle(ChatFormatting.DARK_PURPLE),0.63, 5000,10),
-    QUANTUM(Component.translatable("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16);
+    BURNED(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".burned").withStyle(ChatFormatting.DARK_RED),0, 0 ,0),
+    BASIC(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".basic").withStyle(ChatFormatting.GRAY),0.2, 800 ,1),
+    ADVANCED(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".advanced").withStyle(ChatFormatting.RED),0.6, 2000,3),
+    HIGH(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".high").withStyle(ChatFormatting.BLUE),0.5, 4000,8),
+    ULTIMATE(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".ultimate").withStyle(ChatFormatting.DARK_PURPLE),0.63, 5000,10),
+    QUANTUM(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16);
 
     
     private final double conductivity;
@@ -33,8 +35,15 @@ public enum FactoryCapacityTiers {
         this.capacityMultiplier = multiplier;
     }
 
-    public MutableComponent getEnergyTierComponent(){
-        return Component.translatable("tier.factory_api.energy").withStyle(ChatFormatting.AQUA).append(localizedName);
+    public MutableComponent getEnergyTierComponent(boolean isStored){
+        return getComponent("energy",isStored);
+    }
+    public MutableComponent getTierComponent(boolean isStored){
+        return getComponent("capacity",isStored);
+    }
+    public MutableComponent getComponent(String keyType, boolean isStored){
+        String stored = isStored ? I18n.get("tier.factory_api.stored") : "";
+        return new TranslatableComponent("tier.factory_api.display",I18n.get("tier.factory_api." + keyType,stored)).withStyle(ChatFormatting.AQUA).append(localizedName);
     }
     public boolean supportTier(FactoryCapacityTiers tier){return tier.ordinal() >= ordinal();}
     public double getConductivity() {

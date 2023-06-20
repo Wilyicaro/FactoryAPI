@@ -1,14 +1,18 @@
 package wily.factoryapi.fabric;
 
-import dev.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import wily.factoryapi.base.*;
@@ -45,8 +49,8 @@ public class FactoryAPIPlatformImpl {
     public static IPlatformFluidHandler getFluidItemHandlerApi(ItemStack container, IFluidItem.FluidStorageBuilder builder) {
         // Just throw an error, the content should get replaced at runtime.
         Storage<FluidVariant> handStorage = ContainerItemContext.withInitial(container).find(FluidStorage.ITEM);
-        if (handStorage instanceof  IPlatformFluidHandler p) return p;
-        return new FabricItemFluidStorage(ContainerItemContext.withConstant(container),builder);
+        if (handStorage instanceof  IPlatformFluidHandler) return (IPlatformFluidHandler<?>) handStorage;
+        return new FabricItemFluidStorage(ContainerItemContext.ofSingleSlot(InventoryStorage.of(new SimpleContainer(container),null).getSlot(0)),builder);
     }
 
     public static IPlatformEnergyStorage getEnergyStorageApi(int Capacity, BlockEntity be) {
@@ -54,10 +58,14 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static Component getPlatformEnergyComponent() {
-        return Component.literal("Energy (E)").withStyle(ChatFormatting.GOLD);
+        return new TextComponent("Energy (E)").withStyle(ChatFormatting.GOLD);
     }
 
     public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage fluidHandler, TransportState transportState) {
         return FabricEnergyStorage.filtered(fluidHandler, transportState);
+    }
+
+    public static long getBucketAmount() {
+        return FluidConstants.BUCKET;
     }
 }

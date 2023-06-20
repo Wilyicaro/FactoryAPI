@@ -1,7 +1,7 @@
 package wily.factoryapi;
 
-import dev.architectury.fluid.FluidStack;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -25,6 +25,11 @@ public class FactoryAPIPlatform {
     @ExpectPlatform
     public static IPlatformFluidHandler getFluidHandlerApi(long Capacity, BlockEntity be, Predicate<FluidStack> validator, SlotsIdentifier differential, TransportState transport) {
 
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static long getBucketAmount() {
         throw new AssertionError();
     }
 

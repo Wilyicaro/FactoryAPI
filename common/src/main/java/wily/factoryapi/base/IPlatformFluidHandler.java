@@ -1,6 +1,6 @@
 package wily.factoryapi.base;
 
-import dev.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +79,7 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
     FluidStack drain(int maxDrain, boolean simulate);
 
     default long getTotalSpace(){
-        return Math.max(0, getMaxFluid() - getFluidStack().getAmount());
+        return Math.max(0, getMaxFluid() - getFluidStack().getAmount().longValue());
     }
 
 

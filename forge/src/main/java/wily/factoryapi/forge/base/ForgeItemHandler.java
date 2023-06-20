@@ -3,10 +3,13 @@ package wily.factoryapi.forge.base;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
@@ -145,7 +148,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
 
     @Override
     public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
-        if (be instanceof IFactoryStorage storage) return storage.getSlots(null).get(slot).mayPlace(stack);
+        if (be instanceof IFactoryStorage) return ((IFactoryStorage)be).getSlots(null).get(slot).mayPlace(stack);
         return true;
     }
 
@@ -175,6 +178,15 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
+    }
+
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        if (be.getLevel().getBlockEntity(be.getBlockPos()) != be) {
+            return false;
+        } else {
+            return player.distanceToSqr((double)be.getBlockPos().getX() + 0.5, (double)be.getBlockPos().getY() + 0.5, (double)be.getBlockPos().getZ() + 0.5) <= 64.0;
+        }
     }
 
     @Override

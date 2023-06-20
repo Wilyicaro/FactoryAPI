@@ -19,7 +19,7 @@ public class FluidSide implements ISideType<FluidSide,IPlatformFluidHandler> {
     public static CompoundTag serializeTag(Map<Direction,FluidSide> sided) {
         CompoundTag sides = new CompoundTag();
         for (Direction direction : Direction.values())
-            sides.putIntArray(direction.getName(), new int[]{sided.get(direction).identifier().differential(),sided.get(direction).transportState.ordinal()});
+            sides.putIntArray(direction.getName(), new int[]{sided.get(direction).identifier().differential,sided.get(direction).transportState.ordinal()});
         return sides;
     }
 
@@ -35,7 +35,7 @@ public class FluidSide implements ISideType<FluidSide,IPlatformFluidHandler> {
 
     @Override
     public int nextSlotIndex(List<IPlatformFluidHandler> tanks) {
-        int i = identifier().differential() + 1;
+        int i = identifier().differential + 1;
         int b = i < tanks.size() ? i : 0;
         setFluidHandler(tanks.get(b));
         return b;

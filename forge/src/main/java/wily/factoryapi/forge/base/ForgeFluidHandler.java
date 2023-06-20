@@ -1,7 +1,7 @@
 package wily.factoryapi.forge.base;
 
-import dev.architectury.fluid.FluidStack;
-import dev.architectury.hooks.fluid.forge.FluidStackHooksForge;
+import me.shedaniel.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.utils.Fraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.base.IPlatformFluidHandler;
 import wily.factoryapi.base.SlotsIdentifier;
 import wily.factoryapi.base.TransportState;
+import wily.factoryapi.forge.utils.FluidStackUtil;
 
 import java.util.function.Predicate;
 
@@ -75,10 +76,14 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
         return newFluidHandler;
     }
 
+    @Override
+    protected void onContentsChanged() {
+        be.setChanged();
+    }
 
     @Override
     public @NotNull FluidStack getFluidStack() {
-        return FluidStackHooksForge.fromForge(getFluid());
+        return FluidStackUtil.fromForge(getFluid());
     }
 
     @Override
@@ -108,17 +113,17 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
 
     @Override
     public long fill(FluidStack resource, boolean simulate) {
-        return fill(FluidStackHooksForge.toForge(resource), FluidMultiUtil.FluidActionof(simulate));
+        return fill(FluidStackUtil.toForge(resource), FluidStackUtil.FluidActionof(simulate));
     }
 
     @Override
     public @NotNull FluidStack drain(FluidStack resource, boolean simulate) {
-        return FluidStackHooksForge.fromForge(drain(FluidStackHooksForge.toForge(resource), (FluidMultiUtil.FluidActionof(simulate))));
+        return FluidStackUtil.fromForge(drain(FluidStackUtil.toForge(resource), (FluidStackUtil.FluidActionof(simulate))));
     }
 
     @Override
     public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
-        return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
+        return drain(FluidStack.create(getFluid().getFluid(), Fraction.ofWhole(maxDrain)), simulate);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
 
     @Override
     public void setFluid(FluidStack fluidStack) {
-        setFluid(FluidStackHooksForge.toForge(fluidStack));
+        setFluid(FluidStackUtil.toForge(fluidStack));
     }
 
 

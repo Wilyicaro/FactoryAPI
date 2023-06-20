@@ -12,22 +12,22 @@ public enum BlockSide {
         else if (blockState.getOptionalValue(BlockStateProperties.FACING).isPresent()) return convertToFacing(blockState.getValue(BlockStateProperties.FACING));
         return null;
     }
-    public Direction convertToHorizontalFacing(Direction BlockStateDirection){
+    public Direction convertToHorizontalFacing(Direction blockStateDirection){
         switch (this){
             case TOP:
                 return Direction.UP;
             case BOTTOM:
                 return Direction.DOWN;
             case RIGHT:
-                return BlockStateDirection.getCounterClockWise();
+                return blockStateDirection.getCounterClockWise();
             case LEFT:
-                return BlockStateDirection.getClockWise();
+                return blockStateDirection.getClockWise();
             case FRONT:
-                return BlockStateDirection;
+                return blockStateDirection;
             case BACK:
-                return BlockStateDirection.getOpposite();
+                return blockStateDirection.getOpposite();
         }
-        return BlockStateDirection;
+        return blockStateDirection;
     }
     public Direction convertToFacing(Direction d){
         if (this == FRONT)
@@ -45,7 +45,7 @@ public enum BlockSide {
                 return d.getClockWise();
         }else {
             if (this == TOP || this == BOTTOM)
-                return d.getClockWise(Direction.Axis.X);
+                return d == Direction.DOWN ? Direction.SOUTH : Direction.NORTH;
             if (this == RIGHT)
                 return Direction.WEST;
             if (this == LEFT)

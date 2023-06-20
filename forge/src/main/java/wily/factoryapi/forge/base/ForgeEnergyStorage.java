@@ -2,10 +2,9 @@ package wily.factoryapi.forge.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
-import org.checkerframework.checker.units.qual.K;
 import wily.factoryapi.base.IPlatformEnergyStorage;
 import wily.factoryapi.base.TransportState;
 
@@ -67,13 +66,13 @@ public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergy
     @Override
     public CompoundTag serializeTag() {
         CompoundTag tag = new CompoundTag();
-        tag.put(KEY, serializeNBT());
+        tag.put(KEY, CapabilityEnergy.ENERGY.writeNBT(this,null));
         return tag;
     }
 
     @Override
     public void deserializeTag(CompoundTag nbt) {
-        deserializeNBT(nbt.get(KEY) instanceof IntTag ? nbt.get(KEY) : IntTag.valueOf(0));
+        CapabilityEnergy.ENERGY.readNBT(this,null,nbt.get(KEY) instanceof IntTag ? nbt.get(KEY) : IntTag.valueOf(0));
     }
     public static ForgeEnergyStorage filtered(IPlatformEnergyStorage<ForgeEnergyStorage> energyStorage, TransportState transportState){
         return new ForgeEnergyStorage(energyStorage.getMaxEnergyStored(), energyStorage.getHandler().be, transportState){
@@ -88,13 +87,13 @@ public class ForgeEnergyStorage extends EnergyStorage implements IPlatformEnergy
             }
 
             @Override
-            public Tag serializeNBT() {
-                return energyStorage.getHandler().serializeNBT();
+            public CompoundTag serializeTag() {
+                return energyStorage.getHandler().serializeTag();
             }
 
             @Override
-            public void deserializeNBT(Tag nbt) {
-                energyStorage.getHandler().deserializeNBT(nbt);
+            public void deserializeTag(CompoundTag nbt) {
+                energyStorage.getHandler().deserializeTag(nbt);
             }
 
             @Override

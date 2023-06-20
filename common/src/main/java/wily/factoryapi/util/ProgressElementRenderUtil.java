@@ -2,51 +2,41 @@ package wily.factoryapi.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import org.jetbrains.annotations.Nullable;
-import wily.factoryapi.base.ProgressType;
+import net.minecraft.client.gui.GuiComponent;
+import wily.factoryapi.base.FactoryDrawableType;
 
 
 @Environment(value = EnvType.CLIENT)
 public class ProgressElementRenderUtil {
+    public static Minecraft minecraft = Minecraft.getInstance();
 
 
-    public static void renderDefaultProgress(PoseStack matrix, @Nullable AbstractContainerScreen<?> abstractContainerScreen, int x, int y, int progress, ProgressType type){
-        Screen screen = Minecraft.getInstance().screen;
-        boolean bl = type.Plane == ProgressType.Direction.HORIZONTAL;
-        boolean bl2 = type.Plane == ProgressType.Direction.VERTICAL;
-        if (abstractContainerScreen !=null){
-            screen = abstractContainerScreen;
+    public static void renderDefaultProgress(PoseStack matrix, int x, int y, int progress, FactoryDrawableType.DrawableProgress type){
+        if (type.reverse) {
+            if (type.plane.isHorizontal()) x+= type.width - progress;
+            else y+= type.height - progress;
         }
-        if (type.isReverse) {
-            if (bl) x+= type.sizeX - progress;
-            if (bl2) y+= type.sizeY - progress;
-        }
-        RenderSystem.setShaderTexture(0, type.texture);
+        minecraft.getTextureManager().bind( type.texture);
         if(progress > 0) {
-            if (bl)
-                screen.blit(matrix,  x,  y, type.uvX, type.uvY, progress, type.sizeY);
-            if (bl2)
-                screen.blit(matrix,  x,  y + type.sizeY - progress, type.uvX, type.uvY + (type.sizeY - progress), type.sizeX,  progress );
+            if (type.plane.isHorizontal())
+                GuiComponent.blit(matrix,  x,  y, type.uvX, type.uvY, progress, type.height,256,256);
+            else
+                GuiComponent.blit(matrix,  x,  y + type.height - progress, type.uvX, type.uvY + (type.height - progress), type.width, progress,256,256);
         }
     }
 
-    public static void renderFluidTank(PoseStack matrix, @Nullable AbstractContainerScreen<?> abstractContainerScreen, int x, int y, int progress, ProgressType type, FluidStack stack, boolean hasColor){
-        Screen screen = Minecraft.getInstance().screen;
-        if (abstractContainerScreen !=null){
-            screen = abstractContainerScreen;
-        }
+    public static void renderFluidTank(PoseStack poseStack, int x, int y, int progress, FactoryDrawableType type, FluidStack stack, boolean hasColor){
+
         if (progress > 0) {
             RenderSystem.enableBlend();
             progress /= 1.3;
-            int fluidWidth = type.sizeX;
-            int fluidHeight = (type.sizeY );
-            int posY = y + type.sizeY - progress;
+            int fluidWidth = type.width;
+            int fluidHeight = (type.height );
+            int posY = y + type.height - progress;
 
             for (int i = 0; i < fluidWidth; i += 16) {
                 for (int j = 0; j < progress; j += 16) {
@@ -55,11 +45,11 @@ public class ProgressElementRenderUtil {
             }
 
             RenderSystem.disableBlend();
-            RenderSystem.setShaderColor(1, 1, 1, 1);
+            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0,type.texture);
-        screen.blit(matrix,x,y, type.uvX, type.uvY, type.sizeX,type.sizeY);
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        minecraft.getTextureManager().bind(type.texture);
+        type.draw(poseStack,x,y);
     }
 
 }

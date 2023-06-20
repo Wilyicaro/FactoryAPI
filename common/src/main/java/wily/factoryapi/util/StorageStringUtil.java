@@ -1,12 +1,15 @@
 package wily.factoryapi.util;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.fluid.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ICraftyEnergyStorage;
@@ -48,36 +51,43 @@ public class StorageStringUtil {
         return getEnergyTooltip(key,cell,millerCY, kiloCY, CYMeasure);
     }
     public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell, String millerEnergy, String kiloEnergy, String energyMeasure){
-        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,millerEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
+        return new TranslatableComponent(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,millerEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
     }
 
-    public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell){
-        List<Component> list = new ArrayList<>(List.of());
-        list.add(getEnergyTooltip(key,cell));
-        if (isShiftKeyDown() || cell.getStoredTier().isBurned()) list.add(cell.getStoredTier().getEnergyTierComponent());
+    public static List<Component> getCompleteEnergyTooltip(String key, @Nullable Component burned, ICraftyEnergyStorage cell){
+        List<Component> list = Lists.newArrayList();
+        if (burned == null || !cell.getStoredTier().isBurned())list.add(getEnergyTooltip(key,cell));
+        else list.add(burned.copy().withStyle(ChatFormatting.DARK_RED));
+        list.add(cell.getStoredTier().getEnergyTierComponent(true));
+        if (isShiftKeyDown()) list.add(cell.getSupportedTier().getEnergyTierComponent(false));
         return list;
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
-        return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid()).withStyle(tank.identifier().color());
+    public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell) {
+        return getCompleteEnergyTooltip(key,null,cell);
     }
-    public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid){
-        if (stack.isFluidEqual(FluidStack.empty())) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
-        return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
+        return getFluidTooltip(key,tank,true);
+    }
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank, boolean showEmpty){
+        return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid(),showEmpty).withStyle(tank.identifier().color);
+    }
+    public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid, boolean showEmpty){
+        if (stack.isEmpty() && !isShiftKeyDown() && showEmpty) return new TranslatableComponent("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
+        return new TranslatableComponent(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount().longValue(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
     }
     public static String getStorageAmount(int content, boolean additionalBool, String minimal, String min, String max){
-
         String amount = formatMinAmount( (float) content / 1000) + min;
         if (content >= 1000000) amount = formatMinAmount( (float) content / 1000000) + minimal;
         if (additionalBool || content < 1000) amount = formatAmount(content) + max;
         return amount;
     }
-    protected static String formatAmount(long i){
+    public static String formatAmount(long i){
         return String.format( "%,d", i).replace(',', '.');
     }
 
-    protected static String formatMinAmount(float i){ return  new DecimalFormat("0.####").format(Float.parseFloat(String.format(Locale.US,"%.1f",i)));}
-    protected static long calculateFluid(long amount, int multiplier){
-        return amount * multiplier / FluidStack.bucketAmount();
+    public static String formatMinAmount(float i){ return  new DecimalFormat("0.####").format(Float.parseFloat(String.format(Locale.US,"%.1f",i)));}
+    public static long calculateFluid(long amount, int multiplier){
+        return amount * multiplier / FactoryAPIPlatform.getBucketAmount();
     }
     public static String getBetweenParenthesis(String name){
         String[] s = name.split(" ");

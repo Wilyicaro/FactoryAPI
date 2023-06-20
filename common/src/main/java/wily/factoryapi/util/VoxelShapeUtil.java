@@ -29,14 +29,12 @@ public class VoxelShapeUtil {
      * @return The rotated {@link AABB}
      */
     public static AABB rotate(AABB box, Direction side) {
-        return switch (side) {
-            case DOWN -> box;
-            case UP -> new AABB(box.minX, -box.minY, -box.minZ, box.maxX, -box.maxY, -box.maxZ);
-            case NORTH -> new AABB(box.minX, -box.minZ, box.minY, box.maxX, -box.maxZ, box.maxY);
-            case SOUTH -> new AABB(-box.minX, -box.minZ, -box.minY, -box.maxX, -box.maxZ, -box.maxY);
-            case WEST -> new AABB(box.minY, -box.minZ, -box.minX, box.maxY, -box.maxZ, -box.maxX);
-            case EAST -> new AABB(-box.minY, -box.minZ, box.minX, -box.maxY, -box.maxZ, box.maxX);
-        };
+        if (side == Direction.DOWN) return box;
+        else if (side == Direction.UP) return new AABB(box.minX, -box.minY, -box.minZ, box.maxX, -box.maxY, -box.maxZ);
+        else if (side == Direction.NORTH) return new AABB(box.minX, -box.minZ, box.minY, box.maxX, -box.maxZ, box.maxY);
+        else if (side == Direction.SOUTH) return new AABB(-box.minX, -box.minZ, -box.minY, -box.maxX, -box.maxZ, -box.maxY);
+        else if (side == Direction.WEST) return new AABB(box.minY, -box.minZ, -box.minX, box.maxY, -box.maxZ, -box.maxX);
+        else return new AABB(-box.minY, -box.minZ, box.minX, -box.maxY, -box.maxZ, box.maxX);
     }
 
     /**
@@ -48,12 +46,11 @@ public class VoxelShapeUtil {
      * @return The rotated {@link AABB}
      */
     public static AABB rotate(AABB box, Rotation rotation) {
-        return switch (rotation) {
-            case NONE -> box;
-            case CLOCKWISE_90 -> new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
-            case CLOCKWISE_180 -> new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
-            case COUNTERCLOCKWISE_90 -> new AABB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
-        };
+        if (rotation == Rotation.NONE) return box;
+        else if (rotation == Rotation.CLOCKWISE_90) return new AABB(-box.minZ, box.minY, box.minX, -box.maxZ, box.maxY, box.maxX);
+        else if (rotation == Rotation.CLOCKWISE_180) return new AABB(-box.minX, box.minY, -box.minZ, -box.maxX, box.maxY, -box.maxZ);
+        else return new AABB(box.minZ, box.minY, -box.minX, box.maxZ, box.maxY, -box.maxX);
+
     }
 
     /**
@@ -65,13 +62,11 @@ public class VoxelShapeUtil {
      * @return The rotated {@link AABB}
      */
     public static AABB rotateHorizontal(AABB box, Direction side) {
-        return switch (side) {
-            case NORTH -> rotate(box, Rotation.NONE);
-            case SOUTH -> rotate(box, Rotation.CLOCKWISE_180);
-            case WEST -> rotate(box, Rotation.COUNTERCLOCKWISE_90);
-            case EAST -> rotate(box, Rotation.CLOCKWISE_90);
-            default -> box;
-        };
+        if (side == Direction.NORTH) return rotate(box, Rotation.NONE);
+        else if (side == Direction.SOUTH) return rotate(box, Rotation.CLOCKWISE_180);
+        else if (side == Direction.WEST) return rotate(box, Rotation.COUNTERCLOCKWISE_90);
+        if (side == Direction.EAST) return rotate(box, Rotation.CLOCKWISE_90);
+        else return box;
     }
 
     /**

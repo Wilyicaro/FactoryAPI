@@ -1,7 +1,7 @@
 package wily.factoryapi.fabric.base;
 
-import dev.architectury.fluid.FluidStack;
-import dev.architectury.hooks.fluid.fabric.FluidStackHooksFabric;
+import me.shedaniel.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.utils.Fraction;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -9,9 +9,11 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.IPlatformFluidHandler;
 import wily.factoryapi.base.SlotsIdentifier;
 import wily.factoryapi.base.TransportState;
+import wily.factoryapi.fabric.util.FluidStackUtil;
 
 import java.util.function.Predicate;
 
@@ -32,7 +34,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
         this.be = be;
         this.validator = validator;
         this.differential = differential;
-
+        
         this.transportState = transportState;
         this.capacity = capacity;
     }
@@ -77,7 +79,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     public @NotNull FluidStack getFluidStack() {
-        return FluidStack.create(variant.getFluid(), getAmount());
+        return FluidStack.create(variant.getFluid(), Fraction.ofWhole(getAmount()));
     }
 
     @Override
@@ -112,8 +114,8 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
             if (!simulate) {
-                i = (int) insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = (int) simulateInsert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
+                i = (int) insert(FluidStackUtil.toFabric(resource), resource.getAmount().longValue(), transaction);
+            }else i = (int) simulateInsert(FluidStackUtil.toFabric(resource), resource.getAmount().longValue(), transaction);
             transaction.commit();
             return i;
 
@@ -125,23 +127,23 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
             if (!simulate) {
-                i = (int) extract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = (int) simulateExtract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
+                i = (int) extract(FluidStackUtil.toFabric(resource), resource.getAmount().longValue(), transaction);
+            }else i = (int) simulateExtract(FluidStackUtil.toFabric(resource), resource.getAmount().longValue(), transaction);
             transaction.commit();
-            return FluidStack.create(resource.getFluid(), i);
+            return FluidStack.create(resource.getFluid(), Fraction.ofWhole(i));
 
         }
     }
 
     @Override
     public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
-        return drain(FluidStackHooksFabric.fromFabric(variant,maxDrain), simulate);
+        return drain(FluidStackUtil.fromFabric(variant,maxDrain), simulate);
     }
 
     @Override
     public void setFluid(FluidStack fluidStack) {
-        amount = fluidStack .getAmount();
-        variant = FluidStackHooksFabric.toFabric(fluidStack);
+        amount = fluidStack.getAmount().longValue();
+        variant = FluidStackUtil.toFabric(fluidStack);
     }
 
     @Override
@@ -166,12 +168,12 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount()));
+        return isFluidValid(0, FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount()));
+        return isFluidValid(0,  FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
     }
 
     @Override

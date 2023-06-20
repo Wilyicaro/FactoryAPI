@@ -1,13 +1,16 @@
 package wily.factoryapi.forge.base;
 
-import dev.architectury.fluid.FluidStack;
-import dev.architectury.hooks.fluid.forge.FluidStackHooksForge;
+
+import me.shedaniel.architectury.fluid.FluidStack;
+import me.shedaniel.architectury.utils.Fraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
+import wily.factoryapi.forge.utils.FluidStackUtil;
 
 import java.util.function.Predicate;
 
@@ -27,13 +30,32 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
         this.transportState = transportState;
     }
     public ForgeItemFluidHandler(ItemStack stack, IFluidItem.FluidStorageBuilder builder) {
-        this(builder.Capacity(), stack, builder.validator(), builder.transportState());
+        this(builder.capacity, stack, builder.validator, builder.transportState);
+    }
+    public @NotNull net.minecraftforge.fluids.FluidStack getFluid() {
+        return net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(getFluidCompound(container));
+    }
+    private CompoundTag getFluidCompound(ItemStack stack){
+        return ItemContainerUtil.isBlockItem(stack) ?  stack.getOrCreateTag().getCompound("BlockEntityTag").getCompound("singleTank") :stack.getOrCreateTag().getCompound("Fluid");
+    }
+    protected void setFluid(net.minecraftforge.fluids.FluidStack fluid) {
+        boolean b = (ItemContainerUtil.isBlockItem(container));
+        CompoundTag tag = container.getOrCreateTag();
+        if (b) tag = tag.getCompound("BlockEntityTag");
+        CompoundTag newTag = new CompoundTag();
+        fluid.writeToNBT(newTag);
+        tag.put( b ? "singleTank" : FLUID_NBT_KEY, newTag);
+        if (b) container.getTag().put("BlockEntityTag", tag);
     }
 
+    @Override
+    protected void setContainerToEmpty() {
+        getFluidCompound(container).getAllKeys().clear();
+    }
 
     @Override
     public @NotNull FluidStack getFluidStack() {
-        return FluidStackHooksForge.fromForge(getFluid());
+        return FluidStackUtil.fromForge(getFluid());
     }
 
     @Override
@@ -43,12 +65,12 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
 
     @Override
     public void deserializeTag(CompoundTag tag) {
-        container.getTag().put("Fluid",tag);
+        setFluid(net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(tag));
     }
 
     @Override
     public CompoundTag serializeTag() {
-        return container.getTag().getCompound("Fluid");
+        return getFluidCompound(container);
     }
 
 
@@ -60,24 +82,24 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
 
     @Override
     public long fill(FluidStack resource, boolean simulate) {
-        if (!getTransport().canInsert()) return resource.getAmount();
-        return fill(FluidStackHooksForge.toForge(resource), FluidMultiUtil.FluidActionof(simulate));
+        if (!getTransport().canInsert()) return resource.getAmount().longValue();
+        return fill(FluidStackUtil.toForge(resource), FluidStackUtil.FluidActionof(simulate));
     }
 
     @Override
     public @NotNull FluidStack drain(FluidStack resource, boolean simulate) {
         if (!getTransport().canExtract()) return FluidStack.empty();
-        return FluidStackHooksForge.fromForge(drain(FluidStackHooksForge.toForge(resource), (FluidMultiUtil.FluidActionof(simulate))));
+        return FluidStackUtil.fromForge(drain(FluidStackUtil.toForge(resource), (FluidStackUtil.FluidActionof(simulate))));
     }
 
     @Override
     public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
-        return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
+        return drain(FluidStack.create(getFluid().getFluid(), Fraction.ofWhole(maxDrain)), simulate);
     }
 
     @Override
     public void setFluid(FluidStack fluidStack) {
-        setFluid(FluidStackHooksForge.toForge(fluidStack));
+        setFluid(FluidStackUtil.toForge(fluidStack));
     }
 
 

@@ -1,5 +1,6 @@
 package wily.factoryapi.base;
 
+import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
@@ -16,11 +17,11 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.function.Supplier;
 
 
 public interface SimpleFluidLoggedBlock extends BucketPickup, LiquidBlockContainer {
-    List<Fluid> BLOCK_LOGGABLE_FLUIDS = new ArrayList<>(List.of(Fluids.EMPTY,Fluids.WATER,Fluids.LAVA));
+    List<Supplier<Fluid>> BLOCK_LOGGABLE_FLUIDS = Lists.newArrayList(()->Fluids.EMPTY,()->Fluids.WATER,()->Fluids.LAVA);
 
     default IntegerProperty FLUIDLOGGED() {
         return IntegerProperty.create("fluidlogged", 0, BLOCK_LOGGABLE_FLUIDS.size() -1);
@@ -28,14 +29,14 @@ public interface SimpleFluidLoggedBlock extends BucketPickup, LiquidBlockContain
 
 
     default boolean canPlaceLiquid(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, Fluid fluid) {
-            return BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED())).isSame(Fluids.EMPTY) && BLOCK_LOGGABLE_FLUIDS.contains(fluid);
+            return BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED())).get().isSame(Fluids.EMPTY) && BLOCK_LOGGABLE_FLUIDS.contains(fluid);
     }
 
     default boolean placeLiquid(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
-        if (BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED())).isSame(Fluids.EMPTY) && BLOCK_LOGGABLE_FLUIDS.contains(fluidState.getType())) {
+        if (BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED())).get().isSame(Fluids.EMPTY) && BLOCK_LOGGABLE_FLUIDS.contains(fluidState.getType())) {
             if (!levelAccessor.isClientSide()) {
                 levelAccessor.setBlock(blockPos, blockState.setValue(FLUIDLOGGED(), BLOCK_LOGGABLE_FLUIDS.indexOf(fluidState.getType())), 3);
-                levelAccessor.scheduleTick(blockPos, fluidState.getType(), fluidState.getType().getTickDelay(levelAccessor));
+                levelAccessor.getLiquidTicks().scheduleTick(blockPos, fluidState.getType(), fluidState.getType().getTickDelay(levelAccessor));
             }
 
             return true;
@@ -44,20 +45,17 @@ public interface SimpleFluidLoggedBlock extends BucketPickup, LiquidBlockContain
         }
     }
 
-    default ItemStack pickupBlock(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState) {
+    @Override
+    default Fluid takeLiquid(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState){
         if ( blockState.getValue(FLUIDLOGGED()) > 0) {
-            Fluid f = BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED()));
+            Fluid f = BLOCK_LOGGABLE_FLUIDS.get(blockState.getValue(FLUIDLOGGED())).get();
             levelAccessor.setBlock(blockPos, blockState.setValue(FLUIDLOGGED(), 0), 3);
             if (!blockState.canSurvive(levelAccessor, blockPos)) {
                 levelAccessor.destroyBlock(blockPos, true);
             }
-            return new ItemStack(f.getBucket());
+            return f;
         } else {
-            return ItemStack.EMPTY;
+            return Fluids.EMPTY;
         }
-    }
-
-    default Optional<SoundEvent> getPickupSound() {
-        return Fluids.WATER.getPickupSound();
     }
 }
