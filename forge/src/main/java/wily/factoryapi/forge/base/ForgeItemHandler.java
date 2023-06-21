@@ -66,7 +66,6 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
         ForgeItemHandler newItemHandler =  new ForgeItemHandler((ForgeItemHandler) platformItemHandler,transportState){
             @Override
             public boolean canPlaceItem(int i, @NotNull ItemStack arg) {
-
                 return platformItemHandler.canPlaceItem(i,arg) && getTransport().canInsert();
             }
 
@@ -117,10 +116,6 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
                 return platformItemHandler.canPlaceItemThroughFace(i,itemStack,direction) && ArrayUtils.contains(slots,i) && direction == d && getTransport().canInsert();
             }
 
-            @Override
-            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-                return super.extractItem(slot, amount, simulate);
-            }
 
             @Override
             public boolean canTakeItemThroughFace(int i, ItemStack itemStack, Direction direction) {
@@ -135,7 +130,6 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
 
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-
         return itemHandler.insertItem(slot,stack,simulate);
     }
 
