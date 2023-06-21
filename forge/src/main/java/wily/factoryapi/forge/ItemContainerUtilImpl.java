@@ -81,7 +81,7 @@ public class ItemContainerUtilImpl {
             }else {
                 player.setItemInHand(hand, tank.getContainer());
             }
-            player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_EMPTY), SoundSource.PLAYERS, 0.6F, 0.8F);
+            if (!fluidStack.isEmpty())player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_EMPTY), SoundSource.PLAYERS, 0.6F, 0.8F);
         }
         return new ItemContainerUtil.ItemFluidContext(fluidStack,tank.getContainer());
     }

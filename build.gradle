@@ -1,7 +1,10 @@
+import java.text.SimpleDateFormat
+
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.0.+" apply false
+    id "dev.architectury.loom" version "1.2.+" apply false
     id("org.jetbrains.changelog") version "2.0.0"
+    id "me.shedaniel.unified-publishing" version "0.1.+" apply false
     id 'maven-publish'
 }
 
@@ -21,21 +24,22 @@ subprojects {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         // The following line declares the mojmap mappings, you may use other mappings as well
         mappings loom.officialMojangMappings()
+
         // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:1.19.2+build.3:v2"
     }
+
 }
+
 
 
 allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
-    apply plugin: "maven-publish"
 
 
-    var modPlatformName = project.name[0].toUpperCase() + project.name.substring(1)
 
-    archivesBaseName = rootProject.archives_base_name + "-" + modPlatformName
+    archivesBaseName = rootProject.archives_base_name
     version = minecraft_version + "-" + mod_version
     group = rootProject.maven_group
 
@@ -46,6 +50,60 @@ allprojects {
         // See https://docs.gradle.org/current/userguide/declaring_repositories.html
         // for more information about repositories.
     }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+        options.release = 17
+    }
+
+    java {
+        withSourcesJar()
+    }
+}
+subprojects {
+    apply plugin: "maven-publish"
+    apply plugin: "me.shedaniel.unified-publishing"
+    ext {
+        releaseChangelog = {
+            def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+            def branch
+            if (System.env.BRANCH_NAME) {
+                branch = System.env.BRANCH_NAME
+                branch = branch.substring(branch.lastIndexOf("/") + 1)
+            } else {
+                branch = "git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+            }
+            if (branch == "HEAD") {
+                branch = "git rev-parse --short HEAD".execute().in.text.trim()
+            }
+            def time = dateFormat.format(new Date())
+            def changes = new StringBuilder()
+            changes << "## Beta $version  \nUpdated at **$time**.  \n**Changelog**  "
+            def proc = "git log --max-count=200 --pretty=format:%s".execute()
+            proc.in.eachLine { line ->
+                def processedLine = line.toString()
+                if (!processedLine.contains("New translations") && !processedLine.contains("Merge") && !processedLine.contains("branch")) {
+                    changes << "\n${processedLine.capitalize()}  "
+                }
+            }
+            changes << "\n[Click here for complete changelog](https://www.github.com/Wilyicaro/FactoryApi/commits/$branch)"
+            proc.waitFor()
+            return changes.toString()
+        }
+    }
+    task renameJarForPublication(type: Zip, dependsOn: remapJar) {
+        from remapJar.archiveFile.map { zipTree(it) }
+        archiveExtension = "jar"
+        metadataCharset "UTF-8"
+        destinationDirectory = base.libsDirectory
+        archiveClassifier = project.name
+    }
+
+    assemble.dependsOn renameJarForPublication
+    var modPlatformName = project.name.capitalize()
+
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -87,7 +145,7 @@ allprojects {
                             // use this approach to make excluding dependencies from Curse Maven more convenient
                             if (["curse.maven:","dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
                                 assert dep.parent().remove(dep)
-                            } 
+                            }
                         }
                     }
                 }
@@ -105,12 +163,43 @@ allprojects {
             }
         }
     }
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.release = 17
-    }
+    unifiedPublishing {
+        project {
+            def isFabric = project.name ==  "fabric"
+            displayName = "$mod_name [$modPlatformName] $project.version"
+            releaseType = "$stage"
+            changelog = releaseChangelog()
+            gameVersions = ["$minecraft_version"]
+            gameLoaders = ["$project.name"]
+            if (isFabric) gameLoaders.addAll "quilt"
+            mainPublication renameJarForPublication
 
-    java {
-        withSourcesJar()
+            var CURSE_API_KEY = project.findProperty("CURSE_API_KEY") ?: System.getenv("CURSE_API_KEY")
+            if (CURSE_API_KEY != null) {
+                curseforge {
+                    token = CURSE_API_KEY
+                    id = rootProject.curseforge_id
+                    gameVersions.addAll(["Java 17", "Java 18"])
+                    relations{
+                        depends "architectury-api"
+                        if (isFabric) depends "fabric-api"
+                    }
+                }
+            }
+
+
+            var MODRINTH_TOKEN = project.findProperty("gpr.token") ?: System.getenv("MODRINTH_TOKEN")
+            if (MODRINTH_TOKEN != null) {
+                modrinth {
+                    token = MODRINTH_TOKEN
+                    id = rootProject.modrinth_id
+                    version = "$project.version+$project.name"
+                    relations{
+                        depends "architectury-api"
+                        if (isFabric) depends "fabric-api"
+                    }
+                }
+            }
+        }
     }
 }

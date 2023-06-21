@@ -7,9 +7,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
 
 import java.util.function.Predicate;
+
+import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
+import static wily.factoryapi.ItemContainerUtil.isBlockItem;
 
 public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPlatformFluidHandler<IFluidHandler>, IStorageItem {
     private final ItemStack container;
@@ -29,7 +33,26 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     public ForgeItemFluidHandler(ItemStack stack, IFluidItem.FluidStorageBuilder builder) {
         this(builder.Capacity(), stack, builder.validator(), builder.transportState());
     }
+    public @NotNull net.minecraftforge.fluids.FluidStack getFluid() {
+        return net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(getFluidCompound(container));
+    }
+    private CompoundTag getFluidCompound(ItemStack stack){
+        return ItemContainerUtil.isBlockItem(stack) ?  stack.getOrCreateTag().getCompound(BLOCK_ENTITY_TAG).getCompound("singleTank") :stack.getOrCreateTag().getCompound("Fluid");
+    }
+    protected void setFluid(net.minecraftforge.fluids.FluidStack fluid) {
+        boolean b = (ItemContainerUtil.isBlockItem(container));
+        CompoundTag tag = container.getOrCreateTag();
+        if (b) tag = tag.getCompound(BLOCK_ENTITY_TAG);
+        CompoundTag newTag = new CompoundTag();
+        fluid.writeToNBT(newTag);
+        tag.put( b ? "singleTank" : FLUID_NBT_KEY, newTag);
+        if (b) container.getTag().put(BLOCK_ENTITY_TAG, tag);
+    }
 
+    @Override
+    protected void setContainerToEmpty() {
+        getFluidCompound(container).getAllKeys().clear();
+    }
 
     @Override
     public @NotNull FluidStack getFluidStack() {
@@ -43,12 +66,12 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
 
     @Override
     public void deserializeTag(CompoundTag tag) {
-        container.getTag().put("Fluid",tag);
+        setFluid(net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(tag));
     }
 
     @Override
     public CompoundTag serializeTag() {
-        return container.getTag().getCompound("Fluid");
+        return getFluidCompound(container);
     }
 
 
