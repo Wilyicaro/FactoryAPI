@@ -76,6 +76,7 @@ public class StorageStringUtil {
         return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
     }
     public static String getStorageAmount(int content, boolean additionalBool, String minimal, String min, String max){
+        if (content == Integer.MAX_VALUE) return "∞";
         String amount = formatMinAmount( (float) content / 1000) + min;
         if (content >= 1000000) amount = formatMinAmount( (float) content / 1000000) + minimal;
         if (additionalBool || content < 1000) amount = formatAmount(content) + max;

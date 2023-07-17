@@ -2,6 +2,7 @@ package wily.factoryapi.forge;
 
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.forge.FluidStackHooksForge;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,7 @@ import wily.factoryapi.forge.base.FluidMultiUtil;
 
 public class ItemContainerUtilImpl {
     public static boolean isFluidContainer(ItemStack stack){
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
+        return !stack.isEmpty() && stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
     }
 
     public static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
@@ -41,14 +42,22 @@ public class ItemContainerUtilImpl {
         return FluidStack.empty();
     }
     public static ItemContainerUtil.ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidStack fluidStack){
-        if (!isFluidContainer(stack)) return new ItemContainerUtil.ItemFluidContext(FluidStack.empty(),stack);
-        IFluidHandlerItem tank = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
-        long amount = tank.fill(FluidStackHooksForge.toForge(fluidStack), IFluidHandler.FluidAction.EXECUTE);
-        if(player != null) {
-            player.setItemInHand(hand, tank.getContainer());
-            if(stack.getItem() instanceof BucketItem && fluidStack.getAmount() == FluidStack.bucketAmount())
-                player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_FILL), SoundSource.PLAYERS, 0.6F, 0.8F);
-}
+        if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemContainerUtil.ItemFluidContext(stack);
+        IFluidHandler.FluidAction action =FluidMultiUtil.FluidActionof((player !=null && player.isCreative()));
+        ItemStack toFill = action.execute() ? stack.copyWithCount(1) : stack.copy();
+        IFluidHandlerItem tank = toFill.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
+        long amount = tank.fill(FluidStackHooksForge.toForge(fluidStack), action);
+        if(player != null && amount > 0) {
+            if (action.execute()) {
+                if (stack.getCount() > 1) {
+                    player.setItemInHand(hand, stack.copyWithCount(stack.getCount() - 1));
+                    player.addItem(tank.getContainer());
+                } else player.setItemInHand(hand, tank.getContainer());
+            }
+            SoundEvent sound = fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_FILL);
+            if (sound != null) player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),sound , SoundSource.PLAYERS, 0.6F, 0.8F);
+        }
+
         return new ItemContainerUtil.ItemFluidContext(FluidStack.create(fluidStack.getFluid(),amount),tank.getContainer());
     }
     public static long fillItem(FluidStack fluidStack, Player player, InteractionHand hand){
@@ -60,34 +69,26 @@ public class ItemContainerUtilImpl {
     }
 
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack, Player player, InteractionHand hand){
-        if (!isFluidContainer(stack)) return new ItemContainerUtil.ItemFluidContext(FluidStack.empty(),stack);
-        IFluidHandlerItem tank = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
-        FluidStack fluidStack;
-
+        if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemContainerUtil.ItemFluidContext(stack);
         IFluidHandler.FluidAction action =FluidMultiUtil.FluidActionof((player !=null && player.isCreative()));
-        fluidStack = FluidStackHooksForge.fromForge(tank.drain((int) maxDrain, action));
-
-        if(player !=null) {
-            if (stack.getCount() > 1  ) {
-                net.minecraftforge.fluids.FluidStack fs = tank.getFluidInTank(0);
-                int fluidAmount = (int) (Math.max(fs.getAmount() , maxDrain - fs.getAmount()));
-                fluidStack = FluidStack.create(fluidAmount == 0 ? Fluids.EMPTY : fs.getFluid(), fluidAmount);
-                if (action.execute()) {
-                    ItemStack newStack = stack.split(1);
-                    player.setItemInHand(hand,stack);
-                    getItemFluidHandler(newStack).drain(FluidStackHooksForge.toForge(fluidStack), action);
-                    player.addItem(getItemFluidHandler(newStack).getContainer());
-                }
-            }else {
-                player.setItemInHand(hand, tank.getContainer());
+        ItemStack toDrain = action.execute() ? stack.copyWithCount(1) : stack.copy();
+        IFluidHandlerItem tank = toDrain.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
+        FluidStack fluidStack = FluidStackHooksForge.fromForge(tank.drain((int)maxDrain, action));
+        if(player != null && fluidStack.getAmount() > 0) {
+            if (action.execute()) {
+                if (stack.getCount() > 1) {
+                    player.setItemInHand(hand, stack.copyWithCount(stack.getCount() - 1));
+                    player.addItem(tank.getContainer());
+                } else player.setItemInHand(hand, tank.getContainer());
             }
-            if (!fluidStack.isEmpty())player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_EMPTY), SoundSource.PLAYERS, 0.6F, 0.8F);
+            SoundEvent sound = fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_EMPTY);
+            if (sound != null) player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),sound , SoundSource.PLAYERS, 0.6F, 0.8F);
         }
+
         return new ItemContainerUtil.ItemFluidContext(fluidStack,tank.getContainer());
     }
     public static FluidStack drainItem(long maxDrain, Player player, InteractionHand hand){
-        ItemStack stack = player.getItemInHand(hand);
-        return drainItem(maxDrain, stack, player, hand).fluidStack();
+        return drainItem(maxDrain, player.getItemInHand(hand), player, hand).fluidStack();
 
     }
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack){
@@ -102,9 +103,9 @@ public class ItemContainerUtilImpl {
         return  insertEnergy(energy, player.getItemInHand(hand)).contextEnergy();
     }
 
-        public static ItemContainerUtil.ItemEnergyContext insertEnergy(int energy, ItemStack stack) {
-            IEnergyStorage energyStorage = stack.getCapability(ForgeCapabilities.ENERGY).resolve().get();
-            return new ItemContainerUtil.ItemEnergyContext(energyStorage.receiveEnergy(energy,false),stack) ;
+    public static ItemContainerUtil.ItemEnergyContext insertEnergy(int energy, ItemStack stack) {
+        IEnergyStorage energyStorage = stack.getCapability(ForgeCapabilities.ENERGY).resolve().get();
+        return new ItemContainerUtil.ItemEnergyContext(energyStorage.receiveEnergy(energy,false),stack) ;
     }
 
     public static int extractEnergy(int energy, Player player, InteractionHand hand) {

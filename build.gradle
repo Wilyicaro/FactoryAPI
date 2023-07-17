@@ -84,10 +84,13 @@ subprojects {
             proc.in.eachLine { line ->
                 def processedLine = line.toString()
                 if (!processedLine.contains("New translations") && !processedLine.contains("Merge") && !processedLine.contains("branch")) {
-                    changes << "\n${processedLine.capitalize()}  "
+                    def lines = processedLine.split(" -")
+                    changes << "\n**${lines[0]}**  "
+                    lines[0] = ""
+                    lines.each {s-> changes << "\n-" + s + "  "}
                 }
             }
-            changes << "\n[Click here for complete changelog](https://www.github.com/Wilyicaro/FactoryApi/commits/$branch)"
+            changes << "\n[Click here for complete changelog]($mod_source/commits/$branch)"
             proc.waitFor()
             return changes.toString()
         }

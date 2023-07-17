@@ -16,7 +16,6 @@ public record SlotsIdentifier(ChatFormatting color, String name,int differential
     public static SlotsIdentifier ENERGY =  new SlotsIdentifier(ChatFormatting.AQUA,"energy",4);
     public static SlotsIdentifier GENERIC = new SlotsIdentifier(ChatFormatting.GRAY,"single",0);
 
-
     public Color getColor(){
         return new Color(color.getColor());
     }

@@ -17,7 +17,8 @@ public enum FactoryCapacityTiers {
     ADVANCED(Component.translatable("tier."+FactoryAPI.MOD_ID + ".advanced").withStyle(ChatFormatting.RED),0.6, 2000,3),
     HIGH(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".high").withStyle(ChatFormatting.BLUE),0.5, 4000,8),
     ULTIMATE(Component.translatable("tier."+FactoryAPI.MOD_ID + ".ultimate").withStyle(ChatFormatting.DARK_PURPLE),0.63, 5000,10),
-    QUANTUM(Component.translatable("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16);
+    QUANTUM(Component.translatable("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16),
+    CREATIVE(Component.translatable("tier."+FactoryAPI.MOD_ID + ".creative").withStyle(ChatFormatting.LIGHT_PURPLE),1.0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     
     private final double conductivity;
@@ -44,7 +45,7 @@ public enum FactoryCapacityTiers {
         String stored = isStored ? I18n.get("tier.factory_api.stored") : "";
         return Component.translatable("tier.factory_api.display",I18n.get("tier.factory_api." + keyType,stored)).withStyle(ChatFormatting.AQUA).append(localizedName);
     }
-    public boolean supportTier(FactoryCapacityTiers tier){return tier.ordinal() >= ordinal();}
+    public boolean supportTier(FactoryCapacityTiers tier){return ordinal() >= tier.ordinal();}
     public double getConductivity() {
         return this.conductivity;
     }

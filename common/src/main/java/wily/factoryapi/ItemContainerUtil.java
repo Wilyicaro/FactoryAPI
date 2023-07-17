@@ -10,10 +10,14 @@ import net.minecraft.world.item.ItemStack;
 public class ItemContainerUtil {
 
     public record ItemFluidContext(FluidStack fluidStack, ItemStack container) {
-
+            public ItemFluidContext(ItemStack container){
+                this(FluidStack.empty(),container);
+            }
         }
     public record ItemEnergyContext(int contextEnergy, ItemStack container) {
-
+        public ItemEnergyContext(ItemStack container){
+            this(0,container);
+        }
     }
     public static boolean isBlockItem(ItemStack s){return s.getItem() instanceof BlockItem;}
     @ExpectPlatform

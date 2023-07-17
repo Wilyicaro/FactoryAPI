@@ -38,12 +38,15 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
      * This function is a way to determine which fluids can exist inside a given handler. General purpose tanks will
      * basically always return TRUE for this.
      *
-     * @param tank  Tank to query for validity
      * @param stack Stack to test with for validity
      * @return TRUE if the tank can hold the FluidStack, not considering current state.
      * (Basically, is a given fluid EVER allowed in this tank?) Return FALSE if the answer to that question is 'no.'
      */
-    boolean isFluidValid(int tank, @NotNull FluidStack stack);
+    boolean isFluidValid(@NotNull FluidStack stack);
+    @Deprecated
+    default boolean isFluidValid(int tank, @NotNull FluidStack stack){
+     return isFluidValid(stack);
+    }
 
     /**
      * Fills fluid into internal tanks, distribution is left entirely to the IFluidHandler.

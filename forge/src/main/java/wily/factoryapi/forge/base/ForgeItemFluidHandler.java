@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 import static wily.factoryapi.ItemContainerUtil.isBlockItem;
 
-public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPlatformFluidHandler<IFluidHandler>, IStorageItem {
+public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPlatformFluidHandler<IFluidHandler> {
     private final ItemStack container;
     private final Predicate<FluidStack> validator;
 
@@ -76,15 +76,24 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
 
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
+    @Override
+    public boolean isFluidValid(int tank, net.minecraftforge.fluids.@NotNull FluidStack stack) {
+        return isFluidValid(FluidStackHooksForge.fromForge(stack));
+    }
 
     @Override
     public long fill(FluidStack resource, boolean simulate) {
-        if (!getTransport().canInsert()) return resource.getAmount();
+        if (!getTransport().canInsert()) return 0;
         return fill(FluidStackHooksForge.toForge(resource), FluidMultiUtil.FluidActionof(simulate));
+    }
+
+    @Override
+    public int fill(net.minecraftforge.fluids.FluidStack resource, FluidAction doFill) {
+        return isFluidValid(0,resource) ? super.fill(resource, doFill) : 0;
     }
 
     @Override

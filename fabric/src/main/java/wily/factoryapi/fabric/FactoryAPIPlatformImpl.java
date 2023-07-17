@@ -11,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
 import wily.factoryapi.fabric.base.FabricEnergyStorage;
 import wily.factoryapi.fabric.base.FabricFluidStorage;
@@ -26,11 +27,9 @@ public class FactoryAPIPlatformImpl {
         return FabricLoader.getInstance().getConfigDir();
     }
     public static IPlatformFluidHandler getFluidHandlerApi(long Capacity, BlockEntity be, Predicate<FluidStack> validator, SlotsIdentifier differential, TransportState transportState) {
-        // Just throw an error, the content should get replaced at runtime.
         return new FabricFluidStorage(Capacity, be,validator,differential, transportState);
     }
     public static IPlatformItemHandler getItemHandlerApi(int Capacity, BlockEntity be) {
-        // Just throw an error, the content should get replaced at runtime.
         return new FabricItemStorage(Capacity, be, TransportState.EXTRACT_INSERT);
 
     }
@@ -43,8 +42,7 @@ public class FactoryAPIPlatformImpl {
         return FabricFluidStorage.filtered(fluidHandler,transportState);
     }
     public static IPlatformFluidHandler getFluidItemHandlerApi(ItemStack container, IFluidItem.FluidStorageBuilder builder) {
-        // Just throw an error, the content should get replaced at runtime.
-        Storage<FluidVariant> handStorage = ContainerItemContext.withInitial(container).find(FluidStorage.ITEM);
+        Storage<FluidVariant> handStorage = ItemContainerUtilImpl.slotContextFromItemStack(container).find(FluidStorage.ITEM);
         if (handStorage instanceof  IPlatformFluidHandler p) return p;
         return new FabricItemFluidStorage(ContainerItemContext.withConstant(container),builder);
     }

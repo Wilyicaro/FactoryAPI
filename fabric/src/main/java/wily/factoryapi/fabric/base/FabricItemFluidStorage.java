@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 
 import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
-public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVariant> implements IPlatformFluidHandler<Storage<FluidVariant>>, IStorageItem {
+public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVariant> implements IPlatformFluidHandler<Storage<FluidVariant>> {
 
 
 
@@ -114,18 +114,18 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canInsert();
+        return isFluidValid(FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canInsert();
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canExtract();
+        return isFluidValid(FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canExtract();
     }
 
     @Override
@@ -177,11 +177,6 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
         return SlotsIdentifier.GENERIC;
     }
 
-
-    @Override
-    public ItemStack getContainer() {
-        return context.getItemVariant().toStack();
-    }
 
     @Override
     public Storage<FluidVariant> getHandler() {
