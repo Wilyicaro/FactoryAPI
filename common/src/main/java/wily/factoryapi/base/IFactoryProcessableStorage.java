@@ -1,8 +1,10 @@
 package wily.factoryapi.base;
 
 import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public interface IFactoryProcessableStorage extends IFactoryStorage {
@@ -10,18 +12,15 @@ public interface IFactoryProcessableStorage extends IFactoryStorage {
         return !getProgresses().isEmpty();
     }
     default List<Progress> getProgresses(){
-        List<Progress> list = new ArrayList<>(List.of());
-        addProgresses(list);
-        return list;
+        return Collections.emptyList();
     }
-    default Progress getProgressByType(Progress.Identifier identifier){
+    default @Nullable Progress getProgressByType(Progress.Identifier identifier){
         for (Progress p : getProgresses()) {
             if (p.identifier == identifier) return p;
         }
         return null;
     }
 
-    void addProgresses(List<Progress> list);
 
     @Override
     default void loadTag(CompoundTag compoundTag) {

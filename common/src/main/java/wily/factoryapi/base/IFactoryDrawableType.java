@@ -7,7 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.util.ProgressElementRenderUtil;
-@Environment(value = EnvType.CLIENT)
+@Environment(EnvType.CLIENT)
 public interface IFactoryDrawableType {
 
     ResourceLocation texture();
@@ -40,8 +40,12 @@ public interface IFactoryDrawableType {
     }
 
     record DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height) implements IFactoryDrawableType {
+        @Deprecated
         public DrawableProgress asProgress(Progress.Identifier identifier, boolean reverse, Direction plane){
-            return new DrawableProgress(this,identifier,reverse,plane);
+            return asProgress(reverse,plane);
+        }
+        public DrawableProgress asProgress(boolean reverse, Direction plane){
+            return new DrawableProgress(this,reverse,plane);
         }
         public DrawableStatic<DrawableImage> createStatic(int posX, int posY){
             return  new DrawableStatic<>(this,posX,posY);
@@ -50,16 +54,20 @@ public interface IFactoryDrawableType {
     static DrawableImage create(ResourceLocation texture, int uvX, int uvY, int width, int height){
         return new DrawableImage(texture, uvX, uvY, width, height);
     }
-    record DrawableProgress(DrawableImage drawable,Progress.Identifier identifier, boolean reverse, Direction plane) implements IFactoryDrawableType {
+    record DrawableProgress(DrawableImage drawable, boolean reverse, Direction plane) implements IFactoryDrawableType {
         public void drawProgress(GuiGraphics graphics,int x, int y, float percentage){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y,percentage,this);
         }
         public void drawProgress(GuiGraphics graphics,int x, int y, int progress, int max){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, max <= 0 ? 0 : (float) progress / max,this);
         }
+        public void drawProgress(GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
+            progress.getEntries().forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
+        }
         public DrawableStaticProgress createStatic(int posX, int posY){
             return  new DrawableStaticProgress(this,posX,posY);
         }
+
         public ResourceLocation texture() {return drawable.texture;}
         public int width() {return drawable.width;}
         public int height() {return drawable.height;}
@@ -76,6 +84,9 @@ public interface IFactoryDrawableType {
         }
         public void drawProgress(GuiGraphics graphics, int progress, int max){
             drawable.drawProgress(graphics,posX,posY, progress, max);
+        }
+        public void drawProgress(GuiGraphics graphics, Progress progress){
+            drawable.drawProgress(graphics,posX,posY,progress);
         }
     }
     int width();

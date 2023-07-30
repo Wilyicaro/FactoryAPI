@@ -1,53 +1,113 @@
 package wily.factoryapi.base;
 
 import net.minecraft.nbt.CompoundTag;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Progress implements ITagSerializable<CompoundTag> {
-    private int[] progress;
 
-    public int maxProgress;
     public Identifier identifier;
+    private final List<ProgressEntry> entries;
 
-    public Progress(Identifier identifier, int progressSize, int maxProgress){
+    public Progress(Identifier identifier, List<ProgressEntry> entries){
         this.identifier = identifier;
-        this.maxProgress = maxProgress;
-        progress = new int[progressSize];
+        this.entries = entries;
     }
-    public void setInt(int ordinal, int value){
-        progress[ordinal] = value;
+    public Progress(Identifier identifier) {
+        this(identifier, new ArrayList<>());
     }
-    public int getInt(int ordinal){
-        return progress[ordinal];
+    public Progress(Identifier identifier, int x, int y, int initialMaxProgress){
+        this(identifier, List.of(new ProgressEntry(x,y,initialMaxProgress)));
+    }
+    public Progress(Identifier identifier, int entries, int defaultMaxProgress){
+        this(identifier);
+        for (int i = 0; i < entries; i++)
+            add(0,0,defaultMaxProgress);
+    }
+    public Progress add(int x, int y, int maxProgress){
+        entries.add(new ProgressEntry(x,y,maxProgress));
+        return this;
+    }
+    public List<ProgressEntry> getEntries() {
+        return entries;
+    }
+    public ProgressEntry first() {
+        return get(0);
+    }
+    public ProgressEntry get(int index) {
+        return entries.get(index);
     }
 
-    public void set(int[] value){
-        progress = value;
+    public void setValues(int[] array) {
+        for (int i = 0; i < entries.size(); i++) {
+            ProgressEntry p = entries.get(i);
+            p.set(array[i*2]);
+            p.maxProgress = array[i*2 + 1];
+        }
     }
-    public int[] get(){
-        return progress;
+    public int[] getValues(){
+        int[] values = new int[0];
+        for (int i = 0; i < entries.size(); i++) {
+            ProgressEntry p = entries.get(i);
+            values = ArrayUtils.addAll(values,p.get(),p.maxProgress);
+        }
+        return values;
     }
-
-    public String getMaxName(){
-        return "actual" + (identifier.name.substring(0,1).toUpperCase() + identifier.name.substring(1));
-    }
-
     @Override
     public CompoundTag serializeTag() {
         CompoundTag compoundTag = new CompoundTag();
-        if(progress.length == 1){
-            compoundTag.putInt(identifier.name, getInt(0));
-        }else if (progress.length > 1) compoundTag.putIntArray(identifier.name, get());
-        compoundTag.putInt(getMaxName(), maxProgress);
+        compoundTag.putIntArray(identifier.name, getValues());
         return compoundTag;
     }
 
     @Override
     public void deserializeTag(CompoundTag tag) {
+        for (int i = 0; i < entries.size(); i++) {
+            ProgressEntry p = entries.get(i);
+            if (tag.contains(getMaxName())){
+                p.set(tag.getInt(identifier.name));
+                p.maxProgress = tag.getInt(getMaxName());
+            }else {
+                int[] array = tag.getIntArray(identifier.name);
+                p.set(array[i*2]);
+                p.maxProgress = array[i*2 + 1];
+            }
+        }
+    }
+    @Deprecated
+    public String getMaxName(){
+        return "actual" + (identifier.name.substring(0,1).toUpperCase() + identifier.name.substring(1));
+    }
+    public static class ProgressEntry extends Bearer<Integer>{
 
-        if(progress.length == 1){
-            setInt(0, tag.getInt(identifier.name));
-        }else if (progress.length > 1) set(tag.getIntArray(identifier.name));
-        maxProgress = tag.getInt(getMaxName());
+        public int maxProgress;
+
+        public int x;
+        public int y;
+        public int minValue = 0;
+
+        public ProgressEntry(int x, int y, int maxProgress){
+            super(0);
+            this.maxProgress = maxProgress;
+            this.x = x;
+            this.y = y;
+        }
+        public void set(int value){
+            super.set(Math.max(minValue,Math.min(value,maxProgress)));
+        }
+
+        public int add(int value){
+            int oldValue = get();
+            set(get() + value);
+            return get() - oldValue;
+        }
+        public int shrink(int value){
+            int oldValue = get();
+            set(get() - value);
+            return oldValue - get();
+        }
     }
     public record Identifier(String name) {
         public static Identifier DEFAULT = new Identifier("progress");

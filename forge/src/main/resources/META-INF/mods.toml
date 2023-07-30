@@ -31,3 +31,10 @@ mandatory = true
 versionRange = "[9.0.7,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.factory_api]]
+modId = "factocrafty"
+mandatory = false
+versionRange = "[0.0.0.4,)"
+ordering = "AFTER"
+side = "BOTH"

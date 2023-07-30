@@ -52,7 +52,7 @@ public interface IPlatformEnergyStorage <T> extends ITagSerializable<CompoundTag
 
      int getMaxConsume();
 
-         default Style getComponentStyle(){
+     default Style getComponentStyle(){
          return FactoryAPIPlatform.getPlatformEnergyComponent().getStyle();
      }
 

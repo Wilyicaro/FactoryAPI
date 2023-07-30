@@ -61,7 +61,7 @@ public enum FactoryCapacityTiers {
 
 
     public int convertEnergyTo(int energy, FactoryCapacityTiers tier){
-        return (int) Math.max(energy + (getConductivity() - tier.getConductivity()) * energy * energyCapacity /tier.energyCapacity,0);
+        return (int) Math.round(Math.max(energy + (getConductivity() - tier.getConductivity()) * energy * energyCapacity /tier.energyCapacity,1));
     }
 
 

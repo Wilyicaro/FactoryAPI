@@ -22,12 +22,8 @@ public interface IFactoryStorage {
         if (this instanceof BlockEntity be) side.replace(blockSide.blockStateToFacing(be.getBlockState()), replacement);
     }
 
-
-
     default List<IPlatformFluidHandler> getTanks(){
-        List<IPlatformFluidHandler> list = new ArrayList<>(List.of());
-        addTanks(list);
-        return list;
+        return NonNullList.create();
     }
 
     default <T extends IPlatformHandlerApi> Optional<T> getStorage(Storages.Storage<T> storage){return getStorage(storage, null);}
@@ -44,18 +40,15 @@ public interface IFactoryStorage {
     default Optional<Map<Direction, TransportState>> energySides(){return Optional.empty();}
 
     default NonNullList<FactoryItemSlot> getSlots(@Nullable Player player){
-        NonNullList<FactoryItemSlot> list = NonNullList.create();
-        addSlots(list, player);
-        return list;
+        return NonNullList.create();
     }
-    void addSlots(NonNullList<FactoryItemSlot> slots, @Nullable Player player);
-    void addTanks(List<IPlatformFluidHandler> list);
+
 
     default void transferEnergyTo(Direction d, ICraftyEnergyStorage cy){
-        getStorage(Storages.CRAFTY_ENERGY,d).ifPresent((e)-> e.consumeEnergy(cy.receiveEnergy(new ICraftyEnergyStorage.EnergyTransaction(e.getMaxConsume(), e.getStoredTier()), false), false));
+        getStorage(Storages.CRAFTY_ENERGY,d).ifPresent((e)-> e.consumeEnergy(cy.receiveEnergy(new CraftyTransaction(e.getMaxConsume(), e.getStoredTier()), false), false));
     }
     default void transferEnergyFrom(Direction d, ICraftyEnergyStorage cy){
-        getStorage(Storages.CRAFTY_ENERGY,d).ifPresent((e)-> cy.consumeEnergy(e.receiveEnergy(new ICraftyEnergyStorage.EnergyTransaction(cy.getMaxConsume(), cy.getStoredTier()),false), false));
+        getStorage(Storages.CRAFTY_ENERGY,d).ifPresent((e)-> cy.consumeEnergy(e.receiveEnergy(new CraftyTransaction(cy.getMaxConsume(), cy.getStoredTier()),false), false));
     }
 
     default Map<SlotsIdentifier, int[]> itemSlotsIdentifiers() {
