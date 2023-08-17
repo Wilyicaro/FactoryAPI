@@ -5,8 +5,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 
-import java.util.Map;
-
 public enum TransportState implements StringRepresentable, IHasIdentifier {
     EXTRACT("extract"),
     INSERT("insert"),
@@ -55,7 +53,7 @@ public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
         return  TransportState.values()[ ordinal() < values().length - 1 ? ordinal() + 1 : 0];
     }
 
-    public static CompoundTag serializeTag(Map<Direction, TransportState> sided) {
+    public static CompoundTag serializeTag(SideList<TransportState> sided) {
 
         CompoundTag sides = new CompoundTag();
         for (Direction direction : Direction.values())
@@ -64,7 +62,7 @@ public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
     }
 
 
-    public static void deserializeNBT(CompoundTag nbt, Map<Direction, TransportState> sided) {
+    public static void deserializeTag(CompoundTag nbt, SideList<TransportState> sided) {
         for (Direction direction : Direction.values())
             sided.put(direction,  TransportState.values()[nbt.getInt(direction.getName())]);
     }

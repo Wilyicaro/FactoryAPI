@@ -30,9 +30,6 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
         this.validator = validator;
         this.transportState = transportState;
     }
-    public ForgeItemFluidHandler(ItemStack stack, IFluidItem.FluidStorageBuilder builder) {
-        this(builder.Capacity(), stack, builder.validator(), builder.transportState());
-    }
     public @NotNull net.minecraftforge.fluids.FluidStack getFluid() {
         return net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(getFluidCompound(container));
     }
@@ -103,7 +100,7 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
     }
 

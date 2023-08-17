@@ -1,9 +1,10 @@
 package wily.factoryapi.base;
 
+import dev.architectury.fluid.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 public class CraftyTransaction {
-    public int energy;
+    public final int energy;
     public @Nullable FactoryCapacityTiers tier;
     public CraftyTransaction(int energyTransferred, @Nullable FactoryCapacityTiers energyTier){
         energy = energyTransferred;
@@ -12,11 +13,11 @@ public class CraftyTransaction {
     public int convertEnergyTo(FactoryCapacityTiers tier){
         return tier == null ? 0 : this.tier.convertEnergyTo(energy,tier);
     }
-    public CraftyTransaction reduce(double reduction ){
-        energy /= reduction;
-        return this;
+    public CraftyTransaction reduce(float reduction ){
+        return new CraftyTransaction(Math.round(energy/ reduction),tier);
     }
+
     public boolean isEmpty() {return energy== 0 || tier == null;}
-    public static CraftyTransaction EMPTY = new CraftyTransaction(0, null);
+    public static final CraftyTransaction EMPTY = new CraftyTransaction(0, null);
 
 }

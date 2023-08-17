@@ -3,11 +3,10 @@ package wily.factoryapi.base;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public interface IFactoryProcessableStorage extends IFactoryStorage {
+public interface IFactoryProgressiveStorage extends IFactoryExpandedStorage {
     default boolean hasProgress(){
         return !getProgresses().isEmpty();
     }
@@ -24,12 +23,12 @@ public interface IFactoryProcessableStorage extends IFactoryStorage {
 
     @Override
     default void loadTag(CompoundTag compoundTag) {
-        IFactoryStorage.super.loadTag(compoundTag);
+        IFactoryExpandedStorage.super.loadTag(compoundTag);
         if(hasProgress()) {getProgresses().forEach(p -> p.deserializeTag(compoundTag));}
     }
     @Override
     default void saveTag(CompoundTag compoundTag) {
-        IFactoryStorage.super.saveTag(compoundTag);
+        IFactoryExpandedStorage.super.saveTag(compoundTag);
         if(hasProgress()) {getProgresses().forEach(p -> compoundTag.merge(p.serializeTag()));}
     }
 }

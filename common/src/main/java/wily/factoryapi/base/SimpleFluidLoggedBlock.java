@@ -52,7 +52,7 @@ public interface SimpleFluidLoggedBlock extends BucketPickup, LiquidBlockContain
             return false;
         }
     }
-    default FluidState getFluidState(BlockState state) {
+    default FluidState getSimpleFluidState(BlockState state) {
         FluidState f = BLOCK_LOGGABLE_FLUIDS_SUPPLIER.get( state.getValue(FLUIDLOGGED())).get().defaultFluidState();
         return f.getType() instanceof FlowingFluid g ? g.getSource(false) : f;
     }

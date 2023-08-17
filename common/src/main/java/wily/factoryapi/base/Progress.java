@@ -71,8 +71,10 @@ public class Progress implements ITagSerializable<CompoundTag> {
                 p.maxProgress = tag.getInt(getMaxName());
             }else {
                 int[] array = tag.getIntArray(identifier.name);
-                p.set(array[i*2]);
-                p.maxProgress = array[i*2 + 1];
+                if (i*2 < array.length) {
+                    p.set(array[i * 2]);
+                    p.maxProgress = array[i * 2 + 1];
+                }
             }
         }
     }

@@ -117,7 +117,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
     }
 

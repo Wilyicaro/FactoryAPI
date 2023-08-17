@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ItemSide implements ISideType<ItemSide, SlotsIdentifier>{
-    public final TransportState transportState;
-
-
+    public TransportState transportState;
 
     public SlotsIdentifier identifier;
 
@@ -19,17 +17,17 @@ public class ItemSide implements ISideType<ItemSide, SlotsIdentifier>{
     }
 
 
-    public static CompoundTag serializeTag(Map<Direction, ItemSide> sided, List<SlotsIdentifier> list) {
+    public static CompoundTag serializeTag(SideList<ItemSide> sided, List<SlotsIdentifier> list) {
         CompoundTag sides = new CompoundTag();
         for (Direction direction : Direction.values())
             sides.putIntArray(direction.getName(), new int[]{list.contains(sided.get(direction).identifier) ? list.indexOf(sided.get(direction).identifier) : 0, sided.get(direction).transportState.ordinal()});
         return sides;
     }
 
-    public static void deserializeNBT(CompoundTag nbt, Map<Direction, ItemSide> sided, List<SlotsIdentifier> list) {
+    public static void deserializeNBT(CompoundTag nbt, SideList<ItemSide> sided, List<SlotsIdentifier> list) {
         for (Direction direction : Direction.values()) {
             int[] slotsState = nbt.getIntArray(direction.getName());
-            sided.put(direction, new ItemSide(list.size() >= 1 ?  list.get(slotsState[0]) : SlotsIdentifier.GENERIC , TransportState.byOrdinal(slotsState[slotsState.length - 1])));
+            sided.put(direction, new ItemSide(!list.isEmpty() ?  list.get(slotsState[0]) : SlotsIdentifier.GENERIC , TransportState.byOrdinal(slotsState[slotsState.length - 1])));
         }
         }
 
@@ -41,6 +39,17 @@ public class ItemSide implements ISideType<ItemSide, SlotsIdentifier>{
     @Override
     public ItemSide ofTransport(TransportState transport) {
         return new ItemSide(identifier,transport);
+    }
+
+    @Override
+    public TransportState getTransport() {
+        return transportState;
+    }
+
+    @Override
+    public ItemSide withTransport(TransportState transportState) {
+        this.transportState = transportState;
+        return this;
     }
 
     @Override

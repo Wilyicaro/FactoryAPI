@@ -15,6 +15,7 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.base.IFactoryExpandedStorage;
 import wily.factoryapi.base.IFactoryStorage;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
@@ -22,7 +23,7 @@ import wily.factoryapi.base.TransportState;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHandler {
+public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHandler<IItemHandlerModifiable> {
     protected BlockEntity be;
 
     public IItemHandlerModifiable itemHandler;
@@ -141,7 +142,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
 
     @Override
     public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
-        if (be instanceof IFactoryStorage storage) return storage.getSlots(null).get(slot).mayPlace(stack);
+        if (be instanceof IFactoryExpandedStorage storage) return storage.getSlots(null).get(slot).mayPlace(stack);
         return true;
     }
 
@@ -192,7 +193,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
     }
 
     @Override
-    public Object getHandler() {
+    public IItemHandlerModifiable getHandler() {
         return itemHandler;
     }
 

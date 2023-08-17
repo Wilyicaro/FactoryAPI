@@ -23,41 +23,52 @@ public class FactoryAPIPlatform {
         throw new AssertionError();
     }
     @ExpectPlatform
-    public static IPlatformFluidHandler getFluidHandlerApi(long Capacity, BlockEntity be, Predicate<FluidStack> validator, SlotsIdentifier differential, TransportState transport) {
+    public static IPlatformFluidHandler<?> getFluidHandlerApi(long Capacity, BlockEntity be, Predicate<FluidStack> validator, SlotsIdentifier differential, TransportState transport) {
 
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static IPlatformItemHandler getItemHandlerApi(int inventorySize, BlockEntity be) {
-
+    public static IPlatformItemHandler<?> getItemHandlerApi(int inventorySize, BlockEntity be) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static IPlatformFluidHandler getFluidItemHandlerApi(ItemStack container, IFluidItem.FluidStorageBuilder builder) {
-
+    public static IPlatformFluidHandler<?> getItemFluidHandler(ItemStack container) {
+        throw new AssertionError();
+    }
+    @ExpectPlatform
+    public static IPlatformEnergyStorage<?> getItemEnergyStorage(ItemStack stack) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static IPlatformEnergyStorage getEnergyStorageApi(int Capacity, BlockEntity be) {
+    public static ICraftyEnergyStorage getItemCraftyEnergyStorage(ItemStack stack) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static IPlatformItemHandler filteredOf(IPlatformItemHandler itemHandler, Direction direction, int[] slots, TransportState transportState) {
+    public static IPlatformEnergyStorage<?> getEnergyStorageApi(int Capacity, BlockEntity be) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static IPlatformFluidHandler filteredOf(IPlatformFluidHandler fluidHandler, TransportState transportState) {
-        throw new AssertionError();
-    }
-    @ExpectPlatform
-    public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage fluidHandler, TransportState transportState) {
+    public static IPlatformItemHandler<?> filteredOf(IPlatformItemHandler itemHandler, Direction direction, int[] slots, TransportState transportState) {
         throw new AssertionError();
     }
 
+    @ExpectPlatform
+    public static IPlatformFluidHandler<?> filteredOf(IPlatformFluidHandler fluidHandler, TransportState transportState) {
+        throw new AssertionError();
+    }
+    @ExpectPlatform
+    public static IPlatformEnergyStorage<?> filteredOf(IPlatformEnergyStorage fluidHandler, TransportState transportState) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static IFactoryStorage getPlatformFactoryStorage(BlockEntity entity) {
+        throw new AssertionError();
+    }
 
 }

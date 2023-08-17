@@ -13,45 +13,66 @@ public enum BlockSide {
         return null;
     }
     public Direction convertToHorizontalFacing(Direction BlockStateDirection){
-        switch (this){
-            case TOP:
-                return Direction.UP;
-            case BOTTOM:
-                return Direction.DOWN;
-            case RIGHT:
-                return BlockStateDirection.getCounterClockWise();
-            case LEFT:
-                return BlockStateDirection.getClockWise();
-            case FRONT:
-                return BlockStateDirection;
-            case BACK:
-                return BlockStateDirection.getOpposite();
-        }
-        return BlockStateDirection;
+        return switch (this) {
+            case TOP -> Direction.UP;
+            case BOTTOM -> Direction.DOWN;
+            case RIGHT -> BlockStateDirection.getCounterClockWise();
+            case LEFT -> BlockStateDirection.getClockWise();
+            case FRONT -> BlockStateDirection;
+            case BACK -> BlockStateDirection.getOpposite();
+        };
     }
-    public Direction convertToFacing(Direction d){
+    public Direction convertToFacing(Direction pointingDirection){
         if (this == FRONT)
-                return d;
+                return pointingDirection;
         if (this == BACK)
-                return d.getOpposite();
-        if (Direction.Plane.HORIZONTAL.test(d)) {
+                return pointingDirection.getOpposite();
+        if (Direction.Plane.HORIZONTAL.test(pointingDirection)) {
             if (this == TOP)
                 return Direction.UP;
             if (this == BOTTOM)
                 return Direction.DOWN;
             if (this == RIGHT)
-                return d.getCounterClockWise();
+                return pointingDirection.getCounterClockWise();
             if (this == LEFT)
-                return d.getClockWise();
+                return pointingDirection.getClockWise();
         }else {
-            if (this == TOP || this == BOTTOM)
-                return d.getClockWise(Direction.Axis.X);
+            if (this == TOP)
+                return pointingDirection.getClockWise(Direction.Axis.X);
+            if (this == BOTTOM)
+                return pointingDirection.getCounterClockWise(Direction.Axis.X);
             if (this == RIGHT)
-                return Direction.WEST;
+                return pointingDirection.getCounterClockWise(Direction.Axis.Z);
             if (this == LEFT)
-                return Direction.EAST;
+                return pointingDirection.getClockWise(Direction.Axis.Z);
         }
-    return d;
+    return pointingDirection;
+    }
+    public Direction convertTopFacing(Direction pointingDirection){
+        if (this == TOP)
+            return pointingDirection;
+        if (this == BOTTOM)
+            return pointingDirection.getOpposite();
+        if (Direction.Plane.HORIZONTAL.test(pointingDirection)) {
+            if (this == FRONT)
+                return Direction.UP;
+            if (this == BACK)
+                return Direction.DOWN;
+            if (this == RIGHT)
+                return pointingDirection.getCounterClockWise();
+            if (this == LEFT)
+                return pointingDirection.getClockWise();
+        }else {
+            if (this == FRONT)
+                return pointingDirection.getClockWise(Direction.Axis.X);
+            if (this == BACK)
+                return pointingDirection.getCounterClockWise(Direction.Axis.X);
+            if (this == RIGHT)
+                return pointingDirection.getCounterClockWise(Direction.Axis.Z);
+            if (this == LEFT)
+                return pointingDirection.getClockWise(Direction.Axis.Z);
+        }
+        return pointingDirection;
     }
 
 }

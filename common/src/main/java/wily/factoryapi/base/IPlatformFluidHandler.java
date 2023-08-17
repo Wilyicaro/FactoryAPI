@@ -79,7 +79,7 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
      * simulated) drained.
      */
     @NotNull
-    FluidStack drain(int maxDrain, boolean simulate);
+    FluidStack drain(long maxDrain, boolean simulate);
 
     default long getTotalSpace(){
         return Math.max(0, getMaxFluid() - getFluidStack().getAmount());
