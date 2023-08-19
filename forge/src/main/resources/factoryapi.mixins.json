@@ -9,7 +9,9 @@
     "FluidHandler",
     "FluidHandlerItem",
     "ForgeEnergyHandler",
+    "IForgeFactoryBlock",
     "IForgeFactoryStorage",
+    "IForgeItemInjector",
     "ItemHandlerModifiable"
   ],
   "injectors": {

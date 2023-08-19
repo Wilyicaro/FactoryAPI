@@ -77,6 +77,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
         return newFluidHandler;
     }
 
+
     @Override
     public long getMaxFluid() {
         return getCapacity();
@@ -89,8 +90,9 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
-        return drain(FluidStackHooksFabric.fromFabric(variant,maxDrain), simulate);
+        return drain(getFluidStack().copyWithAmount(maxDrain), simulate);
     }
+
 
     @Override
     public void setFluid(FluidStack fluidStack) {

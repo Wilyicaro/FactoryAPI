@@ -16,6 +16,9 @@
   "entrypoints": {
     "main": [
       "wily.factoryapi.fabric.FactoryAPIFabric"
+    ],
+    "client": [
+      "wily.factoryapi.fabric.FactoryAPIFabricClient"
     ]
   },
   "mixins": [

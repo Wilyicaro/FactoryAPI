@@ -22,13 +22,13 @@ public class StorageUtil {
     public static void transferFluidTo(IFactoryStorage fromStorage, Direction d, IPlatformFluidHandler<?> fluidFiller){
         transferFluidTo(fromStorage,c->c,d,fluidFiller);
     }
-    public static void transferFluidFrom(IFactoryStorage fromStorage, Direction d, IPlatformFluidHandler<?> fluidFiller){
-        transferFluidFrom(fromStorage,c->c,d,fluidFiller);
+    public static void transferFluidFrom(IFactoryStorage toStorage, Direction d, IPlatformFluidHandler<?> fluidFiller){
+        transferFluidFrom(toStorage,c->c,d,fluidFiller);
     }
     public static void transferFluidTo(IFactoryStorage fromStorage, Function<FluidStack,FluidStack> transaction, Direction d, IPlatformFluidHandler<?> fluidFiller){
         fromStorage.getStorage(Storages.FLUID,d).ifPresent((e)-> e.drain(fluidFiller.fill(transaction.apply(e.getFluidStack()), false), false));
     }
-    public static void transferFluidFrom(IFactoryStorage fromStorage, Function<FluidStack,FluidStack> transaction, Direction d, IPlatformFluidHandler<?> fluidDrainer){
-        fromStorage.getStorage(Storages.FLUID,d).ifPresent((e)-> fluidDrainer.drain(e.fill(transaction.apply(fluidDrainer.getFluidStack()),false), false));
+    public static void transferFluidFrom(IFactoryStorage toStorage, Function<FluidStack,FluidStack> transaction, Direction d, IPlatformFluidHandler<?> fluidDrainer){
+        toStorage.getStorage(Storages.FLUID,d).ifPresent((e)-> fluidDrainer.drain(e.fill(transaction.apply(fluidDrainer.getFluidStack()),false), false));
     }
 }
