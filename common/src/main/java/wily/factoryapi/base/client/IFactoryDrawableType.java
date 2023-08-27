@@ -1,4 +1,4 @@
-package wily.factoryapi.base;
+package wily.factoryapi.base.client;
 
 
 import dev.architectury.fluid.FluidStack;
@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.ProgressElementRenderUtil;
 @Environment(EnvType.CLIENT)
 public interface IFactoryDrawableType {

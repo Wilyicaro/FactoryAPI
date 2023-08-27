@@ -1,4 +1,4 @@
-package wily.factoryapi.base;
+package wily.factoryapi.base.client;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;

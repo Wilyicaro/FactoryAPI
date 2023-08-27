@@ -32,14 +32,20 @@ public enum FactoryCapacityTiers {
     }
 
     public MutableComponent getEnergyTierComponent(boolean isStored){
-        return getComponent("energy",isStored);
+        return getPrefixComponent("energy",isStored).withStyle(ChatFormatting.AQUA).append(localizedName);
+    }
+    public MutableComponent getOutputTierComponent(){
+        return getPrefixComponent("energy",I18n.get("tier.factory_api.output")).withStyle(ChatFormatting.AQUA).append(localizedName);
     }
     public MutableComponent getTierComponent(boolean isStored){
-        return getComponent("capacity",isStored);
+        return getPrefixComponent("capacity",isStored).withStyle(ChatFormatting.GRAY).append(localizedName);
     }
-    public MutableComponent getComponent(String keyType, boolean isStored){
-        String stored = isStored ? I18n.get("tier.factory_api.stored") : "";
-        return Component.translatable("tier.factory_api.display",I18n.get("tier.factory_api." + keyType,stored)).withStyle(ChatFormatting.AQUA).append(localizedName);
+    public MutableComponent getPrefixComponent(String keyType, boolean isStored){
+        if (isStored) return getPrefixComponent(keyType,I18n.get("tier.factory_api.stored"));
+        else return getPrefixComponent(keyType,"");
+    }
+    public MutableComponent getPrefixComponent(String keyType, Object... objects){
+        return Component.translatable("tier.factory_api.display",I18n.get("tier.factory_api." + keyType, objects));
     }
     public boolean supportTier(FactoryCapacityTiers tier){return ordinal() >= tier.ordinal();}
     public double getConductivity() {
@@ -55,7 +61,9 @@ public enum FactoryCapacityTiers {
         return getDefaultCapacity() * capacityMultiplier;
     }
 
-
+    public FactoryCapacityTiers increase(int ordinal){
+        return FactoryCapacityTiers.values()[Math.min(values().length-1, ordinal() + ordinal)];
+    }
     public int convertEnergyTo(int energy, FactoryCapacityTiers tier){
         return (int) Math.round(Math.max(energy + (getConductivity() - tier.getConductivity()) * energy * initialCapacity /tier.initialCapacity,0));
     }

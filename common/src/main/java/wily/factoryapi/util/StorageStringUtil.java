@@ -7,8 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.inventory.AbstractFurnaceMenu;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -33,27 +31,35 @@ public class StorageStringUtil {
 
     public static String kiloEnergy = " k" + DEFAULT_ENERGY_SUFFIX;
 
-    public static String millerEnergy = " M" + DEFAULT_ENERGY_SUFFIX;
+    public static String megaEnergy = " M" + DEFAULT_ENERGY_SUFFIX;
 
     public static String CYMeasure = I18n.get(DEFAULT_CRAFTY_ENERGY, " ");
 
     public static String kiloCY = I18n.get(DEFAULT_CRAFTY_ENERGY," k");
 
-    public static String millerCY = I18n.get(DEFAULT_CRAFTY_ENERGY," M");
+    public static String megaCY = I18n.get(DEFAULT_CRAFTY_ENERGY," M");
 
-    protected static String miliFluid = I18n.get(DEFAULT_FLUID," m");
+    protected static String milliFluid = I18n.get(DEFAULT_FLUID," m");
 
 
-    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell){
-        return getEnergyTooltip(key,cell,millerEnergy, kiloEnergy, energyMeasure);
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell){
+        return getEnergyTooltip(key,cell, megaEnergy, kiloEnergy, energyMeasure);
     }
     public static MutableComponent getEnergyTooltip(String key, ICraftyEnergyStorage cell){
-        return getEnergyTooltip(key,cell,millerCY, kiloCY, CYMeasure);
+        return getEnergyTooltip(key,cell, megaCY, kiloCY, CYMeasure);
     }
-    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell, String millerEnergy, String kiloEnergy, String energyMeasure){
-        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), millerEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,millerEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell, String megaEnergy, String kiloEnergy, String energyMeasure){
+        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), megaEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,megaEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
     }
-
+    public static MutableComponent getMaxCraftyTransferTooltip(int energyPerTick){
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), megaCY,kiloCY, CYMeasure));
+    }
+    public static MutableComponent getMaxEnergyTransferTooltip(int energyPerTick){
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), megaEnergy,kiloEnergy, energyMeasure)).withStyle(ChatFormatting.AQUA);
+    }
+    public static MutableComponent getMaxFluidTransferTooltip(long fluidPerTick){
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(fluidPerTick, isShiftKeyDown(),"", fluidMeasure, milliFluid)).withStyle(ChatFormatting.GRAY);
+    }
     public static List<Component> getCompleteEnergyTooltip(String key, @Nullable Component burned, ICraftyEnergyStorage cell){
         List<Component> list = new ArrayList<>(List.of());
         if (burned == null || !cell.getStoredTier().isBurned())list.add(getEnergyTooltip(key,cell));
@@ -65,17 +71,17 @@ public class StorageStringUtil {
     public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell) {
         return getCompleteEnergyTooltip(key,null,cell);
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler<?> tank){
         return getFluidTooltip(key,tank,true);
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank, boolean showEmpty){
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler<?> tank, boolean showEmpty){
         return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid(),showEmpty).withStyle(tank.identifier().color());
     }
     public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid, boolean showEmpty){
         if (stack.isEmpty() && !isShiftKeyDown() && showEmpty) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
-        return Component.translatable(key, stack.getName(), getStorageAmount((int) calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, miliFluid), getStorageAmount((int) calculateFluid(maxFluid,1000), false,"", fluidMeasure, miliFluid));
+        return Component.translatable(key, stack.getName(), getStorageAmount(calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, milliFluid), getStorageAmount(calculateFluid(maxFluid,1000), false,"", fluidMeasure, milliFluid));
     }
-    public static String getStorageAmount(int content, boolean additionalBool, String minimal, String min, String max){
+    public static String getStorageAmount(long content, boolean additionalBool, String minimal, String min, String max){
         if (content == Integer.MAX_VALUE) return "∞";
         String amount = formatMinAmount( (float) content / 1000) + min;
         if (content >= 1000000) amount = formatMinAmount( (float) content / 1000000) + minimal;
@@ -107,9 +113,7 @@ public class StorageStringUtil {
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
                     return InputConstants.isKeyDown(windowHandle, keyCode);
-                } /**else if (key.getType() == InputMappings.Type.MOUSE) {
-                 return GLFW.glfwGetMouseButton(windowHandle, keyCode) == GLFW.GLFW_PRESS;
-                 }**/
+                }
             } catch (Exception ignored) {
             }
         }

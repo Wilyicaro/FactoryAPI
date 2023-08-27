@@ -42,6 +42,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
     }
     default void loadTag(CompoundTag compoundTag) {
         getStorage(Storages.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("CYEnergy")));
+        getStorage(Storages.ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("Energy")));
         if (!getTanks().isEmpty()) getTanks().forEach((tank) ->  tank.deserializeTag(compoundTag.getCompound(tank.getName())));
         getStorage(Storages.ITEM).ifPresent((e) -> e.deserializeTag(compoundTag.getCompound("inventory")));
         fluidSides().ifPresent((f)-> FluidSide.deserializeNBT(compoundTag.getCompound("fluidSides"), f, getTanks()));
@@ -51,6 +52,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
 
     default void saveTag(CompoundTag compoundTag) {
         getStorage(Storages.CRAFTY_ENERGY).ifPresent((e)-> compoundTag.put("CYEnergy", e.serializeTag()));
+        getStorage(Storages.ENERGY).ifPresent((e)-> compoundTag.put("Energy", e.serializeTag()));
         if (!getTanks().isEmpty()) getTanks().forEach((tank) -> compoundTag.put(tank.getName(), tank.serializeTag()));
         getStorage(Storages.ITEM).ifPresent((i)-> compoundTag.put("inventory", i.serializeTag()));
         fluidSides().ifPresent((f)-> compoundTag.put("fluidSides",FluidSide.serializeTag(f)));

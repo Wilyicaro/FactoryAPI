@@ -16,6 +16,12 @@ public class CraftyTransaction {
     public CraftyTransaction reduce(float reduction ){
         return new CraftyTransaction(Math.round(energy/ reduction),tier);
     }
+    public CraftyTransaction min(int energy){
+        return energy < this.energy ? new CraftyTransaction(energy,tier) : this;
+    }
+    public CraftyTransaction max(int energy){
+        return energy > this.energy ? new CraftyTransaction(energy,tier) : this;
+    }
 
     public boolean isEmpty() {return energy== 0 || tier == null;}
     public static final CraftyTransaction EMPTY = new CraftyTransaction(0, null);

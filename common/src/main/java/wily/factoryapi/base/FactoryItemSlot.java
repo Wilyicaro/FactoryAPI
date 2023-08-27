@@ -31,6 +31,12 @@ public class FactoryItemSlot extends Slot implements IHasIdentifier {
         this.type = type;
         return this;
     }
+    public int getCustomX(){
+        return x;
+    }
+    public int getCustomY(){
+        return y;
+    }
     public Type getType() {
         return type;
     }

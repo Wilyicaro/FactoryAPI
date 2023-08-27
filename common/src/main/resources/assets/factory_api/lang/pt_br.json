@@ -2,6 +2,7 @@
   "_comment": "Tier",
   "tier.factory_api.energy": "Energético%s",
   "tier.factory_api.stored": " Armazenado",
+  "tier.factory_api.output": " de Saída",
   "tier.factory_api.capacity": "Capacitivo%s",
   "tier.factory_api.display": "Nível %s: ",
   "tier.factory_api.burned": "Queimado",
@@ -28,9 +29,7 @@
   "tooltip.factory_api.config.slot": "Slots %s",
   "tooltip.factory_api.config.tank": "Tanque %s",
   "tooltip.factory_api.config.cell": "Célula %s",
-  "tooltip.factory_api.fluid_stored": "%s: %s/%s",
   "tooltip.factory_api.energy_stored": "Energia: %s/%s",
-  "tooltip.factory_api.energy": "%sCY",
-  "tooltip.factory_api.fluid": "%sB",
+  "tooltip.factory_api.max_transfer": "Transferência máxima: %s/t",
   "tooltip.factory_api.empty": "Vazio"
 }
