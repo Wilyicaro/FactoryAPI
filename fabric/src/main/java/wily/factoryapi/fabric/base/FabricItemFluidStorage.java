@@ -25,7 +25,7 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
 
 
 
-    private final long Capacity;
+    private long Capacity;
     ContainerItemContext context;
     protected Predicate<FluidStack> validator;
 
@@ -140,5 +140,10 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        getFluidCompound(context.getItemVariant().toStack()).putInt("capacity", (int) capacity);
     }
 }

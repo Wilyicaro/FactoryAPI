@@ -13,6 +13,9 @@ public class FluidSide implements ISideType<FluidSide,IPlatformFluidHandler<?>> 
         this.fluidHandler = fluidHandler;
         this.transportState = transportState;
     }
+    public FluidSide(){
+        this(null,TransportState.NONE);
+    }
     public void setFluidHandler(IPlatformFluidHandler<?> newFluidHandler){
         this.fluidHandler = newFluidHandler;
     }

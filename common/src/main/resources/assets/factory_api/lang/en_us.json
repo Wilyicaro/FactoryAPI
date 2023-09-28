@@ -36,5 +36,11 @@
   "tooltip.factory_api.energy": "%sCY",
   "tooltip.factory_api.crafty_energy": "%sCY",
   "tooltip.factory_api.fluid": "%sB",
-  "tooltip.factory_api.empty": "Empty"
+  "tooltip.factory_api.empty": "Empty",
+  "tooltip.factory_api.gui_bottom": "Bottom",
+  "tooltip.factory_api.gui_top": "Top",
+  "tooltip.factory_api.gui_left": "Left",
+  "tooltip.factory_api.gui_right": "Right",
+  "tooltip.factory_api.gui_back": "Back",
+  "tooltip.factory_api.gui_front": "Front"
 }

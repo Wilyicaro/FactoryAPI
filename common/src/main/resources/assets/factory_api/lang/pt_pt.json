@@ -31,5 +31,11 @@
   "tooltip.factory_api.config.cell": "Célula %s",
   "tooltip.factory_api.energy_stored": "Energia: %s/%s",
   "tooltip.factory_api.max_transfer": "Transferência máxima: %s/t",
-  "tooltip.factory_api.empty": "Vazio"
+  "tooltip.factory_api.empty": "Vazio",
+  "tooltip.factory_api.gui_bottom": "Fundo",
+  "tooltip.factory_api.gui_top": "Topo",
+  "tooltip.factory_api.gui_left": "Esquerda",
+  "tooltip.factory_api.gui_right": "Direta",
+  "tooltip.factory_api.gui_back": "Atrás",
+  "tooltip.factory_api.gui_front": "Frente"
 }

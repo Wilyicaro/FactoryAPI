@@ -1,11 +1,17 @@
 package wily.factoryapi.base;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import java.util.Locale;
+
 public enum BlockSide {
     TOP,BOTTOM,RIGHT,LEFT,FRONT,BACK;
+    public Component getComponent(){
+        return Component.translatable("tooltip.factory_api.gui_" + name().toLowerCase(Locale.ENGLISH));
+    }
 
     public Direction blockStateToFacing(BlockState blockState){
         if (blockState.getOptionalValue(BlockStateProperties.HORIZONTAL_FACING).isPresent()) return convertToHorizontalFacing(blockState.getValue(BlockStateProperties.HORIZONTAL_FACING));

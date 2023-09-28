@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Progress implements ITagSerializable<CompoundTag> {
 
@@ -40,6 +41,10 @@ public class Progress implements ITagSerializable<CompoundTag> {
         return entries.get(index);
     }
 
+    public void forEach(Consumer<ProgressEntry> consumer){
+        getEntries().forEach(consumer);
+    }
+
     public void setValues(int[] array) {
         for (int i = 0; i < entries.size(); i++) {
             ProgressEntry p = entries.get(i);
@@ -66,21 +71,12 @@ public class Progress implements ITagSerializable<CompoundTag> {
     public void deserializeTag(CompoundTag tag) {
         for (int i = 0; i < entries.size(); i++) {
             ProgressEntry p = entries.get(i);
-            if (tag.contains(getMaxName())){
-                p.set(tag.getInt(identifier.name));
-                p.maxProgress = tag.getInt(getMaxName());
-            }else {
-                int[] array = tag.getIntArray(identifier.name);
-                if (i*2 < array.length) {
-                    p.set(array[i * 2]);
-                    p.maxProgress = array[i * 2 + 1];
-                }
+            int[] array = tag.getIntArray(identifier.name);
+            if (i*2 < array.length) {
+                p.set(array[i * 2]);
+                p.maxProgress = array[i * 2 + 1];
             }
         }
-    }
-    @Deprecated
-    public String getMaxName(){
-        return "actual" + (identifier.name.substring(0,1).toUpperCase() + identifier.name.substring(1));
     }
     public static class ProgressEntry extends Bearer<Integer>{
 

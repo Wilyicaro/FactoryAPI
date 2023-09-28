@@ -82,29 +82,29 @@ public class FactoryAPIPlatformImpl {
         if (be instanceof IFactoryStorage s) return s;
         return new IFactoryStorage() {
             @Override
-            public <T extends IPlatformHandlerApi<?>> Optional<T> getStorage(Storages.Storage<T> storage, Direction direction) {
+            public <T extends IPlatformHandlerApi<?>> ArbitrarySupplier<T> getStorage(Storages.Storage<T> storage, Direction direction) {
                 if (be.hasLevel())
                     if (storage == Storages.ITEM) {
                         Storage<ItemVariant> variantStorage = ItemStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
-                        if (variantStorage instanceof IPlatformItemHandler<?>) return Optional.of((T) variantStorage);
+                        if (variantStorage instanceof IPlatformItemHandler<?>) return ()->((T) variantStorage);
                         if (variantStorage!= null)
-                            return Optional.of((T)(FabricItemStoragePlatform)()-> variantStorage);
+                            return ()->((T)(FabricItemStoragePlatform)()-> variantStorage);
                     } else if (storage == Storages.FLUID) {
                         Storage<FluidVariant> variantStorage = FluidStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
-                        if (variantStorage instanceof IPlatformFluidHandler<?>) return Optional.of((T) variantStorage);
+                        if (variantStorage instanceof IPlatformFluidHandler<?>) return ()->(T) variantStorage;
                         if (variantStorage!= null)
-                            return Optional.of((T)(FabricFluidStoragePlatform) ()-> variantStorage);
+                            return ()->((T)(FabricFluidStoragePlatform) ()-> variantStorage);
                     }else if (storage == Storages.ENERGY) {
                         EnergyStorage energyStorage = EnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
-                        if (energyStorage instanceof IPlatformEnergyStorage<?>) return Optional.of((T) energyStorage);
+                        if (energyStorage instanceof IPlatformEnergyStorage<?>) return ()->(T) energyStorage;
                         if (energyStorage!= null)
-                            return Optional.of((T)(FabricEnergyStoragePlatform)()-> energyStorage);
+                            return ()->((T)(FabricEnergyStoragePlatform)()-> energyStorage);
                     }
                     else if (storage == Storages.CRAFTY_ENERGY) {
                         ICraftyEnergyStorage energyStorage = CraftyEnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
-                        if (energyStorage!= null) return Optional.of((T)energyStorage);
+                        if (energyStorage!= null) return ()->((T)energyStorage);
                     }
-                return Optional.empty();
+                return ()-> null;
             }
         };
     }

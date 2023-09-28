@@ -1,4 +1,4 @@
-package wily.factoryapi.base.client;
+package wily.factoryapi.base.client.drawable;
 
 
 import dev.architectury.fluid.FluidStack;
@@ -10,35 +10,21 @@ import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.ProgressElementRenderUtil;
 @Environment(EnvType.CLIENT)
 public interface IFactoryDrawableType {
+    IFactoryDrawableType EMPTY = new IFactoryDrawableType() {
+        public void draw(GuiGraphics graphics, int x, int y) {}
+        public ResourceLocation texture() {return null;}
+        public int width() {return 0;}
+
+        public int height() {return 0;}
+
+        public int uvX() {return 0;}
+
+        public int uvY() {return 0;}
+    };
+
+    static IFactoryDrawableType empty(){return EMPTY;}
 
     ResourceLocation texture();
-
-    class  DrawableStatic<T extends IFactoryDrawableType> implements IFactoryDrawableType{
-        public  T drawable;
-        public int posX;
-        public int posY;
-
-        public DrawableStatic(T drawable, int posX, int posY){
-            this.drawable = drawable;
-            this.posX = posX;
-            this.posY = posY;
-        }
-        public void draw(GuiGraphics graphics) {
-            drawable.draw(graphics, posX, posY);
-        }
-        public void drawAsFluidTank(GuiGraphics graphics, FluidStack stack, long capacity, boolean hasColor) {
-            drawable.drawAsFluidTank(graphics, posX, posY, stack, capacity, hasColor);
-        }
-        public boolean inMouseLimit(double mouseX, double mouseY) {
-            return drawable.inMouseLimit(mouseX,mouseY,posX,posY);
-        }
-
-        public ResourceLocation texture() {return drawable.texture();}
-        public int width() {return drawable.width();}
-        public int height() {return drawable.height();}
-        public int uvX() {return drawable.uvX();}
-        public int uvY() {return drawable.uvY();}
-    }
 
     record DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height) implements IFactoryDrawableType {
         @Deprecated
@@ -48,12 +34,15 @@ public interface IFactoryDrawableType {
         public DrawableProgress asProgress(boolean reverse, Direction plane){
             return new DrawableProgress(this,reverse,plane);
         }
-        public DrawableStatic<DrawableImage> createStatic(int posX, int posY){
-            return  new DrawableStatic<>(this,posX,posY);
+        public DrawableStatic createStatic(int posX, int posY){
+            return new DrawableStatic(this,posX,posY);
         }
     }
     static DrawableImage create(ResourceLocation texture, int uvX, int uvY, int width, int height){
         return new DrawableImage(texture, uvX, uvY, width, height);
+    }
+    static DrawableImage create(ResourceLocation texture,  int width, int height){
+        return new DrawableImage(texture, 0, 0, width, height);
     }
     record DrawableProgress(DrawableImage drawable, boolean reverse, Direction plane) implements IFactoryDrawableType {
         public void drawProgress(GuiGraphics graphics,int x, int y, float percentage){
@@ -63,10 +52,11 @@ public interface IFactoryDrawableType {
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, max <= 0 ? 0 : (float) progress / max,this);
         }
         public void drawProgress(GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
-            progress.getEntries().forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
+            progress.forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
         }
+
         public DrawableStaticProgress createStatic(int posX, int posY){
-            return  new DrawableStaticProgress(this,posX,posY);
+            return new DrawableStaticProgress(this,posX,posY);
         }
 
         public ResourceLocation texture() {return drawable.texture;}
@@ -75,25 +65,13 @@ public interface IFactoryDrawableType {
         public int uvX() {return drawable.uvX;}
         public int uvY() {return drawable.uvY;}
     }
-    class DrawableStaticProgress extends  DrawableStatic<DrawableProgress>{
 
-        public DrawableStaticProgress(DrawableProgress drawable, int posX, int posY) {
-            super(drawable, posX, posY);
-        }
-        public void drawProgress(GuiGraphics graphics, float percentage){
-            drawable.drawProgress(graphics,posX,posY, percentage);
-        }
-        public void drawProgress(GuiGraphics graphics, int progress, int max){
-            drawable.drawProgress(graphics,posX,posY, progress, max);
-        }
-        public void drawProgress(GuiGraphics graphics, Progress progress){
-            drawable.drawProgress(graphics,posX,posY,progress);
-        }
-    }
     int width();
     int height();
 
-
+    default DrawableImage adjacentImage(Direction direction){
+        return create(texture(),uvX() + (direction.isHorizontal() ? width(): 0),uvY() + (direction.isVertical() ? height(): 0),width(),height());
+    }
     default void drawAsFluidTank(GuiGraphics graphics, int x, int y, FluidStack stack,long capacity, boolean hasColor){
         ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,stack,capacity, hasColor);
     }

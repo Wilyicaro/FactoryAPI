@@ -64,6 +64,7 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     @Override
     public void deserializeTag(CompoundTag tag) {
         setFluid(net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(tag));
+        setCapacity(tag.getLong("capacity"));
     }
 
     @Override
@@ -123,5 +124,10 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        getFluidCompound(container).putInt("capacity", (int) capacity);
     }
 }

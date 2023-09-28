@@ -30,6 +30,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
     @Override
     default void deserializeTag(CompoundTag tag) {
         setFluid(FluidStackHooksFabric.fromFabric(FluidVariant.fromNbt(tag.getCompound("fluidVariant")),tag.getLong("amount")));
+        if (tag.contains("capacity")) setCapacity(tag.getLong("capacity"));
     }
     @Override
     default CompoundTag serializeTag() {
@@ -37,6 +38,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
         for (StorageView<FluidVariant> view : getHandler()) {
             tag.put("fluidVariant", view.getResource().toNbt());
             tag.putLong("amount", view.getAmount());
+            tag.putLong("capacity", view.getCapacity());
         }
         return tag;
     }
@@ -91,6 +93,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
             drain((int) view.getAmount(), false);
         fill(fluidStack,false);
     }
+
     @Override
     default SlotsIdentifier identifier() {
         return SlotsIdentifier.GENERIC;

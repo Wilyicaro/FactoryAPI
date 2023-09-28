@@ -24,7 +24,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
     protected Predicate<FluidStack> validator;
     private final SlotsIdentifier differential;
     protected final TransportState transportState;
-    protected final long capacity;
+    protected long capacity;
 
     public FabricFluidStorage(long Capacity, BlockEntity be, TransportState transportState){
         this(Capacity, be, f -> true, SlotsIdentifier.GENERIC, transportState);
@@ -96,7 +96,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     public void setFluid(FluidStack fluidStack) {
-        amount = fluidStack .getAmount();
+        amount = fluidStack.getAmount();
         variant = FluidStackHooksFabric.toFabric(fluidStack);
     }
 
@@ -118,6 +118,11 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
     protected void onFinalCommit() {
         be.setChanged();
         super.onFinalCommit();
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        this.capacity = capacity;
     }
 
     @Override

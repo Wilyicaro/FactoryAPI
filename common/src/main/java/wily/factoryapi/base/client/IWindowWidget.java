@@ -1,74 +1,65 @@
 package wily.factoryapi.base.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.sounds.SoundEvents;
+import wily.factoryapi.base.ArbitrarySupplier;
+import wily.factoryapi.base.client.drawable.DrawableStatic;
+import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
+import wily.factoryapi.util.ScreenUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public interface IWindowWidget {
-
-    default List<FactoryDrawableButton> configButtons() {
-        List<FactoryDrawableButton> list = new ArrayList<>();
-        addButtons(list);
-        list.addAll(configSliders());
-        return list;
-    }
-    default List<FactoryDrawableButton> addButtons(List<FactoryDrawableButton> list) {
-        return list;
-    }
-
-    default List<FactoryDrawableSlider> configSliders() {
-        return Collections.emptyList();
-    }
-    default void renderButtons(GuiGraphics graphics, int i, int j) {
-        for (FactoryDrawableButton button : configButtons()) {
-            button.selected = button.inMouseLimit(i, j);
-            button.draw(graphics);
-        }
-
-    }
-    default void renderButtonsTooltip(Font font, GuiGraphics graphics, int i, int j){
-        for (FactoryDrawableButton button : configButtons()) {
-            if (button.inMouseLimit(i, j) && !button.tooltip.getString().isEmpty()) graphics.renderTooltip(font,button.tooltip, i,j);
-        }
-    }
-    default boolean mouseDraggedSliders(double d, double e, int i){
-        for (FactoryDrawableSlider slider : configSliders()) {
-            if (slider.inMouseLimit(d, e) || slider.dragging) {
-                return slider.mouseDragging(d,e,i);
-            }
-        }
+public interface IWindowWidget extends GuiEventListener,Renderable {
+    default boolean mouseClicked(double d, double e, int i) {
+        for (Renderable nestedRenderable : getNestedRenderables())
+            if (nestedRenderable instanceof GuiEventListener listener && listener.mouseClicked(d,e,i)) return true;
         return false;
     }
-    default boolean mouseReleasedSliders(double d, double e, int i){
-        for (FactoryDrawableSlider slider : configSliders()) {
-            if (slider.inMouseLimit(d, e) || slider.dragging) {
-                slider.onRelease(d,e,i);
-                return true;
-            }
-        }
+
+    default boolean mouseReleased(double d, double e, int i) {
+        for (Renderable nestedRenderable : getNestedRenderables())
+            if (nestedRenderable instanceof GuiEventListener listener && listener.mouseReleased(d,e,i)) return true;
         return false;
     }
-    default boolean mouseClickedButtons(double d, double e, int i) {
-        for (FactoryDrawableButton button : configButtons()) {
-            if (button.inMouseLimit(d, e)) {
-                playDownSound(1.5F);
-                button.onClick(d,e,i);
-                return true;
-            }
-        }
-        return  false;
+
+    default boolean mouseDragged(double d, double e, int i, double f, double g) {
+        for (Renderable nestedRenderable : getNestedRenderables())
+            if (nestedRenderable instanceof GuiEventListener listener && listener.mouseDragged(d,e,i,f,g)) return true;
+        return false;
     }
+
+    default void render(GuiGraphics guiGraphics, int i, int j, float f) {
+        for (Renderable nestedRenderable : getNestedRenderables()) {
+            nestedRenderable.render(guiGraphics,i,j,f);
+        }
+    }
+
     default void playDownSound(float grave) {
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, grave));
+        ScreenUtil.playButtonDownSound(grave);
     }
     Rect2i getBounds();
 
     boolean isVisible();
+
+    @Override
+    default ScreenRectangle getRectangle() {
+        return ScreenUtil.rect2iToRectangle(getBounds());
+    }
+
+    <R extends Renderable> R addNestedRenderable(R drawable);
+
+    List<? extends Renderable> getNestedRenderables();
+
+    default ArbitrarySupplier<Renderable> getNestedAt(int x, int y){
+        for (Renderable nested : getNestedRenderables()) {
+            if (nested instanceof LayoutElement layout && IFactoryDrawableType.getMouseLimit(x,y, layout.getX(), layout.getY(), layout.getHeight(), layout.getWidth()))
+                return ()->nested;
+            else if (nested instanceof DrawableStatic drawable && drawable.inMouseLimit(x,y)) return ()->nested;
+        }
+        return ArbitrarySupplier.empty();
+    }
 }

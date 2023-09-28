@@ -92,14 +92,15 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     @Override
     public void deserializeTag(CompoundTag tag) {
         readFromNBT(tag);
+        if (tag.contains("capacity")) setCapacity(tag.getLong("capacity"));
     }
 
     @Override
     public CompoundTag serializeTag() {
         CompoundTag tag = new CompoundTag();
+        tag.putInt("capacity",getCapacity());
         return writeToNBT(tag);
     }
-
 
     @Override
     public boolean isFluidValid(@NotNull FluidStack stack) {
@@ -151,5 +152,10 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        setCapacity((int)capacity);
     }
 }

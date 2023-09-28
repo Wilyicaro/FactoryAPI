@@ -26,6 +26,9 @@ public class StorageStringUtil {
     public static final String DEFAULT_ENERGY_SUFFIX = getBetweenParenthesis(FactoryAPIPlatform.getPlatformEnergyComponent().getString());
     public static final String DEFAULT_FLUID = "tooltip.factory_api.fluid";
     protected static String fluidMeasure = I18n.get(DEFAULT_FLUID," ");
+    protected static String milliFluid = I18n.get(DEFAULT_FLUID," m");
+
+    protected static String kiloFluid = I18n.get(DEFAULT_FLUID," k");
 
     public static String energyMeasure = " " + DEFAULT_ENERGY_SUFFIX;
 
@@ -39,26 +42,25 @@ public class StorageStringUtil {
 
     public static String megaCY = I18n.get(DEFAULT_CRAFTY_ENERGY," M");
 
-    protected static String milliFluid = I18n.get(DEFAULT_FLUID," m");
 
 
     public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell){
-        return getEnergyTooltip(key,cell, megaEnergy, kiloEnergy, energyMeasure);
+        return getEnergyTooltip(key,cell, energyMeasure, kiloEnergy, megaEnergy);
     }
     public static MutableComponent getEnergyTooltip(String key, ICraftyEnergyStorage cell){
-        return getEnergyTooltip(key,cell, megaCY, kiloCY, CYMeasure);
+        return getEnergyTooltip(key,cell, CYMeasure, kiloCY, megaCY);
     }
-    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell, String megaEnergy, String kiloEnergy, String energyMeasure){
-        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), megaEnergy,kiloEnergy, energyMeasure), getStorageAmount( cell.getMaxEnergyStored(), false,megaEnergy,kiloEnergy, energyMeasure)).withStyle(cell.getComponentStyle());
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell, String... measures){
+        return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), measures), getStorageAmount( cell.getMaxEnergyStored(), false,measures)).withStyle(cell.getComponentStyle());
     }
     public static MutableComponent getMaxCraftyTransferTooltip(int energyPerTick){
-        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), megaCY,kiloCY, CYMeasure));
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), CYMeasure, kiloCY, megaCY));
     }
     public static MutableComponent getMaxEnergyTransferTooltip(int energyPerTick){
-        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), megaEnergy,kiloEnergy, energyMeasure)).withStyle(ChatFormatting.AQUA);
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(energyPerTick, isShiftKeyDown(), energyMeasure, kiloEnergy, megaEnergy)).withStyle(ChatFormatting.AQUA);
     }
     public static MutableComponent getMaxFluidTransferTooltip(long fluidPerTick){
-        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(fluidPerTick, isShiftKeyDown(),"", fluidMeasure, milliFluid)).withStyle(ChatFormatting.GRAY);
+        return Component.translatable("tooltip.factory_api.max_transfer",  getStorageAmount(fluidPerTick, isShiftKeyDown(),milliFluid, fluidMeasure, kiloFluid)).withStyle(ChatFormatting.GRAY);
     }
     public static List<Component> getCompleteEnergyTooltip(String key, @Nullable Component burned, ICraftyEnergyStorage cell){
         List<Component> list = new ArrayList<>(List.of());
@@ -79,13 +81,19 @@ public class StorageStringUtil {
     }
     public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid, boolean showEmpty){
         if (stack.isEmpty() && !isShiftKeyDown() && showEmpty) return Component.translatable("tooltip.factory_api.empty").withStyle(ChatFormatting.GRAY);
-        return Component.translatable(key, stack.getName(), getStorageAmount(calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),"", fluidMeasure, milliFluid), getStorageAmount(calculateFluid(maxFluid,1000), false,"", fluidMeasure, milliFluid));
+        return Component.translatable(key, stack.getName(), getStorageAmount(calculateFluid(stack.getAmount(),1000), isShiftKeyDown(),milliFluid, fluidMeasure, kiloFluid), getStorageAmount(calculateFluid(maxFluid,1000), false,milliFluid, fluidMeasure, kiloFluid));
     }
-    public static String getStorageAmount(long content, boolean additionalBool, String minimal, String min, String max){
+    public static String getStorageAmount(long content, boolean additionalBool, String... measures){
         if (content == Integer.MAX_VALUE) return "∞";
-        String amount = formatMinAmount( (float) content / 1000) + min;
-        if (content >= 1000000) amount = formatMinAmount( (float) content / 1000000) + minimal;
-        if (additionalBool || content < 1000) amount = formatAmount(content) + max;
+        String amount = "";
+        for (int i = measures.length - 1; i >= 1; i--) {
+            float min = (float) Math.pow(1000,i);
+            if (content >= min){
+                amount = formatMinAmount( content / min) + measures[i];
+                break;
+            }
+        }
+        if (additionalBool || content < 1000) amount = formatAmount(content) + measures[0];
         return amount;
     }
     public static String formatAmount(long i){

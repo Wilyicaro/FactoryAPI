@@ -67,20 +67,20 @@ public class FactoryAPIPlatformImpl {
         if (be instanceof IFactoryStorage st) return st;
         return new IFactoryStorage() {
             @Override
-            public <T extends IPlatformHandlerApi<?>> Optional<T> getStorage(Storages.Storage<T> storage, Direction direction) {
+            public <T extends IPlatformHandlerApi<?>> ArbitrarySupplier<T> getStorage(Storages.Storage<T> storage, Direction direction) {
                 Capability<?> capability = CapabilityUtil.storageToCapability(storage);
                 if (capability != null && be.getCapability(capability, direction).isPresent()){
                     Object handler = be.getCapability(capability, direction).resolve().get();
                     if (storage == Storages.ENERGY && handler instanceof IPlatformEnergyStorage<?> energyHandler)
-                        return (Optional<T>) Optional.of(energyHandler);
+                        return (()-> (T) energyHandler);
                     if (storage == Storages.CRAFTY_ENERGY && handler instanceof ICraftyEnergyStorage energyHandler)
-                        return (Optional<T>) Optional.of(energyHandler);
+                        return  (()-> (T) energyHandler);
                     if (storage == Storages.ITEM && handler instanceof IPlatformItemHandler<?> itemHandler)
-                        return (Optional<T>) Optional.of(itemHandler);
+                        return (()-> (T) itemHandler);
                     if (storage == Storages.FLUID && handler instanceof IPlatformFluidHandler<?> fluidHandler)
-                        return (Optional<T>) Optional.of(fluidHandler);
+                        return (()-> (T) fluidHandler);
                 }
-                return Optional.empty();
+                return ArbitrarySupplier.empty();
             }
         };
     }

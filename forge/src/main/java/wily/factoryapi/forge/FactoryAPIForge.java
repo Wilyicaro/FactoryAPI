@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.IFactoryStorage;
 import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.Storages;
@@ -35,7 +36,7 @@ public class FactoryAPIForge {
                 @Override
                 public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                     Storages.Storage<?> storage = CapabilityUtil.capabilityToStorage(capability);
-                    Optional<? extends IPlatformHandlerApi<?>> handler =  be.getStorage(storage,arg);
+                    ArbitrarySupplier<? extends IPlatformHandlerApi<?>> handler =  be.getStorage(storage,arg);
                     if (storage != null && handler.isPresent())
                         return LazyOptional.of(()->handler.get().getHandler()).cast();
                     return LazyOptional.empty();

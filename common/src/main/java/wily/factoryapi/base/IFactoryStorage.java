@@ -14,15 +14,15 @@ import java.util.function.Function;
 
 public interface IFactoryStorage {
 
-    default <T extends IPlatformHandlerApi<?>> Optional<T> getStorage(Storages.Storage<T> storage){return getStorage(storage, null);}
+    default <T extends IPlatformHandlerApi<?>> ArbitrarySupplier<T> getStorage(Storages.Storage<T> storage){return getStorage(storage, null);}
 
 
-    <T extends IPlatformHandlerApi<?>> Optional<T> getStorage(Storages.Storage<T> storage, Direction direction);
+    <T extends IPlatformHandlerApi<?>> ArbitrarySupplier<T> getStorage(Storages.Storage<T> storage, Direction direction);
 
-    default Optional<SideList<FluidSide>> fluidSides(){return Optional.empty();}
+    default ArbitrarySupplier<SideList<FluidSide>> fluidSides(){return ArbitrarySupplier.empty();}
 
-    default Optional<SideList<ItemSide>> itemSides(){return Optional.empty();}
+    default ArbitrarySupplier<SideList<ItemSide>> itemSides(){return ArbitrarySupplier.empty();}
 
-    default Optional<SideList<TransportState>> energySides(){return Optional.empty();}
+    default ArbitrarySupplier<SideList<TransportState>> energySides(){return ArbitrarySupplier.empty();}
 
 }

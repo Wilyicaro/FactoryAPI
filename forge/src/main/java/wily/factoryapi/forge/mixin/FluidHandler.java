@@ -75,4 +75,5 @@ public interface FluidHandler extends IPlatformFluidHandler<IFluidHandler> {
     default void deserializeTag(CompoundTag nbt) {
 
     }
+
 }

@@ -1,8 +1,9 @@
-package wily.factoryapi.base.client;
+package wily.factoryapi.base.client.drawable;
 
 import net.minecraft.client.gui.GuiGraphics;
+import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
-public class DrawableCustomWidth extends IFactoryDrawableType.DrawableStatic<IFactoryDrawableType> {
+public class DrawableCustomWidth<D extends DrawableCustomWidth<D>> extends AbstractDrawableStatic<D,IFactoryDrawableType> {
     public Integer customWidth;
     public DrawableCustomWidth(IFactoryDrawableType drawable, int posX, int posY) {
         super(drawable, posX, posY);
@@ -11,8 +12,8 @@ public class DrawableCustomWidth extends IFactoryDrawableType.DrawableStatic<IFa
         super(drawable, 0, 0);
     }
     @Override
-    public int width() {
-        return customWidth != null ? customWidth : super.width();
+    public int getWidth() {
+        return customWidth != null ? customWidth : super.getWidth();
     }
 
     @Override

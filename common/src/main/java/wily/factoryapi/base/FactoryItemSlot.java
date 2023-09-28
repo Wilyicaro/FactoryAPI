@@ -1,7 +1,13 @@
 package wily.factoryapi.base;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import wily.factoryapi.FactoryAPIPlatform;
+
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class FactoryItemSlot extends Slot implements IHasIdentifier {
 
@@ -9,6 +15,7 @@ public class FactoryItemSlot extends Slot implements IHasIdentifier {
 
     public TransportState transportState;
     private Type type = Type.DEFAULT;
+    protected Predicate<FactoryItemSlot> active = (s)->true;
 
     public enum Type{
         DEFAULT,BIG;
@@ -20,11 +27,13 @@ public class FactoryItemSlot extends Slot implements IHasIdentifier {
         }
     }
 
-
     public FactoryItemSlot(Container container, SlotsIdentifier identifier, TransportState transport, int i, int j, int k) {
         super(container, i, j, k);
         this.identifier = identifier;
         this.transportState = transport;
+    }
+    public FactoryItemSlot(IFactoryStorage storage, SlotsIdentifier identifier, TransportState transport, int i, int j, int k) {
+        this((Container) storage.getStorage(Storages.ITEM).orObject(new SimpleContainer()), identifier, transport, i, j, k);
     }
 
     public FactoryItemSlot withType(Type type){
@@ -39,6 +48,15 @@ public class FactoryItemSlot extends Slot implements IHasIdentifier {
     }
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public boolean mayPlace(ItemStack itemStack) {
+        return isActive();
+    }
+    @Override
+    public boolean isActive() {
+        return active.test(this);
     }
 
     @Override

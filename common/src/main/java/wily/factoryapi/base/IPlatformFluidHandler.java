@@ -10,7 +10,7 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
 
 
     /**
-     * Returns the FluidStack in a given tank.
+     * Returns the FluidStack of the handler.
      *
      * <p>
      * <strong>IMPORTANT:</strong> This FluidStack <em>MUST NOT</em> be modified. This method is not for
@@ -22,15 +22,15 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
      * <strong><em>SERIOUSLY: DO NOT MODIFY THE RETURNED FLUIDSTACK</em></strong>
      * </p>
      *
-     * @return FluidStack in a given tank. FluidStack.EMPTY if the tank is empty.
+     * @return FluidStack of the fluid handler. FluidStack.empty() if the tank is empty.
      */
     @NotNull
     FluidStack getFluidStack();
 
     /**
-     * Retrieves the maximum fluid amount for a given tank.
+     * Retrieves the maximum fluid amount of the fluid handler.
      *
-     * @return     The maximum fluid amount held by the tank.
+     * @return The maximum fluid amount held by the tank.
      */
     long getMaxFluid();
 
@@ -43,25 +43,21 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
      * (Basically, is a given fluid EVER allowed in this tank?) Return FALSE if the answer to that question is 'no.'
      */
     boolean isFluidValid(@NotNull FluidStack stack);
-    @Deprecated
-    default boolean isFluidValid(int tank, @NotNull FluidStack stack){
-     return isFluidValid(stack);
-    }
 
     /**
-     * Fills fluid into internal tanks, distribution is left entirely to the IFluidHandler.
+     * Basically, fills FluidStack into the fluid handler.
      *
      * @param resource FluidStack representing the Fluid and maximum amount of fluid to be filled.
-     * @param simulate   If SIMULATE, fill will only be simulated.
+     * @param simulate If true, fill will obviously be simulated (will not modify the actual content).
      * @return Amount of resource that was (or would have been, if simulated) filled.
      */
     long fill(FluidStack resource, boolean simulate);
 
     /**
-     * Drains fluid out of internal tanks, distribution is left entirely to the IFluidHandler.
+     * Basically, drains the desired FluidStack of the fluid handler.
      *
      * @param resource FluidStack representing the Fluid and maximum amount of fluid to be drained.
-     * @param simulate   If SIMULATE, drain will only be simulated.
+     * @param simulate If true, drain will obviously be simulated (will not modify the actual content).
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
@@ -69,12 +65,11 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
     FluidStack drain(FluidStack resource, boolean simulate);
 
     /**
-     * Drains fluid out of internal tanks, distribution is left entirely to the IFluidHandler.
+     * Basically, drains the FluidStack of the fluid handler.
      * <p>
-     * This method is not Fluid-sensitive.
      *
      * @param maxDrain Maximum amount of fluid to drain.
-     * @param simulate   If SIMULATE, drain will only be simulated.
+     * @param simulate If true, drain will obviously be simulated (will not modify the actual content).
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
@@ -85,9 +80,32 @@ public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,
         return Math.max(0, getMaxFluid() - getFluidStack().getAmount());
     }
 
-
+    /**
+     * Defines the FluidStack of the fluid handler.
+     * <p>
+     *
+     * @param fluidStack The FluidStack to replace the actual stored FluidStack.
+     */
     void setFluid(FluidStack fluidStack);
 
+    /**
+     * Defines the capacity of the fluid handler, if supported.
+     * <p>
+     * This method is not Fluid-sensitive.
+     *
+     * @param capacity The capacity to replace the actual maximum fluid amount.
+     * @throws UnsupportedOperationException if it isn't implemented in the handler
+     */
+    default void setCapacity(long capacity){
+        throw new UnsupportedOperationException("This Platform Fluid Handler capacity can't be modified!");
+    }
+
+    /**
+     * Basically, returns the name used for internal operations, as serializing CompoundTag.
+     * <p>
+     *
+     * @return the name of the used identifier with "Tank" suffix.
+     */
     default String getName(){
         return identifier().getName() + "Tank";
     }

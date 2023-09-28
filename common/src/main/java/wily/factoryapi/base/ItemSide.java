@@ -11,11 +11,15 @@ public class ItemSide implements ISideType<ItemSide, SlotsIdentifier>{
 
     public SlotsIdentifier identifier;
 
+
     public ItemSide(SlotsIdentifier identifier, TransportState transportState){
         this.transportState = transportState;
         this.identifier = identifier;
     }
 
+    public ItemSide(){
+        this(SlotsIdentifier.GENERIC,TransportState.NONE);
+    }
 
     public static CompoundTag serializeTag(SideList<ItemSide> sided, List<SlotsIdentifier> list) {
         CompoundTag sides = new CompoundTag();

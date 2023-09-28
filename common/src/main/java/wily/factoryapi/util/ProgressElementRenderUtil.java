@@ -7,7 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import wily.factoryapi.base.client.IFactoryDrawableType;
+import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
 
 @Environment(value = EnvType.CLIENT)
