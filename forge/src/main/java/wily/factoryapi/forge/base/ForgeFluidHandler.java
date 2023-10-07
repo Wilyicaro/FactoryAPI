@@ -33,7 +33,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
         this.transportState = transport;
     }
     public static ForgeFluidHandler filtered(IPlatformFluidHandler<IFluidHandler> fluidHandler, TransportState transport){
-        ForgeFluidHandler newFluidHandler = new ForgeFluidHandler(fluidHandler.getMaxFluid(), ((ForgeFluidHandler)fluidHandler).be, (f) -> fluidHandler.isFluidValid(0,f), fluidHandler.identifier(), transport){
+        ForgeFluidHandler newFluidHandler = new ForgeFluidHandler(fluidHandler.getMaxFluid(), ((ForgeFluidHandler)fluidHandler).be, fluidHandler::isFluidValid, fluidHandler.identifier(), transport){
             @Override
             public net.minecraftforge.fluids.@NotNull FluidStack drain(int maxDrain, FluidAction action) {
                 if (!transport.canExtract()) return net.minecraftforge.fluids.FluidStack.EMPTY;
@@ -105,7 +105,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
 
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
@@ -122,7 +122,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStack.create(getFluid().getFluid(), Fraction.ofWhole(maxDrain)), simulate);
     }
 

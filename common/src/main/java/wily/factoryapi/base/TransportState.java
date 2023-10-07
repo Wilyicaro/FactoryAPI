@@ -46,17 +46,17 @@ public enum TransportState implements StringRepresentable, IHasIdentifier {
         return this == EXTRACT || this == EXTRACT_INSERT;
     }
 
-public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
+    public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
         if (!canInsert && canExtract) return EXTRACT;
         if (!canExtract && canInsert) return INSERT;
         if (canExtract) return EXTRACT_INSERT;
         return  NONE;
-}
+    }
     public TransportState nextStateSide(){
         return  TransportState.values()[ ordinal() < values().length - 1 ? ordinal() + 1 : 0];
     }
 
-    public static CompoundTag serializeTag(Map<Direction, TransportState> sided) {
+    public static CompoundTag serializeTag(SideList<TransportState> sided) {
 
         CompoundTag sides = new CompoundTag();
         for (Direction direction : Direction.values())
@@ -65,7 +65,7 @@ public static TransportState ofBoolean(boolean canExtract, boolean canInsert){
     }
 
 
-    public static void deserializeNBT(CompoundTag nbt, Map<Direction, TransportState> sided) {
+    public static void deserializeTag(CompoundTag nbt, SideList<TransportState> sided) {
         for (Direction direction : Direction.values())
             sided.put(direction,  TransportState.values()[nbt.getInt(direction.getName())]);
     }

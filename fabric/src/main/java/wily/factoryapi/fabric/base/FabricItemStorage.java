@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.base.IFactoryExpandedStorage;
 import wily.factoryapi.base.IFactoryStorage;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
@@ -23,7 +24,7 @@ import wily.factoryapi.fabric.util.ItemStackHelper;
 import java.util.function.BiPredicate;
 
 
-public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler {
+public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler<Storage<ItemVariant>> {
 
 
 
@@ -210,7 +211,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
 
     @Override
     public boolean canPlaceItem(int i, ItemStack itemStack) {
-        if (be instanceof IFactoryStorage) return ((IFactoryStorage)be).getSlots(null).get(i).mayPlace(itemStack);
+        if (be instanceof IFactoryExpandedStorage) return ((IFactoryExpandedStorage)be).getSlots(null).get(i).mayPlace(itemStack);
         return true;
     }
 
@@ -254,7 +255,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     protected Storage<ItemVariant> inventoryStorage = InventoryStorage.of(this, null);
 
     @Override
-    public Object getHandler() {
+    public Storage<ItemVariant> getHandler() {
         return inventoryStorage;
     }
 

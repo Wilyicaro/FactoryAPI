@@ -1,2 +1,5 @@
 accessWidener   v2  named
 accessible field net/minecraft/world/inventory/Slot slot I
+accessible field net/minecraft/world/level/chunk/LevelChunk chunkPos Lnet/minecraft/world/level/ChunkPos;
+accessible field net/minecraft/world/level/lighting/LayerLightEngine chunkSource Lnet/minecraft/world/level/chunk/LightChunkGetter;
+accessible field net/minecraft/world/level/lighting/BlockLightEngine pos Lnet/minecraft/core/BlockPos$MutableBlockPos;

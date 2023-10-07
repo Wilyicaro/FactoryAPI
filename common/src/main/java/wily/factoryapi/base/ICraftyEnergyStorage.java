@@ -8,7 +8,7 @@ public interface ICraftyEnergyStorage extends IPlatformEnergyStorage<ICraftyEner
 {
 
 
-   FactoryCapacityTiers getSupportedTier();
+    FactoryCapacityTiers getSupportedTier();
 
 
     FactoryCapacityTiers getStoredTier();
@@ -23,10 +23,10 @@ public interface ICraftyEnergyStorage extends IPlatformEnergyStorage<ICraftyEner
      *            If TRUE, the insertion will only be simulated.
      * @return Amount of energy that was (or would have been, if simulated) accepted by the storage.
      */
-    EnergyTransaction receiveEnergy(EnergyTransaction transaction, boolean simulate);
+    CraftyTransaction receiveEnergy(CraftyTransaction transaction, boolean simulate);
 
 
-    default int receiveEnergy(int energy, boolean simulate){return receiveEnergy(new EnergyTransaction(energy, getStoredTier()), simulate).energy;}
+    default int receiveEnergy(int energy, boolean simulate){return receiveEnergy(new CraftyTransaction(energy, getStoredTier()), simulate).energy;}
 
     /**
      * Removes energy from the storage. Returns quantity of energy that was removed.
@@ -37,46 +37,15 @@ public interface ICraftyEnergyStorage extends IPlatformEnergyStorage<ICraftyEner
      *            If TRUE, the extraction will only be simulated.
      * @return Amount of energy that was (or would have been, if simulated) extracted from the storage.
      */
-    EnergyTransaction consumeEnergy(EnergyTransaction transaction,boolean simulate);
+    CraftyTransaction consumeEnergy(CraftyTransaction transaction, boolean simulate);
 
-    default int consumeEnergy(int energy,boolean simulate){return consumeEnergy(new EnergyTransaction(energy, getStoredTier()), simulate).energy;}
+    default int consumeEnergy(int energy,boolean simulate){return consumeEnergy(new CraftyTransaction(energy, getStoredTier()), simulate).energy;}
 
-    /**
-     * Returns the amount of energy currently stored.
-     */
-    int getEnergyStored();
-
-    /**
-     * Returns the maximum amount of energy that can be stored.
-     */
-    int getMaxEnergyStored();
-
-
-    /**
-     * Used to get the remaining energy space available .
-     */
-    default int getSpace(){ return Math.max(0, getMaxEnergyStored() - getEnergyStored());}
-
-    void setEnergyStored(int energy);
 
     void setStoredTier(FactoryCapacityTiers tier);
 
+    void setSupportedTier(FactoryCapacityTiers tier);
 
-    class EnergyTransaction{
-        public int energy;
-        public FactoryCapacityTiers tier;
-        public EnergyTransaction(int energyTransferred, @Nullable FactoryCapacityTiers energyTier){
-            energy = energyTransferred;
-            tier = energyTier;
-        }
-        public EnergyTransaction reduce(double reduction ){
-            energy /= reduction;
-            return this;
-        }
-        public static EnergyTransaction EMPTY = new EnergyTransaction(0, null);
-
-    }
-     int getMaxConsume();
 
     @Override
     default Style getComponentStyle() {

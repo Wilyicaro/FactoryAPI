@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
 import wily.factoryapi.fabric.util.FluidStackUtil;
@@ -31,9 +32,7 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     public FabricItemFluidStorage(ContainerItemContext c, long Capacity){
         this(c, Capacity, f -> true, TransportState.EXTRACT_INSERT);
     }
-    public FabricItemFluidStorage(ContainerItemContext c, IFluidItem.FluidStorageBuilder builder){
-        this(c,builder.capacity, builder.validator,builder.transportState);
-    }
+
 
     public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<FluidStack> validator, TransportState transportState){
         super(c);
@@ -112,18 +111,18 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount())) && getTransport().canInsert();
+        return isFluidValid(FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount())) && getTransport().canInsert();
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0, FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount())) && getTransport().canExtract();
+        return isFluidValid( FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount())) && getTransport().canExtract();
     }
 
     @Override
@@ -158,7 +157,7 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStackUtil.fromFabric(getResource(),maxDrain), simulate);
     }
 

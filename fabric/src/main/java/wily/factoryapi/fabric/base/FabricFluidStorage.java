@@ -40,7 +40,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
     }
 
     public static FabricFluidStorage filtered(IPlatformFluidHandler<SingleVariantStorage<FluidVariant>> fluidHandler, TransportState transportState){
-        FabricFluidStorage newFluidHandler = new FabricFluidStorage(fluidHandler.getMaxFluid(), ((FabricFluidStorage)fluidHandler).be, (f) -> fluidHandler.isFluidValid(0,f), fluidHandler.identifier(), transportState){
+        FabricFluidStorage newFluidHandler = new FabricFluidStorage(fluidHandler.getMaxFluid(), ((FabricFluidStorage)fluidHandler).be, fluidHandler::isFluidValid, fluidHandler.identifier(), transportState){
             @Override
             public @NotNull FluidStack getFluidStack() {
                 return fluidHandler.getFluidStack();
@@ -102,7 +102,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
@@ -136,7 +136,7 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStackUtil.fromFabric(variant,maxDrain), simulate);
     }
 
@@ -168,12 +168,12 @@ public class FabricFluidStorage  extends SingleVariantStorage<FluidVariant> impl
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
+        return isFluidValid(FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0,  FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
+        return isFluidValid(FluidStackUtil.fromFabric(variant, FactoryAPIPlatform.getBucketAmount()));
     }
 
     @Override

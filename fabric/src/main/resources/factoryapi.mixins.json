@@ -3,8 +3,14 @@
   "package": "wily.factoryapi.fabric.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
+    "ItemRendererInjector",
+    "LevelRendererInjector",
+    "ModelBlockRendererMixin"
   ],
   "mixins": [
+    "BlockGetterMixin",
+    "BlockLightEngineInjector",
+    "LevelChunkInjector"
   ],
   "injectors": {
     "defaultRequire": 1

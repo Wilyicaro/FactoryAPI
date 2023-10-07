@@ -2,6 +2,7 @@
   "_comment": "Tier",
   "tier.factory_api.energy": "%sEnergy ",
   "tier.factory_api.stored": "Stored ",
+  "tier.factory_api.output": "Output ",
   "tier.factory_api.capacity": "%sCapacity ",
   "tier.factory_api.display": "%sTier: ",
   "tier.factory_api.burned": "Burned",
@@ -31,8 +32,15 @@
   "tooltip.factory_api.config.cell": "%s Cell",
   "tooltip.factory_api.fluid_stored": "%s: %s/%s",
   "tooltip.factory_api.energy_stored": "Energy: %s/%s",
+  "tooltip.factory_api.max_transfer": "Max Transfer: %s/t",
   "tooltip.factory_api.energy": "%sCY",
   "tooltip.factory_api.crafty_energy": "%sCY",
   "tooltip.factory_api.fluid": "%sB",
-  "tooltip.factory_api.empty": "Empty"
+  "tooltip.factory_api.empty": "Empty",
+  "tooltip.factory_api.gui_bottom": "Bottom",
+  "tooltip.factory_api.gui_top": "Top",
+  "tooltip.factory_api.gui_left": "Left",
+  "tooltip.factory_api.gui_right": "Right",
+  "tooltip.factory_api.gui_back": "Back",
+  "tooltip.factory_api.gui_front": "Front"
 }

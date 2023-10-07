@@ -7,7 +7,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import wily.factoryapi.base.FactoryDrawableType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -15,40 +16,42 @@ public class ProgressElementRenderUtil {
     public static Minecraft minecraft = Minecraft.getInstance();
 
 
-    public static void renderDefaultProgress(PoseStack matrix, int x, int y, int progress, FactoryDrawableType.DrawableProgress type){
+    public static void renderDefaultProgress(PoseStack poseStack, int x, int y, float percentage, IFactoryDrawableType.DrawableProgress type){
+
+        int progress = Math.round(percentage*(type.plane.isVertical() ? type.height() : type.width()));
         if (type.reverse) {
-            if (type.plane.isHorizontal()) x+= type.width - progress;
-            else y+= type.height - progress;
+            if (type.plane.isHorizontal()) x+= type.width() - progress;
+            else y+= type.height() - progress;
         }
-        minecraft.getTextureManager().bind( type.texture);
         if(progress > 0) {
+            minecraft.getTextureManager().bind(type.texture());
             if (type.plane.isHorizontal())
-                GuiComponent.blit(matrix,  x,  y, type.uvX, type.uvY, progress, type.height,256,256);
+                GuiComponent.blit(poseStack,  x,  y, type.uvX(), type.uvY(), progress, type.height(),256,256);
             else
-                GuiComponent.blit(matrix,  x,  y + type.height - progress, type.uvX, type.uvY + (type.height - progress), type.width, progress,256,256);
+                GuiComponent.blit(poseStack, x,  y + type.height() - progress, type.uvX(), type.uvY() + (type.height() - progress), type.width(), progress,256,256);
         }
     }
 
-    public static void renderFluidTank(PoseStack poseStack, int x, int y, int progress, FactoryDrawableType type, FluidStack stack, boolean hasColor){
-
+    public static void renderFluidTank(PoseStack poseStack, int x, int y, IFactoryDrawableType type, FluidStack stack, long capacity, boolean hasColor){
+        int progress = capacity <= 0 ? 0 : Math.round(((float)stack.getAmount().longValue() /capacity) * type.height());
         if (progress > 0) {
             RenderSystem.enableBlend();
             progress /= 1.3;
-            int fluidWidth = type.width;
-            int fluidHeight = (type.height );
-            int posY = y + type.height - progress;
+            int fluidWidth = type.width();
+            int posY = y + type.height() - progress;
 
+            TextureAtlasSprite fluidSprite = FluidRenderUtil.fluidSprite(stack, hasColor);
+            minecraft.getTextureManager().bind(fluidSprite.atlas().location());
             for (int i = 0; i < fluidWidth; i += 16) {
                 for (int j = 0; j < progress; j += 16) {
-                   FluidRenderUtil.renderTiledFluid(x, posY, i, j, progress, fluidWidth, fluidHeight, stack, hasColor);
+                    FluidRenderUtil.renderTiledFluid(poseStack ,x, posY, i, j, progress, fluidWidth, fluidSprite);
                 }
             }
 
             RenderSystem.disableBlend();
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
         }
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        minecraft.getTextureManager().bind(type.texture);
+        minecraft.getTextureManager().bind(type.texture());
         type.draw(poseStack,x,y);
     }
 

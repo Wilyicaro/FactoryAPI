@@ -17,6 +17,9 @@ public class ItemContainerUtil {
             this.fluidStack = fluidStack;
             this.container = container;
         }
+        public ItemFluidContext(ItemStack container){
+            this(FluidStack.empty(),container);
+        }
     }
     public static class ItemEnergyContext {
         public final int contextEnergy;
@@ -25,6 +28,9 @@ public class ItemContainerUtil {
         public ItemEnergyContext(int contextEnergy, ItemStack container){
             this.contextEnergy = contextEnergy;
             this.container = container;
+        }
+        public ItemEnergyContext(ItemStack container) {
+            this(0,container);
         }
     }
     public static boolean isBlockItem(ItemStack s){return s.getItem() instanceof BlockItem;}

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiPredicate;
 
-public interface IPlatformItemHandler extends WorldlyContainer, ITagSerializable<CompoundTag>,IPlatformHandlerApi
+public interface IPlatformItemHandler<T> extends WorldlyContainer, ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>
 {
 
     default ItemStack removeItem(int i, int j){

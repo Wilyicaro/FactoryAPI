@@ -1,10 +1,8 @@
 package wily.factoryapi.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import me.shedaniel.architectury.fluid.FluidStack;
 import me.shedaniel.architectury.hooks.FluidStackHooks;
 import net.minecraft.client.Minecraft;
@@ -15,11 +13,8 @@ import org.lwjgl.opengl.GL11;
 import static wily.factoryapi.util.ProgressElementRenderUtil.minecraft;
 
 public class FluidRenderUtil {
-    public static void renderTiledFluid( int posX, int posY,int i, int j, int renderAmount, int sizeX, int sizeY, FluidStack fluid, boolean hasColor){
-
-        TextureAtlasSprite fluidSprite = fluidSprite(fluid, hasColor);
-        minecraft.getTextureManager().bind(fluidSprite.atlas().location());
-        int drawWidth = Math.min(sizeX - i, 16);
+    public static void renderTiledFluid(PoseStack poseStack, int posX, int posY, int i, int j, int renderAmount, int fluidWidth, TextureAtlasSprite fluidSprite){
+        int drawWidth = Math.min(fluidWidth - i, 16);
         int drawHeight = Math.min(renderAmount - j, 16);
 
         int drawX = posX + i;
@@ -31,16 +26,18 @@ public class FluidRenderUtil {
         float maxV = fluidSprite.getV1();
         float dH = minV + (maxV - minV) * drawHeight / 16F;
         float dW = minU + (maxU - minU) * drawWidth / 16F;
+        Matrix4f matrix4f = poseStack.last().pose();
 
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder tes = tessellator.getBuilder();
-        tes.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
-        tes.vertex(drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
-        tes.vertex(drawX + drawWidth, drawY + drawHeight, 0).uv(dW, dH).endVertex();
-        tes.vertex(drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
-        tes.vertex(drawX, drawY, 0).uv(minU, minV).endVertex();
-        tessellator.end();
+        Tesselator tes = Tesselator.getInstance();
+        BufferBuilder b = tes.getBuilder();
+        b.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+        b.vertex(matrix4f,drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
+        b.vertex(matrix4f,drawX + drawWidth, drawY + drawHeight, 0).uv(dW, dH).endVertex();
+        b.vertex(matrix4f,drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
+        b.vertex(matrix4f,drawX, drawY, 0).uv(minU, minV).endVertex();
+        tes.end();
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+
     }
 
     public static TextureAtlasSprite fluidSprite(FluidStack fluid, boolean hasColor){

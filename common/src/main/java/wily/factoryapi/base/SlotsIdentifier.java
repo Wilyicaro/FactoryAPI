@@ -8,22 +8,25 @@ import java.awt.*;
 
 
 public class SlotsIdentifier {
-    public static SlotsIdentifier WATER = new SlotsIdentifier(ChatFormatting.BLUE,"water",0);
-    public static SlotsIdentifier LAVA= new SlotsIdentifier(ChatFormatting.GOLD,"lava",1);
-    public static SlotsIdentifier INPUT = new SlotsIdentifier(ChatFormatting.BLUE,"input",0);
-    public static SlotsIdentifier OUTPUT = new SlotsIdentifier(ChatFormatting.RED,"output",1);
-    public static SlotsIdentifier FUEL = new SlotsIdentifier(ChatFormatting.GOLD,"fuel",2);
-    public static SlotsIdentifier PURPLE =  new SlotsIdentifier(ChatFormatting.DARK_PURPLE,"input_output",3);
-    public static SlotsIdentifier ENERGY =  new SlotsIdentifier(ChatFormatting.AQUA,"energy",4);
-    public static SlotsIdentifier GENERIC = new SlotsIdentifier(ChatFormatting.GRAY,"single",0);
+    public static final SlotsIdentifier WATER = new SlotsIdentifier(ChatFormatting.BLUE,"water");
+    public static final SlotsIdentifier LAVA= new SlotsIdentifier(ChatFormatting.GOLD,"lava");
+    public static final  SlotsIdentifier INPUT = new SlotsIdentifier(ChatFormatting.BLUE,"input");
+    public static final  SlotsIdentifier OUTPUT = new SlotsIdentifier(ChatFormatting.RED,"output");
+    public static final  SlotsIdentifier FUEL = new SlotsIdentifier(ChatFormatting.GOLD,"fuel");
+    public static final  SlotsIdentifier PURPLE =  new SlotsIdentifier(ChatFormatting.DARK_PURPLE,"input_output");
+    public static final  SlotsIdentifier ENERGY =  new SlotsIdentifier(ChatFormatting.AQUA,"energy");
+    public static final  SlotsIdentifier GENERIC = new SlotsIdentifier(ChatFormatting.GRAY,"single");
 
     public final ChatFormatting color;
     public final String name;
-    public final int differential;
-    public SlotsIdentifier(ChatFormatting color, String name,int differential){
+    public final Component component;
+    public SlotsIdentifier(ChatFormatting color, String name,Component component){
         this.color = color;
         this.name = name;
-        this.differential = differential;
+        this.component = component;
+    }
+    public SlotsIdentifier(ChatFormatting color, String name){
+        this(color,name,new TranslatableComponent("tooltip.factory_api.config.identifier." + name));
     }
 
     public Color getColor(){
@@ -31,7 +34,7 @@ public class SlotsIdentifier {
     }
 
     public String getFormattedName(){
-        return new TranslatableComponent("tooltip.factory_api.config.identifier." + getName()).getString();
+        return component.getString();
     }
     public Component getTooltip(String type){
         return new TranslatableComponent("tooltip.factory_api.config." + type, getFormattedName());

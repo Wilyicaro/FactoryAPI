@@ -1,6 +1,6 @@
 package wily.factoryapi.base;
 
-public class Bearer<T> {
+public class Bearer<T> implements ArbitrarySupplier<T> {
     private T object;
     public Bearer(T obj){
         object = obj;

@@ -62,9 +62,17 @@ public class FabricEnergyStorage implements IPlatformEnergyStorage<FabricEnergyS
         energyStored = energy;
     }
 
+
     @Override
-    public int getMaxConsume() {
-        return (int) handler.getMaxOutput();
+    public double getMaxInput(EnergySide side) {
+        if (!getTransport().canInsert()) return 0;
+        return getMaxReceive();
+    }
+
+    @Override
+    public double getMaxOutput(EnergySide side) {
+        if (!getTransport().canExtract()) return 0;
+        return getMaxConsume();
     }
 
     @Override
