@@ -1,20 +1,15 @@
 package wily.factoryapi.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.FluidStackHooks;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.joml.Matrix4f;
 
 public class FluidRenderUtil {
-    public static void renderTiledFluid( int posX, int posY,int i, int j, int renderAmount, int sizeX, int sizeY, FluidStack fluid, boolean hasColor){
-
-        TextureAtlasSprite fluidSprite = fluidSprite(fluid, hasColor);
-        RenderSystem.setShaderTexture(0, fluidSprite.atlasLocation());
-        int drawWidth = Math.min(sizeX - i, 16);
+    public static void renderTiledFluid(PoseStack poseStack, int posX, int posY, int i, int j, int renderAmount, int fluidWidth, TextureAtlasSprite fluidSprite){
+        int drawWidth = Math.min(fluidWidth - i, 16);
         int drawHeight = Math.min(renderAmount - j, 16);
 
         int drawX = posX + i;
@@ -26,16 +21,18 @@ public class FluidRenderUtil {
         float maxV = fluidSprite.getV1();
         float dH = minV + (maxV - minV) * drawHeight / 16F;
         float dW = minU + (maxU - minU) * drawWidth / 16F;
+        Matrix4f matrix4f = poseStack.last().pose();
 
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder tes = tessellator.getBuilder();
-        tes.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        tes.vertex(drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
-        tes.vertex(drawX + drawWidth, drawY + drawHeight, 0).uv(dW, dH).endVertex();
-        tes.vertex(drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
-        tes.vertex(drawX, drawY, 0).uv(minU, minV).endVertex();
-        tessellator.end();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        Tesselator tes = Tesselator.getInstance();
+        BufferBuilder b = tes.getBuilder();
+        b.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        b.vertex(matrix4f,drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
+        b.vertex(matrix4f,drawX + drawWidth, drawY + drawHeight, 0).uv(dW, dH).endVertex();
+        b.vertex(matrix4f,drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
+        b.vertex(matrix4f,drawX, drawY, 0).uv(minU, minV).endVertex();
+        tes.end();
+        RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+
     }
 
     public static TextureAtlasSprite fluidSprite(FluidStack fluid, boolean hasColor){

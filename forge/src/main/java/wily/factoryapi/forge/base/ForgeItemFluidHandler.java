@@ -8,14 +8,16 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.ItemContainerUtil;
-import wily.factoryapi.base.*;
+import wily.factoryapi.base.IPlatformFluidHandler;
+import wily.factoryapi.base.SlotsIdentifier;
+import wily.factoryapi.base.TransportState;
 
 import java.util.function.Predicate;
 
-import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
-import static wily.factoryapi.ItemContainerUtil.isBlockItem;
+import static wily.factoryapi.base.SimpleItemCraftyStorage.BLOCK_ENTITY_TAG;
 
-public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPlatformFluidHandler<IFluidHandler>, IStorageItem {
+
+public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPlatformFluidHandler<IFluidHandler> {
     private final ItemStack container;
     private final Predicate<FluidStack> validator;
 
@@ -29,9 +31,6 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
         this.container = stack;
         this.validator = validator;
         this.transportState = transportState;
-    }
-    public ForgeItemFluidHandler(ItemStack stack, IFluidItem.FluidStorageBuilder builder) {
-        this(builder.Capacity(), stack, builder.validator(), builder.transportState());
     }
     public @NotNull net.minecraftforge.fluids.FluidStack getFluid() {
         return net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(getFluidCompound(container));
@@ -67,6 +66,7 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     @Override
     public void deserializeTag(CompoundTag tag) {
         setFluid(net.minecraftforge.fluids.FluidStack.loadFluidStackFromNBT(tag));
+        setCapacity(tag.getLong("capacity"));
     }
 
     @Override
@@ -76,15 +76,24 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
 
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
+    @Override
+    public boolean isFluidValid(int tank, net.minecraftforge.fluids.@NotNull FluidStack stack) {
+        return isFluidValid(FluidStackHooksForge.fromForge(stack));
+    }
 
     @Override
     public long fill(FluidStack resource, boolean simulate) {
-        if (!getTransport().canInsert()) return resource.getAmount();
+        if (!getTransport().canInsert()) return 0;
         return fill(FluidStackHooksForge.toForge(resource), FluidMultiUtil.FluidActionof(simulate));
+    }
+
+    @Override
+    public int fill(net.minecraftforge.fluids.FluidStack resource, FluidAction doFill) {
+        return isFluidValid(0,resource) ? super.fill(resource, doFill) : 0;
     }
 
     @Override
@@ -94,7 +103,7 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
     }
 
@@ -117,5 +126,10 @@ public class ForgeItemFluidHandler extends FluidHandlerItemStack implements IPla
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        getFluidCompound(container).putInt("capacity", (int) capacity);
     }
 }

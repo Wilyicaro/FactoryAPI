@@ -1,7 +1,5 @@
 package wily.factoryapi;
 
-import wily.factoryapi.base.IFluidItem;
-
 import java.util.logging.Logger;
 
 public class FactoryAPI {

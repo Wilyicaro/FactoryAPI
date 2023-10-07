@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandler<IFluidHandler> {
     private final BlockEntity be;
-    private final Predicate<FluidStack> validator;
+
     private final SlotsIdentifier differential;
 
     protected TransportState transportState;
@@ -25,14 +25,13 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
 
     }
     public ForgeFluidHandler(long capacity, BlockEntity be, Predicate<FluidStack> validator, SlotsIdentifier differential, TransportState transport) {
-        super((int) capacity);
+        super((int) capacity,f->validator.test(FluidStackHooksForge.fromForge(f)));
         this.be = be;
-        this.validator = validator;
         this.differential = differential;
         this.transportState = transport;
     }
     public static ForgeFluidHandler filtered(IPlatformFluidHandler<IFluidHandler> fluidHandler, TransportState transport){
-        ForgeFluidHandler newFluidHandler = new ForgeFluidHandler(fluidHandler.getMaxFluid(), ((ForgeFluidHandler)fluidHandler).be, (f) -> fluidHandler.isFluidValid(0,f), fluidHandler.identifier(), transport){
+        ForgeFluidHandler newFluidHandler = new ForgeFluidHandler(fluidHandler.getMaxFluid(), ((ForgeFluidHandler)fluidHandler).be, fluidHandler::isFluidValid, fluidHandler.identifier(), transport){
             @Override
             public net.minecraftforge.fluids.@NotNull FluidStack drain(int maxDrain, FluidAction action) {
                 if (!transport.canExtract()) return net.minecraftforge.fluids.FluidStack.EMPTY;
@@ -93,22 +92,20 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     @Override
     public void deserializeTag(CompoundTag tag) {
         readFromNBT(tag);
+        if (tag.contains("capacity")) setCapacity(tag.getLong("capacity"));
     }
 
     @Override
     public CompoundTag serializeTag() {
         CompoundTag tag = new CompoundTag();
+        tag.putInt("capacity",getCapacity());
         return writeToNBT(tag);
     }
 
-
-
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
-        return validator.test(stack);
+    public boolean isFluidValid(@NotNull FluidStack stack) {
+        return isFluidValid(FluidStackHooksForge.toForge(stack));
     }
-
-
 
     @Override
     public long fill(FluidStack resource, boolean simulate) {
@@ -121,7 +118,7 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStack.create(getFluid().getFluid(), maxDrain), simulate);
     }
 
@@ -155,5 +152,10 @@ public class ForgeFluidHandler extends FluidTank implements IPlatformFluidHandle
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        setCapacity((int)capacity);
     }
 }

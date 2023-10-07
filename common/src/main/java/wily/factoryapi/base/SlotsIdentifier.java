@@ -6,23 +6,26 @@ import net.minecraft.network.chat.Component;
 import java.awt.*;
 
 
-public record SlotsIdentifier(ChatFormatting color, String name,int differential) {
-    public static SlotsIdentifier WATER = new SlotsIdentifier(ChatFormatting.BLUE,"water",0);
-    public static SlotsIdentifier LAVA= new SlotsIdentifier(ChatFormatting.GOLD,"lava",1);
-    public static SlotsIdentifier INPUT = new SlotsIdentifier(ChatFormatting.BLUE,"input",0);
-    public static SlotsIdentifier OUTPUT = new SlotsIdentifier(ChatFormatting.RED,"output",1);
-    public static SlotsIdentifier FUEL = new SlotsIdentifier(ChatFormatting.GOLD,"fuel",2);
-    public static SlotsIdentifier PURPLE =  new SlotsIdentifier(ChatFormatting.DARK_PURPLE,"input_output",3);
-    public static SlotsIdentifier ENERGY =  new SlotsIdentifier(ChatFormatting.AQUA,"energy",4);
-    public static SlotsIdentifier GENERIC = new SlotsIdentifier(ChatFormatting.GRAY,"single",0);
-
+public record SlotsIdentifier(ChatFormatting color, String name,Component component) {
+    public static SlotsIdentifier WATER = new SlotsIdentifier(ChatFormatting.BLUE,"water");
+    public static SlotsIdentifier LAVA= new SlotsIdentifier(ChatFormatting.GOLD,"lava");
+    public static SlotsIdentifier INPUT = new SlotsIdentifier(ChatFormatting.BLUE,"input");
+    public static SlotsIdentifier OUTPUT = new SlotsIdentifier(ChatFormatting.RED,"output");
+    public static SlotsIdentifier FUEL = new SlotsIdentifier(ChatFormatting.GOLD,"fuel");
+    public static SlotsIdentifier PURPLE =  new SlotsIdentifier(ChatFormatting.DARK_PURPLE,"input_output");
+    public static SlotsIdentifier ENERGY =  new SlotsIdentifier(ChatFormatting.AQUA,"energy");
+    public static SlotsIdentifier GENERIC = new SlotsIdentifier(ChatFormatting.GRAY,"single");
 
     public Color getColor(){
         return new Color(color.getColor());
     }
 
+    public SlotsIdentifier(ChatFormatting color, String name){
+        this(color,name,Component.translatable("tooltip.factory_api.config.identifier." + name));
+    }
+
     public String getFormattedName(){
-        return Component.translatable("tooltip.factory_api.config.identifier." + getName()).getString();
+        return component.getString();
     }
     public Component getTooltip(String type){
         return Component.translatable("tooltip.factory_api.config." + type, getFormattedName());

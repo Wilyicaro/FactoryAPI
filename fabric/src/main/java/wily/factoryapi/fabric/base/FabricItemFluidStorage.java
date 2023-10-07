@@ -8,33 +8,29 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.ItemContainerUtil;
-import wily.factoryapi.base.*;
-
+import wily.factoryapi.base.SlotsIdentifier;
+import wily.factoryapi.base.TransportState;
 
 import java.util.function.Predicate;
 
-import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
-
-public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVariant> implements IPlatformFluidHandler<Storage<FluidVariant>>, IStorageItem {
+import static wily.factoryapi.base.SimpleItemCraftyStorage.BLOCK_ENTITY_TAG;
 
 
+public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVariant> implements FabricFluidStoragePlatform {
 
-    private final long Capacity;
+
+
+    private long Capacity;
     ContainerItemContext context;
     protected Predicate<FluidStack> validator;
 
     protected TransportState transportState;
     public FabricItemFluidStorage(ContainerItemContext c, long Capacity){
         this(c, Capacity, f -> true, TransportState.EXTRACT_INSERT);
-    }
-    public FabricItemFluidStorage(ContainerItemContext c, IFluidItem.FluidStorageBuilder builder){
-        this(c,builder.Capacity(), builder.validator(),builder.transportState());
     }
 
     public FabricItemFluidStorage(ContainerItemContext c,long Capacity, Predicate<FluidStack> validator, TransportState transportState){
@@ -92,20 +88,9 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     }
 
 
-
     @Override
     public @NotNull FluidStack getFluidStack() {
         return FluidStack.create(getResource(context.getItemVariant()).getFluid(), getAmount());
-    }
-
-    @Override
-    public void deserializeTag(CompoundTag tag) {
-    }
-
-    @Override
-    public CompoundTag serializeTag() {
-        CompoundTag tag = new CompoundTag();
-        return tag;
     }
 
     @Override
@@ -114,53 +99,22 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(@NotNull FluidStack stack) {
         return validator.test(stack);
     }
 
     @Override
     protected boolean canInsert(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canInsert();
+        return isFluidValid(FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canInsert();
     }
 
     @Override
     protected boolean canExtract(FluidVariant variant) {
-        return isFluidValid(0, FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canExtract();
+        return isFluidValid(FluidStackHooksFabric.fromFabric(variant, FluidStack.bucketAmount())) && getTransport().canExtract();
     }
 
     @Override
-    public long fill(FluidStack resource, boolean simulate) {
-        try (Transaction transaction = Transaction.openOuter()) {
-            long i;
-            if (!simulate) {
-                i = insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i =  simulateInsert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            transaction.commit();
-            return i;
-
-        }
-    }
-
-    @Override
-    public @NotNull FluidStack drain(FluidStack resource, boolean simulate) {
-        try (Transaction transaction = Transaction.openOuter()) {
-            long i;
-            if (!simulate) {
-                i =  extract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = simulateInsert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            transaction.commit();
-            return FluidStack.create(resource.getFluid(), i);
-
-        }
-    }
-
-    @Override
-    public long insert(FluidVariant insertedResource, long maxAmount, TransactionContext transaction) {
-        return super.insert(insertedResource, maxAmount, transaction);
-    }
-
-    @Override
-    public @NotNull FluidStack drain(int maxDrain, boolean simulate) {
+    public @NotNull FluidStack drain(long maxDrain, boolean simulate) {
         return drain(FluidStackHooksFabric.fromFabric(getResource(),maxDrain), simulate);
     }
 
@@ -171,17 +125,11 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
         }
     }
 
-
     @Override
     public SlotsIdentifier identifier() {
         return SlotsIdentifier.GENERIC;
     }
 
-
-    @Override
-    public ItemStack getContainer() {
-        return context.getItemVariant().toStack();
-    }
 
     @Override
     public Storage<FluidVariant> getHandler() {
@@ -191,5 +139,10 @@ public class FabricItemFluidStorage extends SingleVariantItemStorage<FluidVarian
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public void setCapacity(long capacity) {
+        getFluidCompound(context.getItemVariant().toStack()).putInt("capacity", (int) capacity);
     }
 }

@@ -1,6 +1,5 @@
 package wily.factoryapi.fabric.base;
 
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -8,7 +7,7 @@ import team.reborn.energy.api.base.SimpleEnergyStorage;
 import wily.factoryapi.base.IPlatformEnergyStorage;
 import wily.factoryapi.base.TransportState;
 
-public class FabricEnergyStorage extends SimpleEnergyStorage implements IPlatformEnergyStorage<FabricEnergyStorage> {
+public class FabricEnergyStorage extends SimpleEnergyStorage implements FabricEnergyStoragePlatform {
 
     BlockEntity be;
 
@@ -21,49 +20,7 @@ public class FabricEnergyStorage extends SimpleEnergyStorage implements IPlatfor
     public FabricEnergyStorage(long capacity, BlockEntity be) {
         this(capacity, be, TransportState.EXTRACT_INSERT);
     }
-    public static final String KEY = "energy";
 
-    @Override
-    public int receiveEnergy(int energy, boolean simulate) {
-        try (Transaction transaction = Transaction.openOuter()) {
-            int i;
-            try (Transaction nested= transaction.openNested()) {
-                i = (int) insert(energy, nested);
-                if (!simulate) {
-                    nested.commit();
-                }
-            }
-            transaction.commit();
-            return i;
-
-        }
-    }
-
-    @Override
-    public int consumeEnergy(int energy, boolean simulate) {
-        try (Transaction transaction = Transaction.openOuter()) {
-            int i;
-            try (Transaction nested= transaction.openNested()) {
-                i = (int) extract(energy, nested);
-                if (!simulate) {
-                    nested.commit();
-                }
-            }
-            transaction.commit();
-            return i;
-
-        }
-    }
-
-    @Override
-    public int getEnergyStored() {
-        return (int) getAmount();
-    }
-
-    @Override
-    public int getMaxEnergyStored() {
-        return (int) getCapacity();
-    }
 
     @Override
     public void setEnergyStored(int energy) {
@@ -83,18 +40,6 @@ public class FabricEnergyStorage extends SimpleEnergyStorage implements IPlatfor
     @Override
     public TransportState getTransport() {
         return transportState;
-    }
-
-    @Override
-    public CompoundTag serializeTag() {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt(KEY,getEnergyStored());
-        return tag;
-    }
-
-    @Override
-    public void deserializeTag(CompoundTag nbt) {
-        setEnergyStored(nbt.getInt(KEY));
     }
 
     @Override
@@ -126,13 +71,23 @@ public class FabricEnergyStorage extends SimpleEnergyStorage implements IPlatfor
             }
 
             @Override
-            public long insert( long maxAmount, TransactionContext transaction) {
+            public boolean supportsInsertion() {
+                return energyStorage.getTransport().canInsert();
+            }
+
+            @Override
+            public boolean supportsExtraction() {
+                return energyStorage.getTransport().canExtract();
+            }
+
+            @Override
+            public long insert(long maxAmount, TransactionContext transaction) {
                 if (!transportState.canInsert()) return 0;
                 return(energyStorage.getHandler().insert( maxAmount, transaction));
             }
 
             @Override
-            public long extract( long maxAmount, TransactionContext transaction) {
+            public long extract(long maxAmount, TransactionContext transaction) {
                 if (!transportState.canExtract()) return 0;
                 return(energyStorage.getHandler().extract( maxAmount, transaction));
             }

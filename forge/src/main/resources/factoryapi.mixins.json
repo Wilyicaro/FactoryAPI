@@ -1,10 +1,17 @@
 {
   "required": true,
-  "package": "wily.factoryapi.mixin.forge",
+  "package": "wily.factoryapi.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
   ],
   "mixins": [
+    "EnergyStorageItem",
+    "FluidHandler",
+    "FluidHandlerItem",
+    "ForgeEnergyHandler",
+    "IForgeFactoryBlock",
+    "IForgeItemInjector",
+    "ItemHandlerModifiable"
   ],
   "injectors": {
     "defaultRequire": 1

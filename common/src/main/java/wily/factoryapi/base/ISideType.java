@@ -7,4 +7,7 @@ public interface ISideType<T extends ISideType<?,?>,B> extends IHasIdentifier {
 
     int getSlotIndex(List<B> identifierList);
     T ofTransport(TransportState transport);
+    TransportState getTransport();
+
+    T withTransport(TransportState transportState);
 }

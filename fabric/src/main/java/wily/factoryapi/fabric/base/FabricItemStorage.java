@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -15,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import wily.factoryapi.base.IFactoryStorage;
+import wily.factoryapi.base.IFactoryExpandedStorage;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
 import wily.factoryapi.fabric.util.ItemStackHelper;
@@ -23,7 +22,7 @@ import wily.factoryapi.fabric.util.ItemStackHelper;
 import java.util.function.BiPredicate;
 
 
-public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler {
+public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler<Storage<ItemVariant>> {
 
 
 
@@ -39,7 +38,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     }
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return Container.stillValidBlockEntity(be, player);
+        return player.distanceToSqr((double)be.getBlockPos().getX() + 0.5, (double)be.getBlockPos().getY() + 0.5, (double)be.getBlockPos().getZ() + 0.5) <= 64.0;
     }
 
     @Override
@@ -206,7 +205,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
 
     @Override
     public boolean canPlaceItem(int i, ItemStack itemStack) {
-        if (be instanceof IFactoryStorage storage) return storage.getSlots(null).get(i).mayPlace(itemStack);
+        if (be instanceof IFactoryExpandedStorage storage) return storage.getSlots(null).get(i).mayPlace(itemStack);
         return true;
     }
 
@@ -250,7 +249,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     protected Storage<ItemVariant> inventoryStorage = InventoryStorage.of(this, null);
 
     @Override
-    public Object getHandler() {
+    public Storage<ItemVariant> getHandler() {
         return inventoryStorage;
     }
 

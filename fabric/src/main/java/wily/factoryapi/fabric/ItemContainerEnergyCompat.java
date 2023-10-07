@@ -3,7 +3,6 @@ package wily.factoryapi.fabric;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import team.reborn.energy.api.EnergyStorage;
@@ -21,10 +20,8 @@ public class ItemContainerEnergyCompat {
         if (handStorage != null)
             try (Transaction transaction = Transaction.openOuter()) {
                 try (Transaction nested = transaction.openNested()) {
-                    energy -= handStorage.insert(energy, nested);
-                    if (player != null) {
-                        if (!player.isCreative()) nested.commit();
-                    }else nested.commit();
+                    energy = (int) handStorage.insert(energy, nested);
+                    if (player == null ||!player.isCreative()) nested.commit();
                 }
                 transaction.commit();
                 return new ItemContainerUtil.ItemEnergyContext(energy,context.getItemVariant().toStack((int) context.getAmount()));
@@ -39,9 +36,7 @@ public class ItemContainerEnergyCompat {
                 int amount;
                 try (Transaction nested = transaction.openNested()) {
                     amount = (int) handStorage.extract(energy, nested);
-                    if (player != null) {
-                        if (!player.isCreative()) nested.commit();
-                    }else nested.commit();
+                    if (player == null ||!player.isCreative()) nested.commit();
                 }
                 transaction.commit();
                 return new ItemContainerUtil.ItemEnergyContext(amount,context.getItemVariant().toStack((int) context.getAmount()));
