@@ -29,11 +29,12 @@ public class ItemSide implements ISideType<ItemSide, SlotsIdentifier>{
     }
 
     public static void deserializeNBT(CompoundTag nbt, SideList<ItemSide> sided, List<SlotsIdentifier> list) {
-        for (Direction direction : Direction.values()) {
-            int[] slotsState = nbt.getIntArray(direction.getName());
-            sided.put(direction, new ItemSide(!list.isEmpty() ?  list.get(slotsState[0]) : SlotsIdentifier.GENERIC , TransportState.byOrdinal(slotsState[slotsState.length - 1])));
-        }
-        }
+        if (!nbt.isEmpty())
+            for (Direction direction : Direction.values()) {
+                int[] slotsState = nbt.getIntArray(direction.getName());
+                sided.put(direction, new ItemSide(!list.isEmpty() ?  list.get(slotsState[0]) : SlotsIdentifier.GENERIC , TransportState.byOrdinal(slotsState[slotsState.length - 1])));
+            }
+    }
 
     @Override
     public SlotsIdentifier identifier() {

@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public interface IFactoryExpandedStorage extends IFactoryStorage {
     default <T> void replaceSidedStorage(BlockSide blockSide,SideList<T> side, T replacement){
@@ -24,7 +25,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
     }
 
     default Map<SlotsIdentifier, int[]> itemSlotsIdentifiers() {
-        Map<SlotsIdentifier, int[]> map = new TreeMap<>(Comparator.comparingInt(SlotsIdentifier::differential));
+        Map<SlotsIdentifier, int[]> map = new LinkedHashMap<>();
         for( FactoryItemSlot slot : getSlots(null)){
             int[] list =  map.getOrDefault(slot.identifier(), new int[]{});
             if (ArrayUtils.contains(list,slot.getContainerSlot())) continue;
@@ -55,7 +56,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
         getStorage(Storages.ENERGY).ifPresent((e)-> compoundTag.put("Energy", e.serializeTag()));
         if (!getTanks().isEmpty()) getTanks().forEach((tank) -> compoundTag.put(tank.getName(), tank.serializeTag()));
         getStorage(Storages.ITEM).ifPresent((i)-> compoundTag.put("inventory", i.serializeTag()));
-        fluidSides().ifPresent((f)-> compoundTag.put("fluidSides",FluidSide.serializeTag(f)));
+        fluidSides().ifPresent((f)-> compoundTag.put("fluidSides",FluidSide.serializeTag(f,getTanks())));
         itemSides().ifPresent((i)-> compoundTag.put("itemSides",ItemSide.serializeTag(i,getSlotsIdentifiers())));
         energySides().ifPresent((e)-> compoundTag.put("energySides", TransportState.serializeTag(e)));
     }

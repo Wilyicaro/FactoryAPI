@@ -16,10 +16,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.IFactoryExpandedStorage;
-import wily.factoryapi.base.IFactoryStorage;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
-import wily.factoryapi.fabric.util.ItemStackHelper;
 
 import java.util.function.BiPredicate;
 
@@ -113,7 +111,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
             if (!stackInSlot.isEmpty()) {
                 if (stackInSlot.getCount() >= Math.min(stackInSlot.getMaxStackSize(), this.getMaxStackSize())) {
                     return stack;
-                } else if (!ItemStackHelper.canItemStacksStack(stack, stackInSlot)) {
+                } else if (!ItemStack.isSameItemSameTags(stack, stackInSlot)) {
                     return stack;
                 } else if (!this.canPlaceItem(slot, stack)) {
                     return stack;

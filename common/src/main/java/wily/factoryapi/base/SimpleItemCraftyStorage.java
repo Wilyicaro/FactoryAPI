@@ -93,7 +93,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
 
     @Override
     public int getEnergyStored() {
-        return getEnergyCompound().getInt(KEY);
+        return getEnergyCompound().getInt(KEY) * container.getCount();
     }
 
     public void setEnergyStored(int energy) {
@@ -114,7 +114,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
 
     @Override
     public int getMaxEnergyStored() {
-        return capacity;
+        return capacity * container.getCount();
     }
 
 

@@ -44,9 +44,8 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
 
     @Override
     public boolean mouseClicked(double d, double e, int i) {
-        if (super.mouseClicked(d,e, i)){
+        if (inMouseLimit(d,e)){
             if (!inButtonLimit(d,e)) value = getActualValue(d);
-            return true;
         }
         return super.mouseClicked(d, e, i);
     }
@@ -64,9 +63,9 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
     public boolean mouseDragged(double mouseX, double mouseY, int i, double f, double g) {
         if (!visible.get()) return false;
         if (inButtonLimit(mouseX,mouseY) || dragging) {
-            onPress.accept(this,i);
             selected = dragging = true;
             value = getActualValue(mouseX);
+            onPress.accept(this,i);
             return true;
         }
         return false;

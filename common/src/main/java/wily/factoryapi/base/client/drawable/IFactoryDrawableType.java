@@ -88,7 +88,7 @@ public interface IFactoryDrawableType {
     int uvX();
     int uvY();
     static boolean getMouseLimit(double mouseX, double mouseY, int posX, int posY, int sizeX, int sizeY){
-        return (mouseX >= posX && mouseX <= posX + sizeX && mouseY >= posY && mouseY <= posY + sizeY);
+        return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
     }
     enum Direction {
         VERTICAL,HORIZONTAL;
