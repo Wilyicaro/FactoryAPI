@@ -1,0 +1,4 @@
+accessWidener   v2  named
+accessible field net/minecraft/world/level/lighting/LayerLightEngine chunkSource Lnet/minecraft/world/level/chunk/LightChunkGetter;
+accessible field net/minecraft/world/level/lighting/BlockLightEngine pos Lnet/minecraft/core/BlockPos$MutableBlockPos;
+accessible field net/minecraft/world/level/chunk/ChunkAccess chunkPos Lnet/minecraft/world/level/ChunkPos;
