@@ -63,7 +63,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
             long i;
             if (!simulate) {
                 i = (int) getHandler().insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = (int) getHandler().simulateInsert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
+            }else i = (int) getHandler().insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
             transaction.commit();
             return i;
         }
