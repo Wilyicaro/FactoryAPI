@@ -8,7 +8,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.common.extensions.IForgeItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,17 +29,17 @@ public class IForgeItemInjector implements IForgeItem{
     @Shadow(remap = false) @Final protected boolean canRepair;
 
     @Inject(method = ("initializeClient"), at = @At("HEAD"),remap = false)
-    private void  initializeClient(Consumer<IClientItemExtensions> consumer, CallbackInfo info){
+    private void  initializeClient(Consumer<IItemRenderProperties> consumer, CallbackInfo info){
 
         if (this instanceof IFactoryItem i){
             i.clientExtension(c->{
-                consumer.accept(new IClientItemExtensions() {
+                consumer.accept(new IItemRenderProperties() {
                     @Override
-                    public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                    public @NotNull HumanoidModel<?> getArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                         return c.getHumanoidArmorModel(livingEntity,itemStack,equipmentSlot,original);
                     }
                     @Override
-                    public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                    public BlockEntityWithoutLevelRenderer getItemStackRenderer(){
                         return c.getCustomRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
                     }
                 });
@@ -47,7 +47,7 @@ public class IForgeItemInjector implements IForgeItem{
         }
     }
 
-    @Override
+
     public @Nullable String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         if (this instanceof IFactoryItem i){
             Bearer<String> s = Bearer.of("");

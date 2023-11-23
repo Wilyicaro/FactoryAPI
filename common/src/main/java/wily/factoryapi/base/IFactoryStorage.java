@@ -9,10 +9,7 @@ public interface IFactoryStorage {
 
     <T extends IPlatformHandlerApi<?>> ArbitrarySupplier<T> getStorage(Storages.Storage<T> storage, Direction direction);
 
-    default ArbitrarySupplier<SideList<FluidSide>> fluidSides(){return ArbitrarySupplier.empty();}
+    default ArbitrarySupplier<SideList<? super ISideType<?>>> getStorageSides(Storages.Storage<?> storage){return ArbitrarySupplier.empty();}
 
-    default ArbitrarySupplier<SideList<ItemSide>> itemSides(){return ArbitrarySupplier.empty();}
-
-    default ArbitrarySupplier<SideList<TransportState>> energySides(){return ArbitrarySupplier.empty();}
 
 }

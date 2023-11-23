@@ -39,8 +39,11 @@ public class ItemContainerUtilImpl {
     public static FluidStack getFluid(ContainerItemContext context){
         Storage<FluidVariant> handStorage = context.find(FluidStorage.ITEM);
         if (handStorage != null) {
-            for (StorageView<FluidVariant> view : handStorage )
-                return FluidStackHooksFabric.fromFabric(view);
+            try (Transaction transaction =  Transaction.openOuter()) {
+                for (StorageView<FluidVariant> view : handStorage.iterable(transaction))
+                    return FluidStackHooksFabric.fromFabric(view);
+                transaction.commit();
+            }
         }
         return FluidStack.empty();
     }
@@ -81,20 +84,25 @@ public class ItemContainerUtilImpl {
 
 
         if (handStorage != null){
-            for (StorageView<FluidVariant> view : handStorage ) {
-                if (view.isResourceBlank()) continue; // This means that the view contains no resource, represented by FluidVariant.blank().
-                FluidVariant storedResource = view.getResource(); // Current resource
-                try (Transaction transaction = Transaction.openOuter()) {
-                    long amount = view.extract(storedResource ,maxDrain, transaction);
-                    if (player != null) {
-                        if (amount > 0)player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(storedResource), SoundSource.BLOCKS, 1.0F, 1.0F);
-                        if (!player.isCreative()) {
-                            transaction.commit();
-                        }
-                    }else transaction.commit();
-                    return new ItemContainerUtil.ItemFluidContext(FluidStack.create(storedResource.getFluid(), amount),context.getItemVariant().toStack((int) context.getAmount()));
+            try (Transaction transaction = Transaction.openOuter()) {
+                for (StorageView<FluidVariant> view : handStorage.iterable(transaction)) {
+                    if (view.isResourceBlank())
+                        continue; // This means that the view contains no resource, represented by FluidVariant.blank().
+                    FluidVariant storedResource = view.getResource(); // Current resource
+                    try (Transaction nested = transaction.openNested()) {
+                        long amount = view.extract(storedResource, maxDrain, nested);
+                        if (player != null) {
+                            if (amount > 0)
+                                player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getEmptySound(storedResource), SoundSource.BLOCKS, 1.0F, 1.0F);
+                            if (!player.isCreative()) {
+                                nested.commit();
+                            }
+                        } else nested.commit();
+                        return new ItemContainerUtil.ItemFluidContext(FluidStack.create(storedResource.getFluid(), amount), context.getItemVariant().toStack((int) context.getAmount()));
 
+                    }
                 }
+                transaction.commit();
             }
         }
         return new ItemContainerUtil.ItemFluidContext(context.getItemVariant().toStack((int) context.getAmount()));

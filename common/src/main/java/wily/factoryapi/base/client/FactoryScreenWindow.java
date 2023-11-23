@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
 import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
@@ -38,7 +39,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     protected final DrawableStatic drawable;
     public T parent;
     public FactoryScreenWindow(AbstractDrawableButton<?> config, DrawableStatic drawable, T parent){
-        super(drawable.getX(),drawable.getY(),drawable.getWidth(), drawable.getHeight(), Component.empty());
+        super(drawable.getX(),drawable.getY(),drawable.getWidth(), drawable.getHeight(), TextComponent.EMPTY);
         this.config = config;
         this.lastX = x;
         this.lastY = y;

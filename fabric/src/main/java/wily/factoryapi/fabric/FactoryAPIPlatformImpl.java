@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.reborn.energy.api.EnergyStorage;
@@ -70,7 +71,7 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static Component getPlatformEnergyComponent() {
-        return Component.literal("Energy (E)").withStyle(ChatFormatting.GOLD);
+        return new TextComponent("Energy (E)").withStyle(ChatFormatting.GOLD);
     }
 
     public static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage fluidHandler, TransportState transportState) {

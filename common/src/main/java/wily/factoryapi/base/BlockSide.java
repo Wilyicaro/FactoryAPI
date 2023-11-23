@@ -2,6 +2,7 @@ package wily.factoryapi.base;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
@@ -11,7 +12,7 @@ public enum BlockSide {
     FRONT,BACK,TOP,BOTTOM,RIGHT,LEFT;
 
     public Component getComponent(){
-        return Component.translatable("tooltip.factory_api.gui_" + name().toLowerCase(Locale.ENGLISH));
+        return new TranslatableComponent("tooltip.factory_api.gui_" + name().toLowerCase(Locale.ENGLISH));
     }
     public static final BlockSide[] FRONT_FACE_SIDES = values();
     public static final BlockSide[] TOP_FACE_SIDES = new BlockSide[]{TOP,BOTTOM,FRONT,BACK,RIGHT,LEFT};

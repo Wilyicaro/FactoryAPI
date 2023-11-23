@@ -4,17 +4,18 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import wily.factoryapi.FactoryAPI;
 
 public enum FactoryCapacityTiers {
 
-    BURNED(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".burned").withStyle(ChatFormatting.DARK_RED),0, 0 ,0),
-    BASIC(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".basic").withStyle(ChatFormatting.GRAY),0.2, 800 ,1),
-    ADVANCED(Component.translatable("tier."+FactoryAPI.MOD_ID + ".advanced").withStyle(ChatFormatting.RED),0.6, 2000,3),
-    HIGH(Component.translatable("tier."+ FactoryAPI.MOD_ID + ".high").withStyle(ChatFormatting.BLUE),0.5, 4000,8),
-    ULTIMATE(Component.translatable("tier."+FactoryAPI.MOD_ID + ".ultimate").withStyle(ChatFormatting.DARK_PURPLE),0.63, 6000,12),
-    QUANTUM(Component.translatable("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16),
-    CREATIVE(Component.translatable("tier."+FactoryAPI.MOD_ID + ".creative").withStyle(ChatFormatting.LIGHT_PURPLE),1.0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    BURNED(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".burned").withStyle(ChatFormatting.DARK_RED),0, 0 ,0),
+    BASIC(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".basic").withStyle(ChatFormatting.GRAY),0.2, 800 ,1),
+    ADVANCED(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".advanced").withStyle(ChatFormatting.RED),0.6, 2000,3),
+    HIGH(new TranslatableComponent("tier."+ FactoryAPI.MOD_ID + ".high").withStyle(ChatFormatting.BLUE),0.5, 4000,8),
+    ULTIMATE(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".ultimate").withStyle(ChatFormatting.DARK_PURPLE),0.63, 6000,12),
+    QUANTUM(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".quantum").withStyle(ChatFormatting.DARK_AQUA),0.8, 10000,16),
+    CREATIVE(new TranslatableComponent("tier."+FactoryAPI.MOD_ID + ".creative").withStyle(ChatFormatting.LIGHT_PURPLE),1.0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     
     private final double conductivity;
@@ -45,7 +46,7 @@ public enum FactoryCapacityTiers {
         else return getPrefixComponent(keyType,"");
     }
     public MutableComponent getPrefixComponent(String keyType, Object... objects){
-        return Component.translatable("tier.factory_api.display",I18n.get("tier.factory_api." + keyType, objects));
+        return new TranslatableComponent("tier.factory_api.display",I18n.get("tier.factory_api." + keyType, objects));
     }
     public boolean supportTier(FactoryCapacityTiers tier){return ordinal() >= tier.ordinal();}
     public double getConductivity() {

@@ -7,12 +7,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.common.SoundActions;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import wily.factoryapi.ItemContainerUtil;
@@ -20,11 +18,11 @@ import wily.factoryapi.forge.base.FluidMultiUtil;
 
 public class ItemContainerUtilImpl {
     public static boolean isFluidContainer(ItemStack stack){
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent();
+        return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
     }
 
     public static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow((() ->  new RuntimeException("Non FluidContainer")));
+        return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).orElseThrow((() ->  new RuntimeException("Non FluidContainer")));
     }
 
     public static ItemStack getFluidContainer(ItemStack stack) {
@@ -37,17 +35,17 @@ public class ItemContainerUtilImpl {
         return getFluid(stack);
     }
     public static FluidStack getFluid(ItemStack stack){
-        if (isFluidContainer(stack)) return FluidStackHooksForge.fromForge(stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get().getFluidInTank(0));
+        if (isFluidContainer(stack)) return FluidStackHooksForge.fromForge(stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).resolve().get().getFluidInTank(0));
         return FluidStack.empty();
     }
     public static ItemContainerUtil.ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidStack fluidStack){
         if (!isFluidContainer(stack)) return new ItemContainerUtil.ItemFluidContext(FluidStack.empty(),stack);
-        IFluidHandlerItem tank = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
+        IFluidHandlerItem tank = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).resolve().get();
         long amount = tank.fill(FluidStackHooksForge.toForge(fluidStack), IFluidHandler.FluidAction.EXECUTE);
         if(player != null) {
             player.setItemInHand(hand, tank.getContainer());
             if(stack.getItem() instanceof BucketItem && fluidStack.getAmount() == FluidStack.bucketAmount())
-                player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_FILL), SoundSource.PLAYERS, 0.6F, 0.8F);
+                player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getAttributes().getFillSound(), SoundSource.PLAYERS, 0.6F, 0.8F);
 }
         return new ItemContainerUtil.ItemFluidContext(FluidStack.create(fluidStack.getFluid(),amount),tank.getContainer());
     }
@@ -61,7 +59,7 @@ public class ItemContainerUtilImpl {
 
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack, Player player, InteractionHand hand){
         if (!isFluidContainer(stack)) return new ItemContainerUtil.ItemFluidContext(FluidStack.empty(),stack);
-        IFluidHandlerItem tank = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
+        IFluidHandlerItem tank = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).resolve().get();
         FluidStack fluidStack;
 
         IFluidHandler.FluidAction action =FluidMultiUtil.FluidActionof((player !=null && player.isCreative()));
@@ -81,7 +79,7 @@ public class ItemContainerUtilImpl {
             }else {
                 player.setItemInHand(hand, tank.getContainer());
             }
-            if (!fluidStack.isEmpty())player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getFluidType().getSound(FluidStackHooksForge.toForge(fluidStack), SoundActions.BUCKET_EMPTY), SoundSource.PLAYERS, 0.6F, 0.8F);
+            if (!fluidStack.isEmpty())player.level.playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), fluidStack.getFluid().getAttributes().getEmptySound(), SoundSource.PLAYERS, 0.6F, 0.8F);
         }
         return new ItemContainerUtil.ItemFluidContext(fluidStack,tank.getContainer());
     }
@@ -95,7 +93,7 @@ public class ItemContainerUtilImpl {
     }
 
     public static boolean isEnergyContainer(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.ENERGY).isPresent();
+        return stack.getCapability(CapabilityEnergy.ENERGY).isPresent();
     }
 
     public static int insertEnergy(int energy, Player player, InteractionHand hand) {
@@ -103,7 +101,7 @@ public class ItemContainerUtilImpl {
     }
 
         public static ItemContainerUtil.ItemEnergyContext insertEnergy(int energy, ItemStack stack) {
-            IEnergyStorage energyStorage = stack.getCapability(ForgeCapabilities.ENERGY).resolve().get();
+            IEnergyStorage energyStorage = stack.getCapability(CapabilityEnergy.ENERGY).resolve().get();
             return new ItemContainerUtil.ItemEnergyContext(energyStorage.receiveEnergy(energy,false),stack) ;
     }
 
@@ -113,12 +111,12 @@ public class ItemContainerUtilImpl {
 
     public static ItemContainerUtil.ItemEnergyContext extractEnergy(int energy, ItemStack stack) {
         if (!isEnergyContainer(stack)) return new ItemContainerUtil.ItemEnergyContext(0,stack);
-        IEnergyStorage energyStorage = stack.getCapability(ForgeCapabilities.ENERGY).resolve().get();
+        IEnergyStorage energyStorage = stack.getCapability(CapabilityEnergy.ENERGY).resolve().get();
         return new ItemContainerUtil.ItemEnergyContext(energyStorage.extractEnergy(energy,false),stack) ;
     }
 
     public static int getEnergy(ItemStack stack) {
         if (!isEnergyContainer(stack)) return 0;
-        return stack.getCapability(ForgeCapabilities.ENERGY).resolve().get().getEnergyStored();
+        return stack.getCapability(CapabilityEnergy.ENERGY).resolve().get().getEnergyStored();
     }
 }

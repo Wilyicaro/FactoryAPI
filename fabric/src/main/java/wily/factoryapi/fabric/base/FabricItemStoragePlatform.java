@@ -18,15 +18,21 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
     @Override
     default int getContainerSize() {
         int s = 0;
-        for (StorageView<ItemVariant> view : getHandler())
-            s++;
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<ItemVariant> view : getHandler().iterable(transaction))
+                s++;
+            transaction.commit();
+        }
         return s;
     }
 
     @Override
     default boolean isEmpty() {
-        for (StorageView<ItemVariant> view : getHandler())
-            if (!view.isResourceBlank()) return false;
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<ItemVariant> view : getHandler().iterable(transaction))
+                if (!view.isResourceBlank()) return false;
+            transaction.commit();
+        }
         return true;
     }
 
@@ -113,13 +119,16 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
 
     @Override
     default void clearContent() {
-        for (StorageView<ItemVariant> view : getHandler())
-            if (!view.isResourceBlank()){
-                try (Transaction transaction = Transaction.openOuter()){
-                    view.extract(view.getResource(),view.getAmount(),transaction);
-                    transaction.commit();
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<ItemVariant> view : getHandler().iterable(transaction))
+                if (!view.isResourceBlank()) {
+                    try (Transaction nested = transaction.openNested()) {
+                        view.extract(view.getResource(), view.getAmount(), nested);
+                        nested.commit();
+                    }
                 }
-            }
+            transaction.commit();
+        }
     }
 
 

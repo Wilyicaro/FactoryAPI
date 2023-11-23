@@ -18,8 +18,10 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
 
     @Override
     default @NotNull FluidStack getFluidStack() {
-        for (StorageView<FluidVariant> view : getHandler())
-            return FluidStackHooksFabric.fromFabric(view);
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<FluidVariant> view : getHandler().iterable(transaction))
+                return FluidStackHooksFabric.fromFabric(view);
+        }
         return FluidStack.empty();
     }
     @Override
@@ -30,18 +32,23 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
     @Override
     default CompoundTag serializeTag() {
         CompoundTag tag = new CompoundTag();
-        for (StorageView<FluidVariant> view : getHandler()) {
-            tag.put("fluidVariant", view.getResource().toNbt());
-            tag.putLong("amount", view.getAmount());
-            tag.putLong("capacity", view.getCapacity());
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<FluidVariant> view : getHandler().iterable(transaction)) {
+                tag.put("fluidVariant", view.getResource().toNbt());
+                tag.putLong("amount", view.getAmount());
+                tag.putLong("capacity", view.getCapacity());
+            }
+            transaction.commit();
         }
         return tag;
     }
 
     @Override
     default long getMaxFluid() {
-        for (StorageView<FluidVariant> view : getHandler())
-            return view.getCapacity();
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<FluidVariant> view : getHandler().iterable(transaction))
+                return view.getCapacity();
+        }
         return 0L;
     }
 
@@ -78,14 +85,19 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
 
     @Override
     default @NotNull FluidStack drain(long maxDrain, boolean simulate) {
-        for (StorageView<FluidVariant> view : getHandler())
-            return drain(FluidStackHooksFabric.fromFabric(view.getResource(),maxDrain), simulate);
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<FluidVariant> view : getHandler().iterable(transaction))
+                return drain(FluidStackHooksFabric.fromFabric(view.getResource(), maxDrain), simulate);
+            transaction.commit();
+        }
         return FluidStack.empty();
     }
     @Override
     default void setFluid(FluidStack fluidStack) {
-        for (StorageView<FluidVariant> view : getHandler())
-            drain((int) view.getAmount(), false);
+        try (Transaction transaction = Transaction.openOuter()) {
+            for (StorageView<FluidVariant> view : getHandler().iterable(transaction))
+                drain((int) view.getAmount(), false);
+        }
         fill(fluidStack,false);
     }
 

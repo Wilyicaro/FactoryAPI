@@ -4,10 +4,12 @@ import dev.architectury.fluid.FluidStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.loading.FMLPaths;
 import wily.factoryapi.ItemContainerUtil;
 import wily.factoryapi.base.*;
@@ -31,10 +33,10 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static IPlatformFluidHandler<?> getItemFluidHandler(ItemStack container) {
-        return ItemContainerUtil.isFluidContainer(container)? (IPlatformFluidHandler<?>) container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get() : null;
+        return ItemContainerUtil.isFluidContainer(container)? (IPlatformFluidHandler<?>) container.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).resolve().get() : null;
     }
     public static IPlatformEnergyStorage<?> getItemEnergyStorage(ItemStack container) {
-        return ItemContainerUtil.isEnergyContainer(container)? (IPlatformEnergyStorage<?>) container.getCapability(ForgeCapabilities.ENERGY).resolve().get() : null;
+        return ItemContainerUtil.isEnergyContainer(container)? (IPlatformEnergyStorage<?>) container.getCapability(CapabilityEnergy.ENERGY).resolve().get() : null;
     }
 
 
@@ -52,7 +54,7 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static Component getPlatformEnergyComponent() {
-        return Component.literal("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
+        return new TextComponent("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
     }
 
     public static IPlatformEnergyStorage<?> filteredOf(IPlatformEnergyStorage energyStorage, TransportState transportState) {

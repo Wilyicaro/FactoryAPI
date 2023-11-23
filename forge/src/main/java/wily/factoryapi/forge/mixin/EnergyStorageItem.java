@@ -5,10 +5,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.extensions.IForgeItem;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +30,7 @@ public interface EnergyStorageItem extends IForgeItem {
             @Override
             public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                 IEnergyStorageItem<?> storageItem = self();
-                if (capability == ForgeCapabilities.ENERGY)
+                if (capability == CapabilityEnergy.ENERGY)
                     return LazyOptional.of(()->new ForgeItemEnergyStorage(stack,0,storageItem.getCapacity(),storageItem.getMaxReceive(), storageItem.getMaxConsume(), storageItem.getTransport())).cast();
                 if (capability == FactoryCapabilities.CRAFTY_ENERGY && storageItem instanceof ICraftyStorageItem craftyItem)
                     return LazyOptional.of(()->new SimpleItemCraftyStorage(stack,0,storageItem.getCapacity(),storageItem.getMaxReceive(), storageItem.getMaxConsume(), storageItem.getTransport(), craftyItem.getSupportedEnergyTier() ,stack.getItem() instanceof BlockItem)).cast();
