@@ -2,6 +2,7 @@ package wily.factoryapi.forge.mixin;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
 
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 @Mixin(IItemHandlerModifiable.class)
 public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandlerModifiable> {
@@ -46,6 +48,11 @@ public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandler
 
     @Override
     default void setChanged() {
+
+    }
+
+    @Override
+    default void setValid(Predicate<Player> stillValid){
 
     }
 

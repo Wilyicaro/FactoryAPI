@@ -30,6 +30,6 @@
     "architectury": ">=10.0.8"
   },
   "suggests": {
-    "factocrafty": ">=0.0.0.4"
+    "factocrafty": ">=0.0.0.6"
   }
 }

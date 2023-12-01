@@ -20,13 +20,18 @@ public interface IFactoryDrawableType {
         public int uvX() {return 0;}
 
         public int uvY() {return 0;}
+
+        public boolean isSprite() {return false;}
     };
 
     static IFactoryDrawableType empty(){return EMPTY;}
 
     ResourceLocation texture();
 
-    record DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height) implements IFactoryDrawableType {
+    record DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height, boolean isSprite) implements IFactoryDrawableType {
+        public DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height){
+            this(texture,uvX,uvY,width,height,false);
+        }
         @Deprecated
         public DrawableProgress asProgress(Progress.Identifier identifier, boolean reverse, Direction plane){
             return asProgress(reverse,plane);
@@ -44,7 +49,10 @@ public interface IFactoryDrawableType {
     static DrawableImage create(ResourceLocation texture,  int width, int height){
         return new DrawableImage(texture, 0, 0, width, height);
     }
-    record DrawableProgress(DrawableImage drawable, boolean reverse, Direction plane) implements IFactoryDrawableType {
+    static DrawableImage create(ResourceLocation texture,  int width, int height, boolean isSprite){
+        return new DrawableImage(texture, 0, 0, width, height, isSprite);
+    }
+    record DrawableProgress(DrawableImage drawable,boolean reverse, Direction plane) implements IFactoryDrawableType {
         public void drawProgress(GuiGraphics graphics,int x, int y, float percentage){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y,percentage,this);
         }
@@ -64,6 +72,7 @@ public interface IFactoryDrawableType {
         public int height() {return drawable.height;}
         public int uvX() {return drawable.uvX;}
         public int uvY() {return drawable.uvY;}
+        public boolean isSprite() {return drawable.isSprite;}
     }
 
     int width();
@@ -83,13 +92,15 @@ public interface IFactoryDrawableType {
         return getMouseLimit(mouseX,mouseY,posX,posY,width(),height());
     }
     default void draw(GuiGraphics graphics, int x, int y) {
-        graphics.blit(texture(),x,y,uvX(),uvY(),width(),height());
+        if (isSprite()) graphics.blitSprite(texture(),x,y,width(),height());
+            else graphics.blit(texture(),x,y,uvX(),uvY(),width(),height());
     }
     int uvX();
     int uvY();
     static boolean getMouseLimit(double mouseX, double mouseY, int posX, int posY, int sizeX, int sizeY){
         return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
     }
+    boolean isSprite();
     enum Direction {
         VERTICAL,HORIZONTAL;
         public boolean isVertical(){return  this == VERTICAL;}

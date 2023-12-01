@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public interface IPlatformItemHandler<T> extends WorldlyContainer, ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>
 {
@@ -16,6 +17,8 @@ public interface IPlatformItemHandler<T> extends WorldlyContainer, ITagSerializa
     default ItemStack removeItem(int i, int j){
         return extractItem(i,j,false);
     }
+
+    void setValid(Predicate<Player> stillValid);
 
     @Override
     default boolean stillValid(Player player) {

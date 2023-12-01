@@ -62,6 +62,11 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         graphics.pose().popPose();
     }
 
+    @Override
+    public boolean isSprite() {
+        return drawable.isSprite();
+    }
+
     public void drawAsFluidTank(GuiGraphics graphics, FluidStack stack, long capacity, boolean hasColor) {
         drawable.drawAsFluidTank(graphics, getX(), getY(), stack, capacity, hasColor);
     }

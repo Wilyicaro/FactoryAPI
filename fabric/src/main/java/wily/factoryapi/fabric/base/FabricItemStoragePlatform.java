@@ -10,6 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.impl.transfer.item.ItemVariantImpl;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.base.IPlatformItemHandler;
@@ -18,6 +19,7 @@ import wily.factoryapi.base.TransportState;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<ItemVariant>> {
     @Override
@@ -33,6 +35,11 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
         for (StorageView<ItemVariant> view : getHandler())
             if (!view.isResourceBlank()) return false;
         return true;
+    }
+
+    @Override
+    default void setValid(Predicate<Player> stillValid){
+
     }
 
     @Override

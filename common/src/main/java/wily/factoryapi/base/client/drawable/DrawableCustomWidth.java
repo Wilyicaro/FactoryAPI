@@ -1,7 +1,6 @@
 package wily.factoryapi.base.client.drawable;
 
 import net.minecraft.client.gui.GuiGraphics;
-import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
 public class DrawableCustomWidth<D extends DrawableCustomWidth<D>> extends AbstractDrawableStatic<D,IFactoryDrawableType> {
     public Integer customWidth;
@@ -19,6 +18,6 @@ public class DrawableCustomWidth<D extends DrawableCustomWidth<D>> extends Abstr
     @Override
     public void draw(GuiGraphics graphics, int x, int y) {
         super.draw(graphics, x, y);
-        if (customWidth != null) graphics.blit(texture(),x + width() - 2, y, uvX() + drawable.width() - 2, uvY(), 2,height());
+        if (customWidth != null && !isSprite()) graphics.blit(texture(),x + width() - 2, y, uvX() + drawable.width() - 2, uvY(), 2,height());
     }
 }
