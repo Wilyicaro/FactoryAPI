@@ -86,8 +86,8 @@ public class ScreenUtil {
         graphics.fill(x + width - 1, y + 3, x + width, y + height - 3, outlineColor);
         BiConsumer<Integer, Integer> outlinePixel = (posx, posy)-> graphics.fill(posx, posy, posx + 1, posy + 1, outlineColor);
         outlinePixel.accept(x + 1, y + 1);
-        outlinePixel.accept(x + width - 2, y + 1);
-        outlinePixel.accept(x + width - 1, y + 2);
+        outlinePixel.accept(x + width - 3, y + 1);
+        outlinePixel.accept(x + width - 2, y + 2);
         outlinePixel.accept(x + 1, y + height - 3);
         outlinePixel.accept(x + 2, y + height - 2);
         outlinePixel.accept(x+ width -2, y + height - 3);

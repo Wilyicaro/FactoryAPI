@@ -20,6 +20,7 @@ import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
 
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 
 public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler<Storage<ItemVariant>> {
@@ -29,16 +30,25 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     private BlockEntity be;
     protected TransportState transportState;
 
+    protected Predicate<Player> stillValid = p-> true;
     protected BiPredicate<Integer,ItemStack> extractableSlots = (i,stack)-> true;
     protected BiPredicate<Integer,ItemStack> insertableSlots = (i,stack)-> true;
     public FabricItemStorage(int inventorySize, @Nullable BlockEntity be,TransportState transportState){
         super(inventorySize);
         this.be = be;
         this.transportState = transportState;
+        if (be != null)
+            stillValid = (p)-> Container.stillValidBlockEntity(be, p);
     }
+
+    @Override
+    public void setValid(Predicate<Player> stillValid) {
+        this.stillValid = stillValid;
+    }
+
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return Container.stillValidBlockEntity(be, player);
+        return stillValid.test(player);
     }
 
     @Override

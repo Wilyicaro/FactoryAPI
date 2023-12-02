@@ -22,6 +22,7 @@ import wily.factoryapi.base.TransportState;
 
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHandler<IItemHandlerModifiable> {
     protected BlockEntity be;
@@ -29,6 +30,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
     public IItemHandlerModifiable itemHandler;
     protected TransportState transportState;
 
+    protected Predicate<Player> stillValid = p-> true;
     protected BiPredicate<Integer,ItemStack> extractableSlots = (i,stack)-> true;
     protected BiPredicate<Integer,ItemStack> insertableSlots = (i,stack)-> true;
 
@@ -37,9 +39,13 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
         this.be = be;
         itemHandler =  new InvWrapper(this);
         this.transportState = transportState;
-
+        if (be != null)
+            stillValid = (p)-> Container.stillValidBlockEntity(be, p);
     }
-
+    @Override
+    public void setValid(Predicate<Player> stillValid) {
+        this.stillValid = stillValid;
+    }
     public void setExtractableSlots(BiPredicate<Integer, ItemStack> extractableSlots) {
         this.extractableSlots = extractableSlots;
     }
@@ -176,7 +182,7 @@ public class ForgeItemHandler extends SimpleContainer implements IPlatformItemHa
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return Container.stillValidBlockEntity(be, player);
+        return stillValid.test(player);
     }
 
     @Override
