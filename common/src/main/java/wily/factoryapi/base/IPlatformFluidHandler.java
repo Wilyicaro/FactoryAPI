@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
 
-public interface IPlatformFluidHandler<T> extends ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>, IHasIdentifier
+public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IPlatformHandler, IHasIdentifier
 {
 
 

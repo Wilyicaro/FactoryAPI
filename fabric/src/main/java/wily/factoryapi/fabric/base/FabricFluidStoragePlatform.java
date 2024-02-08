@@ -12,12 +12,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.base.IPlatformFluidHandler;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.SlotsIdentifier;
 import wily.factoryapi.base.TransportState;
 
 import java.util.function.Predicate;
 
-public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storage<FluidVariant>> {
+public interface FabricFluidStoragePlatform extends IPlatformFluidHandler, IPlatformHandlerApi<Storage<FluidVariant>> {
 
 
 
@@ -61,9 +62,10 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
     default long fill(FluidStack resource, boolean simulate) {
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
-            if (!simulate) {
-                i = (int) getHandler().insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = (int) getHandler().insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
+            try (Transaction nested = transaction.openNested()){
+                i = (int) getHandler().insert(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), nested);
+                if (!simulate) nested.commit();
+            }
             transaction.commit();
             return i;
         }
@@ -73,9 +75,10 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler<Storag
     default @NotNull FluidStack drain(FluidStack resource, boolean simulate) {
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
-            if (!simulate) {
-                i = (int) getHandler().extract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
-            }else i = (int) getHandler().simulateExtract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), transaction);
+            try (Transaction nested = transaction.openNested()) {
+                i = (int) getHandler().extract(FluidStackHooksFabric.toFabric(resource), resource.getAmount(), nested);
+                if (!simulate) nested.commit();
+            }
             transaction.commit();
             return FluidStack.create(resource.getFluid(), i);
         }

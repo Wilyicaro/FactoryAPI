@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Style;
 import wily.factoryapi.FactoryAPIPlatform;
 
-public interface IPlatformEnergyStorage <T> extends ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>
+public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, IPlatformHandler
 {
 
 
@@ -45,7 +45,7 @@ public interface IPlatformEnergyStorage <T> extends ITagSerializable<CompoundTag
     /**
      * Used to get the remaining energy space available .
      */
-    default int getSpace(){ return Math.max(0, getMaxEnergyStored() - getEnergyStored());}
+    default int getEnergySpace(){ return Math.max(0, getMaxEnergyStored() - getEnergyStored());}
 
     void setEnergyStored(int energy);
 
@@ -55,7 +55,7 @@ public interface IPlatformEnergyStorage <T> extends ITagSerializable<CompoundTag
     }
 
     default int getMaxReceive(){
-        return getSpace();
+        return getEnergySpace();
     }
 
      default Style getComponentStyle(){

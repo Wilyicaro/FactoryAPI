@@ -1,27 +1,23 @@
 package wily.factoryapi.fabric.base;
 
-import com.google.common.collect.Lists;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.fabricmc.fabric.impl.transfer.item.ItemVariantImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<ItemVariant>> {
+public interface FabricItemStoragePlatform extends IPlatformItemHandler, IPlatformHandlerApi<Storage<ItemVariant>> {
     @Override
     default int getContainerSize() {
         int s = 0;
@@ -35,11 +31,6 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
         for (StorageView<ItemVariant> view : getHandler())
             if (!view.isResourceBlank()) return false;
         return true;
-    }
-
-    @Override
-    default void setValid(Predicate<Player> stillValid){
-
     }
 
     @Override
@@ -86,13 +77,14 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
         ItemStack inserted = ItemStack.EMPTY;
         if (!stack.isEmpty() && getHandler() instanceof SlottedStorage<ItemVariant> slots){
             SingleSlotStorage<ItemVariant> slot = slots.getSlot(i);
-            ItemVariant slotVariant = slot.getResource();
-            if (slotVariant.matches(stack))
-                try(Transaction transaction = Transaction.openOuter()){
-                    int count = (int) slot.insert(ItemVariant.of(stack),stack.getCount(),transaction);
-                    transaction.commit();
+            try(Transaction transaction = Transaction.openOuter()){
+                try (Transaction nested = transaction.openNested()){
+                    int count = (int) slot.insert(ItemVariant.of(stack),stack.getCount(),nested);
                     inserted = slot.getResource().toStack(count);
+                    if (!simulate) nested.commit();
                 }
+                transaction.commit();
+            }
         }
         return inserted;
     }
@@ -105,24 +97,16 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler<Storage<
             ItemVariant slotVariant = slot.getResource();
             if (!slotVariant.isBlank())
                 try(Transaction transaction = Transaction.openOuter()){
-                    int count = (int) slot.extract(slot.getResource(),amount,transaction);
+                    try (Transaction nested = transaction.openNested()){
+                        int count = (int) slot.extract(slot.getResource(),amount,nested);
+                        extracted = slotVariant.toStack(count);
+                        if (!simulate) nested.commit();
+                    }
                     transaction.commit();
-                    extracted = slotVariant.toStack(count);
                 }
         }
         return extracted;
     }
-
-    @Override
-    default void setExtractableSlots(BiPredicate<Integer, ItemStack> extractableSlots) {
-
-    }
-
-    @Override
-    default void setInsertableSlots(BiPredicate<Integer, ItemStack> insertableSlots) {
-
-    }
-
     @Override
     default void clearContent() {
         for (StorageView<ItemVariant> view : getHandler())

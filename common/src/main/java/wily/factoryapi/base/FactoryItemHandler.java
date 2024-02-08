@@ -1,116 +1,41 @@
-package wily.factoryapi.fabric.base;
+package wily.factoryapi.base;
 
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import wily.factoryapi.base.IFactoryExpandedStorage;
-import wily.factoryapi.base.IPlatformItemHandler;
-import wily.factoryapi.base.TransportState;
 
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
-
-public class FabricItemStorage extends SimpleContainer implements IPlatformItemHandler<Storage<ItemVariant>> {
-
-
-
-    private BlockEntity be;
+public class FactoryItemHandler extends SimpleContainer implements IPlatformItemHandler{
+    protected BlockEntity be;
     protected TransportState transportState;
 
-    protected Predicate<Player> stillValid = p-> true;
-    protected BiPredicate<Integer,ItemStack> extractableSlots = (i,stack)-> true;
-    protected BiPredicate<Integer,ItemStack> insertableSlots = (i,stack)-> true;
-    public FabricItemStorage(int inventorySize, @Nullable BlockEntity be,TransportState transportState){
+    public FactoryItemHandler(int inventorySize, BlockEntity be, TransportState transportState){
         super(inventorySize);
         this.be = be;
         this.transportState = transportState;
-        if (be != null)
-            stillValid = (p)-> Container.stillValidBlockEntity(be, p);
     }
 
     @Override
-    public void setValid(Predicate<Player> stillValid) {
-        this.stillValid = stillValid;
-    }
-
-    @Override
-    public boolean stillValid(@NotNull Player player) {
-        return stillValid.test(player);
-    }
-
-    @Override
-    public boolean canTakeItemThroughFace(int i, ItemStack itemStack, @Nullable Direction direction) {
-        return extractableSlots.test(i,itemStack);
+    public boolean canTakeItem(Container container, int i, ItemStack itemStack) {
+        return getTransport().canExtract();
     }
     @Override
-    public boolean canPlaceItemThroughFace(int i, ItemStack itemStack, @Nullable Direction direction) {
-        return insertableSlots.test(i,itemStack);
+    public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
+        return getTransport().canInsert() && (!(be instanceof IFactoryExpandedStorage storage) || storage.getSlots(null).get(slot).mayPlace(stack));
     }
-    public static FabricItemStorage filtered(IPlatformItemHandler itemHandler, Direction d, int[] slots, TransportState transportState){
-        FabricItemStorage newItemHandler =  new  FabricItemStorage(itemHandler.getContainerSize(),(( FabricItemStorage)itemHandler).be,transportState){
 
-            @Override
-            public ItemStack getItem(int i) {
-                return itemHandler.getItem(i);
-            }
+    public FactoryItemHandler(IPlatformItemHandler  handler, TransportState transportState){
+        this(handler.getContainerSize(), handler instanceof FactoryItemHandler h ? h.be : null,transportState);
 
-            @Override
-            public void setItem(int i, ItemStack itemStack) {
-                itemHandler.setItem(i,itemStack);
-            }
-
-            @Override
-            public ItemStack removeItemNoUpdate(int i) {
-                return itemHandler.removeItemNoUpdate(i);
-            }
-
-            @Override
-            public ItemStack removeItemType(Item item, int i) {
-                return ((FabricItemStorage) itemHandler).removeItemType(item,i);
-            }
-
-
-            @Override
-            public boolean canPlaceItem(int i, ItemStack itemStack) {
-                return itemHandler.canPlaceItem(i,itemStack);
-            }
-
-            @Override
-            public ItemStack addItem(ItemStack itemStack) {
-                return ((FabricItemStorage) itemHandler).addItem(itemStack);
-            }
-
-            @Override
-            public int[] getSlotsForFace(Direction direction) {
-                return slots;
-            }
-
-            @Override
-            public boolean canPlaceItemThroughFace(int i, ItemStack itemStack, @Nullable Direction direction) {
-                return itemHandler.canPlaceItemThroughFace(i,itemStack,direction) && ArrayUtils.contains(slots,i) && direction == d && getTransport().canInsert();
-            }
-
-            @Override
-            public boolean canTakeItemThroughFace(int i, ItemStack itemStack, Direction direction) {
-                return itemHandler.canTakeItemThroughFace(i,itemStack,direction) && ArrayUtils.contains(slots,i) && direction == d && getTransport().canExtract();
-            }
-        };
-        newItemHandler.inventoryStorage = InventoryStorage.of(newItemHandler, d);
-        return newItemHandler;
     }
+
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) {
@@ -179,7 +104,7 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
 
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (amount == 0) {
+        if (amount == 0 || !canTakeItem(this,slot,getItem(slot))) {
             return ItemStack.EMPTY;
         } else {
             ItemStack stackInSlot = this.getItem(slot);
@@ -203,32 +128,20 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     }
 
     @Override
-    public void setExtractableSlots(BiPredicate<Integer, ItemStack> extractableSlots) {
-        this.extractableSlots = extractableSlots;
+    public void setChanged() {
+        super.setChanged();
+        if (be != null)
+            be.setChanged();
     }
-
-    @Override
-    public void setInsertableSlots(BiPredicate<Integer, ItemStack> insertableSlots) {
-        this.insertableSlots = insertableSlots;
-    }
-
-
-    @Override
-    public boolean canPlaceItem(int i, ItemStack itemStack) {
-        if (be instanceof IFactoryExpandedStorage storage) return storage.getSlots(null).get(i).mayPlace(itemStack);
-        return true;
-    }
-
-
     @Override
     public CompoundTag serializeTag() {
         ListTag nbtTagList = new ListTag();
 
         for(int i = 0; i < getContainerSize(); ++i) {
-            if (!(getItem(i)).isEmpty()) {
+            if (!getItem(i).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                (getItem(i)).save(itemTag);
+                getItem(i).save(itemTag);
                 nbtTagList.add(itemTag);
             }
         }
@@ -236,6 +149,11 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
+    }
+
+    @Override
+    public boolean stillValid(@NotNull Player player) {
+        return be == null || Container.stillValidBlockEntity(be, player);
     }
 
     @Override
@@ -252,19 +170,62 @@ public class FabricItemStorage extends SimpleContainer implements IPlatformItemH
     }
 
     @Override
-    public void setChanged() {
-        super.setChanged();
-        if (be != null) be.setChanged();
-    }
-    protected Storage<ItemVariant> inventoryStorage = InventoryStorage.of(this, null);
-
-    @Override
-    public Storage<ItemVariant> getHandler() {
-        return inventoryStorage;
+    public ItemStack addItem(ItemStack itemStack) {
+        return super.addItem(itemStack);
     }
 
     @Override
     public TransportState getTransport() {
         return transportState;
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return be != null && be.isRemoved();
+    }
+
+    public static class SidedWrapper extends FactoryItemHandler implements IModifiableTransportHandler{
+
+        private final IPlatformItemHandler  platformItemHandler;
+        public int[] slots = new int[0];
+
+        public SidedWrapper(IPlatformItemHandler platformItemHandler) {
+            super(platformItemHandler, platformItemHandler.getTransport());
+            this.platformItemHandler = platformItemHandler;
+        }
+        @Override
+        public boolean canPlaceItem(int i, @NotNull ItemStack arg) {
+            return platformItemHandler.canPlaceItem(i,arg) && ArrayUtils.contains(slots,i);
+        }
+
+        @Override
+        public boolean canTakeItem(Container container, int i, ItemStack itemStack) {
+            return platformItemHandler.canTakeItem(container, i, itemStack) && ArrayUtils.contains(slots,i);
+        }
+
+        @Override
+        public ItemStack getItem(int i) {
+            return platformItemHandler.getItem(i);
+        }
+
+        @Override
+        public ItemStack removeItem(int i, int j) {
+            return platformItemHandler.removeItem(i,j);
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int i) {
+            return platformItemHandler.removeItemNoUpdate(i);
+        }
+
+        @Override
+        public void setItem(int i, ItemStack arg) {
+            platformItemHandler.setItem(i,arg);
+        }
+
+        @Override
+        public void setTransport(TransportState state) {
+            transportState = state;
+        }
     }
 }

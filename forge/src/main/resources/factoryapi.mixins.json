@@ -6,12 +6,14 @@
   ],
   "mixins": [
     "EnergyStorageItem",
-    "FluidHandler",
     "FluidHandlerItem",
-    "ForgeEnergyHandler",
+    "IItemInjector",
     "IForgeFactoryBlock",
     "IForgeItemInjector",
-    "ItemHandlerModifiable"
+    "IPlatformEnergyStorageMixin",
+    "IPlatformFluidHandlerMixin",
+    "IPlatformItemFluidHandlerMixin",
+    "IPlatformItemHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -6,12 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.Collections;
 import java.util.List;
 
-public class TransportSide implements ISideType<TransportSide>{
+public class TransportSide implements IHasIdentifier,IModifiableTransportHandler{
     public TransportState transportState;
 
     public SlotsIdentifier identifier;
-
-
     public TransportSide(SlotsIdentifier identifier, TransportState transportState){
         this.transportState = transportState;
         this.identifier = identifier;
@@ -23,7 +21,7 @@ public class TransportSide implements ISideType<TransportSide>{
         this(TransportState.NONE);
     }
 
-    public static CompoundTag serializeTag(SideList<?> sided, List<? extends IHasIdentifier> list) {
+    public static CompoundTag serializeTag(SideList<TransportSide> sided, List<? extends IHasIdentifier> list) {
         CompoundTag sides = new CompoundTag();
         List<SlotsIdentifier> identifiers = IHasIdentifier.getSlotsIdentifiers(list);
         for (Direction direction : Direction.values())
@@ -31,7 +29,7 @@ public class TransportSide implements ISideType<TransportSide>{
         return sides;
     }
 
-    public static void deserializeTag(CompoundTag nbt, SideList<? super ISideType<?>> sided, List<? extends IHasIdentifier> list) {
+    public static void deserializeTag(CompoundTag nbt, SideList<TransportSide> sided, List<? extends IHasIdentifier> list) {
         if (!nbt.isEmpty())
             for (Direction direction : Direction.values()) {
                 int[] slotsState = nbt.getIntArray(direction.getName());
@@ -39,11 +37,11 @@ public class TransportSide implements ISideType<TransportSide>{
             }
     }
 
-    public static CompoundTag serializeTag(SideList<?> sided) {
+    public static CompoundTag serializeTag(SideList<TransportSide> sided) {
         return serializeTag(sided, Collections.emptyList());
     }
 
-    public static void deserializeTag(CompoundTag nbt, SideList<? super ISideType<?>> sided) {
+    public static void deserializeTag(CompoundTag nbt, SideList<TransportSide> sided) {
        deserializeTag(nbt,sided,Collections.emptyList());
     }
     @Override
@@ -51,7 +49,6 @@ public class TransportSide implements ISideType<TransportSide>{
         return identifier;
     }
 
-    @Override
     public TransportSide ofTransport(TransportState transport) {
         return new TransportSide(identifier,transport);
     }
@@ -62,26 +59,19 @@ public class TransportSide implements ISideType<TransportSide>{
     }
 
     @Override
-    public TransportSide withTransport(TransportState transportState) {
-        this.transportState = transportState;
-        return this;
+    public void setTransport(TransportState state) {
+        transportState = state;
     }
-
-    @Override
     public TransportSide withSlotIdentifier(SlotsIdentifier identifier) {
         this.identifier = identifier;
         return this;
     }
-
-    @Override
     public int nextSlotIndex(List<? extends IHasIdentifier> identifiers) {
         int i = getSlotIndex(identifiers) + 1;
         int b = i < identifiers.size() ? i : 0;
         identifier = identifiers.get(b).identifier();
         return b;
     }
-
-    @Override
     public int getSlotIndex(List<? extends IHasIdentifier> identifierList) {
         return Math.max(IHasIdentifier.getSlotsIdentifiers(identifierList).indexOf(identifier()), 0);
     }
