@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class SideList<T extends ISideType<?>> extends NonNullList<T> {
+public class SideList<T extends IModifiableTransportHandler> extends NonNullList<T> {
 
 
     public SideList(Supplier<T> defaultValue){
@@ -29,7 +29,11 @@ public class SideList<T extends ISideType<?>> extends NonNullList<T> {
         return direction == null ? defaultState : get(direction).getTransport();
     }
     public void setTransport(TransportState transportState, Direction direction) {
-        get(direction).withTransport(transportState);
+        get(direction).setTransport(transportState);
+    }
+
+    public boolean contains(Direction d) {
+        return get(d) != null;
     }
 
     public void forEach(BiConsumer<Direction,? super T> action) {

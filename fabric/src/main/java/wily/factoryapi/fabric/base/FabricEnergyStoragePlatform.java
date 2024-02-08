@@ -7,9 +7,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 import wily.factoryapi.base.IPlatformEnergyStorage;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.TransportState;
 
-public interface FabricEnergyStoragePlatform extends IPlatformEnergyStorage<EnergyStorage> {
+public interface FabricEnergyStoragePlatform extends IPlatformEnergyStorage, IPlatformHandlerApi<EnergyStorage> {
 
     String KEY = "energy";
 

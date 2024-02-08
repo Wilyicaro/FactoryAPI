@@ -4,10 +4,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import wily.factoryapi.FactoryAPIPlatform;
 
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class FactoryItemSlot extends Slot implements IHasIdentifier {
 

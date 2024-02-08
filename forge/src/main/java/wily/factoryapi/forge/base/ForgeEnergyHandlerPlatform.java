@@ -1,17 +1,12 @@
-package wily.factoryapi.forge.mixin;
+package wily.factoryapi.forge.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.energy.IEnergyStorage;
-import org.spongepowered.asm.mixin.Mixin;
 import wily.factoryapi.base.IPlatformEnergyStorage;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.TransportState;
 
-@Mixin(IEnergyStorage.class)
-public interface ForgeEnergyHandler extends IPlatformEnergyStorage<IEnergyStorage> {
-    @Override
-    default IEnergyStorage getHandler() {
-        return (IEnergyStorage) this;
-    }
+public interface ForgeEnergyHandlerPlatform extends IPlatformEnergyStorage, IPlatformHandlerApi<IEnergyStorage> {
     @Override
     default int receiveEnergy(int energy, boolean simulate) {
         return getHandler().receiveEnergy(energy,simulate);
@@ -39,12 +34,6 @@ public interface ForgeEnergyHandler extends IPlatformEnergyStorage<IEnergyStorag
     }
 
     @Override
-    default int getMaxConsume() {
-        return getMaxEnergyStored();
-    }
-
-
-    @Override
     default TransportState getTransport() {
         return TransportState.EXTRACT_INSERT;
     }
@@ -53,5 +42,7 @@ public interface ForgeEnergyHandler extends IPlatformEnergyStorage<IEnergyStorag
     default CompoundTag serializeTag() {
         return new CompoundTag();
     }
-
+    @Override
+    default void deserializeTag(CompoundTag nbt){
+    }
 }

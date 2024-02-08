@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public interface IFactoryExpandedStorage extends IFactoryStorage {
-    default <T extends ISideType<?>> void replaceSidedStorage(BlockSide blockSide,SideList<T> side, T replacement){
+    default void replaceSidedStorage(BlockSide blockSide,SideList<TransportSide> side, TransportSide replacement){
         if (this instanceof BlockEntity be) side.put(blockSide.blockStateToFacing(be.getBlockState()), replacement);
     }
 
@@ -19,7 +19,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
         return NonNullList.create();
     }
 
-    default List<IPlatformFluidHandler<?>> getTanks(){
+    default List<IPlatformFluidHandler> getTanks(){
         return NonNullList.create();
     }
 

@@ -3,3 +3,4 @@ accessible field net/minecraft/world/level/lighting/LightEngine chunkSource Lnet
 accessible field net/minecraft/world/level/lighting/LightEngine storage Lnet/minecraft/world/level/lighting/LayerLightSectionStorage;
 accessible method net/minecraft/world/level/lighting/LayerLightSectionStorage lightOnInSection (J)Z
 accessible method net/minecraft/world/level/lighting/LightEngine enqueueIncrease (JJ)V
+accessible field net/minecraft/nbt/CompoundTag tags Ljava/util/Map;

@@ -3,7 +3,6 @@ package wily.factoryapi.base;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import wily.factoryapi.FactoryAPI;
 
 import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
@@ -135,12 +134,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
 
     @Override
     public int getMaxReceive() {
-        return Math.min(getSpace(),maxInput);
-    }
-
-    @Override
-    public ICraftyEnergyStorage getHandler() {
-        return this;
+        return Math.min(getEnergySpace(),maxInput);
     }
 
     @Override

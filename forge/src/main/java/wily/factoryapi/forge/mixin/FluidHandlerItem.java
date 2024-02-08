@@ -11,8 +11,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import wily.factoryapi.base.FactoryItemFluidHandler;
 import wily.factoryapi.base.IFluidHandlerItem;
-import wily.factoryapi.forge.base.ForgeItemFluidHandler;
 
 @Mixin(IFluidHandlerItem.class)
 public interface FluidHandlerItem extends IForgeItem {
@@ -27,7 +27,7 @@ public interface FluidHandlerItem extends IForgeItem {
             public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                 IFluidHandlerItem<?> storageItem = self();
                 if (capability == ForgeCapabilities.FLUID_HANDLER_ITEM)
-                    return LazyOptional.of(()->new ForgeItemFluidHandler(storageItem.getCapacity(), stack,storageItem::isFluidValid,storageItem.getTransport())).cast();
+                    return LazyOptional.of(()->new FactoryItemFluidHandler(storageItem.getCapacity(), stack,storageItem::isFluidValid,storageItem.getTransport())).cast();
                 return LazyOptional.empty();
             }
         };

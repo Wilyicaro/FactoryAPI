@@ -44,13 +44,13 @@ public class StorageStringUtil {
 
 
 
-    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell){
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell){
         return getEnergyTooltip(key,cell, energyMeasure, kiloEnergy, megaEnergy);
     }
     public static MutableComponent getEnergyTooltip(String key, ICraftyEnergyStorage cell){
         return getEnergyTooltip(key,cell, CYMeasure, kiloCY, megaCY);
     }
-    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage<?> cell, String... measures){
+    public static MutableComponent getEnergyTooltip(String key, IPlatformEnergyStorage cell, String... measures){
         return Component.translatable(key,  getStorageAmount( cell.getEnergyStored(), isShiftKeyDown(), measures), getStorageAmount( cell.getMaxEnergyStored(), false,measures)).withStyle(cell.getComponentStyle());
     }
     public static MutableComponent getMaxCraftyTransferTooltip(int energyPerTick){
@@ -73,10 +73,10 @@ public class StorageStringUtil {
     public static List<Component> getCompleteEnergyTooltip(String key, ICraftyEnergyStorage cell) {
         return getCompleteEnergyTooltip(key,null,cell);
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler<?> tank){
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank){
         return getFluidTooltip(key,tank,true);
     }
-    public static Component getFluidTooltip(String key, IPlatformFluidHandler<?> tank, boolean showEmpty){
+    public static Component getFluidTooltip(String key, IPlatformFluidHandler tank, boolean showEmpty){
         return getFluidTooltip(key, tank.getFluidStack(), tank.getMaxFluid(),showEmpty).withStyle(tank.identifier().color());
     }
     public static MutableComponent getFluidTooltip(String key, FluidStack stack, long maxFluid, boolean showEmpty){

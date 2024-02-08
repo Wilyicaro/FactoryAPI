@@ -1,43 +1,30 @@
 package wily.factoryapi.base;
 
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
-
-public interface IPlatformItemHandler<T> extends WorldlyContainer, ITagSerializable<CompoundTag>,IPlatformHandlerApi<T>
+public interface IPlatformItemHandler extends Container, ITagSerializable<CompoundTag>, IPlatformHandler
 {
+    @Override
+    default ItemStack removeItemNoUpdate(int i){
+        return extractItem(i,getItem(i).getCount(),false);
+    }
+
+    @Override
+    default void setChanged() {
+
+    }
 
     default ItemStack removeItem(int i, int j){
         return extractItem(i,j,false);
     }
 
-    void setValid(Predicate<Player> stillValid);
-
     @Override
     default boolean stillValid(Player player) {
         return true;
-    }
-
-    @Override
-    default boolean canPlaceItemThroughFace(int i, ItemStack itemStack, @Nullable Direction direction) {
-        return true;
-    }
-
-    @Override
-    default boolean canTakeItemThroughFace(int i, ItemStack itemStack, Direction direction) {
-        return true;
-    }
-
-    @Override
-    default int[] getSlotsForFace(Direction direction) {
-        return new int[0];
     }
 
     /**
@@ -94,7 +81,5 @@ public interface IPlatformItemHandler<T> extends WorldlyContainer, ITagSerializa
     @NotNull
     ItemStack extractItem(int slot, int amount, boolean simulate);
 
-    void setExtractableSlots(BiPredicate<Integer, ItemStack> extractableSlots);
-    void setInsertableSlots(BiPredicate<Integer, ItemStack> insertableSlots);
 
 }

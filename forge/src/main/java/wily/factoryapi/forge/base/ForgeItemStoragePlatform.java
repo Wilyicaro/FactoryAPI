@@ -1,20 +1,22 @@
-package wily.factoryapi.forge.mixin;
+package wily.factoryapi.forge.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Mixin;
+import wily.factoryapi.base.ArbitrarySupplier;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.IPlatformItemHandler;
 import wily.factoryapi.base.TransportState;
 
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-@Mixin(IItemHandlerModifiable.class)
-public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandlerModifiable> {
+
+public interface ForgeItemStoragePlatform extends IPlatformItemHandler, IPlatformHandlerApi<IItemHandler> {
 
 
     @Override
@@ -28,31 +30,21 @@ public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandler
             if (!getHandler().getStackInSlot(i).isEmpty()) return false;
         return true;
     }
-
+    default ArbitrarySupplier<IItemHandlerModifiable> getModifiableHandler(){
+        return ()-> getHandler() instanceof IItemHandlerModifiable h ?h : null;
+    }
     @Override
     default @NotNull ItemStack getItem(int slot) {
         return getHandler().getStackInSlot(slot);
     }
 
     @Override
-    default ItemStack removeItemNoUpdate(int i) {
-        ItemStack stack = getHandler().getStackInSlot(i);
-        getHandler().setStackInSlot(i,ItemStack.EMPTY);
-        return stack;
-    }
-
-    @Override
     default void setItem(int i, ItemStack arg) {
-        getHandler().setStackInSlot(i,arg);
+        getModifiableHandler().ifPresent(m->m.setStackInSlot(i,arg));
     }
 
     @Override
     default void setChanged() {
-
-    }
-
-    @Override
-    default void setValid(Predicate<Player> stillValid){
 
     }
 
@@ -66,27 +58,12 @@ public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandler
         return getHandler().extractItem(slot,amount,simulate);
     }
 
-    @Override
-    default void setExtractableSlots(BiPredicate<Integer, ItemStack> extractableSlots) {
-
-    }
-
-    @Override
-    default void setInsertableSlots(BiPredicate<Integer, ItemStack> insertableSlots) {
-
-    }
-
 
     @Override
     default boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
         return getHandler().isItemValid(slot,stack);
     }
 
-
-    @Override
-    default IItemHandlerModifiable getHandler() {
-        return ((IItemHandlerModifiable) this);
-    }
 
     @Override
     default TransportState getTransport() {
@@ -96,9 +73,10 @@ public interface ItemHandlerModifiable extends IPlatformItemHandler<IItemHandler
 
     @Override
     default void clearContent() {
-        for (int i = 0; i < getHandler().getSlots(); i++) {
-            getHandler().setStackInSlot(i,ItemStack.EMPTY);
-        }
+        getModifiableHandler().ifPresent(m->{
+            for (int i = 0; i < getHandler().getSlots(); i++)
+                m.setStackInSlot(i,ItemStack.EMPTY);
+        });
     }
 
     @Override

@@ -6,14 +6,10 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import wily.factoryapi.ItemContainerUtil;
@@ -43,7 +39,7 @@ public class ItemContainerUtilImpl {
     }
     public static ItemContainerUtil.ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidStack fluidStack){
         if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemContainerUtil.ItemFluidContext(stack);
-        IFluidHandler.FluidAction action =FluidMultiUtil.FluidActionof((player !=null && player.isCreative()));
+        IFluidHandler.FluidAction action =FluidMultiUtil.fluidActionOf((player !=null && player.isCreative()));
         ItemStack toFill = action.execute() ? stack.copyWithCount(1) : stack.copy();
         IFluidHandlerItem tank = toFill.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
         long amount = tank.fill(FluidStackHooksForge.toForge(fluidStack), action);
@@ -70,7 +66,7 @@ public class ItemContainerUtilImpl {
 
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack, Player player, InteractionHand hand){
         if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemContainerUtil.ItemFluidContext(stack);
-        IFluidHandler.FluidAction action =FluidMultiUtil.FluidActionof((player !=null && player.isCreative()));
+        IFluidHandler.FluidAction action =FluidMultiUtil.fluidActionOf((player !=null && player.isCreative()));
         ItemStack toDrain = action.execute() ? stack.copyWithCount(1) : stack.copy();
         IFluidHandlerItem tank = toDrain.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get();
         FluidStack fluidStack = FluidStackHooksForge.fromForge(tank.drain((int)maxDrain, action));

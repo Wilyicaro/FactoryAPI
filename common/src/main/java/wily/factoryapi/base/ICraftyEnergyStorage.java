@@ -3,7 +3,7 @@ package wily.factoryapi.base;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
 
-public interface ICraftyEnergyStorage extends IPlatformEnergyStorage<ICraftyEnergyStorage> {
+public interface ICraftyEnergyStorage extends IPlatformEnergyStorage {
 
 
  FactoryCapacityTiers getSupportedTier();
