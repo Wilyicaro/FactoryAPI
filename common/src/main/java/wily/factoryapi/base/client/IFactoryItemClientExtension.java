@@ -23,9 +23,6 @@ public interface IFactoryItemClientExtension {
     default BlockEntityWithoutLevelRenderer getCustomRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher, EntityModelSet entityModelSet){
         return null;
     }
-    default ResourceLocation getArmorTexture(){
-        return null;
-    }
     default HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original){
         return original;
     }

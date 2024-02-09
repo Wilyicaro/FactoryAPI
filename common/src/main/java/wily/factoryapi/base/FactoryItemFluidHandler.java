@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 
 import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
-public class FactoryItemFluidHandler extends FactoryFluidHandler {
+public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPlatformItemFluidHandler{
     private final ItemStack container;
     public FactoryItemFluidHandler(long capacity, ItemStack container) {
         this(capacity, container, f -> true, TransportState.EXTRACT_INSERT);
@@ -121,5 +121,10 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
     @Override
     public void setCapacity(long capacity) {
         getFluidCompound(container).putInt("capacity", (int) capacity);
+    }
+
+    @Override
+    public ItemStack getContainer() {
+        return container;
     }
 }
