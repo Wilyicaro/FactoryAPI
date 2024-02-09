@@ -74,13 +74,13 @@ public interface FabricItemStoragePlatform extends IPlatformItemHandler, IPlatfo
 
     @Override
     default @NotNull ItemStack insertItem(int i, @NotNull ItemStack stack, boolean simulate) {
-        ItemStack inserted = ItemStack.EMPTY;
+        ItemStack inserted = stack;
         if (!stack.isEmpty() && getHandler() instanceof SlottedStorage<ItemVariant> slots){
             SingleSlotStorage<ItemVariant> slot = slots.getSlot(i);
             try(Transaction transaction = Transaction.openOuter()){
                 try (Transaction nested = transaction.openNested()){
                     int count = (int) slot.insert(ItemVariant.of(stack),stack.getCount(),nested);
-                    inserted = slot.getResource().toStack(count);
+                    inserted = slot.getResource().toStack(stack.getCount() - count);
                     if (!simulate) nested.commit();
                 }
                 transaction.commit();

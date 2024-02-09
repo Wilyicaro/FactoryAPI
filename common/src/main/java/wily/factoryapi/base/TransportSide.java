@@ -20,7 +20,10 @@ public class TransportSide implements IHasIdentifier,IModifiableTransportHandler
     public TransportSide(){
         this(TransportState.NONE);
     }
-
+    public TransportSide withTransport(TransportState state) {
+        this.transportState = state;
+        return this;
+    }
     public static CompoundTag serializeTag(SideList<TransportSide> sided, List<? extends IHasIdentifier> list) {
         CompoundTag sides = new CompoundTag();
         List<SlotsIdentifier> identifiers = IHasIdentifier.getSlotsIdentifiers(list);

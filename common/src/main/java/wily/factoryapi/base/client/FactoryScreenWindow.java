@@ -107,16 +107,16 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         return drawable;
     }
 
-    public void render(GuiGraphics graphics, int i, int j, float f) {
+    @Override
+    protected void renderWidget(GuiGraphics graphics, int i, int j, float f) {
         if (!isVisible()) return;
         graphics.pose().pushPose();
         graphics.pose().translate(0D,0D,  getBlitOffset());
         renderBg(graphics,i,j,f);
-        renderWidget(graphics,i,j,f);
         renderToolTip(graphics,i,j);
         graphics.pose().popPose();
-
     }
+
     public float getBlitOffset(){
         return 450F;
     }

@@ -11,8 +11,8 @@ public class FactoryAPIFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         BuiltInRegistries.ITEM.stream().filter(i-> i instanceof IFactoryItem).forEach(i-> ((IFactoryItem) i).clientExtension((c)-> {
-            if (c.getArmorTexture() != null)
-                ArmorRenderer.register((matrices,vertexConsumers,stack,entity,slot,light,contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(c.getArmorTexture())), light, OverlayTexture.NO_OVERLAY,1.0F,1.0F,1.0F, 1.0F),i);
+            if (((IFactoryItem) i).getArmorTexture() != null)
+                ArmorRenderer.register((matrices,vertexConsumers,stack,entity,slot,light,contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorTexture())), light, OverlayTexture.NO_OVERLAY,1.0F,1.0F,1.0F, 1.0F),i);
         }));
     }
 }

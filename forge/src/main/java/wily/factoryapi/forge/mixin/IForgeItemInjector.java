@@ -12,14 +12,11 @@ import wily.factoryapi.base.Bearer;
 import wily.factoryapi.base.IFactoryItem;
 
 @Mixin(IForgeItem.class)
-public interface IForgeItemInjector{
-
-    @Inject(method = "getArmorTexture", at = @At("HEAD"), cancellable = true)
-    default void getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type, CallbackInfoReturnable<String> cir) {
-        if (this instanceof IFactoryItem i)
-            i.clientExtension(c->{
-                if (c.getArmorTexture() != null) cir.setReturnValue(c.getArmorTexture().toString());
-            });
+public interface IForgeItemInjector extends IForgeItem{
+    default String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+        if (this instanceof IFactoryItem i && i.getArmorTexture() != null)
+            return i.getArmorTexture().toString();
+        return null;
     }
 
 }
