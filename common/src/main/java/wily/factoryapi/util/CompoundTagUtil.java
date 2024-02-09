@@ -43,14 +43,14 @@ public class CompoundTagUtil {
         if (obj.has("fluidStack") && fluidJson!= null){
             CompoundTag fluid = new CompoundTag();
             String name = GsonHelper.getAsString(fluidJson, "fluid", "minecraft:empty");
-            if (Platform.isForgeLike())fluid.putString( "FluidName", name);
+            if (Platform.isForge())fluid.putString( "FluidName", name);
             else {
                 CompoundTag fluidVariant = new CompoundTag();
                 fluidVariant.putString("fluid",name);
                 fluid.put("fluidVariant",fluidVariant);
             }
-            fluid.putLong(Platform.isForgeLike() ? "Amount": "amount",  getPlatformFluidAmount(GsonHelper.getAsLong(fluidJson, "amount", 1000)));
-            tag.put(Platform.isForgeLike() ? "Fluid": "fluidStorage",fluid);
+            fluid.putLong(Platform.isForge() ? "Amount": "amount",  getPlatformFluidAmount(GsonHelper.getAsLong(fluidJson, "amount", 1000)));
+            tag.put(Platform.isForge() ? "Fluid": "fluidStorage",fluid);
         }
         return tag;
     }
