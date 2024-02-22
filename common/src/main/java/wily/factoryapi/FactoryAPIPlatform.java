@@ -11,12 +11,13 @@ import wily.factoryapi.base.*;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class FactoryAPIPlatform {
-    public static final Map<IPlatformHandler, SideList<? super IModifiableTransportHandler>> filteredHandlersCache = new HashMap<>();
-    public static final Map<BlockEntity, IFactoryStorage> platformStorageWrappersCache = new HashMap<>();
+    public static final Map<IPlatformHandler, SideList<? super IModifiableTransportHandler>> filteredHandlersCache = new ConcurrentHashMap<>();
+    public static final Map<BlockEntity, IFactoryStorage> platformStorageWrappersCache = new ConcurrentHashMap<>();
     @ExpectPlatform
     public static Path getConfigDirectory() {
         throw new AssertionError();
