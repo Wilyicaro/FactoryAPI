@@ -8,10 +8,10 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.item.base.SingleItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -21,11 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 import wily.factoryapi.ItemContainerUtil;
-
-import java.util.Collections;
-import java.util.List;
 
 
 public class ItemContainerUtilImpl {
@@ -66,7 +62,7 @@ public class ItemContainerUtilImpl {
                 try (Transaction nested = transaction.openNested()) {
                     fluidStack.setAmount(handStorage.insert(FluidStackHooksFabric.toFabric(fluidStack), fluidStack.getAmount(), nested));
                     if (player != null) {
-                         player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
+                        player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), FluidVariantAttributes.getFillSound(FluidStackHooksFabric.toFabric(fluidStack)), SoundSource.PLAYERS, 1.0F, 1.0F);
                         if (!player.isCreative()) nested.commit();
                     }else nested.commit();
                 }
@@ -78,7 +74,7 @@ public class ItemContainerUtilImpl {
     public static ItemContainerUtil.ItemFluidContext drainItem(long maxDrain, ItemStack stack, ContainerItemContext context, @Nullable Player player){
         Storage<FluidVariant> handStorage = FluidStorage.ITEM.find(stack,context);
 
-       if (handStorage != null){
+        if (handStorage != null){
             for (StorageView<FluidVariant> view : handStorage) {
                 if (view.isResourceBlank()) continue;
                 FluidVariant storedResource = view.getResource();
@@ -133,35 +129,43 @@ public class ItemContainerUtilImpl {
     }
 
     public static ContainerItemContext modifiableStackContext(ItemStack stack) {
-        return ContainerItemContext.ofSingleSlot(new SingleVariantStorage<>() {
+        return ContainerItemContext.ofSingleSlot(new SingleItemStorage() {
+            ItemStack itemStack = stack;
             @Override
             public ItemVariant getResource() {
-                return ItemVariant.of(stack);
+                return ItemVariant.of(itemStack);
             }
             public long getAmount() {
-                return stack.getCount();
+                return itemStack.getCount();
             }
             @Override
             public boolean isResourceBlank() {
-                return stack.isEmpty();
-            }
-            @Override
-            protected ItemVariant getBlankVariant() {
-                return ItemVariant.blank();
+                return itemStack.isEmpty();
             }
             @Override
             protected long getCapacity(ItemVariant variant) {
-                return stack.getMaxStackSize();
+                return itemStack.getMaxStackSize();
             }
             @Override
             public long insert(ItemVariant insertedVariant, long maxAmount, TransactionContext transaction) {
                 StoragePreconditions.notBlankNotNegative(insertedVariant, maxAmount);
+                if (insertedVariant.isOf(itemStack.getItem())) {
+                    int oldCount = itemStack.getCount();
+                    itemStack.grow(Math.min(stack.getMaxStackSize(), (int) maxAmount));
+                    return itemStack.getCount() - oldCount;
+                }else if (itemStack.isEmpty())
+                    return (itemStack = insertedVariant.toStack(Math.min(insertedVariant.getItem().getMaxStackSize(),(int) maxAmount))).getCount();
                 return 0;
             }
             @Override
             public long extract(ItemVariant extractedVariant, long maxAmount, TransactionContext transaction) {
                 StoragePreconditions.notBlankNotNegative(extractedVariant, maxAmount);
-                return maxAmount;
+                if (extractedVariant.isOf(itemStack.getItem())) {
+                    int oldCount = itemStack.getCount();
+                    itemStack.shrink(Math.max(itemStack.getCount(),(int)maxAmount));
+                    return oldCount - itemStack.getCount();
+                }
+                return 0;
             }
         });
     }
