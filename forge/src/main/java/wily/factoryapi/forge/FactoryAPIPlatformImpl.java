@@ -7,8 +7,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.items.IItemHandler;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -17,6 +19,7 @@ import wily.factoryapi.base.*;
 import wily.factoryapi.forge.base.*;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class FactoryAPIPlatformImpl {
 
@@ -25,10 +28,12 @@ public class FactoryAPIPlatformImpl {
     }
 
     public static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {
-        return ItemContainerUtil.isFluidContainer(container) ? (ForgeFluidHandlerPlatform) ()-> container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().get() : null;
+        Optional<IFluidHandlerItem> opt = container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve();
+        return opt.isPresent() ? opt.get() instanceof IPlatformFluidHandler f ? f : (ForgeFluidHandlerPlatform) opt::get : null;
     }
     public static IPlatformEnergyStorage getItemEnergyStorage(ItemStack container) {
-        return ItemContainerUtil.isEnergyContainer(container) ? (ForgeEnergyHandlerPlatform) ()-> container.getCapability(ForgeCapabilities.ENERGY).resolve().get() : null;
+        Optional<IEnergyStorage> opt = container.getCapability(ForgeCapabilities.ENERGY).resolve();
+        return opt.isPresent() ? opt.get() instanceof IPlatformEnergyStorage f ? f : (ForgeEnergyHandlerPlatform) opt::get : null;
     }
 
     public static Component getPlatformEnergyComponent() {
