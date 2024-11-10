@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "Factory API",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contact": {
+    "sources": "${mod_source}",
+    "issues": "${mod_issues}"
+  },
+  "license": "${mod_license}",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "wily.factoryapi.FactoryAPI::init"
+    ],
+    "client": [
+      "wily.factoryapi.FactoryAPIClient::init"
+    ]
+  },
+  "mixins": [
+    "factory_api-common.mixins.json",
+    "factory_api-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": "${mc_version}"
+  },
+  "suggests": {
+    "factocrafty": ">=0.0.0.6"
+  }
+}

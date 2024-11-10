@@ -1,0 +1,61 @@
+package wily.factoryapi.mixin.common;
+
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import wily.factoryapi.base.Bearer;
+import wily.factoryapi.base.client.UIDefinition;
+
+@Mixin(AbstractContainerScreen.class)
+public abstract class AbstractContainerScreenMixin extends Screen {
+    @Shadow protected int imageWidth;
+
+    @Shadow protected int imageHeight;
+
+    @Shadow protected int topPos;
+
+    @Shadow protected int leftPos;
+
+    @Shadow protected int inventoryLabelX;
+
+    @Shadow protected int inventoryLabelY;
+
+    @Shadow protected int titleLabelX;
+
+    @Shadow protected int titleLabelY;
+
+    protected AbstractContainerScreenMixin(Component component) {
+        super(component);
+    }
+
+    @Inject(method = "init", at = @At("HEAD"))
+    protected void init(CallbackInfo ci) {
+        UIDefinition.Accessor.of(this).putIntegerBearer("imageWidth", Bearer.of(()-> imageWidth, i-> imageWidth = i));
+        UIDefinition.Accessor.of(this).putIntegerBearer("imageHeight", Bearer.of(()-> imageHeight, i-> imageHeight = i));
+    }
+    @Inject(method = "init", at = @At("RETURN"))
+    protected void initReturn(CallbackInfo ci) {
+        UIDefinition.Accessor.of(this).putIntegerBearer("leftPos", Bearer.of(()-> leftPos, i-> leftPos = i));
+        UIDefinition.Accessor.of(this).putIntegerBearer("topPos", Bearer.of(()-> topPos, i-> topPos = i));
+        UIDefinition.Accessor.of(this).getDefinitions().add(new UIDefinition() {
+            @Override
+            public void afterInit(Accessor accessor) {
+                UIDefinition.super.afterInit(accessor);
+                accessor.putIntegerBearer("titleLabelX", Bearer.of(()-> titleLabelX, i-> titleLabelX = i));
+                accessor.putIntegerBearer("titleLabelY", Bearer.of(()-> titleLabelY, i-> titleLabelY = i));
+                accessor.putIntegerBearer("inventoryLabelX", Bearer.of(()-> inventoryLabelX, i-> inventoryLabelX = i));
+                accessor.putIntegerBearer("inventoryLabelY", Bearer.of(()-> inventoryLabelY, i-> inventoryLabelY = i));
+            }
+        });
+    }
+    @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"), cancellable = true)
+    protected void renderBackground(CallbackInfo ci) {
+        if (!UIDefinition.Accessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
+    }
+
+}

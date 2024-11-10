@@ -1,208 +1,225 @@
 import java.text.SimpleDateFormat
 
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.4.+" apply false
-    id("org.jetbrains.changelog") version "2.0.0"
-    id "me.shedaniel.unified-publishing" version "0.1.+" apply false
+    id "dev.architectury.loom"
+    id "me.modmuss50.mod-publish-plugin" version "0.7.4"
     id 'maven-publish'
 }
 
-architectury {
-    minecraft = rootProject.minecraft_version
+version = stonecutter.current.version + "-" + mod_version
+group = rootProject.maven_group
+def loader = property("loom.platform")
+
+repositories {
+    maven { url "https://maven.neoforged.net/releases/" }
+}
+configurations.configureEach {
+    resolutionStrategy {
+        force("net.fabricmc:fabric-loader:0.15.3")
+    }
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${stonecutter.current.version}"
+    mappings loom.officialMojangMappings()
+    if (loader == "fabric") {
+        modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+        modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+        include modApi("teamreborn:energy:2.3.0") {
+            exclude(group: "net.fabricmc.fabric-api")
+        }
+    } else if (loader == "forge") {
+        forge "net.minecraftforge:forge:${stonecutter.current.version}-${forge_version}"
+    } else if (loader == "neoforge") {
+        neoForge "net.neoforged:neoforge:${neoforge_version}"
+    }
 
 }
 
-subprojects {
-    apply plugin: "dev.architectury.loom"
+loom {
+    accessWidenerPath.set(getRootProject().file("src/main/resources/${mod_id}.accesswidener"))
 
-    loom {
-        silentMojangMappingsLicense()
-    }
-
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // The following line declares the mojmap mappings, you may use other mappings as well
-        mappings loom.officialMojangMappings()
-
-        // The following line declares the yarn mappings you may select this one as well.
-        // mappings "net.fabricmc:yarn:1.19.2+build.3:v2"
-    }
-
-}
-
-
-
-allprojects {
-    apply plugin: "java"
-    apply plugin: "architectury-plugin"
-
-
-
-    archivesBaseName = rootProject.archives_base_name
-    version = minecraft_version + "-" + mod_version
-    group = rootProject.maven_group
-
-    repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
-    }
-
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.release = 17
-    }
-
-    java {
-        withSourcesJar()
+    if (loader == "forge") forge {
+        convertAccessWideners.set(true)
+        mixinConfigs("${mod_id}-common.mixins.json")
+        mixinConfigs("${mod_id}-forge_like.mixins.json")
     }
 }
-subprojects {
-    apply plugin: "maven-publish"
-    apply plugin: "me.shedaniel.unified-publishing"
-    ext {
-        releaseChangelog = {
-            def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-            def branch
-            if (System.env.BRANCH_NAME) {
-                branch = System.env.BRANCH_NAME
-                branch = branch.substring(branch.lastIndexOf("/") + 1)
-            } else {
-                branch = "git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+
+def isJava21 = stonecutter.eval(stonecutter.current.version, ">=1.20.5")
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.release = isJava21 ? 21 : 17
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
+    targetCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
+}
+
+ext {
+    releaseChangelog = {
+        def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+        def branch
+        if (System.env.BRANCH_NAME) {
+            branch = System.env.BRANCH_NAME
+            branch = branch.substring(branch.lastIndexOf("/") + 1)
+        } else {
+            branch = "git rev-parse --abbrev-ref HEAD".execute().in.text.trim()
+        }
+        if (branch == "HEAD") {
+            branch = "git rev-parse --short HEAD".execute().in.text.trim()
+        }
+        def time = dateFormat.format(new Date())
+        def changes = new StringBuilder()
+        changes << "## " + stage.capitalize() + " $version  \nUpdated at **$time**.  \n**Changelog**  "
+        def proc = "git log --max-count=4 --pretty=format:%s".execute()
+        proc.in.eachLine { line ->
+            def processedLine = line.toString()
+            if (!processedLine.contains("New translations") && !processedLine.contains("Merge") && !processedLine.contains("branch")) {
+                def lines = processedLine.split(" -")
+                changes << "\n**${lines[0]}**  "
+                lines[0] = ""
+                lines.each {s-> changes << "\n-" + s + "  "}
             }
-            if (branch == "HEAD") {
-                branch = "git rev-parse --short HEAD".execute().in.text.trim()
-            }
-            def time = dateFormat.format(new Date())
-            def changes = new StringBuilder()
-            changes << "## " + stage.capitalize() + " $version  \nUpdated at **$time**.  \n**Changelog**  "
-            def proc = "git log --max-count=4 --pretty=format:%s".execute()
-            proc.in.eachLine { line ->
-                def processedLine = line.toString()
-                if (!processedLine.contains("New translations") && !processedLine.contains("Merge") && !processedLine.contains("branch")) {
-                    def lines = processedLine.split(" -")
-                    changes << "\n**${lines[0]}**  "
-                    lines[0] = ""
-                    lines.each {s-> changes << "\n-" + s + "  "}
-                }
-            }
-            changes << "\n[Click here for complete changelog]($mod_source/commits/$branch)"
-            proc.waitFor()
-            return changes.toString()
+        }
+        changes << "\n[Click here for complete changelog]($mod_source/commits/$branch)"
+        proc.waitFor()
+        return changes.toString()
+    }
+}
+
+processResources {
+    def properties =[
+            "version" : mod_version,
+            "mod_id" : mod_id,
+            "mod_name" : mod_name,
+            "mod_license" : mod_license,
+            "mod_description" : mod_description,
+            "mod_authors" : mod_authors,
+            "mod_group" : project.group,
+            "mod_source" : mod_source,
+            "mod_issues" : mod_issues,
+            "neoforge_version" : neoforge_version,
+            "forge_version" : forge_version,
+            "mc_version_range" : mc_version_range,
+            "mc_version" : stonecutter.current.version
+    ]
+    if (loader == "fabric" || loader == "forge" || loader == "neoforge")
+    filesMatching(loader == "fabric" ? "fabric.mod.json" : loader == "forge" ? "META-INF/mods.toml" : "META-INF/neoforge.mods.toml") {
+        expand properties
+    }
+    inputs.properties(properties)
+    if (loader == "neoforge" && stonecutter.eval(stonecutter.current.version, "<=1.20.4")){
+        exclude "META-INF/mods.toml"
+        filesMatching("META-INF/neoforge.mods.toml"){
+            it.copyTo(new File(outputs.files.asPath,"META-INF/mods.toml"))
+            it.exclude()
         }
     }
-    task renameJarForPublication(type: Zip, dependsOn: remapJar) {
-        from remapJar.archiveFile.map { zipTree(it) }
-        archiveExtension = "jar"
-        metadataCharset "UTF-8"
-        destinationDirectory = base.libsDirectory
-        archiveClassifier = project.name
-    }
+}
 
-    assemble.dependsOn renameJarForPublication
-    var modPlatformName = project.name.capitalize()
+tasks.register('renameJarForPublication', Zip) {
+    dependsOn remapJar
+    from remapJar.archiveFile.map { zipTree(it) }
+    archiveExtension = "jar"
+    metadataCharset "UTF-8"
+    destinationDirectory = base.libsDirectory
+    archiveClassifier = project.name
+}
+
+assemble.dependsOn renameJarForPublication
+var modPlatformName = project.name.capitalize()
 
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = "${project.mod_id}-${project.name}"
-                version = version
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = "${project.mod_id}-${project.name}"
+            version = version
 
-                pom {
-                    name = "${mod_name} [${modPlatformName}]"
-                    description = "${mod_description}"
+            pom {
+                name = "${mod_name} [${modPlatformName}]"
+                description = "${mod_description}"
+                url = "${mod_source}"
+                scm {
                     url = "${mod_source}"
-                    scm {
-                        url = "${mod_source}"
-                        connection = "${mod_source}".replace("https", "scm:git:git").concat(".git")
-                        developerConnection = "${mod_source}".replace("https://github.com/", "scm:git:git@github.com:").concat(".git")
-                    }
-                    issueManagement {
-                        system = 'github'
-                        url = "${mod_source}/issues"
-                    }
-                    licenses {
-                        license {
-                            name = 'MPL-2'
-                            url = 'https://www.mozilla.org/en-US/MPL/2.0/'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = "${mod_authors}".toLowerCase()
-                            name = "${mod_authors}"
-                        }
+                    connection = "${mod_source}".replace("https", "scm:git:git").concat(".git")
+                    developerConnection = "${mod_source}".replace("https://github.com/", "scm:git:git@github.com:").concat(".git")
+                }
+                issueManagement {
+                    system = 'github'
+                    url = "${mod_source}/issues"
+                }
+                licenses {
+                    license {
+                        name = 'MPL-2'
+                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
                     }
                 }
-                // this is necessary when not using 'from components.java', otherwise dependencies block will still be empty at this point
-                afterEvaluate {
-                    // exclude certain dependencies when publishing to maven
-                    // from https://stackoverflow.com/a/50121790
-                    pom.withXml {
-                        asNode().dependencies.dependency.each { dep ->
-                            // use this approach to make excluding dependencies from Curse Maven more convenient
-                            if (["curse.maven:","dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
-                                assert dep.parent().remove(dep)
-                            }
-                        }
+                developers {
+                    developer {
+                        id = "${mod_authors}".toLowerCase()
+                        name = "${mod_authors}"
                     }
                 }
-                from components.java
             }
-        }
-        repositories {
-            maven {
-                name = 'GitHubPackages'
-                url uri("$mod_mvngit_source")
-                credentials{
-                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                    password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
+            // this is necessary when not using 'from components.java', otherwise dependencies block will still be empty at this point
+            afterEvaluate {
+                // exclude certain dependencies when publishing to maven
+                // from https://stackoverflow.com/a/50121790
+                pom.withXml {
+                    asNode().dependencies.dependency.each { dep ->
+                        // use this approach to make excluding dependencies from Curse Maven more convenient
+                        if (["curse.maven:","dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
+                            assert dep.parent().remove(dep)
+                        }
+                    }
                 }
+            }
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url uri("$mod_mvngit_source")
+            credentials{
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
             }
         }
     }
-    unifiedPublishing {
-        project {
-            def isFabric = project.name ==  "fabric"
-            displayName = "$mod_name [$modPlatformName] $project.version"
-            releaseType = "$stage"
-            changelog = releaseChangelog()
-            gameVersions = ["$minecraft_version","1.20.3"]
-            gameLoaders = ["$project.name"]
-            if (isFabric) gameLoaders.addAll "quilt"
-            mainPublication renameJarForPublication
+}
 
-            var CURSE_API_KEY = project.findProperty("CURSE_API_KEY") ?: System.getenv("CURSE_API_KEY")
-            if (CURSE_API_KEY != null) {
-                curseforge {
-                    token = CURSE_API_KEY
-                    id = rootProject.curseforge_id
-                    gameVersions.addAll(["Java 17", "Java 18"])
-                    relations{
-                        depends "architectury-api"
-                        if (isFabric) depends "fabric-api"
-                    }
-                }
-            }
+publishMods {
 
+    def isFabric = loader == "fabric"
+    displayName = "$mod_name [$modPlatformName] $project.version"
+    type = STABLE
+    changelog = releaseChangelog()
+    modLoaders.add(loader)
+    if (isFabric) modLoaders.add "quilt"
+    file = renameJarForPublication.archiveFile
+    def versions = mc_version_range.split(",")
 
-            var MODRINTH_TOKEN = project.findProperty("gpr.token") ?: System.getenv("MODRINTH_TOKEN")
-            if (MODRINTH_TOKEN != null) {
-                modrinth {
-                    token = MODRINTH_TOKEN
-                    id = rootProject.modrinth_id
-                    version = "$project.version+$project.name"
-                    relations{
-                        depends "architectury-api"
-                        if (isFabric) depends "fabric-api"
-                    }
-                }
-            }
-        }
+    curseforge {
+        minecraftVersions.addAll versions
+        minecraftVersions.addAll("Java 17","Java 18")
+        accessToken = providers.environmentVariable("CURSE_API_KEY")
+        projectId = rootProject.curseforge_id
+        if (isFabric) requires("fabric-api")
     }
+
+    modrinth {
+        minecraftVersions.addAll versions
+        accessToken =providers.environmentVariable("CURSE_API_KEY")
+        projectId = rootProject.modrinth_id
+        version = "$project.version+$project.name"
+        if (isFabric) requires("fabric-api")
+    }
+
 }

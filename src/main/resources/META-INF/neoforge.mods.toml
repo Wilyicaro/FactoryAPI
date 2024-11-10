@@ -1,0 +1,33 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license="${mod_license}"
+issueTrackerURL="${mod_issues}"
+
+[[mods]]
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+displayURL="${mod_source}"
+logoFile="logo.png"
+authors="${mod_authors}"
+description="${mod_description}"
+[[mixins]]
+config="${mod_id}-common.mixins.json"
+[[mixins]]
+config="${mod_id}-forge_like.mixins.json"
+[[mixins]]
+config="${mod_id}-neoforge.mixins.json"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type="required"
+versionRange = "[${mc_version_range}]"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "factocrafty"
+type="optional"
+versionRange = "[0.0.0.4,)"
+ordering = "AFTER"
+side = "BOTH"
