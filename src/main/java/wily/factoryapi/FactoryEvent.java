@@ -1,6 +1,10 @@
 package wily.factoryapi;
 
 //? if fabric {
+//? if >=1.20.5
+/*import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;*/
+import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -8,12 +12,10 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.impl.resource.loader.ResourceManagerHelperImpl;
 import net.fabricmc.loader.api.FabricLoader;
 //?} elif forge {
-/*import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.repository.PackSource;
+/*import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -25,27 +27,38 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
+//? if >=1.20.5 {
+/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadProtocol;
+^///?}
 *///?} elif neoforge {
-/*import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.repository.PackSource;
-import net.neoforged.fml.ModList;
+/*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddPackFindersEvent;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.event.*;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+//? if <1.20.5 {
+/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+^///?} else {
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+//?}
 *///?}
+import net.minecraft.SharedConstants;
+//? if >=1.20.5 {
+/*import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.repository.KnownPack;
+*///?}
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.PackSource;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
@@ -60,6 +73,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -96,7 +110,7 @@ public class FactoryEvent<T> {
         //? if fabric {
         CommonLifecycleEvents.TAGS_LOADED.register((s, t)-> run.run());
         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, FMLCommonSetupEvent.class, e-> run.run());
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, FMLCommonSetupEvent.class, e-> run.run());
         *///?} elif neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(FMLCommonSetupEvent.class, e-> run.run());
          *///?} else
@@ -111,8 +125,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(TickEvent.ServerTickEvent.class, e-> {
-            if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -126,8 +140,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(TickEvent.ServerTickEvent.class, e-> {
-            if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -135,7 +149,7 @@ public class FactoryEvent<T> {
 
     public static void registerReloadListener(PackType type, PreparableReloadListener reloadListener){
         //? if fabric {
-        ResourceLocation location = new ResourceLocation(reloadListener.getName());
+        ResourceLocation location = FactoryAPI.createLocation(reloadListener.getName());
         ResourceManagerHelper.get(type).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
             public ResourceLocation getFabricId() {
@@ -178,9 +192,16 @@ public class FactoryEvent<T> {
         default void register(String path, ResourceLocation name, boolean enabledByDefault){
             register(path,name,Component.translatable(name.getNamespace() + ".builtin." + name.getPath()), Pack.Position.TOP,enabledByDefault);
         }
-        default void register(String pathName, boolean enabledByDefault){
+        default void registerResourcePack(String pathName, boolean enabledByDefault){
             register("resourcepacks/"+pathName,FactoryAPI.createVanillaLocation(pathName),enabledByDefault);
         }
+    }
+    public static Pack createBuiltInPack(ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
+        //? if <1.20.5 {
+        return Pack.readMetaAndCreate(name.toString(), displayName,false, new PathPackResources.PathResourcesSupplier(resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
+        //?} else {
+        /*return Pack.readMetaAndCreate(new PackLocationInfo( name.toString(), displayName,PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled), Optional.of(new KnownPack(name.getNamespace(),name.toString(), SharedConstants.getCurrentVersion().getId()))), new PathPackResources.PathResourcesSupplier(resourcePath), type, new PackSelectionConfig(false,position,false));
+        *///?}
     }
 
     public static void registerBuiltInPacks(Consumer<PackRegistry> registry){
@@ -191,7 +212,7 @@ public class FactoryEvent<T> {
             Path resourcePath = ModList.get().getModFileById(name.getPath()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = Pack.readMetaAndCreate(name.toString(), displayName,false, new PathPackResources.PathResourcesSupplier(resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
@@ -200,7 +221,7 @@ public class FactoryEvent<T> {
             Path resourcePath = ModList.get().getModFileById(name.getPath()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = Pack.readMetaAndCreate(name.toString(), displayName,false, new PathPackResources.PathResourcesSupplier(resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
@@ -209,36 +230,57 @@ public class FactoryEvent<T> {
     }
 
     public interface PayloadRegistry {
-        <T extends CustomPacketPayload> void register(boolean client, ResourceLocation id, Function<FriendlyByteBuf, T> codec, CommonNetwork.Consumer<T> apply);
+        <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> identifier);
     }
 
     public static void registerPayload(Consumer<PayloadRegistry> registry){
         //? if fabric {
         registry.accept(new FactoryEvent.PayloadRegistry() {
             @Override
-            public <T extends CustomPacketPayload> void register(boolean client, ResourceLocation id, Function<FriendlyByteBuf, T> codec, CommonNetwork.Consumer<T> apply) {
-                if (client) ServerPlayNetworking.registerGlobalReceiver(id, (m, l, h, b, s) -> apply.apply(codec.apply(b), FactoryAPIClient.SECURE_EXECUTOR,()->h.player));
-                else FactoryAPIClient.CLIENT.register(client, id, codec, apply);
+            public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
+                //? <1.20.5 {
+                if (c2s) ServerPlayNetworking.registerGlobalReceiver(id.location(), (m, l, h, b, s) -> id.decode(b).applyServer(()->h.player));
+                else ClientPlayNetworking.registerGlobalReceiver(id.location(), (m, l, b, s) -> id.decode(b).applyClient());
+                //?} else {
+                /*if (c2s) {
+                    PayloadTypeRegistry.playC2S().register(id.type(),id.codec());
+                    ServerPlayNetworking.registerGlobalReceiver(id.type(), (payload, context)-> payload.apply(FactoryAPI.SECURE_EXECUTOR, context::player));
+                }else {
+                    PayloadTypeRegistry.playS2C().register(id.type(),id.codec());
+                    if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) ClientPlayNetworking.registerGlobalReceiver(id.type(), (payload, context) -> payload.apply(FactoryAPIClient.SECURE_EXECUTOR,context::player));
+                }
+                *///?}
             }
         });
          //?} elif forge {
         /*registry.accept(new FactoryEvent.PayloadRegistry() {
             @Override
-            public <T extends CustomPacketPayload> void register(boolean client, ResourceLocation type, Function<FriendlyByteBuf, T> codec, CommonNetwork.Consumer<T> apply) {
-                EventNetworkChannel NETWORK = ChannelBuilder.named(type).eventNetworkChannel();
-                if (client || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    if (p.getChannel().equals(type) && p.getPayload() != null) apply.apply(codec.apply(p.getPayload()), p.getSource().isClientSide() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR, () -> p.getSource().isClientSide() ? FactoryAPIClient.getClientPlayer() : p.getSource().getSender());
+            public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
+                //? if <1.20.5 {
+                EventNetworkChannel NETWORK = ChannelBuilder.named(id.location()).eventNetworkChannel();
+                if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
+                    if (p.getChannel().equals(id.location()) && p.getPayload() != null) id.decode(p.getPayload()).apply(p.getSource().isClientSide() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR, () -> p.getSource().isClientSide() ? FactoryAPIClient.getClientPlayer() : p.getSource().getSender());
                     p.getSource().setPacketHandled(true);
                 });
+                //?} else {
+                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
+                if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
+                else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
+                ^///?}
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(RegisterPayloadHandlerEvent.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
-                public <T extends CustomPacketPayload> void register(boolean client, ResourceLocation type, Function<FriendlyByteBuf, T> codec, CommonNetwork.Consumer<T> apply) {
-                    IPayloadRegistrar registrar = e.registrar(type.getNamespace());
-                    if (client || FMLEnvironment.dist.isClient()) registrar.play(type,codec::apply,(h, arg)->apply.apply(h,arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
+                public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
+                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    //? if <1.20.5 {
+                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
+                    ^///?} else {
+                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
+                    //?}
                 }
             });
         });

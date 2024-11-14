@@ -23,6 +23,7 @@ public class FluidRenderUtil {
         float dW = minU + (maxU - minU) * drawWidth / 16F;
         Matrix4f matrix4f = graphics.pose().last().pose();
 
+        //? if <1.20.5 {
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferBuilder.vertex(matrix4f, drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
@@ -30,7 +31,14 @@ public class FluidRenderUtil {
         bufferBuilder.vertex(matrix4f,drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
         bufferBuilder.vertex(matrix4f,drawX, drawY, 0).uv(minU, minV).endVertex();
         BufferUploader.drawWithShader(bufferBuilder.end());
-
+        //?} else {
+        /*BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.addVertex(matrix4f, drawX, drawY + drawHeight, 0).setUv(minU, dH);
+        bufferBuilder.addVertex(matrix4f,drawX + drawWidth, drawY + drawHeight, 0).setUv(dW, dH);
+        bufferBuilder.addVertex(matrix4f,drawX + drawWidth, drawY, 0).setUv(dW, minV);
+        bufferBuilder.addVertex(matrix4f,drawX, drawY, 0).setUv(minU, minV);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        *///?}
     }
 
     public static TextureAtlasSprite fluidSprite(FluidInstance fluid, boolean hasColor){

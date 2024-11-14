@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 import java.text.SimpleDateFormat
 
 plugins {
@@ -6,6 +8,7 @@ plugins {
     id 'maven-publish'
 }
 
+base.archivesName = project.archives_base_name
 version = stonecutter.current.version + "-" + mod_version
 group = rootProject.maven_group
 def loader = property("loom.platform")
@@ -15,7 +18,7 @@ repositories {
 }
 configurations.configureEach {
     resolutionStrategy {
-        force("net.fabricmc:fabric-loader:0.15.3")
+        force("net.fabricmc:fabric-loader:${fabric_loader_version}")
     }
 }
 dependencies {
@@ -25,8 +28,9 @@ dependencies {
         modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
         modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-        include modApi("teamreborn:energy:2.3.0") {
+        include modApi("teamreborn:energy:${team_reborn_energy_version}") {
             exclude(group: "net.fabricmc.fabric-api")
+            exclude(group: "net.fabricmc.fabric-loader")
         }
     } else if (loader == "forge") {
         forge "net.minecraftforge:forge:${stonecutter.current.version}-${forge_version}"
@@ -35,6 +39,7 @@ dependencies {
     }
 
 }
+
 
 loom {
     accessWidenerPath.set(getRootProject().file("src/main/resources/${mod_id}.accesswidener"))
@@ -93,7 +98,11 @@ ext {
 }
 
 processResources {
-    def properties =[
+    def version_range = mc_version_range
+    if (loader == "fabric") {
+        version_range = JsonOutput.toJson(version_range.split(","))
+    }
+    def properties = [
             "version" : mod_version,
             "mod_id" : mod_id,
             "mod_name" : mod_name,
@@ -105,16 +114,27 @@ processResources {
             "mod_issues" : mod_issues,
             "neoforge_version" : neoforge_version,
             "forge_version" : forge_version,
-            "mc_version_range" : mc_version_range,
+            "mc_version_range" : version_range,
             "mc_version" : stonecutter.current.version
     ]
-    if (loader == "fabric" || loader == "forge" || loader == "neoforge")
-    filesMatching(loader == "fabric" ? "fabric.mod.json" : loader == "forge" ? "META-INF/mods.toml" : "META-INF/neoforge.mods.toml") {
-        expand properties
+    if (loader == "fabric" || loader == "forge" || loader == "neoforge") {
+        if (loader != "fabric") {
+            exclude "fabric.mod.json"
+            exclude "${mod_id}-fabric.mixins.json"
+        } else exclude "${mod_id}-forge_like.mixins.json"
+        if (loader != "forge") exclude "META-INF/mods.toml"
+        if (loader != "neoforge") {
+            exclude "META-INF/neoforge.mods.toml"
+            exclude "${mod_id}-neoforge.mixins.json"
+        }
+        filesMatching(loader == "fabric" ? "fabric.mod.json" : loader == "forge" ? "META-INF/mods.toml" : "META-INF/neoforge.mods.toml") {
+            expand properties
+        }
     }
     inputs.properties(properties)
+
+
     if (loader == "neoforge" && stonecutter.eval(stonecutter.current.version, "<=1.20.4")){
-        exclude "META-INF/mods.toml"
         filesMatching("META-INF/neoforge.mods.toml"){
             it.copyTo(new File(outputs.files.asPath,"META-INF/mods.toml"))
             it.exclude()
@@ -128,11 +148,12 @@ tasks.register('renameJarForPublication', Zip) {
     archiveExtension = "jar"
     metadataCharset "UTF-8"
     destinationDirectory = base.libsDirectory
-    archiveClassifier = project.name
+    archiveClassifier = loader
 }
 
 assemble.dependsOn renameJarForPublication
-var modPlatformName = project.name.capitalize()
+
+var modPlatformName = loader.capitalize()
 
 
 publishing {
@@ -208,7 +229,8 @@ publishMods {
 
     curseforge {
         minecraftVersions.addAll versions
-        minecraftVersions.addAll("Java 17","Java 18")
+        if (isJava21) minecraftVersions.add("Java 21")
+        else minecraftVersions.addAll("Java 17","Java 18")
         accessToken = providers.environmentVariable("CURSE_API_KEY")
         projectId = rootProject.curseforge_id
         if (isFabric) requires("fabric-api")

@@ -4,12 +4,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class CraftyTransaction {
     public final int energy;
-    public @Nullable FactoryCapacityTiers tier;
-    public CraftyTransaction(int energyTransferred, @Nullable FactoryCapacityTiers energyTier){
+    public @Nullable FactoryCapacityTier tier;
+    public CraftyTransaction(int energyTransferred, @Nullable FactoryCapacityTier energyTier){
         energy = energyTransferred;
         tier = energyTier;
     }
-    public int convertEnergyTo(FactoryCapacityTiers tier){
+    public int convertEnergyTo(FactoryCapacityTier tier){
         return tier == null ? 0 : this.tier.convertEnergyTo(energy,tier);
     }
     public CraftyTransaction reduce(float reduction ){

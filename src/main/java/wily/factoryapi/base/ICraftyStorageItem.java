@@ -10,7 +10,7 @@ public interface ICraftyStorageItem extends IEnergyStorageItem<ICraftyEnergyStor
    default ICraftyEnergyStorage getEnergyStorage(ItemStack stack){
       return FactoryAPIPlatform.getItemCraftyEnergyStorage(stack);
    }
-   FactoryCapacityTiers getSupportedEnergyTier();
+   FactoryCapacityTier getSupportedEnergyTier();
 
    default <T extends IPlatformHandler> ArbitrarySupplier<T> getStorage(FactoryStorage<T> storage, ItemStack stack) {
       if (storage == FactoryStorage.CRAFTY_ENERGY) return ()-> (T) new SimpleItemCraftyStorage(stack,0,getCapacity(), getMaxConsume(), getMaxReceive(),getTransport(), getSupportedEnergyTier(), ItemContainerPlatform.isBlockItem(stack));

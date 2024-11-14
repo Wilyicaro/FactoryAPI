@@ -4,13 +4,21 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+//? if >=1.20.5 {
+/*import net.minecraft.core.component.DataComponentHolder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.PatchedDataComponentMap;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+*///?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import wily.factoryapi.FactoryAPI;
@@ -23,18 +31,19 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 /*import net.neoforged.neoforge.fluids.FluidStack;
 *///?}
 
-//? if forge || neoforge {
-/*public class FluidInstance extends FluidStack {
-*///?} else {
-public class FluidInstance {
+public class FluidInstance /*? if forge || neoforge {*/ /*extends FluidStack*//*?}*//*? if >=1.20.5 && !(forge && neoforge) {*//*implements DataComponentHolder*//*?}*/ {
+    //? if !(forge || neoforge) {
     private final Fluid fluid;
-    private CompoundTag tag;
     private int amount;
-//?}
+    //? if <1.20.5 {
+    private CompoundTag tag;
+    //?} else
+    /*private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);*/
+    //?}
 
-    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(ResourceKey.codec(Registries.FLUID).xmap(BuiltInRegistries.FLUID::get, f-> f.builtInRegistryHolder().key()).fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount)).apply(i,FluidInstance::new));
-    public static final Codec<FluidInstance> CODEC_WITH_TAG = RecordCodecBuilder.create(i-> i.group(ResourceKey.codec(Registries.FLUID).xmap(BuiltInRegistries.FLUID::get, f-> f.builtInRegistryHolder().key()).fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), CompoundTag.CODEC.fieldOf("nbt").forGetter(FluidInstance::getTag)).apply(i,FluidInstance::new));
-
+    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(ResourceKey.codec(Registries.FLUID).xmap(BuiltInRegistries.FLUID::get, f-> f.builtInRegistryHolder().key()).fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 {*/ CompoundTag/*?} else {*/ /*DataComponentPatch*//*?}*/.CODEC.fieldOf(/*? if <1.20.5 {*/ "nbt"/*?} else {*/ /*"components"*//*?}*/).forGetter(FluidInstance::/*? if <1.20.5 {*/ getNonNullTag/*?} else {*//*getComponentsPatch*//*?}*/)).apply(i,FluidInstance::new));
+    //? if >=1.20.5
+    /*public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);*/
     public static final FluidInstance EMPTY = new FluidInstance(Fluids.EMPTY,0);
 
     //? if forge || neoforge {
@@ -49,9 +58,12 @@ public class FluidInstance {
         this.fluid = fluid;
         this.amount = amount;
     }
-    public FluidInstance(Fluid fluid, int amount, CompoundTag tag){
+    public FluidInstance(Fluid fluid, int amount, /*? if <1.20.5 {*/ CompoundTag tag/*?} else {*/ /*DataComponentPatch components*//*?}*/){
         this(fluid,amount);
+        //? if <1.20.5 {
         this.tag = tag.copy();
+         //?} else
+        /*this.components = PatchedDataComponentMap.fromPatch(DataComponentMap.builder().build(),components);*/
     }
     //?}
     public static FluidInstance empty() {
@@ -69,8 +81,13 @@ public class FluidInstance {
     public static FluidInstance create(Fluid fluid, long amount){
         return new FluidInstance(fluid,getMilliBucketsFluidAmount(amount));
     }
-
+    //? if <1.20.5 {
+    public CompoundTag getNonNullTag() {
+        return getTag() == null ? new CompoundTag() : getTag();
+    }
+    //?}
     //? if !(forge || neoforge) {
+    //? if <1.20.5 {
     public CompoundTag getTag() {
         return tag;
     }
@@ -84,17 +101,25 @@ public class FluidInstance {
             setTag(new CompoundTag());
         return tag;
     }
-
+    //?} else {
+    /*@Override
+    public DataComponentMap getComponents() {
+        return components;
+    }
+    public DataComponentPatch getComponentsPatch() {
+        return !this.isEmpty() ? components.asPatch() : DataComponentPatch.EMPTY;
+    }
+    *///?}
     public Fluid getFluid(){
         return fluid;
     }
 
     public boolean isEmpty(){
-        return getAmount() <= 0 || getFluid() == Fluids.EMPTY;
+        return getAmount() <= 0;
     }
 
     public int getAmount(){
-        return amount;
+        return getFluid() == Fluids.EMPTY ? 0 : amount;
     }
 
     public void setAmount(int amount){
@@ -103,7 +128,7 @@ public class FluidInstance {
     //?}
     //? if fabric {
     public FluidVariant toVariant(){
-        return FluidVariant.of(fluid,tag);
+        return FluidVariant.of(fluid,/*? if <1.20.5 {*/ tag/*?} else {*/ /*getComponentsPatch()*//*?}*/);
     }
     //?}
     public void setAmount(long amount){
@@ -117,7 +142,7 @@ public class FluidInstance {
     public static FluidInstance fromTag(CompoundTag tag){
         return CODEC.parse(NbtOps.INSTANCE,tag).result().orElseGet(()->{
             if (tag.contains("FluidName") || tag.contains("fluidVariant") && FactoryAPI.getLoader().isFabric()){
-                Fluid fluid = BuiltInRegistries.FLUID.get(new ResourceLocation(FactoryAPI.getLoader().isFabric() ? tag.getCompound("fluidVariant").getString("fluid") : tag.getString("FluidName")));
+                Fluid fluid = BuiltInRegistries.FLUID.get(FactoryAPI.createLocation(FactoryAPI.getLoader().isFabric() ? tag.getCompound("fluidVariant").getString("fluid") : tag.getString("FluidName")));
                 if (fluid == Fluids.EMPTY) return FluidInstance.empty();
                 return FluidInstance.create(fluid,getMilliBucketsFluidAmount(tag.getLong(FactoryAPI.getLoader().isFabric() ? "amount": "Amount")));
             }
@@ -165,5 +190,20 @@ public class FluidInstance {
 
     public Component getName() {
         return getFluid().defaultFluidState().createLegacyBlock().getBlock().getName();
+    }
+
+    public static void encode( /*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf, FluidInstance instance){
+        buf.writeInt(instance.getAmount());
+        if (instance.isEmpty()) return;
+        buf.writeResourceLocation(BuiltInRegistries.FLUID.getKey(instance.getFluid()));
+        //? if <1.20.5 {
+        buf.writeNbt(instance.getNonNullTag());
+        //?} else
+        /*DataComponentPatch.STREAM_CODEC.encode(buf,instance.getComponentsPatch());*/
+    }
+    public static FluidInstance decode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf){
+        int amount = buf.readInt();
+        if (amount <= 0) return EMPTY;
+        return new FluidInstance(BuiltInRegistries.FLUID.get(buf.readResourceLocation()), amount, /*? if <1.20.5 {*/buf.readNbt()/*?} else {*//*DataComponentPatch.STREAM_CODEC.decode(buf)*//*?}*/);
     }
 }

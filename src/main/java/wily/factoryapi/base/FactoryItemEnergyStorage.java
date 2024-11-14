@@ -2,12 +2,14 @@ package wily.factoryapi.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import wily.factoryapi.init.FactoryRegistries;
 
 public class FactoryItemEnergyStorage extends FactoryEnergyStorage{
     ItemStack container;
     public FactoryItemEnergyStorage(ItemStack stack, int initialEnergy, int capacity, int maxOutput, int maxInput, TransportState transportState){
         super(capacity,null,transportState);
         this.container = stack;
+        //? if <1.20.5
         if (!stack.getOrCreateTag().contains(KEY)) setEnergyStored(initialEnergy);
         this.maxOutput = maxOutput;
         this.maxInput = maxInput;
@@ -40,13 +42,16 @@ public class FactoryItemEnergyStorage extends FactoryEnergyStorage{
 
     @Override
     public int getEnergyStored() {
-        return container.getOrCreateTag().getInt(KEY);
+        return /*? if <1.20.5 {*/container.getOrCreateTag().getInt(KEY)/*?} else {*/ /*container.getOrDefault(FactoryRegistries.ENERGY_COMPONENT.get(),0)*//*?}*/;
     }
 
     public void setEnergyStored(int energy) {
+        //? if <1.20.5 {
         container.getOrCreateTag().putInt(KEY,energy);
+        //?} else
+        /*container.set(FactoryRegistries.ENERGY_COMPONENT.get(),energy);*/
     }
-
+    //? if <1.20.5 {
     @Override
     public CompoundTag serializeTag() {
         return container.getOrCreateTag();
@@ -56,7 +61,7 @@ public class FactoryItemEnergyStorage extends FactoryEnergyStorage{
     public void deserializeTag(CompoundTag nbt) {
         this.container.setTag(nbt);
     }
-
+    //?}
 
     public int getMaxConsume(){
         return Math.min(getEnergyStored(),maxOutput);

@@ -91,11 +91,11 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import wily.factoryapi.base.*;
+import wily.factoryapi.base.network.CommonNetwork;
 import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ListMap;
 import wily.factoryapi.util.ModInfo;
@@ -316,11 +316,14 @@ public interface FactoryAPIPlatform {
     }
 
 
-    static <T extends CustomPacketPayload> void sendToPlayer(ServerPlayer serverPlayer, T packetHandler) {
+    static <T extends CommonNetwork.Payload> void sendToPlayer(ServerPlayer serverPlayer, T packetHandler) {
         //? if fabric {
+        //? if <1.20.5 {
         FriendlyByteBuf buf = PacketByteBufs.create();
-        packetHandler.write(buf);
-        ServerPlayNetworking.send(serverPlayer,packetHandler.id(),buf);
+        packetHandler.encode(buf);
+        ServerPlayNetworking.send(serverPlayer,packetHandler.identifier().location(), buf);
+        //?} else
+        /*ServerPlayNetworking.send(serverPlayer,packetHandler);*/
         //?} elif forge {
         /*FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.write(buf);
@@ -332,15 +335,18 @@ public interface FactoryAPIPlatform {
         *///?}
     }
 
-    static <T extends CustomPacketPayload> void sendToPlayers(Collection<ServerPlayer> serverPlayer, T packetHandler) {
+    static <T extends CommonNetwork.Payload> void sendToPlayers(Collection<ServerPlayer> serverPlayer, T packetHandler) {
         serverPlayer.forEach(s->sendToPlayer(s,packetHandler));
     }
 
-    static <T extends CustomPacketPayload> void sendToServer(T packetHandler) {
+    static <T extends CommonNetwork.Payload> void sendToServer(T packetHandler) {
         //? if fabric {
+        //? if <1.20.5 {
         FriendlyByteBuf buf = PacketByteBufs.create();
-        packetHandler.write(buf);
-        ClientPlayNetworking.send(packetHandler.id(),buf);
+        packetHandler.encode(buf);
+        ClientPlayNetworking.send(packetHandler.identifier().location(),buf);
+        //?} else
+        /*ClientPlayNetworking.send(packetHandler);*/
         //?} elif forge {
         /*FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.write(buf);
@@ -416,7 +422,7 @@ public interface FactoryAPIPlatform {
             }
             @Override
             public <V extends T> Holder<V> add(String id, Supplier<V> supplier) {
-                ResourceLocation location = new ResourceLocation(getNamespace(),id);
+                ResourceLocation location = FactoryAPI.createLocation(getNamespace(),id);
                 Holder<V> h = new Holder<>() {
                     V obj;
                     @Override

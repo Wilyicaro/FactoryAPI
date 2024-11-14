@@ -3,12 +3,14 @@ package wily.factoryapi.base;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.util.FactoryItemUtil;
 
 import java.util.function.BiPredicate;
 
@@ -46,7 +48,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
             if (!stackInSlot.isEmpty()) {
                 if (stackInSlot.getCount() >= Math.min(stackInSlot.getMaxStackSize(), this.getMaxStackSize())) {
                     return stack;
-                } else if (!ItemStack.isSameItemSameTags(stack, stackInSlot)) {
+                } else if (!FactoryItemUtil.equalItems(stack, stackInSlot)) {
                     return stack;
                 } else if (!this.canPlaceItem(slot, stack)) {
                     return stack;
@@ -135,6 +137,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     }
     @Override
     public CompoundTag serializeTag() {
+        //? if <1.20.5 {
         ListTag nbtTagList = new ListTag();
 
         for(int i = 0; i < getContainerSize(); ++i) {
@@ -149,6 +152,8 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
+        //?} else
+        /*return be == null ? new CompoundTag() : ContainerHelper.saveAllItems(new CompoundTag(),items,be.getLevel().registryAccess());*/
     }
 
     @Override
@@ -158,6 +163,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
 
     @Override
     public void deserializeTag(CompoundTag tag) {
+        //? if <1.20.5 {
         ListTag tagList = tag.getList("Items", 10);
 
         for(int i = 0; i < tagList.size(); ++i) {
@@ -167,6 +173,8 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
                 setItem(slot, ItemStack.of(itemTags));
             }
         }
+        //?} else
+        /*if (be != null) ContainerHelper.loadAllItems(tag,items,be.getLevel().registryAccess());*/
     }
 
     @Override

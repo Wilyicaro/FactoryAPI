@@ -20,8 +20,13 @@ import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
+//? if <1.20.5 {
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
+//?} else {
+/*import net.minecraft.client.gui.screens.options.*;
+import net.minecraft.client.gui.screens.options.controls.*;
+*///?}
 import net.minecraft.client.gui.screens.inventory.*;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
@@ -40,7 +45,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
-import org.apache.commons.lang3.ClassUtils;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
@@ -63,13 +67,13 @@ import java.util.stream.IntStream;
 public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
     String UI_DEFINITIONS = "ui_definitions";
 
-    ListMap<ResourceLocation,Class<?>> NAMED_UI_DEFINITIONS = new ListMap.Builder<String,Class<?>>().put("accessibility_onboarding_screen", AccessibilityOnboardingScreen.class).put("title_screen",TitleScreen.class).put("options_screen", OptionsScreen.class).put("skin_customization_screen", SkinCustomizationScreen.class).put("video_settings_screen", VideoSettingsScreen.class).put("language_select_screen", LanguageSelectScreen.class).put("pack_selection_screen", PackSelectionScreen.class).put("telemetry_info_screen", TelemetryInfoScreen.class).put("online_options_screen", OnlineOptionsScreen.class).put("sound_options_screen", SoundOptionsScreen.class).put("controls_screen", ControlsScreen.class).put("mouse_settings_screen", MouseSettingsScreen.class).put("key_binds_screen", KeyBindsScreen.class).put("chat_options_screen", ChatOptionsScreen.class).put("accessibility_options_screen", AccessibilityOptionsScreen.class).put("credits_and_attribution_screen", CreditsAndAttributionScreen.class).put("win_screen", WinScreen.class).put("confirm_link_screen", ConfirmLinkScreen.class).put("select_world_screen", SelectWorldScreen.class).put("create_world_screen", CreateWorldScreen.class).put("edit_world_screen", EditWorldScreen.class).put("join_multiplayer_screen", JoinMultiplayerScreen.class).put("edit_server_screen", EditServerScreen.class).put("direct_join_server_screen", DirectJoinServerScreen.class).put("realms_main_screen", RealmsMainScreen.class).put("realms_screen", RealmsScreen.class).put("realms_confirm_screen", RealmsConfirmScreen.class).put("realms_backup_screen", RealmsBackupScreen.class).put("realms_invite_screen", RealmsInviteScreen.class).put("share_to_lan_screen", ShareToLanScreen.class).put("advancements_screen", AdvancementsScreen.class).put("stats_screen", StatsScreen.class).put("confirm_screen", ConfirmScreen.class).put("level_loading_screen", LevelLoadingScreen.class).put("progress_screen", ProgressScreen.class).put("generic_dirt_message_screen", GenericDirtMessageScreen.class).put("generic_dirt_message_screen", GenericDirtMessageScreen.class).put("receiving_level_screen", ReceivingLevelScreen.class).put("connect_screen", ConnectScreen.class).put("pause_screen", PauseScreen.class).put("inventory_screen", InventoryScreen.class).put("crafting_screen", CraftingScreen.class).put("container_screen", ContainerScreen.class).put("abstract_furnace_screen", AbstractFurnaceScreen.class).put("furnace_screen", FurnaceScreen.class).put("smoker_screen", SmokerScreen.class).put("blast_furnace_screen", BlastFurnaceScreen.class).put("loom_screen", LoomScreen.class).put("stonecutter_screen", StonecutterScreen.class).put("grindstone_screen", GrindstoneScreen.class).put("enchantment_screen", EnchantmentScreen.class).put("hopper_screen", HopperScreen.class).put("dispenser_screen", DispenserScreen.class).put("shulker_box_screen", ShulkerBoxScreen.class).put("anvil_screen", AnvilScreen.class).put("smithing_screen", SmithingScreen.class).put("brewing_stand_screen", BrewingStandScreen.class).put("beacon_screen", BeaconScreen.class).put("chat_screen", ChatScreen.class).put("in_bed_chat_screen", InBedChatScreen.class).put("gui",Gui.class).mapKeys(FactoryAPI::createVanillaLocation).build();
+    ListMap<ResourceLocation,Class<?>> NAMED_UI_DEFINITIONS = new ListMap.Builder<String,Class<?>>().put("accessibility_onboarding_screen", AccessibilityOnboardingScreen.class).put("title_screen",TitleScreen.class).put("options_screen", OptionsScreen.class).put("skin_customization_screen", SkinCustomizationScreen.class).put("video_settings_screen", VideoSettingsScreen.class).put("language_select_screen", LanguageSelectScreen.class).put("pack_selection_screen", PackSelectionScreen.class).put("telemetry_info_screen", TelemetryInfoScreen.class).put("online_options_screen", OnlineOptionsScreen.class).put("sound_options_screen", SoundOptionsScreen.class).put("controls_screen", ControlsScreen.class).put("mouse_settings_screen", MouseSettingsScreen.class).put("key_binds_screen", KeyBindsScreen.class).put("chat_options_screen", ChatOptionsScreen.class).put("accessibility_options_screen", AccessibilityOptionsScreen.class).put("credits_and_attribution_screen", CreditsAndAttributionScreen.class).put("win_screen", WinScreen.class).put("confirm_link_screen", ConfirmLinkScreen.class).put("select_world_screen", SelectWorldScreen.class).put("create_world_screen", CreateWorldScreen.class).put("edit_world_screen", EditWorldScreen.class).put("join_multiplayer_screen", JoinMultiplayerScreen.class).put("edit_server_screen", EditServerScreen.class).put("direct_join_server_screen", DirectJoinServerScreen.class).put("realms_main_screen", RealmsMainScreen.class).put("realms_screen", RealmsScreen.class).put("realms_confirm_screen", RealmsConfirmScreen.class).put("realms_backup_screen", RealmsBackupScreen.class).put("realms_invite_screen", RealmsInviteScreen.class).put("share_to_lan_screen", ShareToLanScreen.class).put("advancements_screen", AdvancementsScreen.class).put("stats_screen", StatsScreen.class).put("confirm_screen", ConfirmScreen.class).put("level_loading_screen", LevelLoadingScreen.class).put("progress_screen", ProgressScreen.class).put("generic_message_screen",/*? if <1.20.5 {*/GenericDirtMessageScreen/*?} else {*//*GenericMessageScreen*//*?}*/.class).put("receiving_level_screen", ReceivingLevelScreen.class).put("connect_screen", ConnectScreen.class).put("pause_screen", PauseScreen.class).put("inventory_screen", InventoryScreen.class).put("crafting_screen", CraftingScreen.class).put("container_screen", ContainerScreen.class).put("abstract_furnace_screen", AbstractFurnaceScreen.class).put("furnace_screen", FurnaceScreen.class).put("smoker_screen", SmokerScreen.class).put("blast_furnace_screen", BlastFurnaceScreen.class).put("loom_screen", LoomScreen.class).put("stonecutter_screen", StonecutterScreen.class).put("grindstone_screen", GrindstoneScreen.class).put("enchantment_screen", EnchantmentScreen.class).put("hopper_screen", HopperScreen.class).put("dispenser_screen", DispenserScreen.class).put("shulker_box_screen", ShulkerBoxScreen.class).put("anvil_screen", AnvilScreen.class).put("smithing_screen", SmithingScreen.class).put("brewing_stand_screen", BrewingStandScreen.class).put("beacon_screen", BeaconScreen.class).put("chat_screen", ChatScreen.class).put("in_bed_chat_screen", InBedChatScreen.class).put("gui",Gui.class).mapKeys(FactoryAPI::createVanillaLocation).build();
 
     static void registerNamedUIDefinition(ResourceLocation id, Class<?> uiClass){
         NAMED_UI_DEFINITIONS.put(id,uiClass);
     }
     static void registerNamedUIDefinition(String path, Class<?> uiClass){
-        registerNamedUIDefinition(new ResourceLocation(path),uiClass);
+        registerNamedUIDefinition(FactoryAPI.createVanillaLocation(path),uiClass);
     }
 
     UIDefinition EMPTY = new UIDefinition(){};
@@ -584,14 +588,18 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             static ElementType createIndexable(Function<List<Integer>, ElementType> parser){
                 return ((uiDefinition, elementName, element)-> parser.apply(element.get("range").asString().result().map(UIDefinition::parseIntRange).orElse(List.of(element.get("index").asInt(0)))).parse(uiDefinition,elementName,element));
             }
-            static ElementType registerConditional(String path, ElementType type){
-                return register(new ResourceLocation(path),((uiDefinition, elementName, element) -> {
+            static ElementType createConditional(ElementType type){
+                return ((uiDefinition, elementName, element) -> {
                     parseElement(uiDefinition,elementName,element,"applyCondition",(s,d)->createBeforeInit(a-> a.getElements().put(s,a.getBooleanFromDynamic(d))));
                     type.parse(uiDefinition,elementName,element);
-                }));
+                });
             }
+            static ElementType registerConditional(String path, ElementType type){
+                return register(FactoryAPI.createVanillaLocation(path),createConditional(type));
+            }
+
             static ElementType register(String path, ElementType type){
-                return register(new ResourceLocation(path),type);
+                return register(FactoryAPI.createVanillaLocation(path),type);
             }
 
             static ElementType register(ResourceLocation id, ElementType type){

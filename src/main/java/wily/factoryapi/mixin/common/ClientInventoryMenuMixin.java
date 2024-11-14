@@ -11,7 +11,7 @@ import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.util.DynamicUtil;
 
 @Mixin(InventoryMenu.class)
-public abstract class ClientInventoryMenuMixin extends RecipeBookMenu<CraftingContainer> {
+public abstract class ClientInventoryMenuMixin extends RecipeBookMenu {
     public ClientInventoryMenuMixin(MenuType<?> menuType, int i) {
         super(menuType, i);
     }

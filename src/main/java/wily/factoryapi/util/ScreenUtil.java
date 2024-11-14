@@ -15,7 +15,9 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -144,7 +146,14 @@ public class ScreenUtil {
         Lighting.setupForFlatItems();
         Consumer<BakedModel> defaultRender = (b)->itemRenderer.render(stack, ItemDisplayContext.NONE, false, graphics.pose(), graphics.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY,b);
         if (bakedModel.isCustomRenderer()){
+            //? if <1.20.5 {
             stack.getOrCreateTag().put("BlockEntityTag" ,be.getUpdateTag());
+            //?} else {
+            /*CompoundTag compoundTag = be.saveCustomAndMetadata(Minecraft.getInstance().level.registryAccess());
+            be.removeComponentsFromTag(compoundTag);
+            BlockItem.setBlockEntityData(stack, be.getType(), compoundTag);
+            stack.applyComponents(be.collectComponents());
+            *///?}
             if (state.getBlock().asItem() instanceof IFactoryItem item) {
                 bakedModel.getTransforms().getTransform(ItemDisplayContext.NONE).apply(false, graphics.pose());
                 graphics.pose().translate(-0.5f, -0.5f, -0.5f);

@@ -6,10 +6,10 @@ import net.minecraft.network.chat.Style;
 public interface ICraftyEnergyStorage extends IPlatformEnergyStorage {
 
 
- FactoryCapacityTiers getSupportedTier();
+ FactoryCapacityTier getSupportedTier();
 
 
- FactoryCapacityTiers getStoredTier();
+ FactoryCapacityTier getStoredTier();
 
 
  /**
@@ -40,9 +40,9 @@ public interface ICraftyEnergyStorage extends IPlatformEnergyStorage {
  default int consumeEnergy(int energy,boolean simulate){return consumeEnergy(new CraftyTransaction(energy, getStoredTier()), simulate).energy;}
 
 
- void setStoredTier(FactoryCapacityTiers tier);
+ void setStoredTier(FactoryCapacityTier tier);
 
- void setSupportedTier(FactoryCapacityTiers tier);
+ void setSupportedTier(FactoryCapacityTier tier);
 
 
  @Override

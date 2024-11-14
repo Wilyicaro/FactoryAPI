@@ -7,6 +7,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import wily.factoryapi.util.FactoryItemUtil;
 
 public interface IFactoryContainerMenu<T extends BlockEntity & IFactoryExpandedStorage> {
     T getBlockEntity();
@@ -91,7 +92,7 @@ public interface IFactoryContainerMenu<T extends BlockEntity & IFactoryExpandedS
 
                 slot = getSlots().get(k);
                 itemStack2 = slot.getItem();
-                if (!itemStack2.isEmpty() && ItemStack.isSameItemSameTags(itemStack, itemStack2) && slot.mayPlace(itemStack)) {
+                if (!itemStack2.isEmpty() && FactoryItemUtil.equalItems(itemStack, itemStack2) && slot.mayPlace(itemStack)) {
                     int l = itemStack2.getCount() + itemStack.getCount();
                     if (l <= slot.getMaxStackSize(itemStack)) {
                         itemStack.setCount(0);

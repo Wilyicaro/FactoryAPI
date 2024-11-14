@@ -9,7 +9,7 @@ import wily.factoryapi.util.FluidInstance;
 import java.util.function.Predicate;
 
 public class FactoryFluidHandler implements IPlatformFluidHandler{
-    int capacity;
+    private int capacity;
 
     private final BlockEntity be;
     public FluidInstance fluid = FluidInstance.empty();
@@ -100,17 +100,17 @@ public class FactoryFluidHandler implements IPlatformFluidHandler{
         {
             if (fluid.isEmpty())
             {
-                return Math.min(capacity, resource.getAmount());
+                return Math.min(getMaxFluid(), resource.getAmount());
             }
             if (!fluid.isFluidEqual(resource))
             {
                 return 0;
             }
-            return Math.min(capacity - fluid.getAmount(), resource.getAmount());
+            return Math.min(getMaxFluid() - fluid.getAmount(), resource.getAmount());
         }
         if (fluid.isEmpty())
         {
-            fluid = FluidInstance.create(resource, Math.min(capacity, resource.getAmount()));
+            fluid = FluidInstance.create(resource, Math.min(getMaxFluid(), resource.getAmount()));
             setChanged();
             return fluid.getAmount();
         }
@@ -118,7 +118,7 @@ public class FactoryFluidHandler implements IPlatformFluidHandler{
         {
             return 0;
         }
-        int filled = capacity - fluid.getAmount();
+        int filled = getMaxFluid() - fluid.getAmount();
 
         if (resource.getAmount() < filled)
         {
@@ -127,7 +127,7 @@ public class FactoryFluidHandler implements IPlatformFluidHandler{
         }
         else
         {
-            fluid.setAmount(capacity);
+            fluid.setAmount(getMaxFluid());
         }
         if (filled > 0)
             setChanged();

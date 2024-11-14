@@ -50,7 +50,7 @@ public class FactoryAPI {
         /*MinecraftForge.EVENT_BUS.addGenericListener(AttachCapabilitiesEvent.class, event->{
             AttachCapabilitiesEvent<?> e = (AttachCapabilitiesEvent<?>) event;
             if (e.getObject() instanceof IFactoryStorage be){
-                e.addCapability(new ResourceLocation(FactoryAPI.MOD_ID, "factory_api_capabilities"), new ICapabilityProvider() {
+                e.addCapability(FactoryAPI.createModLocation( "factory_api_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.BLOCK_CAPABILITY_MAP.get(capability);
@@ -61,7 +61,7 @@ public class FactoryAPI {
                     }
                 });
             }else if (e.getObject() instanceof ItemStack s && s.getItem() instanceof IFactoryItem i){
-                e.addCapability(new ResourceLocation(FactoryAPI.MOD_ID, "factory_api_capabilities"), new ICapabilityProvider() {
+                e.addCapability(FactoryAPI.createModLocation( "factory_api_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.ITEM_CAPABILITY_MAP.get(capability);
@@ -80,11 +80,11 @@ public class FactoryAPI {
 
     public static void init() {
         LOGGER.info("Initializing FactoryAPI!");
-        FactoryEvent.registerPayload(r-> r.register( false, FactoryAPICommand.UIDefinitionPayload.ID, FactoryAPICommand.UIDefinitionPayload::decode, FactoryAPICommand.UIDefinitionPayload::apply));
+        FactoryEvent.registerPayload(r-> r.register( false, FactoryAPICommand.UIDefinitionPayload.ID));
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
         FactoryRegistries.init();
-        FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.jsonArgumentType.get()));
+        FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get()));
         //? if fabric {
         FabricStorages.registerDefaultStorages();
         //?}
@@ -93,7 +93,13 @@ public class FactoryAPI {
         //? if <1.20.5 {
         return new ResourceLocation(namespace,path);
         //?} else
-        /*return ResourceLocation.create(namespace,path);*/
+        /*return ResourceLocation.tryBuild(namespace,path);*/
+    }
+    public static ResourceLocation createLocation(String location){
+        //? if <1.20.5 {
+        return new ResourceLocation(location);
+         //?} else
+        /*return ResourceLocation.tryParse(location);*/
     }
     public static ResourceLocation createModLocation(String path){
         return createLocation(MOD_ID,path);

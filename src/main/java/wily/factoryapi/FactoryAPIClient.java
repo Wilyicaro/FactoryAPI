@@ -1,5 +1,7 @@
 package wily.factoryapi;
 
+//? if >=1.21
+/*import net.minecraft.client.DeltaTracker;*/
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
@@ -41,10 +43,7 @@ import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 //?} else if forge {
-/*import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RenderGuiEvent;
+/*import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -56,7 +55,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 *///?}
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.IFactoryItem;
@@ -86,10 +84,10 @@ public class FactoryAPIClient {
     public static void init() {
        FactoryEvent.registerReloadListener(PackType.CLIENT_RESOURCES, uiDefinitionManager);
        preTick(m-> SECURE_EXECUTOR.executeAll());
-       registerGuiPostRender(((guiGraphics, partialTicks) -> UIDefinition.Accessor.Accessor.of(Minecraft.getInstance().gui).getRenderables().forEach(r->r.render(guiGraphics,0,0,partialTicks))));
+       registerGuiPostRender(((guiGraphics, partialTicks) -> UIDefinition.Accessor.Accessor.of(Minecraft.getInstance().gui).getRenderables().forEach(r->r.render(guiGraphics,0,0,/*? if >=1.21 {*/ /*partialTicks.getGameTimeDeltaPartialTick(true)*//*?} else {*/ partialTicks /*?}*/))));
        //? if fabric {
        BuiltInRegistries.ITEM.stream().filter(i-> i instanceof IFactoryItem).forEach(i-> ((IFactoryItem) i).clientExtension((c)-> {
-           ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,entity,slot,null))), light, OverlayTexture.NO_OVERLAY,1.0F,1.0F,1.0F, 1.0F),i);
+           ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,entity,slot,null))), light, OverlayTexture.NO_OVERLAY/*? if <=1.20.6*/, 1.0F,1.0F,1.0F, 1.0F),i);
         }));
        //?}
     }
@@ -97,12 +95,7 @@ public class FactoryAPIClient {
     public static final FactoryEvent<Consumer<Minecraft>> STOPPING = new FactoryEvent<>(e-> m-> e.invokeAll(l->l.accept(m)));
 
     //? if fabric {
-    public static final FactoryEvent.PayloadRegistry CLIENT = new FactoryEvent.PayloadRegistry() {
-        @Override
-        public <T extends CustomPacketPayload> void register(boolean client, ResourceLocation id, Function<FriendlyByteBuf, T> codec, CommonNetwork.Consumer<T> apply) {
-            ClientPlayNetworking.registerGlobalReceiver(id, (m, l, b, s) -> apply.apply(codec.apply(b),FactoryAPIClient.SECURE_EXECUTOR,()->m.player));
-        }
-    };
+
     //?} else if forge || neoforge {
     /*public static void registerReloadListener(PreparableReloadListener reloadListener){
         ((ReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(reloadListener);
@@ -128,8 +121,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, TickEvent.ClientTickEvent.class, e-> {
-            if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Pre.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -140,11 +133,11 @@ public class FactoryAPIClient {
         ClientTickEvents.END_CLIENT_TICK.register(listener::accept);
         //?} elif forge {
         /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, TickEvent.ClientTickEvent.class, e-> {
-            if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
+            if (e.phase == TickEvent.Phase.END) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, TickEvent.ClientTickEvent.class, e-> {
-            if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Post.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -207,11 +200,14 @@ public class FactoryAPIClient {
     }
 
 
-    public static void registerGuiPostRender(BiConsumer<GuiGraphics,Float> registry) {
+    public static void registerGuiPostRender(BiConsumer<GuiGraphics,/*? if >=1.21 {*/ /*DeltaTracker *//*?} else {*/Float/*?}*/> registry) {
         //? if fabric {
         HudRenderCallback.EVENT.register(registry::accept);
         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
+        /*//? if <1.20.5 {
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
+        //?} else
+        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().getTimer()));^/
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
          *///?} else

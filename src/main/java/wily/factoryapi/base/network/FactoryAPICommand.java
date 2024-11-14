@@ -92,22 +92,22 @@ public class FactoryAPICommand {
     }
 
     public record UIDefinitionPayload(JsonElement uiDefinitionElement) implements CommonNetwork.Payload {
-        public static final ResourceLocation ID = new ResourceLocation(FactoryAPI.MOD_ID,"ui_definition_s2c");
+        public static final CommonNetwork.Identifier<UIDefinitionPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("ui_definition_s2c"),UIDefinitionPayload::decode);
 
         @Override
         public void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
             executor.execute(()-> FactoryAPIClient.uiDefinitionManager.openScreenAndAddDefinition(UIDefinition.Manager.fromDynamic(ID.toString(), new Dynamic<>(JsonOps.INSTANCE, uiDefinitionElement))));
         }
-        public static UIDefinitionPayload decode(FriendlyByteBuf friendlyByteBuf) {
-            return new UIDefinitionPayload(JsonParser.parseString(friendlyByteBuf.readUtf()));
+        public static UIDefinitionPayload decode(CommonNetwork.PlayBuf buf) {
+            return new UIDefinitionPayload(JsonParser.parseString(buf.get().readUtf()));
         }
         @Override
-        public void write(FriendlyByteBuf friendlyByteBuf) {
-            friendlyByteBuf.writeUtf(uiDefinitionElement.toString());
+        public void encode(CommonNetwork.PlayBuf buf) {
+            buf.get().writeUtf(uiDefinitionElement.toString());
         }
 
         @Override
-        public ResourceLocation id() {
+        public CommonNetwork.Identifier<UIDefinitionPayload> identifier() {
             return ID;
         }
     }

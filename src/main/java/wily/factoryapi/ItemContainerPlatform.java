@@ -199,7 +199,7 @@ public interface ItemContainerPlatform {
                     itemStack.grow(Math.min(stack.getMaxStackSize(), (int) maxAmount));
                     return itemStack.getCount() - oldCount;
                 }else if (itemStack.isEmpty())
-                    return (itemStack = insertedVariant.toStack(Math.min(insertedVariant.getItem().getMaxStackSize(),(int) maxAmount))).getCount();
+                    return (itemStack = insertedVariant.toStack(Math.min(itemStack.getMaxStackSize(),(int) maxAmount))).getCount();
                 return 0;
             }
             @Override
