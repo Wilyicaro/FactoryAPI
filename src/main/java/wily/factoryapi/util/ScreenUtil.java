@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.base.IFactoryItem;
 import wily.factoryapi.base.client.IFactoryBlockEntityWLRenderer;
 
@@ -55,7 +57,7 @@ public class ScreenUtil {
     public static void drawString(PoseStack stack, String text, int x, int y, int color, boolean shadow) {
         Font font = mc.font;
         MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-        font.drawInBatch(text, (float)x, (float)y, color, shadow, stack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880, font.isBidirectional());
+        font.drawInBatch(/*? if >=1.21.2 {*//*Component.literal(text)*//*?} else {*/ text/*?}*/, (float)x, (float)y, color, shadow, stack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880, font.isBidirectional());
         RenderSystem.disableDepthTest();
         source.endBatch();
         RenderSystem.enableDepthTest();
@@ -144,21 +146,18 @@ public class ScreenUtil {
         graphics.pose().mulPose(Axis.XP.rotationDegrees(rotateX));
         graphics.pose().mulPose(Axis.YP.rotationDegrees(rotateY));
         Lighting.setupForFlatItems();
-        Consumer<BakedModel> defaultRender = (b)->itemRenderer.render(stack, ItemDisplayContext.NONE, false, graphics.pose(), graphics.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY,b);
+        Consumer<BakedModel> defaultRender = (b)->itemRenderer.render(stack, ItemDisplayContext.NONE, false, graphics.pose(), FactoryGuiGraphics.of(graphics).accessor().getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY,b);
         if (bakedModel.isCustomRenderer()){
             //? if <1.20.5 {
-            stack.getOrCreateTag().put("BlockEntityTag" ,be.getUpdateTag());
+            stack.getOrCreateTag().put("BlockEntityTag", be.getUpdateTag());
             //?} else {
-            /*CompoundTag compoundTag = be.saveCustomAndMetadata(Minecraft.getInstance().level.registryAccess());
-            be.removeComponentsFromTag(compoundTag);
-            BlockItem.setBlockEntityData(stack, be.getType(), compoundTag);
-            stack.applyComponents(be.collectComponents());
+            /*be.saveToItem(stack,Minecraft.getInstance().level.registryAccess());
             *///?}
             if (state.getBlock().asItem() instanceof IFactoryItem item) {
                 bakedModel.getTransforms().getTransform(ItemDisplayContext.NONE).apply(false, graphics.pose());
                 graphics.pose().translate(-0.5f, -0.5f, -0.5f);
                 item.clientExtension(c->{
-                    if (c.getCustomRenderer(mc.getBlockEntityRenderDispatcher(),mc.getEntityModels()) instanceof IFactoryBlockEntityWLRenderer renderer) renderer.renderByItemBlockState(state, stack, ItemDisplayContext.NONE, graphics.pose(), graphics.bufferSource(),15728880, OverlayTexture.NO_OVERLAY);
+                    if (c.getCustomRenderer(mc.getBlockEntityRenderDispatcher(),mc.getEntityModels()) instanceof IFactoryBlockEntityWLRenderer renderer) renderer.renderByItemBlockState(state, stack, ItemDisplayContext.NONE, graphics.pose(), FactoryGuiGraphics.of(graphics).accessor().getBufferSource(),15728880, OverlayTexture.NO_OVERLAY);
                 });
             }else defaultRender.accept(bakedModel);
         }else defaultRender.accept(mc.getBlockRenderer().getBlockModel(state));

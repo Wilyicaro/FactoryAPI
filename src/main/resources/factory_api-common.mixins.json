@@ -5,11 +5,14 @@
   "client": [
     "AbstractContainerScreenMixin",
     "ClientInventoryMenuMixin",
+    "GuiGraphicsMixin",
     "MinecraftMixin",
-    "ScreenMixin"
+    "ScreenMixin",
+    "TextureAtlasMixin"
   ],
   "mixins": [
     "ClientAbstractContainerMenuMixin",
+    "ClientItemMixin",
     "GuiMixin",
     "MinecraftServerMixin"
   ],

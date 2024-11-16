@@ -1,12 +1,10 @@
 {
   "required": true,
-  "package": "wily.factoryapi.mixin.neoforge",
+  "package": "wily.factoryapi.mixin.forge",
   "compatibilityLevel": "JAVA_17",
   "client": [
   ],
   "mixins": [
-    "BlockCapabilityMixin",
-    "ItemCapabilityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

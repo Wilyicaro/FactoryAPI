@@ -86,7 +86,7 @@ public class FactoryAPICommand {
     public static void register(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandBuildContext) {
         commandDispatcher.register(Commands.literal("factoryapi").requires(commandSourceStack -> commandSourceStack.hasPermission(2)).
                 then(Commands.literal("display").then(Commands.literal("ui_definition").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("ui_definition", JsonArgument.json()).executes(context -> {
-                    FactoryAPIPlatform.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(JsonArgument.getJson(context, "ui_definition")));
+                    CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(JsonArgument.getJson(context, "ui_definition")));
                     return 0;
                 }))))));
     }

@@ -17,17 +17,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.IFactoryItem;
 
-@Mixin({ItemRenderer.class})
+@Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
-
-    @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = ("render"), at = @At("HEAD"), cancellable = true)
     private void injectRender(ItemStack itemStack, ItemDisplayContext transformType, boolean bl, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j, BakedModel bakedModel, CallbackInfo info){
         if (!itemStack.isEmpty() && bakedModel.isCustomRenderer()) {
                 if (itemStack.getItem() instanceof IFactoryItem factoryItem) {
                     factoryItem.clientExtension(c-> {
-                        BlockEntityWithoutLevelRenderer beWLR = c.getCustomRenderer(this.minecraft.getBlockEntityRenderDispatcher(), this.minecraft.getEntityModels());
+                        BlockEntityWithoutLevelRenderer beWLR = c.getCustomRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
                         if (beWLR != null){
                             poseStack.pushPose();
                             bakedModel.getTransforms().getTransform(transformType).apply(bl, poseStack);

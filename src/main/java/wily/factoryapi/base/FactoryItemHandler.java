@@ -153,7 +153,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         nbt.put("Items", nbtTagList);
         return nbt;
         //?} else
-        /*return be == null ? new CompoundTag() : ContainerHelper.saveAllItems(new CompoundTag(),items,be.getLevel().registryAccess());*/
+        /*return be == null ? new CompoundTag() : ContainerHelper.saveAllItems(new CompoundTag(),getItems(),be.getLevel().registryAccess());*/
     }
 
     @Override
@@ -174,7 +174,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
             }
         }
         //?} else
-        /*if (be != null) ContainerHelper.loadAllItems(tag,items,be.getLevel().registryAccess());*/
+        /*if (be != null) ContainerHelper.loadAllItems(tag,getItems(),be.getLevel().registryAccess());*/
     }
 
     @Override

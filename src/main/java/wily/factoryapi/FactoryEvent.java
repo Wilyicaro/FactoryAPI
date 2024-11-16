@@ -28,9 +28,9 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
 //? if >=1.20.5 {
-/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadFlow;
 import net.minecraftforge.network.payload.PayloadProtocol;
-^///?}
+//?}
 *///?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -162,8 +162,8 @@ public class FactoryEvent<T> {
             }
 
             @Override
-            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2, Executor executor, Executor executor2) {
-                return reloadListener.reload(preparationBarrier,resourceManager,profilerFiller,profilerFiller2,executor,executor2);
+            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /*? if <1.21.2 {*/ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,/*?}*/ Executor executor, Executor executor2) {
+                return reloadListener.reload(preparationBarrier,resourceManager,/*? if <1.21.2 {*/profilerFiller, profilerFiller2,/*?}*/executor,executor2);
             }
         });
         //?} elif forge {
@@ -257,16 +257,16 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                EventNetworkChannel NETWORK = ChannelBuilder.named(id.location()).eventNetworkChannel();
+                /^EventNetworkChannel NETWORK = ChannelBuilder.named(id.location()).eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
                     if (p.getChannel().equals(id.location()) && p.getPayload() != null) id.decode(p.getPayload()).apply(p.getSource().isClientSide() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR, () -> p.getSource().isClientSide() ? FactoryAPIClient.getClientPlayer() : p.getSource().getSender());
                     p.getSource().setPacketHandled(true);
                 });
-                //?} else {
-                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
+                ^///?} else {
+                PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
                 if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
                 else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
-                ^///?}
+                //?}
             }
         });
         *///?} elif neoforge {

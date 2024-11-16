@@ -35,6 +35,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.base.FactoryStorage;
+import wily.factoryapi.base.IFactoryItem;
+import wily.factoryapi.base.IPlatformItemFluidHandler;
 import wily.factoryapi.util.FluidInstance;
 
 public interface ItemContainerPlatform {
@@ -294,10 +297,16 @@ public interface ItemContainerPlatform {
     }
     //?} elif forge {
     /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        //? if <1.20.5 {
+        /^return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.FLUID,stack).secureCast(IPlatformItemFluidHandler.class).orElse(null) : null;
     }
     static IEnergyStorage getItemEnergyStorage(ItemStack stack){
-        return stack.getCapability(ForgeCapabilities.ENERGY).orElse(null);
+        //? if <1.20.5 {
+        /^return stack.getCapability(ForgeCapabilities.ENERGY).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.ENERGY,stack).orElse(null) : null;
     }
     *///?} elif neoforge {
     /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
@@ -313,7 +322,7 @@ public interface ItemContainerPlatform {
         IFluidHandler.FluidAction action = FactoryAPIPlatform.fluidActionOf((player !=null && player.isCreative()));
         ItemStack toFill = action.execute() ? stack.copyWithCount(1) : stack.copy();
         IFluidHandlerItem tank = getItemFluidHandler(toFill);
-        int amount = tank.fill(fluidInstance, action);
+        int amount = tank.fill(fluidInstance.toStack(), action);
         if(player != null && amount > 0) {
             if (action.execute()) {
                 if (stack.getCount() > 1) {
@@ -321,7 +330,7 @@ public interface ItemContainerPlatform {
                     player.addItem(tank.getContainer());
                 } else player.setItemInHand(hand, tank.getContainer());
             }
-            SoundEvent sound = fluidInstance.getFluid().getFluidType().getSound(fluidInstance, SoundActions.BUCKET_FILL);
+            SoundEvent sound = fluidInstance.getFluid().getFluidType().getSound(fluidInstance.toStack(), SoundActions.BUCKET_FILL);
             if (sound != null) player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),sound , SoundSource.PLAYERS, 0.6F, 0.8F);
         }
         return new ItemFluidContext(FluidInstance.create(fluidInstance.getFluid(),amount),tank.getContainer());

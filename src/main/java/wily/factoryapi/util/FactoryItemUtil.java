@@ -13,6 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.init.FactoryRegistries;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.Map;
 
 public class FactoryItemUtil {
     //? if >=1.20.5 {
-    /*public static final Codec<List<Item>> ITEM_COMPONENTS_CODEC = ResourceLocation.CODEC.xmap(BuiltInRegistries.ITEM::get, BuiltInRegistries.ITEM::getKey).listOf();
+    /*public static final Codec<List<Item>> ITEM_COMPONENTS_CODEC = ResourceLocation.CODEC.xmap(r-> FactoryAPIPlatform.getRegistryValue(r,BuiltInRegistries.ITEM), BuiltInRegistries.ITEM::getKey).listOf();
     public static final StreamCodec<RegistryFriendlyByteBuf,List<Item>> ITEM_COMPONENTS_STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(ITEM_COMPONENTS_CODEC);
     *///?}
 

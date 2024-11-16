@@ -3,8 +3,8 @@
 
 import net.minecraft.nbt.CompoundTag;
 //? if forge {
-import net.minecraftforge.energy.IEnergyStorage;
-//?} elif neoforge {
+/^import net.minecraftforge.energy.IEnergyStorage;
+^///?} elif neoforge {
 /^import net.neoforged.neoforge.energy.IEnergyStorage;
 ^///?}
 import wily.factoryapi.base.IPlatformEnergyStorage;

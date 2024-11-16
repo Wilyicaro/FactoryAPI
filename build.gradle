@@ -47,7 +47,8 @@ loom {
     if (loader == "forge") forge {
         convertAccessWideners.set(true)
         mixinConfigs("${mod_id}-common.mixins.json")
-        mixinConfigs("${mod_id}-forge_like.mixins.json")
+        mixinConfigs("${mod_id}-forge.mixins.json")
+        if (stonecutter.eval(stonecutter.current.version, ">=1.21.2")) mixinConfigs("${mod_id}-forge_1212.mixins.json")
     }
 }
 

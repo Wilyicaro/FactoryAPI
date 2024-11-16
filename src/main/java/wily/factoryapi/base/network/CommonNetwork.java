@@ -5,9 +5,6 @@ package wily.factoryapi.base.network;
 import net.minecraft.network.codec.StreamCodec;
 *///?}
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >1.20.1
 import net.minecraft.network.protocol.PacketFlow;
@@ -16,10 +13,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 //? if fabric {
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //?} elif forge {
 /*import net.minecraftforge.network.NetworkDirection;
 //? if >=1.20.5
-/^import net.minecraftforge.network.NetworkProtocol;^/
+import net.minecraftforge.network.NetworkProtocol;
 import net.minecraftforge.network.PacketDistributor;
 *///?} elif neoforge {
 /*import net.neoforged.neoforge.network.PacketDistributor;
@@ -140,11 +140,11 @@ public interface CommonNetwork {
         /*ServerPlayNetworking.send(serverPlayer,packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
         PacketDistributor.PLAYER.with(serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(buf, packetHandler.id()).getThis());
-        //?} else
-        /^PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));^/
+        ^///?} else
+        PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
         /^PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
@@ -169,11 +169,11 @@ public interface CommonNetwork {
         /*ClientPlayNetworking.send(packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
         PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(buf, packetHandler.id()).getThis());
-        //?} else
-        /^PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));^/
+        ^///?} else
+        PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
         /^PacketDistributor.SERVER.noArg().send(packetHandler);

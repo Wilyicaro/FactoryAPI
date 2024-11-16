@@ -51,6 +51,7 @@ import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.Bearer;
+import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.base.network.FactoryAPICommand;
 import wily.factoryapi.util.DynamicUtil;
 import wily.factoryapi.util.ListMap;
@@ -538,12 +539,12 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                 parseElement(uiDefinition,elementName,element,"message",(s,d)->ComponentSerialization.CODEC.parse(d).result().map(c-> createBeforeInit(elementName,a-> a.putStaticElement(s,c))).orElse(null));
             }
             static void parseBlitElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> guiGraphics.blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));
                 parseElement(uiDefinition,elementName,element,"texture",(s,d)->ResourceLocation.CODEC.parse(d).result().map(r-> createBeforeInit(elementName,a-> a.putStaticElement(s,r))).orElse(null));
                 parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","uvX","uvY","width","height","imageWidth","imageHeight","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
             }
             static void parseBlitSpriteElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".sprite",ResourceLocation.class).ifPresent(t-> guiGraphics.blitSprite(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0))))))));
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".sprite",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blitSprite(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0))))))));
                 parseElement(uiDefinition,elementName,element,"sprite",(s,d)->ResourceLocation.CODEC.parse(d).result().map(r-> createBeforeInit(elementName,a-> a.putStaticElement(s,r))).orElse(null));
                 parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
             }
@@ -612,7 +613,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
         public final List<UIDefinition> list = new ArrayList<>();
 
         @Override
-        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2, Executor executor, Executor executor2) {
+        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /*? if <1.21.2 {*/ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,/*?}*/ Executor executor, Executor executor2) {
             return preparationBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
                 list.clear();
                 resourceManager.listResources(UI_DEFINITIONS, r-> r.getPath().endsWith(".json")).forEach((l, r)->{

@@ -141,6 +141,9 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
+    static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry){
+        return registry./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(location);
+    }
 
     static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {
         //? if fabric {
@@ -149,12 +152,9 @@ public interface FactoryAPIPlatform {
         if (handStorage instanceof  IPlatformFluidHandler p) return p;
         if (container.getItem() instanceof IFluidHandlerItem<?> f) return createItemFluidHandler(f,container);
         return handStorage != null ? (FabricFluidStoragePlatform)()-> handStorage : null;
-        //?} elif forge {
-        /*Optional<IFluidHandlerItem> opt = container.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve();
-        return opt.isPresent() ? opt.get() instanceof IPlatformFluidHandler f ? f : (ForgeFluidHandlerPlatform)opt::get : null;
-        *///?} elif neoforge {
-        /*IFluidHandlerItem handler = container.getCapability(Capabilities.FluidHandler.ITEM);
-        return handler instanceof IPlatformFluidHandler f ? f : (ForgeFluidHandlerPlatform)()-> handler;
+        //?} elif forge || neoforge {
+        /*IFluidHandlerItem handler = ItemContainerPlatform.getItemFluidHandler(container);
+        return handler == null ? null : handler instanceof IPlatformFluidHandler f ? f : (ForgeFluidHandlerPlatform)()-> handler;
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -167,12 +167,9 @@ public interface FactoryAPIPlatform {
         if (handStorage instanceof  IPlatformEnergyStorage p) return p;
         if (stack.getItem() instanceof IEnergyStorageItem<?>) return getItemEnergyStorage(stack,context);
         return handStorage != null ? (FabricEnergyStoragePlatform)()-> handStorage : null;
-        //?} elif forge {
-        /*Optional<IEnergyStorage> opt = stack.getCapability(ForgeCapabilities.ENERGY).resolve();
-        return opt.isPresent() ? opt.get() instanceof IPlatformEnergyStorage f ? f : (ForgeEnergyHandlerPlatform) opt::get : null;
-        *///?} elif neoforge {
-            /*IEnergyStorage storage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-            return storage instanceof IPlatformEnergyStorage f ? f : (ForgeEnergyHandlerPlatform) storage;
+        //?} elif forge || neoforge {
+        /*IEnergyStorage storage = ItemContainerPlatform.getItemEnergyStorage(stack);
+        return storage == null ? null : storage instanceof IPlatformEnergyStorage f ? f : (ForgeEnergyHandlerPlatform)()-> storage;
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -183,7 +180,10 @@ public interface FactoryAPIPlatform {
         if (craftyStorage == null) return getItemCraftyEnergyStorageApi(stack);
         return craftyStorage;
         //?} elif forge {
-        /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
+        /*//? if <1.20.5 {
+        /^return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;
         *///?} elif neoforge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
         *///?} else
@@ -313,49 +313,6 @@ public interface FactoryAPIPlatform {
                 return ArbitrarySupplier.empty();
             }
         });
-    }
-
-
-    static <T extends CommonNetwork.Payload> void sendToPlayer(ServerPlayer serverPlayer, T packetHandler) {
-        //? if fabric {
-        //? if <1.20.5 {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        packetHandler.encode(buf);
-        ServerPlayNetworking.send(serverPlayer,packetHandler.identifier().location(), buf);
-        //?} else
-        /*ServerPlayNetworking.send(serverPlayer,packetHandler);*/
-        //?} elif forge {
-        /*FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        packetHandler.write(buf);
-        PacketDistributor.PLAYER.with(serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(buf, packetHandler.id()).getThis());
-        *///?} elif neoforge {
-        /*PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
-        *///?} else {
-        /*throw new AssertionError();
-        *///?}
-    }
-
-    static <T extends CommonNetwork.Payload> void sendToPlayers(Collection<ServerPlayer> serverPlayer, T packetHandler) {
-        serverPlayer.forEach(s->sendToPlayer(s,packetHandler));
-    }
-
-    static <T extends CommonNetwork.Payload> void sendToServer(T packetHandler) {
-        //? if fabric {
-        //? if <1.20.5 {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-        packetHandler.encode(buf);
-        ClientPlayNetworking.send(packetHandler.identifier().location(),buf);
-        //?} else
-        /*ClientPlayNetworking.send(packetHandler);*/
-        //?} elif forge {
-        /*FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-        packetHandler.write(buf);
-        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(buf, packetHandler.id()).getThis());
-        *///?} elif neoforge {
-        /*PacketDistributor.SERVER.noArg().send(packetHandler);
-         *///?} else {
-        /*throw new AssertionError();
-         *///?}
     }
 
 

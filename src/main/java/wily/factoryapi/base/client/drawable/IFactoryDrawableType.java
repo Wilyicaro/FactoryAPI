@@ -3,6 +3,7 @@ package wily.factoryapi.base.client.drawable;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ProgressElementRenderUtil;
@@ -90,8 +91,8 @@ public interface IFactoryDrawableType {
         return getMouseLimit(mouseX,mouseY,posX,posY,width(),height());
     }
     default void draw(GuiGraphics graphics, int x, int y) {
-        if (isSprite()) graphics.blitSprite(texture(),x,y,width(),height());
-            else graphics.blit(texture(),x,y,uvX(),uvY(),width(),height());
+        if (isSprite()) FactoryGuiGraphics.of(graphics).blitSprite(texture(),x,y,width(),height());
+            else FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());
     }
     int uvX();
     int uvY();

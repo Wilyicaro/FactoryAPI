@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
 public class ProgressElementRenderUtil {
@@ -18,9 +19,9 @@ public class ProgressElementRenderUtil {
         }
         if(progress > 0) {
             if (type.plane().isHorizontal())
-                gui.blit(type.texture(),  x,  y, type.uvX(), type.uvY(), progress, type.height());
+                FactoryGuiGraphics.of(gui).blit(type.texture(),  x,  y, type.uvX(), type.uvY(), progress, type.height());
             else
-                gui.blit(type.texture(),  x,  y + type.height() - progress, type.uvX(), type.uvY() + (type.height() - progress), type.width(), progress);
+                FactoryGuiGraphics.of(gui).blit(type.texture(),  x,  y + type.height() - progress, type.uvX(), type.uvY() + (type.height() - progress), type.width(), progress);
         }
     }
 
@@ -34,7 +35,9 @@ public class ProgressElementRenderUtil {
 
             TextureAtlasSprite fluidSprite = FluidRenderUtil.fluidSprite(instance, hasColor);
             RenderSystem.setShaderTexture(0, fluidSprite.atlasLocation());
+            //? if <1.21.2 {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            //?}
             for (int i = 0; i < fluidWidth; i += 16) {
                 for (int j = 0; j < progress; j += 16) {
                    FluidRenderUtil.renderTiledFluid(graphics ,x, posY, i, j, progress, fluidWidth, fluidSprite);

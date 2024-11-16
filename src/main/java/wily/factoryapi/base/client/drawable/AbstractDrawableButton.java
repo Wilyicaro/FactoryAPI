@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.util.ScreenUtil;
 
 import java.awt.*;
@@ -86,9 +87,9 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     @Override
     public void draw(GuiGraphics graphics, int x, int y) {
         if (color != null)
-            graphics.setColor(color.getRed() / 255F,color.getGreen() / 255F, color.getBlue() / 255F, 1F);
+            FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F,color.getGreen() / 255F, color.getBlue() / 255F, 1F);
         super.draw(graphics, x, y);
-        RenderSystem.setShaderColor(1, 1, 1, RenderSystem.getShaderColor()[3]);
+        FactoryGuiGraphics.of(graphics).setColor(1, 1, 1, FactoryGuiGraphics.of(graphics).getColor()[3]);
         if (isSelected() || hovered && hoverSelection) {
             if (selection != null) selection.draw(graphics, x, y);
             else graphics.renderOutline(x, y, width(), height(), -1);

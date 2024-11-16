@@ -90,16 +90,10 @@ public class FactoryAPI {
         //?}
     }
     public static ResourceLocation createLocation(String namespace, String path){
-        //? if <1.20.5 {
-        return new ResourceLocation(namespace,path);
-        //?} else
-        /*return ResourceLocation.tryBuild(namespace,path);*/
+        return ResourceLocation.tryBuild(namespace,path);
     }
     public static ResourceLocation createLocation(String location){
-        //? if <1.20.5 {
-        return new ResourceLocation(location);
-         //?} else
-        /*return ResourceLocation.tryParse(location);*/
+        return ResourceLocation.tryParse(location);
     }
     public static ResourceLocation createModLocation(String path){
         return createLocation(MOD_ID,path);

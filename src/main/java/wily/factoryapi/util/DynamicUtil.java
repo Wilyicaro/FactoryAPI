@@ -18,7 +18,7 @@ public class DynamicUtil {
     public static final Map<Dynamic<?>,ItemStack> DYNAMIC_ITEMS = new ConcurrentHashMap<>();
 
     public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean /*? if <1.20.5 {*/allowNbt/*?} else {*/ /*allowComponents *//*?}*/){
-        return element.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElse(()-> DYNAMIC_ITEMS.computeIfAbsent(element, d-> d.get("item").asString().result().or(()->d.asString().result()).map(s->BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
+        return element.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElse(()-> DYNAMIC_ITEMS.computeIfAbsent(element, d-> d.get("item").asString().result().or(()->d.asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
             //? if <1.20.5 {
             if (allowNbt) element.get("nbt").result().flatMap(d1->CompoundTag.CODEC.parse(d).result()).ifPresent(i::setTag);
             //?} else

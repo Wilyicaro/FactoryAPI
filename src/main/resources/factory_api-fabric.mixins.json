@@ -10,11 +10,11 @@
   "mixins": [
     "BlockGetterMixin",
     "BlockLightEngineMixin",
-    "LevelChunkMixin",
-    "LightEngineMixin"
+    "ChunkAccessMixin",
+    "LightEngineMixin",
+    "LevelChunkMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "plugin": "wily.factoryapi.mixin.SimpleMixinPlugin$Fabric"
+  }
 }

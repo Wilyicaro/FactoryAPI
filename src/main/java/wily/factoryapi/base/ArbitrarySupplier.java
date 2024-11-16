@@ -19,8 +19,8 @@ public interface ArbitrarySupplier<T> extends Supplier<T> {
     default <O> Object orObject(@NotNull O alternative){
         return isPresent() ? get() : alternative;
     }
-    default ArbitrarySupplier<T> orElse(@NotNull T alternative){
-        return isPresent() ? this : ()-> alternative;
+    default T orElse(T alternative){
+        return isPresent() ? get() : alternative;
     }
     default T or(@NotNull T alternative){
         return or(()-> alternative).get();
