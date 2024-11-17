@@ -160,7 +160,7 @@ var modPlatformName = loader.capitalize()
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = "${project.mod_id}-${project.name}"
+            artifactId = "${project.mod_id}-${loader}"
             version = version
 
             pom {
@@ -174,7 +174,7 @@ publishing {
                 }
                 issueManagement {
                     system = 'github'
-                    url = "${mod_source}/issues"
+                    url = "${mod_issues}"
                 }
                 licenses {
                     license {
@@ -239,7 +239,7 @@ publishMods {
 
     modrinth {
         minecraftVersions.addAll versions
-        accessToken =providers.environmentVariable("CURSE_API_KEY")
+        accessToken = providers.environmentVariable("CURSE_API_KEY")
         projectId = rootProject.modrinth_id
         version = "$project.version+$project.name"
         if (isFabric) requires("fabric-api")

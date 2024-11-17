@@ -20,9 +20,10 @@ import wily.factoryapi.util.ListMap;
 import java.util.Map;
 
 public interface IFactoryItemClientExtension {
+    // Map used only to store the IFactoryItem instances with client extensions, not meant to be modified externally, as can result in unexpected behaviour between mod loaders
     Map<Item, IFactoryItemClientExtension> map = new ListMap<>();
     /**
-     * Its use is recommended only for BlockItem
+     * Its use is recommended only for BlockItem instances
      * <p>
      * Only used if {@link BakedModel#isCustomRenderer()} returns {@code true} or {@link BlockState#getRenderShape()}
      * returns {@link net.minecraft.world.level.block.RenderShape#ENTITYBLOCK_ANIMATED}.

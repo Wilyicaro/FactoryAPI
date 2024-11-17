@@ -34,16 +34,17 @@ import net.minecraftforge.network.payload.PayloadProtocol;
 *///?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 //? if <1.20.5 {
-/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-^///?} else {
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+//?} else {
+/^import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-//?}
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+^///?}
 *///?}
 import net.minecraft.SharedConstants;
 //? if >=1.20.5 {
@@ -125,8 +126,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -140,8 +141,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -270,17 +271,17 @@ public class FactoryEvent<T> {
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^/RegisterPayloadHandlerEvent/^?} else {^/ /^RegisterPayloadHandlersEvent^//^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
                 public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
-                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    /^? if <1.20.5 {^/IPayloadRegistrar/^?} else {^/ /^PayloadRegistrar^//^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
                     //? if <1.20.5 {
-                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
-                    ^///?} else {
-                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
+                    //?} else {
+                    /^if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
                     else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
-                    //?}
+                    ^///?}
                 }
             });
         });

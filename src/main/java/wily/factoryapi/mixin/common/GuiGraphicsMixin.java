@@ -124,6 +124,7 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             vertexConsumer.addVertex(matrix4f, (float)i, (float)l, z).setUv(f, m).setColor(n);
             vertexConsumer.addVertex(matrix4f, (float)j, (float)l, z).setUv(g, m).setColor(n);
             vertexConsumer.addVertex(matrix4f, (float)j, (float)k, z).setUv(g, h).setColor(n);
+            getBufferSource().endBatch(renderType);
             *///?} else {
             vertexConsumer.vertex(matrix4f, (float)i, (float)k, z).uv(f, h).color(n).endVertex();
             vertexConsumer.vertex(matrix4f, (float)i, (float)l, z).uv(f, m).color(n).endVertex();

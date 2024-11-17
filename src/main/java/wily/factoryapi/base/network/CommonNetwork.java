@@ -147,9 +147,9 @@ public interface CommonNetwork {
         PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
-         ^///?}
-        PacketDistributor.sendToPlayer(serverPlayer, packetHandler);
+        PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
+         //?} else
+        /^PacketDistributor.sendToPlayer(serverPlayer, packetHandler);^/
         *///?} else {
         /*throw new AssertionError();
          *///?}
@@ -176,9 +176,9 @@ public interface CommonNetwork {
         PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.SERVER.noArg().send(packetHandler);
-         ^///?} else
-        PacketDistributor.sendToServer(packetHandler);
+        PacketDistributor.SERVER.noArg().send(packetHandler);
+         //?} else
+        /^PacketDistributor.sendToServer(packetHandler);^/
         *///?} else {
         /*throw new AssertionError();
          *///?}

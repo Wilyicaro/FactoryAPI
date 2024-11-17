@@ -1,7 +1,8 @@
 package wily.factoryapi;
 
-//? if >=1.21
-/*import net.minecraft.client.DeltaTracker;*/
+//? if >=1.21 {
+/*import net.minecraft.client.DeltaTracker;
+*///?}
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
@@ -10,21 +11,29 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
-import net.minecraft.client.model.Model;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -42,11 +51,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
 //?} else if forge {
 /*import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -57,25 +64,27 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 *///?} else if neoforge {
 /*import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+//? if <1.20.5 {
+import net.neoforged.neoforge.event.TickEvent;
+//?} else {
+/^import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+^///?}
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 *///?}
+import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.IFactoryItem;
 import wily.factoryapi.base.client.IFactoryItemClientExtension;
 import wily.factoryapi.base.network.CommonNetwork;
 import wily.factoryapi.base.client.UIDefinition;
-import wily.factoryapi.util.ListMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS;
 
@@ -102,9 +111,7 @@ public class FactoryAPIClient {
        preTick(m-> SECURE_EXECUTOR.executeAll());
        registerGuiPostRender(((guiGraphics, partialTicks) -> UIDefinition.Accessor.Accessor.of(Minecraft.getInstance().gui).getRenderables().forEach(r->r.render(guiGraphics,0,0,/*? if >=1.21 {*/ /*partialTicks.getGameTimeDeltaPartialTick(true)*//*?} else {*/ partialTicks /*?}*/))));
        //? if fabric {
-       BuiltInRegistries.ITEM.stream().filter(i-> i instanceof IFactoryItem).forEach(i-> ((IFactoryItem) i).clientExtension((c)-> {
-           ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,/*? if <1.21.2 {*/ entity, /*?}*/slot))), light, OverlayTexture.NO_OVERLAY/*? if <=1.20.6 {*/, 1.0F,1.0F,1.0F, 1.0F/*?}*/),i);
-        }));
+       IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,/*? if <1.21.2 {*/ entity, /*?}*/slot))), light, OverlayTexture.NO_OVERLAY/*? if <=1.20.6 {*/, 1.0F,1.0F,1.0F, 1.0F/*?}*/),i));
        //?} else if neoforge && >=1.20.5 {
         /*FactoryAPIPlatform.getModEventBus().addListener(RegisterClientExtensionsEvent.class,r->IFactoryItemClientExtension.map.forEach((i,c)->r.registerItem(new IClientItemExtensions() {
             @Override
@@ -112,9 +119,15 @@ public class FactoryAPIClient {
                 return c.getCustomRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
             }
             @Override
-            public Model getHumanoidArmorModel(ItemStack itemStack, EquipmentModel.LayerType layerType, Model original) {
+            //? if <1.21.2 {
+            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                return c.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+            }
+            //?} else {
+            /^public Model getHumanoidArmorModel(ItemStack itemStack, EquipmentModel.LayerType layerType, Model original) {
                 return c.getHumanoidArmorModel(itemStack, layerType, original);
             }
+            ^///?}
         }, i)));
         *///?}
     }
@@ -148,8 +161,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -163,8 +176,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.END) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^//^ TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -292,5 +305,50 @@ public class FactoryAPIClient {
         FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, ModelEvent.RegisterAdditional.class, e->registry.accept(e::register));
         *///?} else
         /*throw new AssertionError();*/
+    }
+
+    public static <T extends Entity> void registerEntityRenderer(Supplier<? extends EntityType<? extends T>> type, EntityRendererProvider<T> provider){
+        //? if fabric {
+        EntityRendererRegistry.register(type.get(),provider);
+        //?} else if forge || neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.RegisterRenderers.class, e-> e.registerEntityRenderer(type.get(),provider));
+        *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void registerLayerDefinitionRegistry(ModelLayerLocation location, Supplier<LayerDefinition> definition){
+        //? if fabric {
+        EntityModelLayerRegistry.registerModelLayer(location,definition::get);
+         //?} else if forge || neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.RegisterLayerDefinitions.class, e-> e.registerLayerDefinition(location,definition));
+        *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void registerRenderLayerRegistry(TriConsumer<Function<EntityType<? extends LivingEntity>, EntityRenderer<?>>, EntityModelSet, FactoryRenderLayerRegistry> registry){
+        //? if fabric {
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((a, b, c, d)-> registry.accept((type) -> b, d.getModelSet(), new FactoryRenderLayerRegistry() {
+                @Override
+                public <T extends LivingEntity, M extends EntityModel<T>> void register(LivingEntityRenderer<T, M> renderer, RenderLayer<T, M> renderLayer) {
+                    c.register(renderLayer);
+                }
+            }));
+         //?} else if forge || neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::getRenderer, e.getEntityModels(), new FactoryRenderLayerRegistry() {
+            @Override
+            public <T extends LivingEntity, M extends EntityModel<T>> void register(LivingEntityRenderer<T, M> renderer, RenderLayer<T, M> renderLayer) {
+                renderer.addLayer(renderLayer);
+            }
+        }));
+        *///?} else
+        /*throw new AssertionError();*/
+
+    }
+
+    public interface FactoryModelLayerRegistry {
+        void register(ModelLayerLocation location, Supplier<LayerDefinition> definition);
+    }
+    public interface FactoryRenderLayerRegistry {
+        <T extends LivingEntity, M extends EntityModel<T>>void register(LivingEntityRenderer<T,  M> renderer, RenderLayer< T, M> renderLayer);
     }
 }

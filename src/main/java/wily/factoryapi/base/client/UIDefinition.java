@@ -52,6 +52,7 @@ import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.Bearer;
 import wily.factoryapi.base.FactoryGuiGraphics;
+import wily.factoryapi.base.IFactoryReloadListener;
 import wily.factoryapi.base.network.FactoryAPICommand;
 import wily.factoryapi.util.DynamicUtil;
 import wily.factoryapi.util.ListMap;
@@ -485,7 +486,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
     }
 
 
-    class Manager implements PreparableReloadListener {
+    class Manager implements IFactoryReloadListener {
 
         @Override
         public String getName() {
@@ -613,7 +614,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
         public final List<UIDefinition> list = new ArrayList<>();
 
         @Override
-        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /*? if <1.21.2 {*/ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,/*?}*/ Executor executor, Executor executor2) {
+        public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2, Executor executor, Executor executor2) {
             return preparationBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
                 list.clear();
                 resourceManager.listResources(UI_DEFINITIONS, r-> r.getPath().endsWith(".json")).forEach((l, r)->{

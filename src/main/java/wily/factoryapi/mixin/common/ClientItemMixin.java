@@ -12,7 +12,8 @@ import net.minecraft.world.item.ItemStack;
 //? if forge {
 /*import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 *///?} else if neoforge {
-//?}
+/*import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+*///?}
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +26,7 @@ import wily.factoryapi.base.client.IFactoryItemClientExtension;
 @Mixin(Item.class)
 public class ClientItemMixin {
 
-    //? if forge
+    //? if forge || neoforge && <1.20.5
     /*@Shadow(remap = false) private Object renderProperties;*/
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -33,7 +34,7 @@ public class ClientItemMixin {
         if (this instanceof IFactoryItem i){
             i.clientExtension(c-> {
                 IFactoryItemClientExtension.map.put((Item)(Object)this,c);
-                //? if forge || neoforge && <=1.20.4 {
+                //? if forge || neoforge && <1.20.5 {
                 /*renderProperties = new IClientItemExtensions() {
                     @Override
                     public @NotNull HumanoidModel<?> getHumanoidArmorModel(/^? if >1.21.2 {^//^LivingEntityRenderState livingEntityRenderState ^//^?} else {^/LivingEntity livingEntity/^?}^/, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
