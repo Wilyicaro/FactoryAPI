@@ -35,10 +35,8 @@ import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.EditWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -51,7 +49,6 @@ import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.Bearer;
-import wily.factoryapi.base.FactoryGuiGraphics;
 import wily.factoryapi.base.IFactoryReloadListener;
 import wily.factoryapi.base.network.FactoryAPICommand;
 import wily.factoryapi.util.DynamicUtil;
@@ -399,7 +396,9 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
         default <E extends AbstractWidget> E putWidget(String name, E e){
             putBearer(name+".message",Bearer.of(e::getMessage,e::setMessage));
-            return putLayoutElement(name,e,e::setWidth,e::setHeight);
+            putBearer(name+".spriteOverlay",Bearer.of(WidgetAccessor.of(e)::getSpriteOverlay,WidgetAccessor.of(e)::setSpriteOverlay));
+            putBearer(name+".highlightedSpriteOverlay",Bearer.of(WidgetAccessor.of(e)::getSpriteOverlay,WidgetAccessor.of(e)::setHighlightedSpriteOverlay));
+            return putLayoutElement(name,e,e::setWidth, /*? if <=1.20.1 {*//*WidgetAccessor.of(e)*//*?} else {*/e/*?}*/::setHeight);
         }
 
         default Component putComponent(String name, Component component){
@@ -485,6 +484,19 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
         }
     }
 
+    static Checkbox createCheckbox(boolean selected, BiConsumer<Checkbox,Boolean> onPress){
+        //? if >1.20.1 {
+        return Checkbox.builder(Component.empty(), Minecraft.getInstance().font).selected(selected).onValueChange(onPress::accept).build();
+        //?} else {
+        /*return new Checkbox(0,0,20,20,Component.empty(), selected){
+            @Override
+            public void onPress() {
+                super.onPress();
+                onPress.accept(this,selected());
+            }
+        };
+        *///?}
+    }
 
     class Manager implements IFactoryReloadListener {
 
@@ -507,7 +519,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                     if (selected.isEmpty()) selected.set(a.getBooleanFromDynamic(d).get());
                     a.getElements().put(s,selected);
                 }));
-                definition.getDefinitions().add(createAfterInit(name,a -> a.putWidget(name, a.addChidren(Checkbox.builder(Component.empty(), Minecraft.getInstance().font).selected(a.getBoolean(name+".selected")).onValueChange((t,b)->selected.set(b)).build()))));
+                definition.getDefinitions().add(createAfterInit(name,a -> a.putWidget(name, a.addChidren(createCheckbox(a.getBoolean(name+".selected"),(c,b)-> selected.set(b))))));
             });
             ElementType MODIFY_WIDGET = registerConditional("modify_widget",createIndexable(i->(definition,name,e)-> {
                 i.forEach(index-> parseWidgetElements(definition,name + (i.size() == 1 ? "" : "_" + index),e));
@@ -537,7 +549,9 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
             static void parseWidgetElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
                 parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height");
-                parseElement(uiDefinition,elementName,element,"message",(s,d)->ComponentSerialization.CODEC.parse(d).result().map(c-> createBeforeInit(elementName,a-> a.putStaticElement(s,c))).orElse(null));
+                parseElement(uiDefinition,elementName,element,"message",(s,d)->DynamicUtil.getComponentCodec().parse(d).result().map(c-> createBeforeInit(elementName,a-> a.putStaticElement(s,c))).orElse(null));
+                parseElement(uiDefinition,elementName,element,"spriteOverlay",(s,d)->ResourceLocation.CODEC.parse(d).result().map(c-> createBeforeInit(elementName,a-> a.putStaticElement(s,c))).orElse(null));
+                parseElement(uiDefinition,elementName,element,"highlightedSpriteOverlay",(s,d)->ResourceLocation.CODEC.parse(d).result().map(c-> createBeforeInit(elementName,a-> a.putStaticElement(s,c))).orElse(null));
             }
             static void parseBlitElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
                 uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));
@@ -561,7 +575,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                 parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
             }
             static UIDefinition parseComponentElement(String name, Dynamic<?> element){
-                return ComponentSerialization.CODEC.parse(element).result().map(c-> createBeforeInit(name,a-> a.putComponent(name,c))).orElse(null);
+                return DynamicUtil.getComponentCodec().parse(element).result().map(c-> createBeforeInit(name,a-> a.putComponent(name,c))).orElse(null);
             }
             static void parseElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element, BiFunction<String,Dynamic<?>,UIDefinition> dynamicToDefinition, String... fields){
                 for (String field : fields) {
@@ -640,7 +654,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             String targetType = dynamic.get("targetType").asString("id");
 
             Class<?> targetClass = dynamic.get("targetUI").asString().map(s->targetType.equals("id") ? NAMED_UI_DEFINITIONS.get(ResourceLocation.tryParse(s)) : getClassFromString(name,s)).result().orElse(null);
-            Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(ComponentSerialization.CODEC::parse).result().orElse(null) : null;
+            Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(null) : null;
 
             String targetRange = dynamic.get("targetRange").asString("instance");
 

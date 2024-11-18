@@ -4,11 +4,15 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "AbstractContainerScreenMixin",
+    "AbstractWidgetMixin",
     "ClientInventoryMenuMixin",
     "GuiGraphicsMixin",
     "MinecraftMixin",
     "ScreenMixin",
-    "TextureAtlasMixin"
+    "SpriteContentsMixin",
+    "SpriteLoaderMixin",
+    "TextureAtlasMixin",
+    "TextureManagerMixin"
   ],
   "mixins": [
     "ClientAbstractContainerMenuMixin",

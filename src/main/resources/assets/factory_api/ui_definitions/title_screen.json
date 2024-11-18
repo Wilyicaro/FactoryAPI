@@ -5,7 +5,8 @@
       "type": "modify_widget",
       "y": "${singleplayer.y}-9",
       "message": "Play Game",
-      "height": 30
+      "height": 30,
+      "spriteOverlay": "factory_api:bad"
     },
     "buttons": {
       "type": "modify_widget",

@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -32,15 +32,16 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-//? if >=1.21.2
-/*import net.minecraft.world.item.equipment.EquipmentModel;*/
+//? if >=1.21.2 {
+/*import net.minecraft.world.item.equipment.EquipmentModel;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+*///?}
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
@@ -76,6 +77,9 @@ import net.neoforged.neoforge.common.NeoForge;
 *///?}
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
+//? if <=1.20.1 {
+/*import wily.factoryapi.base.client.GuiSpriteManager;
+*///?}
 import wily.factoryapi.base.IFactoryItem;
 import wily.factoryapi.base.client.IFactoryItemClientExtension;
 import wily.factoryapi.base.network.CommonNetwork;
@@ -102,6 +106,9 @@ public class FactoryAPIClient {
     /*public static final List<ModelResourceLocation> extraModels = new ArrayList<>();
     *///?}
 
+    //? if <=1.20.1 {
+    /*public static GuiSpriteManager sprites;
+    *///?}
     public FactoryAPIClient(){
         init();
     }
@@ -247,7 +254,7 @@ public class FactoryAPIClient {
         /*//? if <1.20.5 {
         /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
         ^///?} else
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().^//^? if <1.21.2 {^/getTimer/^?} else {^//^getDeltaTracker^//^?}^/()));
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().^//^? if <1.21.2 {^/getTimer/^?} else {^//^getDeltaTracker^//^?}^/()));
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
          *///?} else
@@ -325,18 +332,18 @@ public class FactoryAPIClient {
         /*throw new AssertionError();*/
     }
 
-    public static void registerRenderLayerRegistry(TriConsumer<Function<EntityType<? extends LivingEntity>, EntityRenderer<?>>, EntityModelSet, FactoryRenderLayerRegistry> registry){
+    public static void registerRenderLayerRegistry(TriConsumer<Function<EntityType<? extends LivingEntity>, EntityRenderer<?/*? if >=1.21.2 {*//*, ? *//*?}*/>>, EntityModelSet, FactoryRenderLayerRegistry> registry){
         //? if fabric {
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((a, b, c, d)-> registry.accept((type) -> b, d.getModelSet(), new FactoryRenderLayerRegistry() {
                 @Override
-                public <T extends LivingEntity, M extends EntityModel<T>> void register(LivingEntityRenderer<T, M> renderer, RenderLayer<T, M> renderLayer) {
+                public <T extends LivingEntity, /*? if >=1.21.2 {*/ /*S extends LivingEntityRenderState, *//*?}*/M extends EntityModel</*? if >=1.21.2 {*//*S*//*?} else {*/T/*?}*/>> void register(LivingEntityRenderer<T,/*? if >=1.21.2 {*/ /*S, *//*?}*/ M> renderer, RenderLayer</*? if >=1.21.2 {*//*S*//*?} else {*/T/*?}*/, M> renderLayer) {
                     c.register(renderLayer);
                 }
             }));
          //?} else if forge || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::getRenderer, e.getEntityModels(), new FactoryRenderLayerRegistry() {
             @Override
-            public <T extends LivingEntity, M extends EntityModel<T>> void register(LivingEntityRenderer<T, M> renderer, RenderLayer<T, M> renderLayer) {
+            public <T extends LivingEntity, S extends /^? if >=1.21.2 {^/ /^LivingEntityRenderState, ^//^?}^/M extends EntityModel</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/>> void register(LivingEntityRenderer<T,/^? if >=1.21.2 {^/ /^S, ^//^?}^/ M> renderer, RenderLayer</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/, M> renderLayer) {
                 renderer.addLayer(renderLayer);
             }
         }));
@@ -349,6 +356,6 @@ public class FactoryAPIClient {
         void register(ModelLayerLocation location, Supplier<LayerDefinition> definition);
     }
     public interface FactoryRenderLayerRegistry {
-        <T extends LivingEntity, M extends EntityModel<T>>void register(LivingEntityRenderer<T,  M> renderer, RenderLayer< T, M> renderLayer);
+        <T extends LivingEntity, /*? if >=1.21.2 {*/ /*S extends LivingEntityRenderState, *//*?}*/M extends EntityModel</*? if >=1.21.2 {*//*S*//*?} else {*/T/*?}*/>> void register(LivingEntityRenderer<T,/*? if >=1.21.2 {*/ /*S, *//*?}*/ M> renderer, RenderLayer</*? if >=1.21.2 {*//*S*//*?} else {*/T/*?}*/, M> renderLayer);
     }
 }

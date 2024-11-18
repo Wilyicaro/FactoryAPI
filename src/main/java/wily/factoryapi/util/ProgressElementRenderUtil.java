@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import wily.factoryapi.base.FactoryGuiGraphics;
+import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 
 public class ProgressElementRenderUtil {

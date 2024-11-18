@@ -18,16 +18,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import wily.factoryapi.base.FactoryGuiGraphics;
-
+import wily.factoryapi.base.client.FactoryGuiGraphics;
+//? if <=1.20.1 {
+/*import wily.factoryapi.base.client.GuiSpriteScaling;
+*///?}
 import java.util.function.Function;
 
 @Mixin(GuiGraphics.class)
-public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
+public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     //? if >=1.21.2 {
     /*private int blitColor = -1;
     *///?}
     @Shadow @Final private MultiBufferSource.BufferSource bufferSource;
+
+    //? if <=1.20.1
+    /*@Shadow abstract void innerBlit(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);*/
+
     @Unique
     private final FactoryGuiGraphics factoryGuiGraphics = new FactoryGuiGraphics() {
         @Override
@@ -77,13 +83,13 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
              *///?} else if <1.21.2 {
             self().blitSprite(resourceLocation, x, y, width, height);
              //?} else
-            /*self().blitSprite(RenderType::guiTextured,resourceLocation, x, y, width, height);*/
+            /*self().blitSprite(RenderType::guiTextured,resourceLocation, x, y, width, height,blitColor);*/
         }
 
         public void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height) {
-            //? if <1.20.2 {
-        /*TextureAtlasSprite textureAtlasSprite = getSprites().getSprite(resourceLocation);
-        GuiSpriteScaling guiSpriteScaling = getSprites().getSpriteScaling(textureAtlasSprite);
+        //? if <1.20.2 {
+        /*TextureAtlasSprite textureAtlasSprite = FactoryGuiGraphics.getSprites().getSprite(resourceLocation);
+        GuiSpriteScaling guiSpriteScaling = FactoryGuiGraphics.getSprites().getSpriteScaling(textureAtlasSprite);
         if (guiSpriteScaling instanceof GuiSpriteScaling.Stretch) {
             this.blitSprite(textureAtlasSprite, x, y, z, width, height);
         } else if (guiSpriteScaling instanceof GuiSpriteScaling.Tile tile) {
@@ -93,8 +99,14 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
         *///?} else if <1.21.2 {
             self().blitSprite(resourceLocation, x, y, z, width, height);
-             //?} else
-            /*self().blitSprite(RenderType::guiTextured,resourceLocation, x, y, z, width, height);*/
+             //?} else {
+            /*if (z != 0) {
+                self().pose().pushPose();
+                self().pose().translate(0,z,0);
+            }
+            self().blitSprite(RenderType::guiTextured,resourceLocation, x, y, width, height, blitColor);
+            if (z != 0) self().pose().popPose();
+            *///?}
         }
 
         @Override
@@ -114,24 +126,32 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             /*return new float[]{ARGB.red(blitColor),ARGB.green(blitColor), ARGB.blue(blitColor)};
             *///?}
         }
-
-        private void innerBlit(Function<ResourceLocation, RenderType> function, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
+        //? if >=1.21.2 {
+        /*private void innerBlit(Function<ResourceLocation, RenderType> function, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             RenderType renderType = function.apply(resourceLocation);
             Matrix4f matrix4f = self().pose().last().pose();
             VertexConsumer vertexConsumer = getBufferSource().getBuffer(renderType);
-            //? if >=1.20.5 {
-            /*vertexConsumer.addVertex(matrix4f, (float)i, (float)k, z).setUv(f, h).setColor(n);
+            vertexConsumer.addVertex(matrix4f, (float)i, (float)k, z).setUv(f, h).setColor(n);
             vertexConsumer.addVertex(matrix4f, (float)i, (float)l, z).setUv(f, m).setColor(n);
             vertexConsumer.addVertex(matrix4f, (float)j, (float)l, z).setUv(g, m).setColor(n);
             vertexConsumer.addVertex(matrix4f, (float)j, (float)k, z).setUv(g, h).setColor(n);
             getBufferSource().endBatch(renderType);
-            *///?} else {
-            vertexConsumer.vertex(matrix4f, (float)i, (float)k, z).uv(f, h).color(n).endVertex();
-            vertexConsumer.vertex(matrix4f, (float)i, (float)l, z).uv(f, m).color(n).endVertex();
-            vertexConsumer.vertex(matrix4f, (float)j, (float)l, z).uv(g, m).color(n).endVertex();
-            vertexConsumer.vertex(matrix4f, (float)j, (float)k, z).uv(g, h).color(n).endVertex();
-            //?}
         }
+        *///?}
+        //? if <=1.20.1 {
+        /*public void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+            if (p != 0 && q != 0) {
+                GuiGraphicsMixin.this.innerBlit(textureAtlasSprite.atlasLocation(), m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i * 16), textureAtlasSprite.getU((float)(k + p) / (float)i * 16), textureAtlasSprite.getV((float)l / (float)j * 16), textureAtlasSprite.getV((float)(l + q) / (float)j * 16));
+            }
+        }
+
+        public void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m) {
+            if (l != 0 && m != 0) {
+                GuiGraphicsMixin.this.innerBlit(textureAtlasSprite.atlasLocation(), i, i + l, j, j + m, k, textureAtlasSprite.getU0(), textureAtlasSprite.getU1(), textureAtlasSprite.getV0(), textureAtlasSprite.getV1());
+            }
+        }
+        *///?}
+
     };
     @Override
     public FactoryGuiGraphics getFactoryGuiGraphics() {
@@ -142,12 +162,8 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     public MultiBufferSource.BufferSource getBufferSource() {
         return this.bufferSource;
     }
-    //? if >=1.21.2 {
-    /*@ModifyVariable(method = "innerBlit", at = @At("HEAD"), index = 11, argsOnly = true)
-    public int blitTiledSprite(int value) {
-        return blitColor;
-    }
-    *///?}
+
+    //? if >1.20.1 {
     @Inject(method = "blitTiledSprite", at = @At("HEAD"), cancellable = true)
     public void blitTiledSprite(/*? if >=1.21.2 {*//*Function<ResourceLocation, RenderType> function,*//*?}*/ TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s, CallbackInfo ci) {
         //? if <1.21.2 {
@@ -156,4 +172,5 @@ public class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         /*getFactoryGuiGraphics().blitTiledSprite(function, textureAtlasSprite, i, j, s,k, l, m, n, o, p, q, r);*/
         ci.cancel();
     }
+    //?}
 }

@@ -1,7 +1,7 @@
 package wily.factoryapi.base.client.drawable;
 
 import net.minecraft.client.gui.GuiGraphics;
-import wily.factoryapi.base.FactoryGuiGraphics;
+import wily.factoryapi.base.client.FactoryGuiGraphics;
 
 public class DrawableCustomWidth<D extends DrawableCustomWidth<D>> extends AbstractDrawableStatic<D,IFactoryDrawableType> {
     public Integer customWidth;

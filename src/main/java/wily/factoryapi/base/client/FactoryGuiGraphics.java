@@ -1,9 +1,12 @@
-package wily.factoryapi.base;
+package wily.factoryapi.base.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >1.20.1 {
 import net.minecraft.client.gui.GuiSpriteManager;
+//?}
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -11,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.FactoryAPIClient;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,7 +32,7 @@ public interface FactoryGuiGraphics {
     }
 
     static GuiSpriteManager getSprites(){
-        return Minecraft.getInstance().getGuiSprites();
+        return /*? if >1.20.1 {*/ Minecraft.getInstance().getGuiSprites()/*?} else {*//*FactoryAPIClient.sprites*//*?}*/;
     }
     void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
 
@@ -76,8 +80,8 @@ public interface FactoryGuiGraphics {
     }
 
     default void blitSprite(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
-        TextureAtlasSprite textureAtlasSprite = Legacy4JClient.sprites.getSprite(resourceLocation);
-        GuiSpriteScaling guiSpriteScaling = Legacy4JClient.sprites.getSpriteScaling(textureAtlasSprite);
+        TextureAtlasSprite textureAtlasSprite = getSprites().getSprite(resourceLocation);
+        GuiSpriteScaling guiSpriteScaling = getSprites().getSpriteScaling(textureAtlasSprite);
         if (guiSpriteScaling instanceof GuiSpriteScaling.Stretch) {
             this.blitSprite(textureAtlasSprite, i, j, k, l, m, n, o, p, q);
         } else {

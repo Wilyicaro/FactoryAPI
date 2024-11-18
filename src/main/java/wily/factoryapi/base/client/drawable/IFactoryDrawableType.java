@@ -3,7 +3,7 @@ package wily.factoryapi.base.client.drawable;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import wily.factoryapi.base.FactoryGuiGraphics;
+import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ProgressElementRenderUtil;

@@ -1,5 +1,6 @@
 package wily.factoryapi.mixin.common;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -7,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.Bearer;
 import wily.factoryapi.base.client.UIDefinition;
@@ -28,6 +30,8 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     @Shadow protected int titleLabelX;
 
     @Shadow protected int titleLabelY;
+
+    @Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
 
     protected AbstractContainerScreenMixin(Component component) {
         super(component);
@@ -53,9 +57,16 @@ public abstract class AbstractContainerScreenMixin extends Screen {
             }
         });
     }
+    //? if >1.20.1 {
     @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
         if (!UIDefinition.Accessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
     }
+    //?} else {
+    /*@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
+    protected void render(AbstractContainerScreen instance, GuiGraphics guiGraphics, float v, int i, int j) {
+        if (UIDefinition.Accessor.of(this).getBoolean("hasContainerBackground",true)) renderBg(guiGraphics,v,i,j);
+    }
+    *///?}
 
 }
