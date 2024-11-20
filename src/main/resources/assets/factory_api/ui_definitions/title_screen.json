@@ -19,7 +19,14 @@
       "type": "add_checkbox",
       "selected": false,
       "x": "${buttons_5.x}+${buttons_5.width}+24",
-      "y": "${buttons_5.y}"
+      "y": "${buttons_5.y}",
+      "actions": {
+        "reload_ui": {},
+        "open_default_screen": {
+          "applyCondition": "!${checkbox.selected}",
+          "value": "language_select"
+        }
+      }
     },
     "lang": {
       "applyCondition": "${checkbox.selected}",

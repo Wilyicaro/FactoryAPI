@@ -24,6 +24,10 @@ public class GuiMixin implements UIDefinition.Accessor {
     }
 
     @Override
+    public void reloadUI() {
+    }
+
+    @Override
     public List<UIDefinition> getDefinitions() {
         return definitions;
     }

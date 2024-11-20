@@ -1,5 +1,6 @@
 package wily.factoryapi.util;
 
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,13 @@ public class ListMap<K,V> implements Map<K,V> {
     }
     public ListMap(){
         this(new Builder<>());
+    }
+
+    public Codec<V> createCodec(Codec<K> keyCodec){
+        return keyCodec.xmap(this::get,this::getKey);
+    }
+    public Codec<K> createKeyCodec(Codec<V> codec){
+        return codec.xmap(this::getKey,this::get);
     }
 
     final Set<Entry<K,V>> backendSet = new AbstractSet<>() {

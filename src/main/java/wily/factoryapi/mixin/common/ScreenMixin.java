@@ -20,16 +20,24 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(Screen.class)
-public class ScreenMixin implements UIDefinition.Accessor {
+public abstract class ScreenMixin implements UIDefinition.Accessor {
     @Shadow @Final private List<GuiEventListener> children;
     @Shadow @Final public List<Renderable> renderables;
     @Shadow @Final private List<NarratableEntry> narratables;
+
+    @Shadow protected abstract void repositionElements();
+
     @Unique private final Map<String, ArbitrarySupplier<?>> elements = new HashMap<>();
     @Unique private final List<UIDefinition> definitions = new ArrayList<>();
     @Unique private final List<UIDefinition> staticDefinitions = new ArrayList<>();
 
     public Screen getScreen(){
         return (Screen) (Object) this;
+    }
+
+    @Override
+    public void reloadUI() {
+        repositionElements();
     }
 
     @Override

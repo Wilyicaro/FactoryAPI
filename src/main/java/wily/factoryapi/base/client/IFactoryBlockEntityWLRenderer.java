@@ -8,5 +8,5 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface IFactoryBlockEntityWLRenderer extends ResourceManagerReloadListener {
-    public void renderByItemBlockState(BlockState state, ItemStack itemStack, ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j);
+    void renderByItemBlockState(BlockState state, ItemStack itemStack, ItemDisplayContext transformType, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, int j);
 }
