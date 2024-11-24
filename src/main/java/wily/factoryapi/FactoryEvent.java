@@ -1,8 +1,10 @@
 package wily.factoryapi;
 
 //? if fabric {
-//? if >=1.20.5
-/*import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;*/
+//? if >=1.20.5 {
+/*import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+*///?}
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -16,26 +18,23 @@ import net.fabricmc.fabric.impl.resource.loader.ResourceManagerHelperImpl;
 import net.fabricmc.loader.api.FabricLoader;
 //?} elif forge {
 /*import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 //? if >1.20.1 {
-import net.minecraftforge.network.ChannelBuilder;
+/^import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
-//?} else {
-/^import net.minecraftforge.network.NetworkEvent;
+^///?} else {
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
-^///?}
-//? if >=1.20.5 {
-import net.minecraftforge.network.payload.PayloadFlow;
-import net.minecraftforge.network.payload.PayloadProtocol;
 //?}
+//? if >=1.20.5 {
+/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadProtocol;
+^///?}
 *///?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -43,23 +42,26 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
 //? if <1.20.5 {
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-//?} else {
-/^import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+^///?} else {
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-^///?}
+//?}
 *///?}
-import net.minecraft.SharedConstants;
+
+//? if >1.20.1
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
 //? if >=1.20.5 {
-/*import net.minecraft.network.RegistryFriendlyByteBuf;
+/*import net.minecraft.core.component.DataComponentType;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.repository.KnownPack;
-*///?} else if >1.20.1 {
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-//?}
+*///?}
+import net.minecraft.SharedConstants;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.PackSource;
 import com.mojang.brigadier.CommandDispatcher;
@@ -74,6 +76,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.Item;
 import org.apache.logging.log4j.util.TriConsumer;
 import wily.factoryapi.base.network.CommonNetwork;
 
@@ -133,8 +136,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -148,8 +151,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -267,35 +270,49 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                /^EventNetworkChannel NETWORK = /^¹? <=1.20.1 {¹^//^¹NetworkRegistry.¹^//^¹?}¹^/ChannelBuilder.named(id.location()).networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).eventNetworkChannel();
+                EventNetworkChannel NETWORK = /^? <=1.20.1 {^/NetworkRegistry./^?}^/ChannelBuilder.named(id.location()).networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    NetworkEvent.Context source = p.getSource()/^¹? <=1.20.1 {¹^//^¹.get()¹^//^¹?}¹^/;
-                    if (/^¹? >1.20.1 {¹^/p.getChannel().equals(id.location()) && /^¹?}¹^/p.getPayload() != null) id.decode(p.getPayload()).applySided(source::getSender);
+                    NetworkEvent.Context source = p.getSource()/^? <=1.20.1 {^/.get()/^?}^/;
+                    if (/^? >1.20.1 {^//^p.getChannel().equals(id.location()) && ^//^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(source::getSender);
                     source.setPacketHandled(true);
                 });
-                ^///?} else {
-                PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
+                //?} else {
+                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
                 if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
                 else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
-                //?}
+                ^///?}
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^/RegisterPayloadHandlerEvent/^?} else {^/ /^RegisterPayloadHandlersEvent^//^?}^/.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
                 public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
-                    /^? if <1.20.5 {^/IPayloadRegistrar/^?} else {^/ /^PayloadRegistrar^//^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
                     //? if <1.20.5 {
-                    if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
-                    //?} else {
-                    /^if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
+                    ^///?} else {
+                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
                     else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
-                    ^///?}
+                    //?}
                 }
             });
         });
          *///?} else
         /*throw new AssertionError();*/
     }
+
+    //? if >=1.20.5 {
+    /*public <C> void setItemComponent(Item item, DataComponentType<C> type, C value){
+        //? if fabric {
+        DefaultItemComponentEvents.MODIFY.register(c->  c.modify(item, bc-> bc.set(type,value)));
+        //?} else if forge {
+        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, GatherComponentsEvent.class, e-> {
+            if (e.getOwner() == item) e.register(type,value);
+        });
+        ^///?} else if neoforge {
+        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, bc-> bc.set(type,value)));
+        ^///?}
+    }
+    *///?}
 }

@@ -20,7 +20,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //?} elif forge {
 /*import net.minecraftforge.network.NetworkDirection;
 //? if >=1.20.5
-import net.minecraftforge.network.NetworkProtocol;
+/^import net.minecraftforge.network.NetworkProtocol;^/
 import net.minecraftforge.network.PacketDistributor;
 *///?} elif neoforge {
 /*import net.neoforged.neoforge.network.PacketDistributor;
@@ -147,16 +147,16 @@ public interface CommonNetwork {
         /*ServerPlayNetworking.send(serverPlayer,packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
-        PacketDistributor.PLAYER.with(/^¹? if <=1.20.1 {¹^/ /^¹()->¹^//^¹?}¹^/serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^¹? if <=1.20.1 {¹^/ /^¹Pair.of(buf,0)¹^//^¹?} else {¹^/ buf/^¹?}¹^/, packetHandler.identifier().location()).getThis());
-        ^///?} else
-        PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));
+        PacketDistributor.PLAYER.with(/^? if <=1.20.1 {^/ ()->/^?}^/serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^? if <=1.20.1 {^/ Pair.of(buf,0)/^?} else {^/ /^buf^//^?}^/, packetHandler.identifier().location()).getThis());
+        //?} else
+        /^PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));^/
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
-         //?} else
-        /^PacketDistributor.sendToPlayer(serverPlayer, packetHandler);^/
+        /^PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
+         ^///?} else
+        PacketDistributor.sendToPlayer(serverPlayer, packetHandler);
         *///?} else {
         /*throw new AssertionError();
          *///?}
@@ -176,16 +176,16 @@ public interface CommonNetwork {
         /*ClientPlayNetworking.send(packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
-        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^¹? if <=1.20.1 {¹^/ /^¹Pair.of(buf,0)¹^//^¹?} else {¹^/ buf/^¹?}¹^/, packetHandler.identifier().location()).getThis());
-        ^///?} else
-        PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));
+        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^? if <=1.20.1 {^/ Pair.of(buf,0)/^?} else {^/ /^buf^//^?}^/, packetHandler.identifier().location()).getThis());
+        //?} else
+        /^PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));^/
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        PacketDistributor.SERVER.noArg().send(packetHandler);
-         //?} else
-        /^PacketDistributor.sendToServer(packetHandler);^/
+        /^PacketDistributor.SERVER.noArg().send(packetHandler);
+         ^///?} else
+        PacketDistributor.sendToServer(packetHandler);
         *///?} else {
         /*throw new AssertionError();
          *///?}

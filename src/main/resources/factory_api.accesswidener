@@ -5,3 +5,6 @@ accessible method net/minecraft/world/level/lighting/LayerLightSectionStorage li
 accessible method net/minecraft/world/level/lighting/LightEngine enqueueIncrease (JJ)V
 accessible field net/minecraft/nbt/CompoundTag tags Ljava/util/Map;
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
+extendable class net/minecraft/world/item/crafting/Ingredient
+accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/util/stream/Stream;)V
+accessible method net/minecraft/world/item/crafting/Ingredient <init> (Lnet/minecraft/core/HolderSet;)V

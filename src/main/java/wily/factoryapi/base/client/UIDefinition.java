@@ -174,8 +174,11 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                     sb.append(chars[i]);
                     i++;
                 }
-
-                values.push((double) Long.parseLong(sb.substring(1), 16));
+                long colorValue = Long.parseLong(sb.substring(1),16);
+                if (colorValue > Integer.MAX_VALUE) {
+                    colorValue -= (1L << 32);
+                }
+                values.push((double) colorValue);
                 i--;
             }
             else if (chars[i] == '(') {
@@ -510,7 +513,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
 
         public interface WidgetAction<P, W extends AbstractWidget> {
-            ListMap<ResourceLocation,Supplier<Screen>> defaultScreensMap = new ListMap.Builder<String,Supplier<Screen>>().put("title",TitleScreen::new).put("options",()-> new OptionsScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).put("language_select",()->new LanguageSelectScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options,Minecraft.getInstance().getLanguageManager())).put("video_settings",()-> new VideoSettingsScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).put("skin_customization",()-> new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).mapKeys(FactoryAPI::createVanillaLocation).build();
+            ListMap<ResourceLocation,Supplier<Screen>> defaultScreensMap = new ListMap.Builder<String,Supplier<Screen>>().put("title",TitleScreen::new).put("options",()-> new OptionsScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).put("language_select",()->new LanguageSelectScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options,Minecraft.getInstance().getLanguageManager())).put("video_settings",()-> new VideoSettingsScreen(Minecraft.getInstance().screen,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).put("skin_customization",()-> new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).mapKeys(FactoryAPI::createVanillaLocation).build();
             ListMap<ResourceLocation,WidgetAction<?,AbstractWidget>> map = new ListMap.Builder<String,WidgetAction<?,AbstractWidget>>().put("open_default_screen", create(ResourceLocation.CODEC,(s,a,w)->Minecraft.getInstance().setScreen(defaultScreensMap.getOrDefault(s,()->null).get()))).put("reload_ui",create(Codec.unit(Unit.INSTANCE), (s,a,w)->a.reloadUI())).put("run_command",createRunCommand(s->true)).put("run_windows_command",createRunCommand(s->Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command",createRunCommand(s->Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command",createRunCommand(s->Util.getPlatform() == Util.OS.OSX)).mapKeys(FactoryAPI::createVanillaLocation).build();
             Codec<WidgetAction<?,AbstractWidget>> CODEC = map.createCodec(ResourceLocation.CODEC);
             Codec<P> getCodec();
@@ -591,6 +594,8 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             ElementType PUT_BOOLEAN = registerConditional("put_boolean",(definition, name, e)-> e.get("boolean").result().ifPresent(d->definition.getDefinitions().add(createBeforeInit(name,a-> a.getElements().put(name,a.getBooleanFromDynamic(d))))));
             ElementType BLIT = registerConditional("blit", ElementType::parseBlitElements);
             ElementType BLIT_SPRITE = registerConditional("blit_sprite", ElementType::parseBlitSpriteElements);
+            ElementType FILL = registerConditional("fill", ElementType::parseFillElements);
+            ElementType FILL_GRADIENT = registerConditional("fill_gradient", ElementType::parseFillGradientElements);
             ElementType DRAW_STRING = registerConditional("draw_string", ElementType::parseDrawStringElements);
             ElementType RENDER_ITEM = registerConditional("render_item", ElementType::parseRenderItemElements);
 
@@ -599,6 +604,14 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                 parseElement(uiDefinition,elementName,element,"message", ElementType::parseComponentElement);
                 parseElement(uiDefinition,elementName,element,"spriteOverlay",ResourceLocation.CODEC);
                 parseElement(uiDefinition,elementName,element,"highlightedSpriteOverlay",ResourceLocation.CODEC);
+            }
+            static void parseFillElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fill(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF)))))));
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color");
+            }
+            static void parseFillGradientElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fillGradient(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF),a.getInteger(elementName+".secondColor",0xFFFFFFFF)))))));
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color","secondColor");
             }
             static void parseBlitElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
                 uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));

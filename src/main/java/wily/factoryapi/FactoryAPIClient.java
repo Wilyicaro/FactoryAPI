@@ -66,10 +66,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 /*import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 //? if <1.20.5 {
-import net.neoforged.neoforge.event.TickEvent;
-//?} else {
-/^import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-^///?}
+/^import net.neoforged.neoforge.event.TickEvent;
+^///?} else {
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+//?}
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -127,14 +127,14 @@ public class FactoryAPIClient {
             }
             @Override
             //? if <1.21.2 {
-            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+            /^public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                 return c.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
             }
-            //?} else {
-            /^public Model getHumanoidArmorModel(ItemStack itemStack, EquipmentModel.LayerType layerType, Model original) {
+            ^///?} else {
+            public Model getHumanoidArmorModel(ItemStack itemStack, EquipmentModel.LayerType layerType, Model original) {
                 return c.getHumanoidArmorModel(itemStack, layerType, original);
             }
-            ^///?}
+            //?}
         }, i)));
         *///?}
     }
@@ -168,8 +168,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Pre.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Pre.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -183,8 +183,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.END) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Post.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Post.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -252,9 +252,9 @@ public class FactoryAPIClient {
         HudRenderCallback.EVENT.register(registry::accept);
         //?} elif forge {
         /*//? if <1.20.5 {
-        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
-        ^///?} else
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().^//^? if <1.21.2 {^/getTimer/^?} else {^//^getDeltaTracker^//^?}^/()));
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
+        //?} else
+        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().^//^? if <1.21.2 {^/getTimer/^?} else {^//^getDeltaTracker^//^?}^/()));
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
          *///?} else

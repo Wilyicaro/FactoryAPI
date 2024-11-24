@@ -84,6 +84,7 @@ public class FactoryAPI {
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
         FactoryRegistries.init();
+        FactoryIngredient.init();
         FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get()));
         //? if fabric {
         FabricStorages.registerDefaultStorages();

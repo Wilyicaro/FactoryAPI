@@ -18,6 +18,7 @@
     "ClientAbstractContainerMenuMixin",
     "ClientItemMixin",
     "GuiMixin",
+    "IngredientMixin",
     "MinecraftServerMixin"
   ],
   "injectors": {
