@@ -85,6 +85,8 @@ import wily.factoryapi.base.client.IFactoryItemClientExtension;
 import wily.factoryapi.base.network.CommonNetwork;
 import wily.factoryapi.base.client.UIDefinition;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -341,9 +343,9 @@ public class FactoryAPIClient {
                 }
             }));
          //?} else if forge || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::getRenderer, e.getEntityModels(), new FactoryRenderLayerRegistry() {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::/^? if >=1.20.2 {^/getEntityRenderer/^?} else {^//^getRenderer^//^?}^/, e.getEntityModels(), new FactoryRenderLayerRegistry() {
             @Override
-            public <T extends LivingEntity, S extends /^? if >=1.21.2 {^/ /^LivingEntityRenderState, ^//^?}^/M extends EntityModel</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/>> void register(LivingEntityRenderer<T,/^? if >=1.21.2 {^/ /^S, ^//^?}^/ M> renderer, RenderLayer</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/, M> renderLayer) {
+            public <T extends LivingEntity, /^? if >=1.21.2 {^/ /^S extends LivingEntityRenderState, ^//^?}^/M extends EntityModel</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/>> void register(LivingEntityRenderer<T,/^? if >=1.21.2 {^/ /^S, ^//^?}^/ M> renderer, RenderLayer</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/, M> renderLayer) {
                 renderer.addLayer(renderLayer);
             }
         }));

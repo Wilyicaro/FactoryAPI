@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
-
+import groovy.json.JsonParserType
+import groovy.json.JsonSlurper
 import java.text.SimpleDateFormat
 
 plugins {
@@ -99,6 +100,10 @@ ext {
 }
 
 processResources {
+    def parser = new JsonSlurper()
+    parser.type = JsonParserType.LAX
+
+
     def version_range = mc_version_range
     if (loader == "fabric") {
         version_range = JsonOutput.toJson(version_range.split(","))
@@ -134,7 +139,14 @@ processResources {
     }
     inputs.properties(properties)
 
-
+    filesMatching("${mod_id}-accesswidener-expansion.json5"){
+        def expansion = it.file
+        filesMatching("${mod_id}.accesswidener"){
+            new File(outputs.files.asPath,"${mod_id}.accesswidener").write(it.file.getText() + "\n" + parser.parse(expansion).join("\n"))
+            it.exclude()
+        }
+        it.exclude()
+    }
     if (loader == "neoforge" && stonecutter.eval(stonecutter.current.version, "<=1.20.4")){
         filesMatching("META-INF/neoforge.mods.toml"){
             it.copyTo(new File(outputs.files.asPath,"META-INF/mods.toml"))

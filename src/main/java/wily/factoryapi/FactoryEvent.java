@@ -24,13 +24,13 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 //? if >1.20.1 {
-/^import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
-^///?} else {
-import net.minecraftforge.network.NetworkEvent;
+//?} else {
+/^import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
-//?}
+^///?}
 //? if >=1.20.5 {
 /^import net.minecraftforge.network.payload.PayloadFlow;
 import net.minecraftforge.network.payload.PayloadProtocol;
@@ -270,10 +270,10 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                EventNetworkChannel NETWORK = /^? <=1.20.1 {^/NetworkRegistry./^?}^/ChannelBuilder.named(id.location()).networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).eventNetworkChannel();
+                EventNetworkChannel NETWORK = /^? <=1.20.1 {^//^NetworkRegistry.^//^?}^/ChannelBuilder.named(id.location())./^? if <=1.20.1 {^//^networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).^//^?}^/eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    NetworkEvent.Context source = p.getSource()/^? <=1.20.1 {^/.get()/^?}^/;
-                    if (/^? >1.20.1 {^//^p.getChannel().equals(id.location()) && ^//^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(source::getSender);
+                    var source = p.getSource()/^? <=1.20.1 {^//^.get()^//^?}^/;
+                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(source::getSender);
                     source.setPacketHandled(true);
                 });
                 //?} else {

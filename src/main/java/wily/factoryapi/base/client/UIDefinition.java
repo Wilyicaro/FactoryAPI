@@ -152,7 +152,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
         Stack<Double> values = new Stack<>();
         Stack<Character> operators = new Stack<>();
-
+        if (expression.startsWith("+") || expression.startsWith("-")) values.push(0d);
         for (int i = 0; i < chars.length; i++) {
             if (chars[i] == ' ')
                 continue;
