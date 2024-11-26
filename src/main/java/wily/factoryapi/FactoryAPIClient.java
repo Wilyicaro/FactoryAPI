@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -32,6 +33,7 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -255,8 +257,9 @@ public class FactoryAPIClient {
         //?} elif forge {
         /*//? if <1.20.5 {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
-        //?} else
-        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance().^//^? if <1.21.2 {^/getTimer/^?} else {^//^getDeltaTracker^//^?}^/()));
+        //?} else {
+        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(),Minecraft.getInstance()./^¹? if <1.21.2 {¹^/getTimer/^¹?} else {¹^//^¹getDeltaTracker¹^//^¹?}¹^/()));
+        ^///?}
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
          *///?} else
@@ -343,7 +346,7 @@ public class FactoryAPIClient {
                 }
             }));
          //?} else if forge || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::/^? if >=1.20.2 {^/getEntityRenderer/^?} else {^//^getRenderer^//^?}^/, e.getEntityModels(), new FactoryRenderLayerRegistry() {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(e::/^? if >=1.20.2 && forge {^//^getEntityRenderer^//^?} else {^/getRenderer/^?}^/, e.getEntityModels(), new FactoryRenderLayerRegistry() {
             @Override
             public <T extends LivingEntity, /^? if >=1.21.2 {^/ /^S extends LivingEntityRenderState, ^//^?}^/M extends EntityModel</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/>> void register(LivingEntityRenderer<T,/^? if >=1.21.2 {^/ /^S, ^//^?}^/ M> renderer, RenderLayer</^? if >=1.21.2 {^//^S^//^?} else {^/T/^?}^/, M> renderLayer) {
                 renderer.addLayer(renderLayer);

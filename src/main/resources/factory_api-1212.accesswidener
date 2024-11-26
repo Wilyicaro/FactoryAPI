@@ -1,0 +1,9 @@
+accessWidener   v2  named
+accessible field net/minecraft/world/level/lighting/LightEngine chunkSource Lnet/minecraft/world/level/chunk/LightChunkGetter;
+accessible field net/minecraft/world/level/lighting/LightEngine storage Lnet/minecraft/world/level/lighting/LayerLightSectionStorage;
+accessible method net/minecraft/world/level/lighting/LayerLightSectionStorage lightOnInSection (J)Z
+accessible method net/minecraft/world/level/lighting/LightEngine enqueueIncrease (JJ)V
+accessible field net/minecraft/nbt/CompoundTag tags Ljava/util/Map;
+accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
+extendable class net/minecraft/world/item/crafting/Ingredient
+accessible method net/minecraft/world/item/crafting/Ingredient <init> (Lnet/minecraft/core/HolderSet;)V
