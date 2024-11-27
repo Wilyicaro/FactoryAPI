@@ -13,6 +13,10 @@ stonecutter.registerChiseled tasks.register("chiseledPublishMods", stonecutter.c
     setGroup "project"
     ofTask "publishMods"
 }
+stonecutter.registerChiseled tasks.register("chiseledPublishToGitHubPackages", stonecutter.chiseled) {
+    setGroup "project"
+    ofTask "publishAllPublicationsToGitHubPackagesRepository"
+}
 
 stonecutter.parameters {
     def loader = node.property("loom.platform").toString()

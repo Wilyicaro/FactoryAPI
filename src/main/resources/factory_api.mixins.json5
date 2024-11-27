@@ -1,0 +1,44 @@
+{
+  "required": true,
+  "package": "wily.factoryapi.mixin.base",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    //? if fabric {
+    "fabric.ItemRendererMixin",
+    "fabric.LevelRendererMixin",
+    "fabric.ModelBlockRendererMixin",
+    //?} else if forge && >=1.21.2 {
+    /*"forge_1212.ModelDiscoveryMixin",
+    *///?}
+    "AbstractContainerScreenMixin",
+    "AbstractWidgetMixin",
+    "ClientInventoryMenuMixin",
+    "GuiGraphicsMixin",
+    "MinecraftMixin",
+    "ScreenMixin",
+    "SpriteContentsMixin",
+    "SpriteLoaderMixin",
+    "TextureAtlasMixin",
+    "TextureManagerMixin"
+  ],
+  "mixins": [
+    //? if fabric {
+    "fabric.BlockGetterMixin",
+    "fabric.BlockLightEngineMixin",
+    "fabric.ChunkAccessMixin",
+    "fabric.LightEngineMixin",
+    "fabric.LevelChunkMixin",
+    //?} else if neoforge {
+    /*"neoforge.BlockCapabilityMixin",
+    "neoforge.ItemCapabilityMixin",
+    *///?}
+    "ClientAbstractContainerMenuMixin",
+    "ClientItemMixin",
+    "GuiMixin",
+    "IngredientMixin",
+    "MinecraftServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

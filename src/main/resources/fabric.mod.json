@@ -23,8 +23,7 @@
     ]
   },
   "mixins": [
-    "factory_api-common.mixins.json",
-    "factory_api-fabric.mixins.json"
+    "factory_api.mixins.json"
   ],
   "depends": {
     "fabric": "*",
