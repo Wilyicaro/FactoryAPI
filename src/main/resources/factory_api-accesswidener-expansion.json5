@@ -1,7 +1,0 @@
-[
-  //? if >=1.21.2 {
-  /*"accessible method net/minecraft/world/item/crafting/Ingredient <init> (Lnet/minecraft/core/HolderSet;)V"
-  *///?} else {
-  "accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/util/stream/Stream;)V"
-  //?}
-]

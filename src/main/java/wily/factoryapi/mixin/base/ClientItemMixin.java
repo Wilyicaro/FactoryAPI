@@ -10,8 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 //? if forge {
-/*import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+/*import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 *///?} else if neoforge {
 /*import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 *///?}
