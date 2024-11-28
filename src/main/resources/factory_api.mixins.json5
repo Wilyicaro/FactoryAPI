@@ -19,7 +19,8 @@
     "SpriteContentsMixin",
     "SpriteLoaderMixin",
     "TextureAtlasMixin",
-    "TextureManagerMixin"
+    "TextureManagerMixin",
+    "ClientPacketListenerMixin"
   ],
   "mixins": [
     //? if fabric {
@@ -36,7 +37,8 @@
     "ClientItemMixin",
     "GuiMixin",
     "IngredientMixin",
-    "MinecraftServerMixin"
+    "MinecraftServerMixin",
+    "PlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

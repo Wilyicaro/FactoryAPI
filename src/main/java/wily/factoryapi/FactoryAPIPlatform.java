@@ -7,10 +7,12 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import io.netty.buffer.Unpooled;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.packs.repository.Pack;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.resources.ResourceLocation;
 //? if forge {
 /*import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -57,8 +59,12 @@ import wily.factoryapi.base.fabric.CraftyEnergyStorage;
 import wily.factoryapi.base.fabric.FabricEnergyStoragePlatform;
 import wily.factoryapi.base.fabric.FabricFluidStoragePlatform;
 import wily.factoryapi.base.fabric.FabricItemStoragePlatform;
+//? if >=1.20.4 {
+import net.fabricmc.fabric.impl.resource.loader.FabricResourcePackProfile;
+//?}
 //?} elif neoforge {
 /*import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.neoforge.capabilities.BlockCapability;
@@ -219,6 +225,9 @@ public interface FactoryAPIPlatform {
     static IEventBus getModEventBus(){
         return FMLJavaModLoadingContext.get().getModEventBus();
     }
+    static IEventBus getForgeEventBus(){
+        return MinecraftForge.EVENT_BUS;
+    }
     *///?} else if neoforge {
     /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder){
         return new RegisterListing.Holder<>() {
@@ -237,6 +246,9 @@ public interface FactoryAPIPlatform {
     }
     static IEventBus getModEventBus(){
         return ModLoadingContext.get().getActiveContainer().getEventBus();
+    }
+    static IEventBus getForgeEventBus(){
+        return NeoForge.EVENT_BUS;
     }
     *///?}
 
@@ -616,6 +628,9 @@ public interface FactoryAPIPlatform {
             *///?} else
             /*throw new AssertionError();*/
         }) : null;
+    }
+    static boolean isPackHidden(Pack pack) {
+        return /*? if fabric && >=1.20.4 {*/ ((FabricResourcePackProfile)pack).fabric_isHidden() /*?} else {*/ /*false*//*?}*/;
     }
 
 }

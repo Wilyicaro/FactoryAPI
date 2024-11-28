@@ -5,10 +5,12 @@ package wily.factoryapi.base.network;
 import net.minecraft.network.codec.StreamCodec;
 *///?}
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >1.20.1 {
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.chat.ComponentSerialization;
 //?}
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,12 +27,17 @@ import net.minecraftforge.network.PacketDistributor;
 *///?} elif neoforge {
 /*import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
@@ -39,7 +46,7 @@ import java.util.function.Supplier;
 
 public interface CommonNetwork {
     abstract class SecureExecutor implements Executor {
-        public abstract boolean isSecure();
+     public abstract boolean isSecure();
         final Collection<BooleanSupplier> queue = new ConcurrentLinkedQueue<>();
         public void executeAll(){
             queue.removeIf(BooleanSupplier::getAsBoolean);
@@ -55,11 +62,28 @@ public interface CommonNetwork {
         public void executeWhen(BooleanSupplier supplier){
             queue.add(supplier);
         }
+        public void executeNowIfPossible(BooleanSupplier supplier){
+            if (!supplier.getAsBoolean()) executeWhen(supplier);
+        }
+        static BooleanSupplier createBooleanRunnable(Runnable action, BooleanSupplier supplier){
+            return ()->{
+                boolean execute = supplier.getAsBoolean();
+                if (execute){
+                    action.run();
+                    return true;
+                }return false;
+            };
+        }
+        public void executeNowIfPossible(Runnable action, BooleanSupplier supplier){
+            executeNowIfPossible(createBooleanRunnable(action,supplier));
+        }
         public void clear(){
             queue.clear();
         }
 
     }
+
+    List<UUID> ENABLED_PLAYERS = new ArrayList<>();
 
     interface Identifier<T extends Payload>{
         ResourceLocation location();
@@ -68,6 +92,9 @@ public interface CommonNetwork {
         /*CustomPacketPayload.Type<T> type();
         StreamCodec<RegistryFriendlyByteBuf,T> codec();
         *///?}
+        static <T extends Payload> Identifier<T> create(ResourceLocation location, Supplier<T> decoder){
+            return create(location,b->decoder.get());
+        }
         static <T extends Payload> Identifier<T> create(ResourceLocation location, Function<PlayBuf,T> decoder){
             //? >=1.20.5 {
             /*CustomPacketPayload.Type<T> type = new CustomPacketPayload.Type<>(location);
@@ -111,8 +138,8 @@ public interface CommonNetwork {
         default void applyServer(Supplier<Player> player){
             apply(FactoryAPI.SECURE_EXECUTOR,player);
         }
-        default void applySided(Supplier<Player> player){
-            if (FactoryAPIPlatform.isClient()) applyClient();
+        default void applySided(boolean client, Supplier<Player> player){
+            if (client) applyClient();
             else applyServer(player);
         }
 
@@ -137,7 +164,32 @@ public interface CommonNetwork {
         }
         //?}
     }
+
+    abstract class EmptyPayload implements Payload{
+        private final Identifier<? extends Payload> identifier;
+
+        public EmptyPayload(Identifier<? extends Payload> identifier){
+            this.identifier = identifier;
+        }
+
+        @Override
+        public void encode(PlayBuf buf) {
+        }
+
+        @Override
+        public Identifier<? extends Payload> identifier() {
+            return identifier;
+        }
+    }
+
+    static void forceEnabledPlayer(ServerPlayer player, Runnable runnable){
+        ENABLED_PLAYERS.add(player.getUUID());
+        runnable.run();
+        ENABLED_PLAYERS.remove(player.getUUID());
+    }
+
     static <T extends CommonNetwork.Payload> void sendToPlayer(ServerPlayer serverPlayer, T packetHandler) {
+        if (!ENABLED_PLAYERS.contains(serverPlayer.getUUID())) return;
         //? if fabric {
         //? if <1.20.5 {
         FriendlyByteBuf buf = PacketByteBufs.create();
@@ -167,6 +219,7 @@ public interface CommonNetwork {
     }
 
     static <T extends CommonNetwork.Payload> void sendToServer(T packetHandler) {
+        if (!FactoryAPIClient.hasModOnServer || !FactoryAPIPlatform.isClient()) return;
         //? if fabric {
         //? if <1.20.5 {
         FriendlyByteBuf buf = PacketByteBufs.create();
@@ -178,7 +231,7 @@ public interface CommonNetwork {
         /*//? if <1.20.5 {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
-        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^? if <=1.20.1 {^/ /^Pair.of(buf,0)^//^?} else {^/ buf/^?}^/, packetHandler.identifier().location()).getThis());
+        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_SERVER.buildPacket(/^? if <=1.20.1 {^/ /^Pair.of(buf,0)^//^?} else {^/ buf/^?}^/, packetHandler.identifier().location()).getThis());
         //?} else
         /^PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));^/
         *///?} elif neoforge {
@@ -189,5 +242,17 @@ public interface CommonNetwork {
         *///?} else {
         /*throw new AssertionError();
          *///?}
+    }
+    static void encodeComponent(PlayBuf buf, Component component){
+        /*? if >=1.20.5 {*//* ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) *//*?} else {*/ buf.get().writeComponent(component)/*?}*/;
+    }
+    static Component decodeComponent(PlayBuf buf){
+        return /*? if >=1.20.5 {*//* ComponentSerialization.STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readComponent()/*?}*/;
+    }
+    static void encodeItemStack(PlayBuf buf, ItemStack stack){
+        /*? if >=1.20.5 {*//* ItemStack.OPTIONAL_STREAM_CODEC.encode(buf.get(),stack) *//*?} else {*/ buf.get().writeItem(stack)/*?}*/;
+    }
+    static ItemStack decodeItemStack(PlayBuf buf){
+        return /*? if >=1.20.5 {*//* ItemStack.OPTIONAL_STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readItem()/*?}*/;
     }
 }

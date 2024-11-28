@@ -12,6 +12,8 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.mixin.transfer.BucketItemAccessor;
+import net.minecraft.server.packs.repository.Pack;
 import team.reborn.energy.api.EnergyStorage;
 //?} else if forge {
 /*import net.minecraftforge.common.SoundActions;
@@ -39,6 +41,8 @@ import wily.factoryapi.base.FactoryStorage;
 import wily.factoryapi.base.IFactoryItem;
 import wily.factoryapi.base.IPlatformItemFluidHandler;
 import wily.factoryapi.util.FluidInstance;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.level.material.Fluid;
 
 public interface ItemContainerPlatform {
 
@@ -54,6 +58,18 @@ public interface ItemContainerPlatform {
     }
 
     static boolean isBlockItem(ItemStack s){return s.getItem() instanceof BlockItem;}
+
+  
+    static Fluid getBucketFluid(BucketItem item) {
+        //? if fabric {
+        return ((BucketItemAccessor)item).fabric_getFluid();
+        //?} elif forge || neoforge && <1.21 {
+        /*return item.getFluid();
+         *///?} else if neoforge {
+        /*return item.content;
+        *///?} else
+        /*throw new AssertionError();*/
+    }
 
     static boolean isFluidContainer(ItemStack stack){
         //? if fabric {

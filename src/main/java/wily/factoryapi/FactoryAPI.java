@@ -1,7 +1,6 @@
 package wily.factoryapi;
 
 
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 //? if fabric {
 import wily.factoryapi.base.fabric.FabricStorages;
@@ -17,20 +16,19 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 *///?} else if neoforge {
-/*import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.common.Mod;
+/*import net.neoforged.fml.common.Mod;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 *///?}
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.*;
 import wily.factoryapi.base.network.CommonNetwork;
 import wily.factoryapi.base.network.FactoryAPICommand;
+import wily.factoryapi.base.network.HelloPayload;
 import wily.factoryapi.init.FactoryRegistries;
+
 //? if forge || neoforge
 /*@Mod(FactoryAPI.MOD_ID)*/
 public class FactoryAPI {
@@ -46,6 +44,7 @@ public class FactoryAPI {
 
     public FactoryAPI(){
         init();
+
         //? if forge {
         /*MinecraftForge.EVENT_BUS.addGenericListener(AttachCapabilitiesEvent.class, event->{
             AttachCapabilitiesEvent<?> e = (AttachCapabilitiesEvent<?>) event;
@@ -80,12 +79,19 @@ public class FactoryAPI {
 
     public static void init() {
         LOGGER.info("Initializing FactoryAPI!");
-        FactoryEvent.registerPayload(r-> r.register( false, FactoryAPICommand.UIDefinitionPayload.ID));
+        FactoryEvent.registerPayload(r->{
+            r.register( false, FactoryAPICommand.UIDefinitionPayload.ID);
+            r.register( false, HelloPayload.ID_S2C);
+            r.register( true, HelloPayload.ID_C2S);
+        });
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
         FactoryRegistries.init();
         FactoryIngredient.init();
         FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get()));
+        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->CommonNetwork.forceEnabledPlayer(sp,()->CommonNetwork.sendToPlayer(sp, HelloPayload.createS2C())));
+        FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.remove(sp.getUUID()));
+        FactoryEvent.serverStopped(s->SECURE_EXECUTOR.clear());
         //? if fabric {
         FabricStorages.registerDefaultStorages();
         //?}

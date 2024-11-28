@@ -5,10 +5,10 @@ package wily.factoryapi;
 /*import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 *///?}
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -19,6 +19,7 @@ import net.fabricmc.loader.api.FabricLoader;
 //?} elif forge {
 /*import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.*;
+import net.minecraftforge.event.server.*;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -41,6 +42,7 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
+import net.neoforged.neoforge.event.server.*;
 //? if <1.20.5 {
 /^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
@@ -52,7 +54,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 *///?}
 
 //? if >1.20.1
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 //? if >=1.20.5 {
 /*import net.minecraft.core.component.DataComponentType;
@@ -61,7 +62,7 @@ import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.repository.KnownPack;
 *///?}
-import net.minecraft.SharedConstants;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.PackSource;
 import com.mojang.brigadier.CommandDispatcher;
@@ -76,15 +77,12 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.Item;
 import org.apache.logging.log4j.util.TriConsumer;
 import wily.factoryapi.base.network.CommonNetwork;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -112,8 +110,13 @@ public class FactoryEvent<T> {
     }
 
     public interface ServerSave {
-        FactoryEvent<ServerSave> EVENT = new FactoryEvent<>(e-> ((server, log, flush, force) -> e.invokeAll(t->t.run(server,log,flush,force))));
+        FactoryEvent<ServerSave> EVENT = new FactoryEvent<>(e-> ((server, log, flush, force)-> e.invokeAll(t->t.run(server,log,flush,force))));
         void run(MinecraftServer server, boolean log, boolean flush, boolean force);
+    }
+
+    public interface PlayerEvent extends Consumer<ServerPlayer>{
+        FactoryEvent<PlayerEvent> JOIN_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
+        FactoryEvent<PlayerEvent> REMOVED_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
     }
 
 
@@ -125,6 +128,33 @@ public class FactoryEvent<T> {
         *///?} elif neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(FMLCommonSetupEvent.class, e-> run.run());
          *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void serverStarted(Consumer<MinecraftServer> apply) {
+        //? if fabric {
+        ServerLifecycleEvents.SERVER_STARTED.register(apply::accept);
+        //?} elif forge {
+        /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStartedEvent.class, e-> apply.accept(e.getServer()));
+        *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void serverStopping(Consumer<MinecraftServer> apply) {
+        //? if fabric {
+        ServerLifecycleEvents.SERVER_STOPPING.register(apply::accept);
+         //?} elif forge {
+        /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStoppingEvent.class, e-> apply.accept(e.getServer()));
+        *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void serverStopped(Consumer<MinecraftServer> apply) {
+        //? if fabric {
+        ServerLifecycleEvents.SERVER_STOPPED.register(apply::accept);
+         //?} elif forge {
+        /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStoppedEvent.class, e-> apply.accept(e.getServer()));
+        *///?} else
         /*throw new AssertionError();*/
     }
 
@@ -197,14 +227,18 @@ public class FactoryEvent<T> {
         *///?} else
         /*throw new AssertionError();*/
     }
+
     @FunctionalInterface
     public interface PackRegistry {
         void register(String path, ResourceLocation name, Component component, Pack.Position position, boolean enabledByDefault);
         default void register(String path, ResourceLocation name, boolean enabledByDefault){
             register(path,name,Component.translatable(name.getNamespace() + ".builtin." + name.getPath()), Pack.Position.TOP,enabledByDefault);
         }
+        default void registerResourcePack(ResourceLocation location, boolean enabledByDefault){
+            register("resourcepacks/"+location.getPath(),location,enabledByDefault);
+        }
         default void registerResourcePack(String pathName, boolean enabledByDefault){
-            register("resourcepacks/"+pathName,FactoryAPI.createVanillaLocation(pathName),enabledByDefault);
+            registerResourcePack(FactoryAPI.createVanillaLocation(pathName),enabledByDefault);
         }
     }
     public static Pack createBuiltInPack(ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
@@ -273,7 +307,7 @@ public class FactoryEvent<T> {
                 EventNetworkChannel NETWORK = /^? <=1.20.1 {^//^NetworkRegistry.^//^?}^/ChannelBuilder.named(id.location())./^? if <=1.20.1 {^//^networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).^//^?}^/eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
                     var source = p.getSource()/^? <=1.20.1 {^//^.get()^//^?}^/;
-                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(source::getSender);
+                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^? if <=1.20.1 {^//^p.getSource().get().getDirection().getReceptionSide().isClient()^//^?} else {^/ source.isClientSide()/^?}^/, source::getSender);
                     source.setPacketHandled(true);
                 });
                 //?} else {
@@ -303,7 +337,7 @@ public class FactoryEvent<T> {
     }
 
     //? if >=1.20.5 {
-    /*public <C> void setItemComponent(Item item, DataComponentType<C> type, C value){
+    /*public static <C> void setItemComponent(Item item, DataComponentType<C> type, C value){
         //? if fabric {
         DefaultItemComponentEvents.MODIFY.register(c->  c.modify(item, bc-> bc.set(type,value)));
         //?} else if forge {

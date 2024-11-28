@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "${mod_id}",
   "version": "${version}",
-  "name": "Factory API",
+  "name": "${mod_name}",
   "description": "${mod_description}",
   "authors": [
     "${mod_authors}"
@@ -23,7 +23,7 @@
     ]
   },
   "mixins": [
-    "factory_api.mixins.json"
+    "${mod_id}.mixins.json"
   ],
   "depends": {
     "fabric": "*",
