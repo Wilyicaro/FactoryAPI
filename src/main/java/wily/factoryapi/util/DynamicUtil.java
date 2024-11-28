@@ -31,12 +31,11 @@ public class DynamicUtil {
     public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, Minecraft.getInstance().level.registryAccess())));
 
     public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean /*? if <1.20.5 {*/allowNbt/*?} else {*/ /*allowComponents *//*?}*/){
-        Dynamic<?> dynamic = convertToRegistryIfPossible(element);
-        return dynamic.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElse(()-> DYNAMIC_ITEMS.computeIfAbsent(dynamic, d-> d.get("item").asString().result().or(()->d.asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
+        return element.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElse(()-> DYNAMIC_ITEMS.computeIfAbsent(element, d-> d.get("item").asString().result().or(()->d.asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
             //? if <1.20.5 {
-            if (allowNbt) dynamic.get("nbt").result().flatMap(d1->CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
+            if (allowNbt) element.get("nbt").result().flatMap(d1->CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
             //?} else
-            /*if (allowComponents) dynamic.get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
+            /*if (allowComponents) convertToRegistryIfPossible(element).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
             return i;
         }).orElse(null)));
     }
