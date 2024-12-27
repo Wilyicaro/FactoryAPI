@@ -5,7 +5,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
-import wily.factoryapi.util.ScreenUtil;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.awt.*;
 import java.util.function.BiConsumer;
@@ -66,7 +66,7 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     @Override
     public boolean mouseClicked(double d, double e, int i) {
         if (inMouseLimit(d,e) && visible.get()) {
-            ScreenUtil.playButtonDownSound(grave);
+            FactoryScreenUtil.playButtonDownSound(grave);
             if (selected != null) selected = !selected;
             onPress.accept((D) this,i);
             return true;
@@ -95,7 +95,7 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
         }
     }
     public ScreenRectangle getRectangle() {
-        return ScreenUtil.rect2iToRectangle(this);
+        return FactoryScreenUtil.rect2iToRectangle(this);
     }
     public boolean isSelected(){
         return selected == Boolean.TRUE;

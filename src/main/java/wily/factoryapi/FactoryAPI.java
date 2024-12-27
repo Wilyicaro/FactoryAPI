@@ -1,10 +1,16 @@
 package wily.factoryapi;
 
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.21.2 {
+/*import net.minecraft.util.profiling.Profiler;
+*///?}
+import net.minecraft.util.profiling.ProfilerFiller;
 //? if fabric {
 import wily.factoryapi.base.fabric.FabricStorages;
+import net.fabricmc.loader.api.FabricLoader;
 //?} else if forge {
 /*import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,8 +22,12 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.LoadingModList;
 *///?} else if neoforge {
 /*import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -95,11 +105,16 @@ public class FactoryAPI {
         FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get()));
         FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->CommonNetwork.forceEnabledPlayer(sp,()->CommonNetwork.sendToPlayer(sp, HelloPayload.createS2C())));
         FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.remove(sp.getUUID()));
-        FactoryEvent.serverStopped(s->SECURE_EXECUTOR.clear());
+        FactoryEvent.serverStopped(s-> SECURE_EXECUTOR.clear());
         //? if fabric {
         FabricStorages.registerDefaultStorages();
         //?}
     }
+
+    public static ProfilerFiller getProfiler(){
+        return /*? if <1.21.2 {*/Minecraft.getInstance().getProfiler/*?} else {*//*Profiler.get*//*?}*/();
+    }
+
     public static ResourceLocation createLocation(String namespace, String path){
         return ResourceLocation.tryBuild(namespace,path);
     }
@@ -125,6 +140,24 @@ public class FactoryAPI {
         /*return Loader.NEOFORGE;
         *///?} else
         /*return null;*/
+    }
+
+    public static boolean isLoadingMod(String modId) {
+        //? if fabric {
+        return isModLoaded(modId);
+        //?} else if forge || neoforge {
+        /*return LoadingModList.get().getModFileById(modId) != null;
+         *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static boolean isModLoaded(String modId) {
+        //? if fabric {
+        return FabricLoader.getInstance().isModLoaded(modId);
+        //?} else if forge || neoforge {
+        /*return ModList.get().isLoaded(modId);
+         *///?} else
+        /*throw new AssertionError();*/
     }
 
     public enum Loader {

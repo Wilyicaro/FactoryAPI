@@ -34,9 +34,9 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
 ^///?}
 //? if >=1.20.5 {
-/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadFlow;
 import net.minecraftforge.network.payload.PayloadProtocol;
-^///?}
+//?}
 *///?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -44,14 +44,15 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.server.*;
+import net.neoforged.bus.api.EventPriority;
 //? if <1.20.5 {
-/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-^///?} else {
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+//?} else {
+/^import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-//?}
+^///?}
 *///?}
 
 //? if >1.20.1
@@ -79,6 +80,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -121,6 +123,7 @@ public class FactoryEvent<T> {
     }
 
     public interface PlayerEvent extends Consumer<ServerPlayer>{
+        FactoryEvent<Consumer<PlayerList>> RELOAD_RESOURCES_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
         FactoryEvent<PlayerEvent> JOIN_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
         FactoryEvent<PlayerEvent> REMOVED_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
     }
@@ -128,11 +131,19 @@ public class FactoryEvent<T> {
 
     public static void setup(Runnable run) {
         //? if fabric {
+        run.run();
         CommonLifecycleEvents.TAGS_LOADED.register((s, t)-> run.run());
-        //?} elif forge {
+        //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, FMLCommonSetupEvent.class, e-> run.run());
-        *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(FMLCommonSetupEvent.class, e-> run.run());
+        *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static void tagsLoaded(Runnable run) {
+        //? if fabric {
+        CommonLifecycleEvents.TAGS_LOADED.register((s, t)-> run.run());
+        //?} elif forge || neoforge {
+        /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, TagsUpdatedEvent.class, e-> run.run());
          *///?} else
         /*throw new AssertionError();*/
     }
@@ -140,7 +151,7 @@ public class FactoryEvent<T> {
     public static void serverStarted(Consumer<MinecraftServer> apply) {
         //? if fabric {
         ServerLifecycleEvents.SERVER_STARTED.register(apply::accept);
-        //?} elif forge {
+        //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStartedEvent.class, e-> apply.accept(e.getServer()));
         *///?} else
         /*throw new AssertionError();*/
@@ -149,7 +160,7 @@ public class FactoryEvent<T> {
     public static void serverStopping(Consumer<MinecraftServer> apply) {
         //? if fabric {
         ServerLifecycleEvents.SERVER_STOPPING.register(apply::accept);
-         //?} elif forge {
+         //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStoppingEvent.class, e-> apply.accept(e.getServer()));
         *///?} else
         /*throw new AssertionError();*/
@@ -158,7 +169,7 @@ public class FactoryEvent<T> {
     public static void serverStopped(Consumer<MinecraftServer> apply) {
         //? if fabric {
         ServerLifecycleEvents.SERVER_STOPPED.register(apply::accept);
-         //?} elif forge {
+         //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, ServerStoppedEvent.class, e-> apply.accept(e.getServer()));
         *///?} else
         /*throw new AssertionError();*/
@@ -172,8 +183,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -187,8 +198,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -260,25 +271,16 @@ public class FactoryEvent<T> {
     public static void registerBuiltInPacks(Consumer<PackRegistry> registry){
         //? if fabric {
          registry.accept(((path, name, component, position, enabledByDefault) -> ResourceManagerHelperImpl.registerBuiltinResourcePack(name,path, FabricLoader.getInstance().getModContainer(name.getNamespace()).orElseThrow(), component, enabledByDefault ? ResourcePackActivationType.DEFAULT_ENABLED : ResourcePackActivationType.NORMAL)));
-         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
-            Path resourcePath = ModList.get().getModFileById(name.getPath()).getFile().findResource(path);
+         //?} elif forge || neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
+            Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
                 Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
-        *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
-            Path resourcePath = ModList.get().getModFileById(name.getPath()).getFile().findResource(path);
-            for (PackType type : PackType.values()) {
-                if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
-                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
-            }
-        }));
-         *///?} else
+        *///?} else
         /*throw new AssertionError();*/
     }
 
@@ -297,10 +299,10 @@ public class FactoryEvent<T> {
                 //?} else {
                 /*if (c2s) {
                     PayloadTypeRegistry.playC2S().register(id.type(),id.codec());
-                    ServerPlayNetworking.registerGlobalReceiver(id.type(), (payload, context)-> payload.apply(FactoryAPI.SECURE_EXECUTOR, context::player));
+                    ServerPlayNetworking.registerGlobalReceiver(id.type(), (payload, context)-> payload.applyServer(context::player));
                 }else {
                     PayloadTypeRegistry.playS2C().register(id.type(),id.codec());
-                    if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) ClientPlayNetworking.registerGlobalReceiver(id.type(), (payload, context) -> payload.apply(FactoryAPIClient.SECURE_EXECUTOR,context::player));
+                    if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) ClientPlayNetworking.registerGlobalReceiver(id.type(), (payload, context) -> payload.applyClient());
                 }
                 *///?}
             }
@@ -310,31 +312,31 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                EventNetworkChannel NETWORK = /^? <=1.20.1 {^//^NetworkRegistry.^//^?}^/ChannelBuilder.named(id.location())./^? if <=1.20.1 {^//^networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).^//^?}^/eventNetworkChannel();
+                /^EventNetworkChannel NETWORK = /^¹? <=1.20.1 {¹^//^¹NetworkRegistry.¹^//^¹?}¹^/ChannelBuilder.named(id.location())./^¹? if <=1.20.1 {¹^//^¹networkProtocolVersion(()->"1").serverAcceptedVersions(s-> !s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).clientAcceptedVersions(s->!s.equals(NetworkRegistry.ABSENT.version()) && Integer.parseInt(s) >= 1).¹^//^¹?}¹^/eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    var source = p.getSource()/^? <=1.20.1 {^//^.get()^//^?}^/;
-                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^? if <=1.20.1 {^//^p.getSource().get().getDirection().getReceptionSide().isClient()^//^?} else {^/ source.isClientSide()/^?}^/, source::getSender);
+                    var source = p.getSource()/^¹? <=1.20.1 {¹^//^¹.get()¹^//^¹?}¹^/;
+                    if (/^¹? >1.20.1 {¹^/p.getChannel().equals(id.location()) && /^¹?}¹^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^¹? if <=1.20.1 {¹^//^¹p.getSource().get().getDirection().getReceptionSide().isClient()¹^//^¹?} else {¹^/ source.isClientSide()/^¹?}¹^/, source::getSender);
                     source.setPacketHandled(true);
                 });
-                //?} else {
-                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location().getNamespace()).payloadChannel().play();
+                ^///?} else {
+                PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location()).payloadChannel().play();
                 if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
                 else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
-                ^///?}
+                //?}
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^/RegisterPayloadHandlerEvent/^?} else {^/ /^RegisterPayloadHandlersEvent^//^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
                 public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
-                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    /^? if <1.20.5 {^/IPayloadRegistrar/^?} else {^/ /^PayloadRegistrar^//^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
                     //? if <1.20.5 {
-                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
-                    ^///?} else {
-                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.apply(arg.flow().isClientbound() ? FactoryAPIClient.SECURE_EXECUTOR : FactoryAPI.SECURE_EXECUTOR,()->arg.flow().isClientbound() ? FactoryAPIClient.getClientPlayer() : arg.player().orElse(null)));
+                    //?} else {
+                    /^if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
                     else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
-                    //?}
+                    ^///?}
                 }
             });
         });

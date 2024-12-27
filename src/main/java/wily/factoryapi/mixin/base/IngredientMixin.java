@@ -1,20 +1,28 @@
 package wily.factoryapi.mixin.base;
 
 import net.minecraft.core.HolderSet;
+//? if >=1.21.2 {
+/*import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+*///?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import wily.factoryapi.base.FactoryIngredient;
 import wily.factoryapi.base.network.CommonNetwork;
+
+import java.util.Optional;
+import java.util.function.Function;
 
 @Mixin(Ingredient.class)
 public abstract class IngredientMixin implements FactoryIngredient {
     //? if >=1.21.2 {
     /*@Shadow @Final protected HolderSet<Item> values;
+    @Mutable
+    @Shadow @Final public static StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> OPTIONAL_CONTENTS_STREAM_CODEC;
     @Unique
     private ItemStack[] stacks;
     *///?} else
@@ -45,4 +53,11 @@ public abstract class IngredientMixin implements FactoryIngredient {
     public int getCount() {
         return 1;
     }
+
+    //? if >=1.21.2 && forge {
+    /*@Redirect(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/world/item/crafting/Ingredient;OPTIONAL_CONTENTS_STREAM_CODEC:Lnet/minecraft/network/codec/StreamCodec;"))
+    private static void fixOptionalIngredientStreamCodec(StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> value){
+        OPTIONAL_CONTENTS_STREAM_CODEC = StreamCodec.of((b, o)-> b.writeOptional(o,(b1,i)->Ingredient.CONTENTS_STREAM_CODEC.encode(b,i)), b-> b.readOptional(b1->Ingredient.CONTENTS_STREAM_CODEC.decode(b)));
+    }
+    *///?}
 }

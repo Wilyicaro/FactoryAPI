@@ -7,3 +7,5 @@ accessible field net/minecraft/nbt/CompoundTag tags Ljava/util/Map;
 accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 extendable class net/minecraft/world/item/crafting/Ingredient
 accessible method net/minecraft/world/item/crafting/Ingredient <init> (Lnet/minecraft/core/HolderSet;)V
+accessible field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
+mutable field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;

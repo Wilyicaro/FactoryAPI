@@ -1,5 +1,5 @@
 //? if neoforge {
-/*package wily.factoryapi.mixin.common.neoforge;
+/*package wily.factoryapi.mixin.base.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +20,7 @@ import wily.factoryapi.base.IPlatformHandler;
 
 @Mixin(BlockCapability.class)
 public class BlockCapabilityMixin {
-    @Inject(method = "getCapability", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getCapability", at = @At("RETURN"), cancellable = true, remap = false)
     public void getCapability(Level level, BlockPos pos, @Nullable BlockState state, @Nullable BlockEntity blockEntity, Object context, CallbackInfoReturnable<Object> cir) {
         if (cir.getReturnValue() == null && blockEntity instanceof IFactoryStorage be && context instanceof Direction dir){
             FactoryStorage<?> storage = FactoryAPIPlatform.BLOCK_CAPABILITY_MAP.get(this);

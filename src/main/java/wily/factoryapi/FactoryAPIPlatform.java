@@ -187,9 +187,9 @@ public interface FactoryAPIPlatform {
         return craftyStorage;
         //?} elif forge {
         /*//? if <1.20.5 {
-        return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
-        //?} else
-        /^return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;^/
+        /^return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;
         *///?} elif neoforge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
         *///?} else
@@ -337,28 +337,6 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
-    enum Loader {
-        FABRIC,FORGE,NEOFORGE;
-        public boolean isForgeLike(){
-            return this == FORGE || this == NEOFORGE;
-        }
-        public boolean isFabric(){
-            return this == FABRIC;
-        }
-    }
-
-    static Loader getLoader() {
-        //? if fabric {
-        return Loader.FABRIC;
-        //?} elif forge {
-        /*return Loader.FORGE;
-        *///?} elif neoforge {
-        /*return Loader.NEOFORGE;
-        *///?} else
-        /*return null;*/
-    }
-
-
     static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> void registerByClassArgumentType(Class<A> infoClass, I argumentTypeInfo) {
         //? if fabric {
         ArgumentTypesAccessor.fabric_getClassMap().put(infoClass,argumentTypeInfo);
@@ -473,26 +451,8 @@ public interface FactoryAPIPlatform {
         return MOD_INFOS.values();
     }
 
-    static boolean isLoadingMod(String modId) {
-        //? if fabric {
-        return isModLoaded(modId);
-        //?} else if forge || neoforge {
-        /*return LoadingModList.get().getModFileById(modId) != null;
-         *///?} else
-        /*throw new AssertionError();*/
-    }
-
-    static boolean isModLoaded(String modId) {
-        //? if fabric {
-        return FabricLoader.getInstance().isModLoaded(modId);
-        //?} else if forge || neoforge {
-        /*return ModList.get().isLoaded(modId);
-         *///?} else
-        /*throw new AssertionError();*/
-    }
-
     static ModInfo getModInfo(String modId) {
-        return isModLoaded(modId) ? MOD_INFOS.computeIfAbsent(modId,s-> {
+        return FactoryAPI.isModLoaded(modId) ? MOD_INFOS.computeIfAbsent(modId, s-> {
             //? if fabric {
             return new ModInfo() {
                 Optional<ModContainer> opt = FabricLoader.getInstance().getModContainer(modId);

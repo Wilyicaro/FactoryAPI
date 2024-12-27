@@ -25,7 +25,11 @@ import java.util.function.Function;
 public interface FactoryGuiGraphics {
     Map<TextureAtlasSprite, Map<String,ResourceLocation>> spriteTilesCache = new ConcurrentHashMap<>();
 
-    Accessor accessor();
+    GuiGraphics context();
+
+    MultiBufferSource.BufferSource getBufferSource();
+    void pushBufferSource(MultiBufferSource.BufferSource bufferSource);
+    void popBufferSource();
 
     static FactoryGuiGraphics of(GuiGraphics guiGraphics) {
         return ((Accessor) guiGraphics).getFactoryGuiGraphics();
@@ -34,6 +38,7 @@ public interface FactoryGuiGraphics {
     static GuiSpriteManager getSprites(){
         return /*? if >1.20.1 {*/ Minecraft.getInstance().getGuiSprites()/*?} else {*//*FactoryAPIClient.sprites*//*?}*/;
     }
+
     void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
 
     void blit(ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
@@ -45,6 +50,14 @@ public interface FactoryGuiGraphics {
     void blitSprite(ResourceLocation resourceLocation, int x, int y, int width, int height);
 
     void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height);
+
+    void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height);
+
+    void blit(int x, int y, int z, int width, int height, TextureAtlasSprite textureAtlasSprite);
+
+    default void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
+        this.blitSprite(resourceLocation, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
+    }
 
     //? if <1.20.2 {
     /*default void blitNineSlicedSprite(TextureAtlasSprite textureAtlasSprite, GuiSpriteScaling.NineSlice nineSlice, int x, int y, int z, int width, int height) {
@@ -75,19 +88,7 @@ public interface FactoryGuiGraphics {
             this.blitTiledSprite(textureAtlasSprite, x + width - o, y + p, z, n, height - q - p, nineSlice.width() - o, p, o, nineSlice.height() - q - p, nineSlice.width(), nineSlice.height());
         }
     }
-    default void blitSprite(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, int n, int o, int p) {
-        this.blitSprite(resourceLocation, i, j, k, l, m, n, 0, o, p);
-    }
 
-    default void blitSprite(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
-        TextureAtlasSprite textureAtlasSprite = getSprites().getSprite(resourceLocation);
-        GuiSpriteScaling guiSpriteScaling = getSprites().getSpriteScaling(textureAtlasSprite);
-        if (guiSpriteScaling instanceof GuiSpriteScaling.Stretch) {
-            this.blitSprite(textureAtlasSprite, i, j, k, l, m, n, o, p, q);
-        } else {
-            this.blitSprite(textureAtlasSprite, m, n, o, p, q);
-        }
-    }
     void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q);
 
     void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m);
@@ -112,7 +113,13 @@ public interface FactoryGuiGraphics {
                     int height = (int)Math.ceil(q * image.getHeight() / (double) s);
                     NativeImage tileImage = new NativeImage(width, height, false);
                     image.copyRect(tileImage,  n * image.getWidth() / r, o * image.getHeight() / s, 0, 0, width, height, false, false);
+                    //? if <1.21.4 {
                     return minecraft.getTextureManager().register("tile", new DynamicTexture(tileImage));
+                    //?} else {
+                    /*ResourceLocation tileLocation = opt.get().withPrefix("_"+string);
+                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(tileImage));
+                    return tileLocation;
+                    *///?}
                 }
             } catch (IOException e) {
                 FactoryAPI.LOGGER.warn(e.getMessage());
@@ -122,13 +129,19 @@ public interface FactoryGuiGraphics {
         //? if <1.21.2 {
         blit(tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q);
          //?} else
-        /*accessor().self().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
+        /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
     }
+    void setColor(int color);
     void setColor(float r, float g, float b, float a);
     float[] getColor();
     default void clearColor(){
         setColor(1.0f,1.0f,1.0f,1.0f);
     }
+
+    void disableDepthTest();
+
+    void enableDepthTest();
+
     interface AtlasAccessor {
         static AtlasAccessor of(TextureAtlas atlas){
             return (AtlasAccessor) atlas;
@@ -137,10 +150,6 @@ public interface FactoryGuiGraphics {
     }
     interface Accessor {
         FactoryGuiGraphics getFactoryGuiGraphics();
-        default GuiGraphics self(){
-            return (GuiGraphics) this;
-        }
-        MultiBufferSource.BufferSource getBufferSource();
     }
 
 }

@@ -1,5 +1,5 @@
 //? if neoforge {
-/*package wily.factoryapi.mixin.common.neoforge;
+/*package wily.factoryapi.mixin.base.neoforge;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.ItemCapability;
@@ -12,7 +12,7 @@ import wily.factoryapi.base.*;
 
 @Mixin(ItemCapability.class)
 public class ItemCapabilityMixin {
-    @Inject(method = "getCapability", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getCapability", at = @At("RETURN"), cancellable = true, remap = false)
     public void getCapability(ItemStack stack, Object context, CallbackInfoReturnable<Object> cir) {
         if (cir.getReturnValue() == null && stack.getItem() instanceof IFactoryItem item){
             FactoryStorage<?> storage = FactoryAPIPlatform.ITEM_CAPABILITY_MAP.get(this);

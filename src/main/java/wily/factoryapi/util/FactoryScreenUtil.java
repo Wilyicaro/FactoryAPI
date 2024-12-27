@@ -11,6 +11,7 @@ import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
@@ -22,14 +23,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.IFactoryItem;
 import wily.factoryapi.base.client.IFactoryBlockEntityWLRenderer;
+import wily.factoryapi.base.client.IFactoryItemClientExtension;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ScreenUtil {
+public class FactoryScreenUtil {
+    private static final Minecraft mc = Minecraft.getInstance();
+
 
     public static float getRed(int color) {
         return (color >> 16 & 0xFF) / 255.0F;
@@ -47,10 +52,17 @@ public class ScreenUtil {
         return (color >> 24 & 0xFF) / 255.0F;
     }
 
-    private static final Minecraft mc = Minecraft.getInstance();
+    public static int colorFromFloat(float r, float g, float b, float a) {
+        return (int)(a * 255f) << 24 | (int)(r * 255f) << 16 | (int)(g * 255f) << 8 | (int)(b * 255f);
+    }
 
+    public static int colorFromFloat(float[] rgba) {
+        return colorFromFloat(rgba.length == 0 ? 0 : rgba[0], rgba.length <= 1 ? 0 : rgba[1], rgba.length <= 2 ? 0 : rgba[2], rgba.length <= 3 ? 0 : rgba[3]);
+    }
 
-
+    public static float[] rgbaToFloat(int rgba) {
+        return new float[]{getRed(rgba),getGreen(rgba),getBlue(rgba),getAlpha(rgba)};
+    }
 
     public static void drawString(PoseStack stack, String text, int x, int y, int color, boolean shadow) {
         Font font = mc.font;
@@ -126,16 +138,14 @@ public class ScreenUtil {
     public static void renderScaled(PoseStack stack, String text, int x, int y, float scale, int color, boolean shadow) {
         prepTextScale(stack, m -> drawString(stack, text, 0, 0, color, shadow), x, y, scale);
     }
-    public static BakedModel getItemStackModel(ItemRenderer itemRenderer,ItemStack stack){
-        return itemRenderer.getModel(stack,null,null,1);
-    }
+
     public static ScreenRectangle rect2iToRectangle(Rect2i rect){
         return new ScreenRectangle(new ScreenPosition(rect.getX(),rect.getY()),rect.getWidth(),rect.getHeight());
     }
+
     public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
-        ItemRenderer itemRenderer = mc.getItemRenderer();
         ItemStack stack = state.getBlock().asItem().getDefaultInstance();
-        BakedModel bakedModel = getItemStackModel(itemRenderer,stack);
+        BakedModel bakedModel = mc.getBlockRenderer().getBlockModel(state);
         graphics.pose().pushPose();
         graphics.pose().translate(i + 8F, j + 8F, 250F);
         graphics.pose().scale(1.0F, -1.0F, 1.0F);
@@ -143,26 +153,24 @@ public class ScreenUtil {
         graphics.pose().scale(scaleX, scaleY, 0.5F);
         graphics.pose().mulPose(Axis.XP.rotationDegrees(rotateX));
         graphics.pose().mulPose(Axis.YP.rotationDegrees(rotateY));
+        graphics.pose().translate(-0.5f, -0.5f, -0.5f);
         Lighting.setupForFlatItems();
-        Consumer<BakedModel> defaultRender = (b)->itemRenderer.render(stack, ItemDisplayContext.NONE, false, graphics.pose(), FactoryGuiGraphics.of(graphics).accessor().getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY,b);
-        if (bakedModel.isCustomRenderer()){
-            //? if <1.20.5 {
-            stack.getOrCreateTag().put("BlockEntityTag", be.getUpdateTag());
-            //?} else {
-            /*be.saveToItem(stack,Minecraft.getInstance().level.registryAccess());
-            *///?}
-            if (state.getBlock().asItem() instanceof IFactoryItem item) {
-                bakedModel.getTransforms().getTransform(ItemDisplayContext.NONE).apply(false, graphics.pose());
-                graphics.pose().translate(-0.5f, -0.5f, -0.5f);
-                item.clientExtension(c->{
-                    if (c.getCustomRenderer(mc.getBlockEntityRenderDispatcher(),mc.getEntityModels()) instanceof IFactoryBlockEntityWLRenderer renderer) renderer.renderByItemBlockState(state, stack, ItemDisplayContext.NONE, graphics.pose(), FactoryGuiGraphics.of(graphics).accessor().getBufferSource(),15728880, OverlayTexture.NO_OVERLAY);
-                });
-            }else defaultRender.accept(bakedModel);
-        }else defaultRender.accept(mc.getBlockRenderer().getBlockModel(state));
-
+        IFactoryItemClientExtension e;
+        bakedModel.getTransforms().getTransform(ItemDisplayContext.NONE).apply(false, graphics.pose());
+        BlockEntityRenderer<BlockEntity> blockEntityRenderer;
+        if (be == null || (blockEntityRenderer = mc.getBlockEntityRenderDispatcher().getRenderer(be)) == null) {
+            if ((e = IFactoryItemClientExtension.map.get(state.getBlock().asItem())) != null && e.getCustomRenderer() != null) {
+                e.getCustomRenderer().renderByItemBlockState(state, stack, ItemDisplayContext.NONE, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
+            } else {
+                mc.getBlockRenderer().renderSingleBlock(state, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
+            }
+        } else {
+            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY);
+        }
         graphics.flush();
         graphics.pose().popPose();
     }
+
     public static void playButtonDownSound(float grave) {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, grave));
     }

@@ -82,21 +82,15 @@ public abstract class ScreenMixin implements UIDefinition.Accessor {
     }
 
     @Override
-    public <T extends GuiEventListener> T addChidren(T listener, boolean isRenderable, boolean isNarratable) {
+    public <T extends GuiEventListener> T addChild(int renderableIndex, T listener, boolean isRenderable, boolean isNarratable) {
         children.add(listener);
-        if (isRenderable && listener instanceof Renderable r) addRenderable(r);
+        if (isRenderable && listener instanceof Renderable r) addRenderable(renderableIndex, r);
         if (isNarratable && listener instanceof NarratableEntry e) narratables.add(e);
         return listener;
     }
 
     @Override
-    public <T extends Renderable> T addRenderable(T renderable) {
-        renderables.add(renderable);
-        return renderable;
-    }
-
-    @Override
-    public <T extends GuiEventListener> T removeChildren(T listener) {
+    public <T extends GuiEventListener> T removeChild(T listener) {
         children.remove(listener);
         renderables.remove(listener);
         narratables.remove(listener);

@@ -22,4 +22,8 @@ public class PlayerListMixin {
     public void remove(ServerPlayer serverPlayer, CallbackInfo ci) {
         FactoryEvent.PlayerEvent.REMOVED_EVENT.invoker.accept(serverPlayer);
     }
+    @Inject(method = "reloadResources", at = @At("RETURN"))
+    public void remove(CallbackInfo ci) {
+        FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.invoker.accept((PlayerList) (Object)this);
+    }
 }

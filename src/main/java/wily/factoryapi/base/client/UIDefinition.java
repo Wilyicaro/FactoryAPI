@@ -3,6 +3,7 @@ package wily.factoryapi.base.client;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.gui.screens.RealmsBackupScreen;
 import com.mojang.realmsclient.gui.screens.RealmsConfirmScreen;
@@ -45,6 +46,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
@@ -55,9 +57,9 @@ import wily.factoryapi.base.Bearer;
 import wily.factoryapi.base.network.FactoryAPICommand;
 import wily.factoryapi.util.DynamicUtil;
 import wily.factoryapi.util.ListMap;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
@@ -157,7 +159,10 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             if (chars[i] == ' ')
                 continue;
 
-            if (Character.isDigit(chars[i]) || chars[i] == '.') {
+            boolean alternative = false;
+            if (Character.isDigit(chars[i]) || chars[i] == '.' || (alternative = (chars[i] == ':' && i > 0 && chars[i-1] == '}'))) {
+                if (alternative) i++;
+
                 StringBuilder sb = new StringBuilder();
 
                 while (i < chars.length && (Character.isDigit(chars[i]) || chars[i] == '.')) {
@@ -260,7 +265,9 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             if (chars[i] == ' ')
                 continue;
 
-            if (Character.isDigit(chars[i]) || chars[i] == '.') {
+            boolean alternative = false;
+            if (Character.isDigit(chars[i]) || chars[i] == '.' || (alternative = (chars[i] == ':' && i > 0 && chars[i-1] == '}'))) {
+                if (alternative) i++;
 
                 StringBuilder a = new StringBuilder();
 
@@ -351,13 +358,21 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             putStaticElement("windowHeight", Minecraft.getInstance().getWindow().getHeight());
             putStaticElement("width", Minecraft.getInstance().getWindow().getGuiScaledWidth());
             putStaticElement("height", Minecraft.getInstance().getWindow().getGuiScaledHeight());
+            getElements().put("renderablesCount", getRenderables()::size);
+            FactoryAPIPlatform.getMods().forEach(i->putStaticElement("loadedMods."+i.getId(), true));
             getDefinitions().clear();
-            FactoryAPIClient.uiDefinitionManager.list.stream().filter(d->d.test(this)).forEach(getDefinitions()::add);
             getStaticDefinitions().stream().filter(d->d.test(this)).forEach(getDefinitions()::add);
+            FactoryAPIClient.uiDefinitionManager.list.stream().filter(d->d.test(this)).forEach(getDefinitions()::add);
             UIDefinition.super.beforeInit(accessor);
         }
 
         List<UIDefinition> getStaticDefinitions();
+
+        default void staticInit(){
+            beforeInit();
+            getRenderables().clear();
+            afterInit();
+        }
 
         default void beforeInit(){
             beforeInit(this);
@@ -371,15 +386,27 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
         List<Renderable> getRenderables();
 
-        <T extends GuiEventListener> T removeChildren(T widget);
+        <T extends GuiEventListener> T removeChild(T widget);
 
-        <T extends GuiEventListener> T addChidren(T listener, boolean isRenderable, boolean isNarratable);
-
-        default <T extends GuiEventListener> T addChidren(T listener){
-            return addChidren(listener,true,true);
+        <T extends GuiEventListener> T addChild(int renderableIndex, T listener, boolean isRenderable, boolean isNarratable);
+        default <T extends GuiEventListener> T addChild(int renderableIndex, T listener){
+            return addChild(renderableIndex, listener, true, true);
+        }
+        default <T extends GuiEventListener> T addChild(String name, T listener){
+            return addChild(getInteger(name+".order",getRenderables().size()), listener);
         }
 
-        <T extends Renderable> T addRenderable(T renderable);
+        default <T extends Renderable> T addRenderable(T renderable){
+            return addRenderable(getRenderables().size(),renderable);
+        }
+
+        default <T extends Renderable> T addRenderable(int index, T renderable){
+            getRenderables().add(Math.min(Math.max(0,index),getRenderables().size()),renderable);
+            return renderable;
+        }
+        default <T extends Renderable> T addRenderable(String name, T renderable){
+            return addRenderable(getInteger(name+".order",getRenderables().size()),renderable);
+        }
 
         Map<String, ArbitrarySupplier<?>> getElements();
 
@@ -413,13 +440,27 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             return component;
         }
 
-        default Renderable putTranslatableRenderable(String name, Renderable renderable){
+        default Vec3 putVec3(String name, Vec3 offset){
+            putStaticElement(name, offset);
+            putStaticElement(name+".x", offset.x());
+            putStaticElement(name+".y", offset.y());
+            putStaticElement(name+".z", offset.z());
+            return offset;
+        }
+
+        default Renderable createModifiableRenderable(String name, Renderable renderable){
             return (guiGraphics, i, j, f) -> {
                 guiGraphics.pose().pushPose();
+                int color = getInteger(name+".renderColor",0xFFFFFFFF);
+                float alpha = FactoryScreenUtil.getAlpha(color);
+                if (alpha < 1) RenderSystem.enableBlend();
+                FactoryGuiGraphics.of(guiGraphics).setColor(FactoryScreenUtil.getRed(color), FactoryScreenUtil.getGreen(color), FactoryScreenUtil.getBlue(color), FactoryScreenUtil.getAlpha(color));
                 guiGraphics.pose().translate(getDouble(name+".translateX",0),getDouble(name+".translateY",0),getDouble(name+".translateZ",0));
                 guiGraphics.pose().scale(getFloat(name+".scaleX",1),getFloat(name+".scaleY",1),getFloat(name+".scaleZ",1));
                 renderable.render(guiGraphics,i,j,f);
                 guiGraphics.pose().popPose();
+                if (alpha < 1) RenderSystem.disableBlend();
+                FactoryGuiGraphics.of(guiGraphics).clearColor();
             };
         }
 
@@ -488,6 +529,18 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
         default boolean getBoolean(String name){
             return getBoolean(name,false);
         }
+        default ResourceLocation getResourceLocation(String name, ResourceLocation defaultValue){
+            return getElementValue(name,defaultValue,ResourceLocation.class);
+        }
+        default ResourceLocation getResourceLocation(String name){
+            return getResourceLocation(name,null);
+        }
+        default Component getComponent(String name, Component defaultValue){
+            return getElementValue(name,defaultValue,Component.class);
+        }
+        default Component getComponent(String name){
+            return getComponent(name,null);
+        }
     }
 
     static Checkbox createCheckbox(boolean selected, BiConsumer<Checkbox,Boolean> onPress){
@@ -513,8 +566,8 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
 
 
         public interface WidgetAction<P, W extends AbstractWidget> {
-            ListMap<ResourceLocation,Supplier<Screen>> defaultScreensMap = new ListMap.Builder<String,Supplier<Screen>>().put("title",TitleScreen::new).put("options",()-> new OptionsScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).put("language_select",()->new LanguageSelectScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options,Minecraft.getInstance().getLanguageManager())).put("video_settings",()-> new VideoSettingsScreen(Minecraft.getInstance().screen,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).put("skin_customization",()-> new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options)).mapKeys(FactoryAPI::createVanillaLocation).build();
-            ListMap<ResourceLocation,WidgetAction<?,AbstractWidget>> map = new ListMap.Builder<String,WidgetAction<?,AbstractWidget>>().put("open_default_screen", create(ResourceLocation.CODEC,(s,a,w)->Minecraft.getInstance().setScreen(defaultScreensMap.getOrDefault(s,()->null).get()))).put("reload_ui",create(Codec.unit(Unit.INSTANCE), (s,a,w)->a.reloadUI())).put("run_command",createRunCommand(s->true)).put("run_windows_command",createRunCommand(s->Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command",createRunCommand(s->Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command",createRunCommand(s->Util.getPlatform() == Util.OS.OSX)).mapKeys(FactoryAPI::createVanillaLocation).build();
+            ListMap<ResourceLocation,Function<Screen,Screen>> defaultScreensMap = new ListMap.Builder<String,Function<Screen,Screen>>().put("title",s->new TitleScreen()).put("options",s-> new OptionsScreen(s, Minecraft.getInstance().options)).put("language_select",s->new LanguageSelectScreen(s, Minecraft.getInstance().options,Minecraft.getInstance().getLanguageManager())).put("video_settings",s-> new VideoSettingsScreen(s,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).put("skin_customization",s-> new SkinCustomizationScreen(s, Minecraft.getInstance().options)).mapKeys(FactoryAPI::createVanillaLocation).build();
+            ListMap<ResourceLocation,WidgetAction<?,AbstractWidget>> map = new ListMap.Builder<String,WidgetAction<?,AbstractWidget>>().put("open_default_screen", create(ResourceLocation.CODEC,(s,a,w)->Minecraft.getInstance().setScreen(defaultScreensMap.getOrDefault(s,s1->null).apply(a.getScreen())))).put("reload_ui",create(Codec.unit(Unit.INSTANCE), (s,a,w)->a.reloadUI())).put("run_command",createRunCommand(s->true)).put("run_windows_command",createRunCommand(s->Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command",createRunCommand(s->Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command",createRunCommand(s->Util.getPlatform() == Util.OS.OSX)).mapKeys(FactoryAPI::createVanillaLocation).build();
             Codec<WidgetAction<?,AbstractWidget>> CODEC = map.createCodec(ResourceLocation.CODEC);
             Codec<P> getCodec();
 
@@ -556,7 +609,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             ElementType ADD_BUTTON = registerConditional("add_button",(definition, name, e)-> {
                 List<BiConsumer<Accessor,AbstractWidget>> actions = parseActionsElement(definition, name, e);
                 parseWidgetElements(definition,name,e);
-                definition.getDefinitions().add(createAfterInit(name,a -> a.putWidget(name, a.addChidren(Button.builder(Component.empty(), b -> actions.forEach(c->c.accept(a,b))).build()))));
+                definition.getDefinitions().add(createAfterInit(name,a -> a.putWidget(name, a.addChild(name,Button.builder(Component.empty(), b -> actions.forEach(c->c.accept(a,b))).build()))));
             });
             ElementType ADD_CHECKBOX = registerConditional("add_checkbox",(definition, name, e)-> {
                 List<BiConsumer<Accessor,AbstractWidget>> actions = parseActionsElement(definition, name, e);
@@ -566,7 +619,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                     if (selected.isEmpty()) selected.set(a.getBooleanFromDynamic(d).get());
                     a.getElements().put(s,selected);
                 }));
-                definition.getDefinitions().add(createAfterInit(name,a-> a.putWidget(name, a.addChidren(createCheckbox(a.getBoolean(name+".selected"),(c,b)-> {
+                definition.getDefinitions().add(createAfterInit(name,a-> a.putWidget(name, a.addChild(name,createCheckbox(a.getBoolean(name+".selected"),(c, b)-> {
                     selected.set(b);
                     actions.forEach(c1->c1.accept(a,c));
                 })))));
@@ -586,12 +639,14 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             ElementType REMOVE_CHILDREN = registerConditional("remove_children",createIndexable(i->(definition,name,e)-> definition.getDefinitions().add(createAfterInit(name,a -> {
                 for (Integer index : i)
                     if (a.getChildren().size() > index)
-                        a.removeChildren(a.getChildren().get(index));
+                        a.removeChild(a.getChildren().get(index));
             }))));
-            ElementType PUT_INTEGER = registerConditional("put_integer",(definition, name, e)-> e.asMapOpt().result().ifPresent(m-> m.forEach(o->o.getFirst().asString().result().ifPresent(s-> definition.getDefinitions().add(createBeforeInit(name,a-> a.getElements().put(name+"."+s,a.getNumberFromDynamic(e))))))));
-            ElementType PUT_COMPONENT = registerConditional("put_component",(definition, name, e)->parseElement(definition,name,e,"component", ElementType::parseComponentElement));
-            ElementType PUT_STRING = registerConditional("put_string",(definition, name, e)-> e.get("string").asString().result().ifPresent(s->definition.getDefinitions().add(createBeforeInit(name,a-> a.putStaticElement(name,s)))));
-            ElementType PUT_BOOLEAN = registerConditional("put_boolean",(definition, name, e)-> e.get("boolean").result().ifPresent(d->definition.getDefinitions().add(createBeforeInit(name,a-> a.getElements().put(name,a.getBooleanFromDynamic(d))))));
+            ElementType PUT_NUMBER = registerConditional("put_number",(definition, name, e)-> parseElement(definition,name,e,"value",(s,d)->createBeforeInit(name,a-> a.getElements().put(name,a.getNumberFromDynamic(d)))));
+            ElementType PUT_COMPONENT = registerConditional("put_component",(definition, name, e)-> parseElement(definition,name,e,"value", (s,d)->parseComponentElement(name,d)));
+            ElementType PUT_STRING = registerConditional("put_string",(definition, name, e)-> parseElement(definition,name,e,"value",(s,d)->createBeforeInit(name,a-> a.putStaticElement(name,d.asString()))));
+            ElementType PUT_BOOLEAN = registerConditional("put_boolean",(definition, name, e)-> parseElement(definition,name,e,"value",(s,d)->createBeforeInit(name,a-> a.getElements().put(name,a.getBooleanFromDynamic(d)))));
+            ElementType PUT_RESOURCE_LOCATION = registerConditional("put_resource_location",(definition, name, e)-> parseElement(definition,name,e,"value", (s,d)->ResourceLocation.CODEC.parse(d).result().map(r-> createBeforeInit(name,a-> a.putStaticElement(name,r))).orElse(null)));
+            ElementType PUT_VEC3 = registerConditional("put_vec3", ((uiDefinition, elementName, element) -> DynamicUtil.VEC3_OBJECT_CODEC.parse(element).result().map(c-> createBeforeInit(elementName, a-> a.putVec3(elementName,c))).ifPresent(uiDefinition.getDefinitions()::add)));
             ElementType BLIT = registerConditional("blit", ElementType::parseBlitElements);
             ElementType BLIT_SPRITE = registerConditional("blit_sprite", ElementType::parseBlitSpriteElements);
             ElementType FILL = registerConditional("fill", ElementType::parseFillElements);
@@ -600,39 +655,39 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             ElementType RENDER_ITEM = registerConditional("render_item", ElementType::parseRenderItemElements);
 
             static void parseWidgetElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height");
-                parseElement(uiDefinition,elementName,element,"message", ElementType::parseComponentElement);
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","order");
+                parseElement(uiDefinition,elementName,element,"message", (s,d)->parseComponentElement(elementName,s,d));
                 parseElement(uiDefinition,elementName,element,"spriteOverlay",ResourceLocation.CODEC);
                 parseElement(uiDefinition,elementName,element,"highlightedSpriteOverlay",ResourceLocation.CODEC);
             }
             static void parseFillElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fill(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF)))))));
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color");
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color","order");
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fill(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF)))))));
             }
             static void parseFillGradientElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fillGradient(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF),a.getInteger(elementName+".secondColor",0xFFFFFFFF)))))));
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color","secondColor");
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color","secondColor","order");
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fillGradient(a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".x",0) + a.getInteger(elementName+".width",0), a.getInteger(elementName+".y",0) + a.getInteger(elementName+".height",0),a.getInteger(elementName+".color",0xFFFFFFFF),a.getInteger(elementName+".secondColor",0xFFFFFFFF)))))));
             }
             static void parseBlitElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));
                 parseElement(uiDefinition,elementName,element,"texture",ResourceLocation.CODEC);
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","uvX","uvY","width","height","imageWidth","imageHeight","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","uvX","uvY","width","height","imageWidth","imageHeight","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","renderColor","order");
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName+".texture",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blit(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".uvX",0),a.getInteger(elementName+".uvY",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0),a.getInteger(elementName+".imageWidth",256),a.getInteger(elementName+".imageHeight",256))))))));
             }
             static void parseBlitSpriteElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".sprite",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blitSprite(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0))))))));
                 parseElement(uiDefinition,elementName,element,"sprite",ResourceLocation.CODEC);
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","width","height","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","renderColor","order");
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".sprite",ResourceLocation.class).ifPresent(t-> FactoryGuiGraphics.of(guiGraphics).blitSprite(t,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".width",0),a.getInteger(elementName+".height",0))))))));
             }
             static void parseDrawStringElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".component",Component.class).ifPresent(c-> guiGraphics.drawString(Minecraft.getInstance().font, c,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".color",0xFFFFFF),a.getBoolean(elementName+".shadow",true))))))));
-                parseElement(uiDefinition,elementName,element,"component", ElementType::parseComponentElement);
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color");
-                parseElement(uiDefinition,elementName,element, "shadow",(s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))));
+                parseElement(uiDefinition,elementName,element,"component", (s,d)->parseComponentElement(elementName,s,d));
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","color","order");
+                parseElement(uiDefinition,elementName,element, "shadow",(s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getBooleanFromDynamic(d))));
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".component",Component.class).ifPresent(c-> guiGraphics.drawString(Minecraft.getInstance().font, c,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0),a.getInteger(elementName+".color",0xFFFFFF),a.getBoolean(elementName+".shadow",true))))))));
             }
             static void parseRenderItemElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
-                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable((a.putTranslatableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".item", ItemStack.class).ifPresent(s-> guiGraphics.renderItem(s,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0))))))));
                 parseElement(uiDefinition,elementName,element,"item",(s,d)-> createBeforeInit(elementName,a-> a.getElements().put(s,DynamicUtil.getItemFromDynamic(d,true))));
-                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","translateX","translateY","translateZ","scaleX","scaleY","scaleZ");
+                parseElements(uiDefinition,elementName,element, (s,d)->createBeforeInit(elementName,a-> a.getElements().put(s,a.getNumberFromDynamic(d))),"x","y","translateX","translateY","translateZ","scaleX","scaleY","scaleZ","order");
+                uiDefinition.getDefinitions().add(createAfterInit(elementName,a-> a.addRenderable(elementName, (a.createModifiableRenderable(elementName,(guiGraphics, i, j, f) -> a.getElement(elementName+".item", ItemStack.class).ifPresent(s-> guiGraphics.renderItem(s,a.getInteger(elementName+".x",0),a.getInteger(elementName+".y",0))))))));
             }
             static List<BiConsumer<Accessor,AbstractWidget>> parseActionsElement(UIDefinition uiDefinition, String elementName, Dynamic<?> element){
                 return element.get("actions").asMapOpt().result().map(m->m.map(p-> {
@@ -641,8 +696,11 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                     return WidgetAction.CODEC.parse(p.getFirst()).result().flatMap(c-> c.pressSupplier(a->a.getBoolean(actionName+".applyCondition",true),p.getSecond()));
                 }).filter(Optional::isPresent).map(Optional::get).toList()).orElse(Collections.emptyList());
             }
-            static UIDefinition parseComponentElement(String name, Dynamic<?> element){
-                return DynamicUtil.getComponentCodec().parse(element).result().map(c-> createBeforeInit(name,a-> a.putComponent(name,c))).orElse(null);
+            static UIDefinition parseComponentElement(String elementName, String field, Dynamic<?> element){
+                return DynamicUtil.getComponentCodec().parse(element).result().map(c-> createBeforeInit(elementName,a-> a.putComponent(field,c))).orElse(null);
+            }
+            static UIDefinition parseComponentElement(String elementName, Dynamic<?> element){
+                return parseComponentElement(elementName,elementName,element);
             }
             static void parseElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element, BiFunction<String,Dynamic<?>,UIDefinition> dynamicToDefinition, String... fields){
                 for (String field : fields) {
@@ -659,7 +717,7 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
                 return get(ResourceLocation.tryParse(id));
             }
             static ElementType get(ResourceLocation id){
-                return map.getOrDefault(id,PUT_INTEGER);
+                return map.getOrDefault(id, PUT_NUMBER);
             }
             static ResourceLocation getId(ElementType type){
                 return map.getKeyOrDefault(type,null);
@@ -692,10 +750,12 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
         }
 
         public final List<UIDefinition> list = new ArrayList<>();
+        public final List<UIDefinition> staticList = new ArrayList<>();
 
         @Override
         public void onResourceManagerReload(ResourceManager resourceManager) {
             list.clear();
+            list.addAll(staticList);
             resourceManager.listResources(UI_DEFINITIONS, r-> r.getPath().endsWith(".json")).forEach((l, r)->{
                 try (BufferedReader bufferedReader = r.openAsReader()) {
                     list.add(fromDynamic(l.toString(), new Dynamic<>(JsonOps.INSTANCE,GsonHelper.parse(bufferedReader))));
@@ -713,11 +773,9 @@ public interface UIDefinition extends Predicate<UIDefinition.Accessor> {
             }
         }
         public static <T> UIDefinition fromDynamic(String name, Dynamic<T> dynamic){
-            String targetMod = dynamic.get("targetMod").asString(null);
-            if (targetMod != null && !FactoryAPIPlatform.isModLoaded(targetMod)) return EMPTY;
             String targetType = dynamic.get("targetType").asString("id");
 
-            Class<?> targetClass = dynamic.get("targetUI").asString().map(s->targetType.equals("id") ? NAMED_UI_DEFINITIONS.get(ResourceLocation.tryParse(s)) : getClassFromString(name,s)).result().orElse(null);
+            Class<?> targetClass = dynamic.get("targetUI").asString().map(s->targetType.equals("id") ? NAMED_UI_DEFINITIONS.get(ResourceLocation.tryParse(s)) : targetType.equals("class") ? getClassFromString(name,s) : null).result().orElse(null);
             Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(null) : null;
 
             String targetRange = dynamic.get("targetRange").asString("instance");

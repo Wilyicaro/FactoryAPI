@@ -49,6 +49,10 @@ loom {
         convertAccessWideners.set(true)
         mixinConfigs("${mod_id}.mixins.json")
     }
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName = "${mod_id}.refmap.json"
+    }
 }
 
 def isJava21 = stonecutter.eval(stonecutter.current.version, ">=1.20.5")
@@ -63,7 +67,9 @@ java {
     sourceCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
     targetCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
 }
-
+remapJar {
+    if (loader == "neoforge") atAccessWideners.add aw
+}
 ext {
     releaseChangelog = {
         def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
@@ -235,16 +241,16 @@ publishMods {
         minecraftVersions.addAll versions
         if (isJava21) minecraftVersions.add("Java 21")
         else minecraftVersions.addAll("Java 17","Java 18")
-        accessToken = providers.environmentVariable("CURSE_API_KEY")
-        projectId = rootProject.curseforge_id
+        accessToken = project.findProperty("CURSE_API_KEY") ?: System.getenv("CURSE_API_KEY")
+        projectId = curseforge_id
         if (isFabric) requires("fabric-api")
     }
 
     modrinth {
         minecraftVersions.addAll versions
-        accessToken = providers.environmentVariable("CURSE_API_KEY")
-        projectId = rootProject.modrinth_id
-        version = "$project.version+$project.name"
+        accessToken = project.findProperty("gpr.token") ?: System.getenv("MODRINTH_TOKEN")
+        projectId = modrinth_id
+        publishMods.version = "$project.version+$project.name"
         if (isFabric) requires("fabric-api")
     }
 

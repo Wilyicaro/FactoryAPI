@@ -3,7 +3,8 @@ package wily.factoryapi.util;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 //? >1.20.5
 /*import net.minecraft.core.component.DataComponentPatch;*/
@@ -19,9 +20,9 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import wily.factoryapi.base.ArbitrarySupplier;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,12 +31,27 @@ public class DynamicUtil {
     public static final Map<Dynamic<?>,ItemStack> DYNAMIC_ITEMS = new ConcurrentHashMap<>();
     public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, Minecraft.getInstance().level.registryAccess())));
 
-    public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean /*? if <1.20.5 {*/allowNbt/*?} else {*/ /*allowComponents *//*?}*/){
+    public static final Codec<Vec3> VEC3_OPTIONAL_CODEC = RecordCodecBuilder.create(i-> i.group(Codec.DOUBLE.fieldOf("x").orElse(0d).forGetter(Vec3::x),Codec.DOUBLE.fieldOf("y").orElse(0d).forGetter(Vec3::y),Codec.DOUBLE.fieldOf("z").orElse(0d).forGetter(Vec3::z)).apply(i,Vec3::new));
+    public static final Codec<Vec3> VEC3_OBJECT_CODEC = Codec.either(VEC3_OPTIONAL_CODEC,Vec3.CODEC.fieldOf("value").codec()).xmap(e-> e.map(v->v,v->v), Either::right);
+    public static Codec<ArbitrarySupplier<ItemStack>> ITEM_WITHOUT_DATA_SUPPLIER_CODEC = Codec.of(ItemStack.CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemWithoutDataFromDynamic);
+    public static Codec<ArbitrarySupplier<ItemStack>> ITEM_SUPPLIER_CODEC = Codec.of(ItemStack.CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemFromDynamic);
+
+    public static <T> DataResult<Pair<ArbitrarySupplier<ItemStack>,T>> getItemWithoutDataFromDynamic(DynamicOps<T> ops, T input){
+        return getItemFromDynamic(ops, input, false);
+    }
+    public static <T> DataResult<Pair<ArbitrarySupplier<ItemStack>,T>> getItemFromDynamic(DynamicOps<T> ops, T input){
+        return getItemFromDynamic(ops, input, true);
+    }
+    public static <T> DataResult<Pair<ArbitrarySupplier<ItemStack>,T>> getItemFromDynamic(DynamicOps<T> ops, T input, boolean allowData){
+        return DataResult.success(Pair.of(getItemFromDynamic(new Dynamic<>(ops,input),true),input));
+    }
+
+    public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean allowData){
         return element.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElse(()-> DYNAMIC_ITEMS.computeIfAbsent(element, d-> d.get("item").asString().result().or(()->d.asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
             //? if <1.20.5 {
-            if (allowNbt) element.get("nbt").result().flatMap(d1->CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
+            if (allowData) element.get("nbt").result().flatMap(d1-> CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
             //?} else
-            /*if (allowComponents) convertToRegistryIfPossible(element).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
+            /*if (allowData) convertToRegistryIfPossible(element).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
             return i;
         }).orElse(null)));
     }

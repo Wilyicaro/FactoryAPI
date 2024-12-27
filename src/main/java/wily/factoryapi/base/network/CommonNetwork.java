@@ -22,7 +22,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //?} elif forge {
 /*import net.minecraftforge.network.NetworkDirection;
 //? if >=1.20.5
-/^import net.minecraftforge.network.NetworkProtocol;^/
+import net.minecraftforge.network.NetworkProtocol;
 import net.minecraftforge.network.PacketDistributor;
 *///?} elif neoforge {
 /*import net.neoforged.neoforge.network.PacketDistributor;
@@ -183,9 +183,14 @@ public interface CommonNetwork {
     }
 
     static void forceEnabledPlayer(ServerPlayer player, Runnable runnable){
-        ENABLED_PLAYERS.add(player.getUUID());
-        runnable.run();
-        ENABLED_PLAYERS.remove(player.getUUID());
+        boolean contains = ENABLED_PLAYERS.contains(player.getUUID());
+        if (contains){
+            runnable.run();
+        } else {
+            ENABLED_PLAYERS.add(player.getUUID());
+            runnable.run();
+            ENABLED_PLAYERS.remove(player.getUUID());
+        }
     }
 
     static <T extends CommonNetwork.Payload> void sendToPlayer(ServerPlayer serverPlayer, T packetHandler) {
@@ -199,16 +204,16 @@ public interface CommonNetwork {
         /*ServerPlayNetworking.send(serverPlayer,packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
-        PacketDistributor.PLAYER.with(/^? if <=1.20.1 {^/ /^()->^//^?}^/serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^? if <=1.20.1 {^/ /^Pair.of(buf,0)^//^?} else {^/ buf/^?}^/, packetHandler.identifier().location()).getThis());
-        //?} else
-        /^PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));^/
+        PacketDistributor.PLAYER.with(/^¹? if <=1.20.1 {¹^/ /^¹()->¹^//^¹?}¹^/serverPlayer).send(NetworkDirection.PLAY_TO_CLIENT.buildPacket(/^¹? if <=1.20.1 {¹^/ /^¹Pair.of(buf,0)¹^//^¹?} else {¹^/ buf/^¹?}¹^/, packetHandler.identifier().location()).getThis());
+        ^///?} else
+        PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
-         ^///?} else
-        PacketDistributor.sendToPlayer(serverPlayer, packetHandler);
+        PacketDistributor.PLAYER.with(serverPlayer).send(packetHandler);
+         //?} else
+        /^PacketDistributor.sendToPlayer(serverPlayer, packetHandler);^/
         *///?} else {
         /*throw new AssertionError();
          *///?}
@@ -229,30 +234,30 @@ public interface CommonNetwork {
         /*ClientPlayNetworking.send(packetHandler);*/
         //?} elif forge {
         /*//? if <1.20.5 {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        /^FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         packetHandler.encode(buf);
-        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_SERVER.buildPacket(/^? if <=1.20.1 {^/ /^Pair.of(buf,0)^//^?} else {^/ buf/^?}^/, packetHandler.identifier().location()).getThis());
-        //?} else
-        /^PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));^/
+        PacketDistributor.SERVER.noArg().send(NetworkDirection.PLAY_TO_SERVER.buildPacket(/^¹? if <=1.20.1 {¹^/ /^¹Pair.of(buf,0)¹^//^¹?} else {¹^/ buf/^¹?}¹^/, packetHandler.identifier().location()).getThis());
+        ^///?} else
+        PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND,packetHandler.type().id(), packetHandler::encode));
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.SERVER.noArg().send(packetHandler);
-         ^///?} else
-        PacketDistributor.sendToServer(packetHandler);
+        PacketDistributor.SERVER.noArg().send(packetHandler);
+         //?} else
+        /^PacketDistributor.sendToServer(packetHandler);^/
         *///?} else {
         /*throw new AssertionError();
          *///?}
     }
     static void encodeComponent(PlayBuf buf, Component component){
-        /*? if >=1.20.5 {*//* ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) *//*?} else {*/ buf.get().writeComponent(component)/*?}*/;
+        /*? if >=1.20.5 {*/ /*ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) *//*?} else {*/ buf.get().writeComponent(component)/*?}*/;
     }
     static Component decodeComponent(PlayBuf buf){
-        return /*? if >=1.20.5 {*//* ComponentSerialization.STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readComponent()/*?}*/;
+        return /*? if >=1.20.5 {*/ /*ComponentSerialization.STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readComponent()/*?}*/;
     }
     static void encodeItemStack(PlayBuf buf, ItemStack stack){
-        /*? if >=1.20.5 {*//* ItemStack.OPTIONAL_STREAM_CODEC.encode(buf.get(),stack) *//*?} else {*/ buf.get().writeItem(stack)/*?}*/;
+        /*? if >=1.20.5 {*/ /*ItemStack.OPTIONAL_STREAM_CODEC.encode(buf.get(),stack) *//*?} else {*/ buf.get().writeItem(stack)/*?}*/;
     }
     static ItemStack decodeItemStack(PlayBuf buf){
-        return /*? if >=1.20.5 {*//* ItemStack.OPTIONAL_STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readItem()/*?}*/;
+        return /*? if >=1.20.5 {*/ /*ItemStack.OPTIONAL_STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readItem()/*?}*/;
     }
 }

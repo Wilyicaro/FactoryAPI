@@ -1,27 +1,27 @@
-package wily.factoryapi.mixin.base;
+//? if <=1.20.1 {
+/*package wily.factoryapi.mixin.base;
 
-import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.SpriteLoader;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceMetadata;
 import org.spongepowered.asm.mixin.Mixin;
+import wily.factoryapi.base.client.FactorySpriteContents;
+import wily.factoryapi.base.client.GuiMetadataSection;
+import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-//? if <=1.20.1 {
-/*import wily.factoryapi.base.client.FactorySpriteContents;
-import wily.factoryapi.base.client.GuiMetadataSection;
-*///?}
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceMetadata;
+import net.minecraft.client.renderer.texture.SpriteContents;
+
 
 import java.io.IOException;
 import java.util.Optional;
 
 @Mixin(SpriteLoader.class)
 public class SpriteLoaderMixin {
-    //? if <=1.20.1 {
-    /*@Inject(method = "loadSprite", at = @At("RETURN"))
+
+    @Inject(method = "loadSprite", at = @At("RETURN"))
     private static void loadSprite(ResourceLocation resourceLocation, Resource resource, CallbackInfoReturnable<SpriteContents> cir) {
         if (cir.getReturnValue() != null) {
             try {
@@ -36,5 +36,6 @@ public class SpriteLoaderMixin {
             }
         }
     }
-    *///?}
+
 }
+*///?}

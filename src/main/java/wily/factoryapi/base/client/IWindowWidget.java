@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.Rect2i;
 import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
 import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
-import wily.factoryapi.util.ScreenUtil;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public interface IWindowWidget extends GuiEventListener,Renderable {
     }
 
     default void playDownSound(float grave) {
-        ScreenUtil.playButtonDownSound(grave);
+        FactoryScreenUtil.playButtonDownSound(grave);
     }
     Rect2i getBounds();
 
@@ -47,7 +47,7 @@ public interface IWindowWidget extends GuiEventListener,Renderable {
 
     @Override
     default ScreenRectangle getRectangle() {
-        return ScreenUtil.rect2iToRectangle(getBounds());
+        return FactoryScreenUtil.rect2iToRectangle(getBounds());
     }
 
     <R extends Renderable> R addNestedRenderable(R drawable);

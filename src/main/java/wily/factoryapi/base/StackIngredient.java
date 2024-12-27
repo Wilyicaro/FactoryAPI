@@ -59,7 +59,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     //? if >=1.20.5 {
     /*public static final StreamCodec<RegistryFriendlyByteBuf, StackIngredient> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
     *///?}
-    public static final CommonNetwork.Identifier<StackIngredient> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("data_component_ingredient"),StackIngredient::decode);
+    public static final CommonNetwork.Identifier<StackIngredient> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("stack_ingredient"),StackIngredient::decode);
     private final HolderSet<Item> values;
     //? if >=1.20.5 {
     /*private final DataComponentPredicate components;
@@ -108,7 +108,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     public boolean isEmpty() {
         return stacks.length == 0;
     }
-      @Override
+    @Override
     public ItemStack[] getItems() {
         return stacks;
     }
