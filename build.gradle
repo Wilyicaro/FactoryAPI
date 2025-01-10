@@ -216,7 +216,7 @@ publishing {
     repositories {
         maven {
             name = 'ModResources'
-            url uri("$mod_resources")
+            url uri(project.findProperty("mod_resources") ?: System.getenv("MOD_RESOURCES"))
         }
     }
 }
