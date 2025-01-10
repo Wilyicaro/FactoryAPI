@@ -1,11 +1,9 @@
 package wily.factoryapi.base.client.drawable;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import wily.factoryapi.util.FactoryScreenUtil;
 
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawableSlider> {
@@ -76,7 +74,7 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
         return sliderBackground.inMouseLimit((int) mouseX, (int) mouseY,getX(),getY());
     }
     public boolean inButtonLimit(double mouseX, double mouseY){
-        return IFactoryDrawableType.getMouseLimit(mouseX,mouseY,relativePosX,getY(),width(),height());
+        return FactoryScreenUtil.isMouseOver(mouseX,mouseY,relativePosX,getY(),width(),height());
     }
 
 

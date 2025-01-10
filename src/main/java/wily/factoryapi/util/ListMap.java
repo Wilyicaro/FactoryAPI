@@ -8,7 +8,12 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ListMap<K,V> implements Map<K,V> {
+/**
+ * A utility Map for slow operations with few entries, composed by two lists
+ * <p>
+ * The values and keys are obtained by iterations, so <b>don't</b> use this implementation if you only need a way to get a key by a value.
+**/
+public class ListMap<K,V> implements DualMap<K,V> {
 
     final List<K> keys;
     final List<V> values;
@@ -18,15 +23,9 @@ public class ListMap<K,V> implements Map<K,V> {
         values = builder.values;
         if (keys.size() != values.size()) throw new UnsupportedOperationException("Invalid ListMap Builder: It should have the same amount of keys and values!");
     }
+
     public ListMap(){
         this(new Builder<>());
-    }
-
-    public Codec<V> createCodec(Codec<K> keyCodec){
-        return keyCodec.xmap(this::get,this::getKey);
-    }
-    public Codec<K> createKeyCodec(Codec<V> codec){
-        return codec.xmap(this::getKey,this::get);
     }
 
     final Set<Entry<K,V>> backendSet = new AbstractSet<>() {
@@ -39,20 +38,36 @@ public class ListMap<K,V> implements Map<K,V> {
         public @NotNull Iterator<Entry<K, V>> iterator() {
             return new Iterator<>() {
                 int actual = 0;
+                boolean canRemove = false;
+
                 @Override
                 public boolean hasNext() {
-                    return actual + 1 < size();
+                    return actual < size();
                 }
 
                 @Override
                 public Entry<K, V> next() {
-                    actual+=1;
-                    return Map.entry(keys.get(actual),values.get(actual));
+                    if (!hasNext()) {
+                        throw new NoSuchElementException("No more elements.");
+                    }
+                    canRemove = true;
+                    Entry<K,V> entry = new AbstractMap.SimpleEntry<>(keys.get(actual), values.get(actual)){
+                        @Override
+                        public V setValue(V value) {
+                            return put(getKey(), value);
+                        }
+                    };
+                    actual++;
+                    return entry;
                 }
 
                 @Override
                 public void remove() {
-                    ListMap.this.remove(keys.get(actual));
+                    if (!canRemove) {
+                        throw new IllegalStateException("Cannot remove without calling next()");
+                    }
+                    ListMap.this.remove(keys.get(--actual));
+                    canRemove = false;
                 }
             };
         }
@@ -117,12 +132,29 @@ public class ListMap<K,V> implements Map<K,V> {
         return containsKey(o) ? values.get(keys.indexOf(o)) : null;
     }
 
+    public V getByIndex(int i) {
+        return values.get(i);
+    }
+
+    @Override
     public K getKey(V value){
         return getKeyOrDefault(value,null);
     }
 
+    public K getKeyByIndex(int i) {
+        return keys.get(i);
+    }
+
     public K getKeyOrDefault(V value, K defaultKey){
         return containsValue(value) ? keys.get(values.indexOf(value)) : defaultKey;
+    }
+
+    public int indexOf(V value){
+        return values.indexOf(value);
+    }
+
+    public int indexOfKey(K key){
+        return keys.indexOf(key);
     }
 
     @Override

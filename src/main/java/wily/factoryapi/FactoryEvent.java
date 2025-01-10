@@ -132,7 +132,6 @@ public class FactoryEvent<T> {
     public static void setup(Runnable run) {
         //? if fabric {
         run.run();
-        CommonLifecycleEvents.TAGS_LOADED.register((s, t)-> run.run());
         //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, FMLCommonSetupEvent.class, e-> run.run());
         *///?} else

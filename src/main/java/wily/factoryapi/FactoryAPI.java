@@ -9,11 +9,13 @@ import net.minecraft.resources.ResourceLocation;
 *///?}
 import net.minecraft.util.profiling.ProfilerFiller;
 //? if fabric {
+import net.fabricmc.api.EnvType;
 import wily.factoryapi.base.fabric.FabricStorages;
 import net.fabricmc.loader.api.FabricLoader;
 //?} else if forge {
 /*import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -29,6 +31,7 @@ import net.minecraftforge.fml.loading.LoadingModList;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 *///?}
@@ -42,6 +45,11 @@ import wily.factoryapi.base.network.FactoryAPICommand;
 import wily.factoryapi.base.network.HelloPayload;
 import wily.factoryapi.init.FactoryRegistries;
 import wily.factoryapi.util.DynamicUtil;
+
+import java.lang.reflect.Field;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 //? if forge || neoforge
 /*@Mod(FactoryAPI.MOD_ID)*/
@@ -168,5 +176,37 @@ public class FactoryAPI {
         public boolean isFabric(){
             return this == FABRIC;
         }
+    }
+
+    public static Path getConfigDirectory() {
+        //? if fabric {
+        return FabricLoader.getInstance().getConfigDir();
+        //?} elif forge || neoforge {
+        /*return FMLPaths.CONFIGDIR.get();
+         *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static boolean isClient() {
+        //? if fabric {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+        //?} else if forge || neoforge {
+        /*return FMLEnvironment.dist.isClient();
+         *///?} else
+        /*throw new AssertionError();*/
+    }
+
+    public static <T> Map<String, Field> getAccessibleFieldsMap(Class<T> fieldsClass, String... fields){
+        Map<String,Field> map = new HashMap<>();
+        for (String s : fields) {
+            try {
+                Field field = fieldsClass.getDeclaredField(s);
+                field.setAccessible(true);
+                map.put(s, field);
+            } catch (NoSuchFieldException var1) {
+                throw new IllegalStateException("Couldn't get field %s for %s".formatted(s, fieldsClass), var1);
+            }
+        }
+        return map;
     }
 }

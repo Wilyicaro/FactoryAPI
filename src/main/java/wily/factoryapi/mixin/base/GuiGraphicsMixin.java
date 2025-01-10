@@ -168,7 +168,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         @Override
         public void setColor(int color) {
             //? if >=1.21.2 {
-            /*blitColor = color;
+            /*context().flush();
+            RenderSystem.setShaderColor(FactoryScreenUtil.getRed(color),FactoryScreenUtil.getGreen(color),FactoryScreenUtil.getBlue(color),FactoryScreenUtil.getAlpha(color));
             *///?} else {
             context().setColor(FactoryScreenUtil.getRed(color),FactoryScreenUtil.getGreen(color),FactoryScreenUtil.getBlue(color),FactoryScreenUtil.getAlpha(color));
             //?}
@@ -177,7 +178,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         @Override
         public void setColor(float r, float g, float b, float a) {
             //? if >=1.21.2 {
-            /*blitColor = FactoryScreenUtil.colorFromFloat(r,g,b,a);
+            /*context().flush();
+            RenderSystem.setShaderColor(r,g,b,a);
             *///?} else {
             context().setColor(r,g,b,a);
             //?}
@@ -185,12 +187,25 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
         @Override
         public float[] getColor() {
-            //? if <1.21.2 {
             return RenderSystem.getShaderColor();
-             //?} else {
-            /*return new float[]{FactoryScreenUtil.getRed(blitColor),FactoryScreenUtil.getGreen(blitColor),FactoryScreenUtil.getBlue(blitColor),FactoryScreenUtil.getAlpha(blitColor)};
-            *///?}
         }
+
+        //? if >=1.21.2 {
+        /*@Override
+        public void setBlitColor(float r, float g, float b, float a) {
+            blitColor = FactoryScreenUtil.colorFromFloat(r,g,b,a);
+        }
+
+        @Override
+        public void setBlitColor(int color) {
+            blitColor = color;
+        }
+
+        @Override
+        public int getBlitColor() {
+            return blitColor;
+        }
+        *///?}
         
         //? if >=1.21.2 {
         /*private void innerBlit(Function<ResourceLocation, RenderType> function, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {

@@ -90,15 +90,12 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForge;
 *///?}
-import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 //? if <=1.20.1 {
 /*import wily.factoryapi.base.client.GuiSpriteManager;
 *///?}
 import wily.factoryapi.base.IFactoryItem;
-import wily.factoryapi.base.client.IFactoryBlockEntityWLRenderer;
-import wily.factoryapi.base.client.IFactoryItemClientExtension;
-import wily.factoryapi.base.client.MinecraftAccessor;
+import wily.factoryapi.base.client.*;
 import wily.factoryapi.base.network.CommonNetwork;
 import wily.factoryapi.base.client.UIDefinition;
 import wily.factoryapi.util.DynamicUtil;
@@ -122,7 +119,7 @@ public class FactoryAPIClient {
 
     public static boolean hasModOnServer = false;
 
-    public static final UIDefinition.Manager uiDefinitionManager = new UIDefinition.Manager();
+    public static final UIDefinitionManager uiDefinitionManager = new UIDefinitionManager();
 
     //? if >=1.21.2 && forge {
     /*public static final List<ModelResourceLocation> extraModels = new ArrayList<>();
@@ -152,16 +149,19 @@ public class FactoryAPIClient {
     }
 
     public static float getGamePartialTick(boolean allowFrozen) {
-        return /*? if <1.20.5 {*/(Minecraft.getInstance().isPaused() ?  MinecraftAccessor.getInstance().getPausePartialTick() : Minecraft.getInstance().level != null && /*? if >=1.20.3 {*/Minecraft.getInstance().level.tickRateManager().runsNormally() || !allowFrozen ?/*?}*/ Minecraft.getInstance().getFrameTime() : 1.0f)/*?} else {*/ /*FactoryAPIClient.getDeltaTracker().getGameTimeDeltaPartialTick(!allowFrozen)*//*?}*/;
+        return /*? if <1.20.5 {*/(Minecraft.getInstance().isPaused() ? MinecraftAccessor.getInstance().getPausePartialTick() : /*? if >=1.20.3 {*/Minecraft.getInstance().level != null && Minecraft.getInstance().level.tickRateManager().runsNormally() || !allowFrozen ? Minecraft.getInstance().getFrameTime() : 1.0f/*?} else {*//*Minecraft.getInstance().getFrameTime()*//*?}*/)/*?} else {*/ /*FactoryAPIClient.getDeltaTracker().getGameTimeDeltaPartialTick(!allowFrozen)*//*?}*/;
     }
 
     public static void init() {
         FactoryEvent.registerReloadListener(PackType.CLIENT_RESOURCES, uiDefinitionManager);
         preTick(m-> SECURE_EXECUTOR.executeAll());
-        registerGuiPostRender(((guiGraphics, partialTicks) -> UIDefinition.Accessor.Accessor.of(Minecraft.getInstance().gui).getRenderables().forEach(r->r.render(guiGraphics,0,0,/*? if >=1.21 {*/ /*partialTicks.getGameTimeDeltaPartialTick(true)*//*?} else {*/ partialTicks /*?}*/))));
+        registerGuiPostRender(((guiGraphics, partialTicks) -> UIAccessor.of(Minecraft.getInstance().gui).getRenderables().forEach(r->r.render(guiGraphics,0,0,/*? if >=1.21 {*/ /*partialTicks.getGameTimeDeltaPartialTick(true)*//*?} else {*/ partialTicks /*?}*/))));
+        PlayerEvent.JOIN_EVENT.register(l->{
+            DynamicUtil.DYNAMIC_ITEMS_CACHE.asMap().keySet().forEach(DynamicUtil.DYNAMIC_ITEMS_CACHE::refresh);
+        });
         PlayerEvent.DISCONNECTED_EVENT.register(l->{
             DynamicUtil.REGISTRY_OPS_CACHE.invalidateAll();
-            DynamicUtil.DYNAMIC_ITEMS.clear();
+            DynamicUtil.DYNAMIC_ITEMS_CACHE.asMap().keySet().forEach(DynamicUtil.DYNAMIC_ITEMS_CACHE::refresh);
             hasModOnServer = false;
         });
         //? if fabric {

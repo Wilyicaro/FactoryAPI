@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
-import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.util.ArrayList;
@@ -123,7 +122,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     }
     @Override
     public boolean isMouseOver(double d, double e) {
-        return isVisible() && IFactoryDrawableType.getMouseLimit(d,e,getX(),getY(),width,height);
+        return isVisible() && FactoryScreenUtil.isMouseOver(d,e,getX(),getY(),width,height);
     }
 
     public void updateActualMouse(double mouseX, double mouseY){

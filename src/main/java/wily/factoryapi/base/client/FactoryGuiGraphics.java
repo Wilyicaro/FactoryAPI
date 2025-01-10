@@ -132,11 +132,26 @@ public interface FactoryGuiGraphics {
         /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
     }
     void setColor(int color);
+
     void setColor(float r, float g, float b, float a);
+
     float[] getColor();
+
     default void clearColor(){
         setColor(1.0f,1.0f,1.0f,1.0f);
     }
+
+    //? if >=1.21.2 {
+    /*void setBlitColor(int color);
+
+    void setBlitColor(float r, float g, float b, float a);
+
+    int getBlitColor();
+
+    default void clearBlitColor(){
+        setBlitColor(1.0f,1.0f,1.0f,1.0f);
+    }
+    *///?}
 
     void disableDepthTest();
 

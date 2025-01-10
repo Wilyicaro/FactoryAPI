@@ -33,7 +33,7 @@ public class PagedList<T> extends AbstractList<T> {
 
     @Override
     public void add(int index, T element) {
-        objects = ArrayUtils.add(objects,index,element);
+        objects = ArrayUtils.insert(index, objects, element);
     }
 
     @Override

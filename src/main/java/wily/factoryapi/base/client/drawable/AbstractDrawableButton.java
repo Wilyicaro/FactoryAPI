@@ -75,7 +75,7 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     }
 
     public boolean inMouseLimit(double mouseX, double mouseY) {
-        return IFactoryDrawableType.getMouseLimit(mouseX,mouseY,getX(),getY(),width(),height());
+        return FactoryScreenUtil.isMouseOver(mouseX,mouseY,getX(),getY(),width(),height());
     }
 
     @Override

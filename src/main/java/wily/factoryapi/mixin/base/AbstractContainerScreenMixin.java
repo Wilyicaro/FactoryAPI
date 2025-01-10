@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.Bearer;
+import wily.factoryapi.base.client.UIAccessor;
 import wily.factoryapi.base.client.UIDefinition;
 
 @Mixin(AbstractContainerScreen.class)
@@ -39,16 +40,16 @@ public abstract class AbstractContainerScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("HEAD"))
     protected void init(CallbackInfo ci) {
-        UIDefinition.Accessor.of(this).putIntegerBearer("imageWidth", Bearer.of(()-> imageWidth, i-> imageWidth = i));
-        UIDefinition.Accessor.of(this).putIntegerBearer("imageHeight", Bearer.of(()-> imageHeight, i-> imageHeight = i));
+        UIAccessor.of(this).putIntegerBearer("imageWidth", Bearer.of(()-> imageWidth, i-> imageWidth = i));
+        UIAccessor.of(this).putIntegerBearer("imageHeight", Bearer.of(()-> imageHeight, i-> imageHeight = i));
     }
     @Inject(method = "init", at = @At("RETURN"))
     protected void initReturn(CallbackInfo ci) {
-        UIDefinition.Accessor.of(this).putIntegerBearer("leftPos", Bearer.of(()-> leftPos, i-> leftPos = i));
-        UIDefinition.Accessor.of(this).putIntegerBearer("topPos", Bearer.of(()-> topPos, i-> topPos = i));
-        UIDefinition.Accessor.of(this).getDefinitions().add(new UIDefinition() {
+        UIAccessor.of(this).putIntegerBearer("leftPos", Bearer.of(()-> leftPos, i-> leftPos = i));
+        UIAccessor.of(this).putIntegerBearer("topPos", Bearer.of(()-> topPos, i-> topPos = i));
+        UIAccessor.of(this).getDefinitions().add(new UIDefinition() {
             @Override
-            public void afterInit(Accessor accessor) {
+            public void afterInit(UIAccessor accessor) {
                 UIDefinition.super.afterInit(accessor);
                 accessor.putIntegerBearer("titleLabelX", Bearer.of(()-> titleLabelX, i-> titleLabelX = i));
                 accessor.putIntegerBearer("titleLabelY", Bearer.of(()-> titleLabelY, i-> titleLabelY = i));
@@ -60,12 +61,12 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     //? if >1.20.1 {
     @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
-        if (!UIDefinition.Accessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
+        if (!UIAccessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
     }
     //?} else {
     /*@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
     protected void render(AbstractContainerScreen instance, GuiGraphics guiGraphics, float v, int i, int j) {
-        if (UIDefinition.Accessor.of(this).getBoolean("hasContainerBackground",true)) renderBg(guiGraphics,v,i,j);
+        if (UIAccessor.of(this).getBoolean("hasContainerBackground",true)) renderBg(guiGraphics,v,i,j);
     }
     *///?}
 

@@ -175,4 +175,7 @@ public class FactoryScreenUtil {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, grave));
     }
 
+    public static boolean isMouseOver(double mouseX, double mouseY, int posX, int posY, int sizeX, int sizeY){
+        return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
+    }
 }

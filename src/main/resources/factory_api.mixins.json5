@@ -39,7 +39,8 @@
     "ClientPacketListenerMixin",
     "ClientAbstractContainerMenuMixin",
     "ClientItemMixin",
-    "GuiMixin"
+    "GuiMixin",
+    "AbstractButtonMixin"
   ],
   "mixins": [
     //? if fabric {

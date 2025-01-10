@@ -11,23 +11,25 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import wily.factoryapi.base.ArbitrarySupplier;
+import wily.factoryapi.base.client.UIAccessor;
 import wily.factoryapi.base.client.UIDefinition;
+import wily.factoryapi.util.VariablesMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Mixin(Screen.class)
-public abstract class ScreenMixin implements UIDefinition.Accessor {
+public abstract class ScreenMixin implements UIAccessor {
     @Shadow @Final private List<GuiEventListener> children;
     @Shadow @Final public List<Renderable> renderables;
     @Shadow @Final private List<NarratableEntry> narratables;
 
     @Shadow protected abstract void repositionElements();
 
-    @Unique private final Map<String, ArbitrarySupplier<?>> elements = new HashMap<>();
+    @Shadow private boolean initialized;
+    @Unique private final VariablesMap<String, ArbitrarySupplier<?>> elements = new VariablesMap<>();
     @Unique private final List<UIDefinition> definitions = new ArrayList<>();
     @Unique private final List<UIDefinition> staticDefinitions = new ArrayList<>();
 
@@ -41,7 +43,7 @@ public abstract class ScreenMixin implements UIDefinition.Accessor {
     }
 
     @Override
-    public Map<String, ArbitrarySupplier<?>> getElements() {
+    public VariablesMap<String, ArbitrarySupplier<?>> getElements() {
         return elements;
     }
 
@@ -60,6 +62,11 @@ public abstract class ScreenMixin implements UIDefinition.Accessor {
     @Inject(method = "rebuildWidgets",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init()V",shift = At.Shift.AFTER))
     public void rebuildWidgetsAfter(CallbackInfo ci) {
         afterInit();
+    }
+
+    @Inject(method = "isPauseScreen", at = @At("HEAD"), cancellable = true)
+    public void isPauseScreen(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(this.getBoolean("isPauseScreen", true));
     }
 
     @Override
@@ -96,8 +103,14 @@ public abstract class ScreenMixin implements UIDefinition.Accessor {
         narratables.remove(listener);
         return listener;
     }
+
     @Inject(method = "renderBackground", at = @At(value = "HEAD"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
         if (!getBoolean("hasBackground",true)) ci.cancel();
+    }
+
+    @Override
+    public boolean initialized() {
+        return initialized;
     }
 }

@@ -224,7 +224,7 @@ public interface CommonNetwork {
     }
 
     static <T extends CommonNetwork.Payload> void sendToServer(T packetHandler) {
-        if (!FactoryAPIClient.hasModOnServer || !FactoryAPIPlatform.isClient()) return;
+        if (!FactoryAPIClient.hasModOnServer || !FactoryAPI.isClient()) return;
         //? if fabric {
         //? if <1.20.5 {
         FriendlyByteBuf buf = PacketByteBufs.create();

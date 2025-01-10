@@ -170,7 +170,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifactId = "${project.mod_id}-${loader}"
-            version = version
 
             pom {
                 name = "${mod_name} [${modPlatformName}]"
@@ -205,7 +204,7 @@ publishing {
                 pom.withXml {
                     asNode().dependencies.dependency.each { dep ->
                         // use this approach to make excluding dependencies from Curse Maven more convenient
-                        if (["curse.maven:","dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
+                        if (["curse.maven:", "dev.architectury:"].stream().anyMatch(mod -> "${dep.groupId.last().value().last()}:${dep.artifactId.last().value().last()}".startsWith(mod))) {
                             assert dep.parent().remove(dep)
                         }
                     }
@@ -216,12 +215,8 @@ publishing {
     }
     repositories {
         maven {
-            name = 'GitHubPackages'
-            url uri("$mod_mvngit_source")
-            credentials{
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.token") ?: System.getenv("TOKEN")
-            }
+            name = 'ModResources'
+            url uri("$mod_resources")
         }
     }
 }
@@ -239,8 +234,10 @@ publishMods {
 
     curseforge {
         minecraftVersions.addAll versions
-        if (isJava21) minecraftVersions.add("Java 21")
-        else minecraftVersions.addAll("Java 17","Java 18")
+        if (isJava21) javaVersions.add(JavaVersion.VERSION_21)
+        else javaVersions.addAll(JavaVersion.VERSION_17,JavaVersion.VERSION_18)
+        clientRequired = true
+        serverRequired = true
         accessToken = project.findProperty("CURSE_API_KEY") ?: System.getenv("CURSE_API_KEY")
         projectId = curseforge_id
         if (isFabric) requires("fabric-api")
@@ -250,7 +247,7 @@ publishMods {
         minecraftVersions.addAll versions
         accessToken = project.findProperty("gpr.token") ?: System.getenv("MODRINTH_TOKEN")
         projectId = modrinth_id
-        publishMods.version = "$project.version+$project.name"
+        publishMods.version = "$project.version+$loader"
         if (isFabric) requires("fabric-api")
     }
 

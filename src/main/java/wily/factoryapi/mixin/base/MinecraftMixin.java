@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.MinecraftAccessor;
-import wily.factoryapi.base.client.UIDefinition;
+import wily.factoryapi.base.client.UIAccessor;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -72,14 +72,14 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     @Inject(method = "resizeDisplay",at = @At("RETURN"))
     public void resizeDisplay(CallbackInfo ci) {
         if (this.level != null) {
-            UIDefinition.Accessor.of(gui).staticInit();
+            UIAccessor.of(gui).staticInit();
             FactoryAPIClient.RESIZE_DISPLAY.invoker.accept(Minecraft.getInstance());
         }
     }
     @Inject(method = "setScreen",at = @At("RETURN"))
     public void setScreen(Screen screen, CallbackInfo ci) {
         if (screen == null && this.level != null) {
-            UIDefinition.Accessor.of(gui).staticInit();
+            UIAccessor.of(gui).staticInit();
         }
     }
     @Inject(method = "stop",at = @At("RETURN"))
@@ -104,6 +104,30 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     public boolean hasGameLoaded() {
         return /*? if <=1.20.1 {*//*gameLoaded*//*?} else {*/Minecraft.getInstance().isGameLoadFinished()/*?}*/;
     }
+
+    //? if <1.21.2 {
+    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V"))
+    public void beforeScreenTick(CallbackInfo ci) {
+        UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
+        Screen.wrapScreenError(accessor::beforeTick, "Ticking screen before tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
+    }
+
+    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V", shift = At.Shift.AFTER))
+    public void afterScreenTick(CallbackInfo ci) {
+        UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
+        Screen.wrapScreenError(accessor::afterTick, "Ticking screen after tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
+    }
+    //?} else {
+    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V"))
+    public void beforeScreenTick(CallbackInfo ci) {
+        if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).beforeTick();
+    }
+
+    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V", shift = At.Shift.AFTER))
+    public void afterScreenTick(CallbackInfo ci) {
+        if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).afterTick();
+    }
+    *///?}
 
     @Override
     public boolean setUser(User user) {

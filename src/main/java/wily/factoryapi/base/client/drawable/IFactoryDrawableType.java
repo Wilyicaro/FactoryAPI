@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
+import wily.factoryapi.util.FactoryScreenUtil;
 import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ProgressElementRenderUtil;
 
@@ -31,13 +32,11 @@ public interface IFactoryDrawableType {
         public DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height){
             this(texture,uvX,uvY,width,height,false);
         }
-        @Deprecated
-        public DrawableProgress asProgress(Progress.Identifier identifier, boolean reverse, Direction plane){
-            return asProgress(reverse,plane);
-        }
+
         public DrawableProgress asProgress(boolean reverse, Direction plane){
             return new DrawableProgress(this,reverse,plane);
         }
+
         public DrawableStatic createStatic(int posX, int posY){
             return new DrawableStatic(this,posX,posY);
         }
@@ -80,26 +79,30 @@ public interface IFactoryDrawableType {
     default DrawableImage adjacentImage(Direction direction){
         return create(texture(),uvX() + (direction.isHorizontal() ? width(): 0),uvY() + (direction.isVertical() ? height(): 0),width(),height());
     }
-    default void drawAsFluidTank(GuiGraphics graphics, int x, int y, FluidInstance instance,int capacity, boolean hasColor){
+
+    default void drawAsFluidTank(GuiGraphics graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
         ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,instance,capacity, hasColor);
     }
+
     @Deprecated
     default void drawAsFluidTank(GuiGraphics graphics, int x, int y, int progress, FluidInstance instance, boolean hasColor){
         drawAsFluidTank(graphics,x,y,instance, progress == 0 ? 0 : (instance.getAmount() / (progress /height())),hasColor);
     }
+
     default boolean inMouseLimit(double mouseX, double mouseY, int posX, int posY){
-        return getMouseLimit(mouseX,mouseY,posX,posY,width(),height());
+        return FactoryScreenUtil.isMouseOver(mouseX,mouseY,posX,posY,width(),height());
     }
+
     default void draw(GuiGraphics graphics, int x, int y) {
         if (isSprite()) FactoryGuiGraphics.of(graphics).blitSprite(texture(),x,y,width(),height());
             else FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());
     }
+
     int uvX();
     int uvY();
-    static boolean getMouseLimit(double mouseX, double mouseY, int posX, int posY, int sizeX, int sizeY){
-        return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
-    }
+
     boolean isSprite();
+
     enum Direction {
         VERTICAL,HORIZONTAL;
         public boolean isVertical(){return  this == VERTICAL;}

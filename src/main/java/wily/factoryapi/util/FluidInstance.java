@@ -41,7 +41,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     /*private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);*/
 
 
-    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(ResourceLocation.CODEC.xmap(r->FactoryAPIPlatform.getRegistryValue(r,BuiltInRegistries.FLUID), BuiltInRegistries.FLUID::getKey).fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 || forge {*/ CompoundTag/*?} else {*/ /*DataComponentPatch*//*?}*/.CODEC.fieldOf(/*? if <1.20.5 {*/ "nbt"/*?} else {*/ /*"components"*//*?}*/).forGetter(FluidInstance::/*? if <1.20.5 || forge {*/ getNonNullTag/*?} else {*//*getComponentsPatch*//*?}*/)).apply(i,FluidInstance::new));
+    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 || forge {*/ CompoundTag/*?} else {*/ /*DataComponentPatch*//*?}*/.CODEC.fieldOf(/*? if <1.20.5 || forge {*/ "nbt"/*?} else {*/ /*"components"*//*?}*/).forGetter(FluidInstance::/*? if <1.20.5 || forge {*/ getNonNullTag/*?} else {*//*getComponentsPatch*//*?}*/)).apply(i,FluidInstance::new));
     //? if >=1.20.5
     /*public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);*/
     public static final FluidInstance EMPTY = new FluidInstance(Fluids.EMPTY,0);

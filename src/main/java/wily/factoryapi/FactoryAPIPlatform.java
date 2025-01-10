@@ -130,14 +130,6 @@ public interface FactoryAPIPlatform {
 
     ListMap<String, ModInfo> MOD_INFOS = new ListMap<>();
 
-    static Path getConfigDirectory() {
-        //? if fabric {
-        return FabricLoader.getInstance().getConfigDir();
-        //?} elif forge || neoforge {
-        /*return FMLPaths.CONFIGDIR.get();
-        *///?} else
-        /*throw new AssertionError();*/
-    }
     static Component getPlatformEnergyComponent() {
         //? if fabric {
         return Component.literal("Energy (E)").withStyle(ChatFormatting.GOLD);
