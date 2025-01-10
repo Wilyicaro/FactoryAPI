@@ -108,12 +108,14 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     //? if <1.21.2 {
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V"))
     public void beforeScreenTick(CallbackInfo ci) {
+        if (Minecraft.getInstance().screen == null) return;
         UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
         Screen.wrapScreenError(accessor::beforeTick, "Ticking screen before tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
     }
 
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V", shift = At.Shift.AFTER))
     public void afterScreenTick(CallbackInfo ci) {
+        if (Minecraft.getInstance().screen == null) return;
         UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
         Screen.wrapScreenError(accessor::afterTick, "Ticking screen after tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
     }

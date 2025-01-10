@@ -216,7 +216,7 @@ publishing {
     repositories {
         maven {
             name = 'ModResources'
-            def modResourcesURL = System.getenv("MOD_RESOURCES")
+            def modResourcesURL = project.findProperty("MOD_RESOURCES") ?: System.getenv("MOD_RESOURCES")
             if (modResourcesURL != null)
             url uri(modResourcesURL)
         }
