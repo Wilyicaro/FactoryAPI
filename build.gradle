@@ -62,6 +62,16 @@ tasks.withType(JavaCompile) {
     options.release = isJava21 ? 21 : 17
 }
 
+def buildJar = tasks.create("buildJar", Copy.class) {
+    into("${rootProject.layout.getBuildDirectory().get()}/libs/$mod_version")
+}
+
+afterEvaluate {
+    buildJar.dependsOn(remapJar)
+    buildJar.from(remapJar.archiveFile)
+    build.finalizedBy(buildJar)
+}
+
 java {
     withSourcesJar()
     sourceCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17

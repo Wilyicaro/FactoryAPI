@@ -13,13 +13,13 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record BooleanExpressionEvaluator(String expression, List<Token> tokens, Cache<VariablesMap.View, Boolean> cache) {
+public record BooleanExpressionEvaluator(String expression, List<Token> tokens, Stack<Boolean> values, Stack<Operator> operators, Cache<VariablesMap.View, Boolean> cache) {
     public static final LoadingCache<String, BooleanExpressionEvaluator> EXPRESSION_CACHE = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(15)).build(CacheLoader.from(BooleanExpressionEvaluator::create));
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("(:?\\d+\\.?\\d*)|(\\$\\{[A-Za-z_.]+}(?::false|:true)?)|(!|&&|&|\\|\\||\\|)|(==|!=|>=|<=|>|<)");
 
     public BooleanExpressionEvaluator(String expression, List<Token> tokens){
-        this(expression, tokens, CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(5)).build());
+        this(expression, tokens, new Stack<>(), new Stack<>(), CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(5)).build());
     }
 
     public static BooleanExpressionEvaluator create(String expression) {
@@ -37,12 +37,11 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
     }
 
     public Boolean evaluate(VariableResolver variableResolver) {
-        Stack<Boolean> values = new Stack<>();
-        Stack<Operator> operators = new Stack<>();
-
+        values.clear();
+        operators.clear();
         try {
             for (Token token : tokens) {
-                token.process(this, variableResolver, values, operators);
+                token.process(this, variableResolver);
             }
 
             while (!operators.isEmpty()) {
@@ -51,7 +50,7 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
 
             return values.pop();
         } catch (Exception e) {
-            FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}  \nValues: {} \nOperators: {}", e.getMessage(), toString(), values, operators);
+            FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}", e.getMessage(), toString());
             return false;
         }
     }
@@ -71,7 +70,6 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
                 String variableName = token.substring(2, token.length() - (hasFallback ? endsWithTrue ? 6 : 7 : 1));
                 tokens.add(new Variable(variableName, hasFallback ? endsWithTrue : null));
             }
-            // Operator
             else if (matcher.group(3) != null) {
                 tokens.add(new Operator(matcher.group(3)));
             }
@@ -82,10 +80,8 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         return tokens;
     }
 
-
-
     public interface Token {
-        void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver, Stack<Boolean> values, Stack<Operator> operators);
+        void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver);
     }
 
     public record Variable(String name, Boolean fallbackValue) implements NumberLikeValue {
@@ -95,21 +91,21 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         }
 
         @Override
-        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver, Stack<Boolean> values, Stack<Operator> operators) {
+        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
             if (value(variableResolver) != null) return;
             boolean variable = variableResolver.getBoolean(name(), fallbackValue);
-            if (!operators.isEmpty() && operators.peek().symbol().equals("!")) {
+            if (!evaluator.operators.isEmpty() && evaluator.operators.peek().symbol().equals("!")) {
                 variable = !variable;
-                operators.pop();
+                evaluator.operators.pop();
             }
-            values.push(variable);
+            evaluator.values.push(variable);
         }
     }
 
     public interface NumberLikeValue extends Token {
         Number value(VariableResolver variableResolver);
         @Override
-        default void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver, Stack<Boolean> values, Stack<Operator> operators) {
+        default void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
         }
     }
 
@@ -134,9 +130,9 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         }
 
         @Override
-        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver, Stack<Boolean> values, Stack<Operator> operators) {
+        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
             int tokenIndex = evaluator.tokens().indexOf(this);
-            if (tokenIndex > 0 && tokenIndex < evaluator.tokens().size() - 1 && evaluator.tokens().get(tokenIndex - 1) instanceof NumberLikeValue n && evaluator.tokens().get(tokenIndex + 1) instanceof NumberLikeValue n1) values.push(applyEquality(n1.value(variableResolver).doubleValue(), n.value(variableResolver).doubleValue()));
+            if (tokenIndex > 0 && tokenIndex < evaluator.tokens().size() - 1 && evaluator.tokens().get(tokenIndex - 1) instanceof NumberLikeValue n && evaluator.tokens().get(tokenIndex + 1) instanceof NumberLikeValue n1) evaluator.values.push(applyEquality(n1.value(variableResolver).doubleValue(), n.value(variableResolver).doubleValue()));
         }
     }
 
@@ -153,23 +149,23 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         }
 
         @Override
-        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver, Stack<Boolean> values, Stack<Operator> operators) {
+        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
             if (!symbol().equals("(") && !symbol().equals(")")){
-                while (!operators.isEmpty()) {
-                    values.push(operators.pop().operate(values.pop(), values.pop()));
+                while (!evaluator.operators.isEmpty()) {
+                    evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
                 }
             } else if (symbol().equals(")")){
-                while (operators.peek().symbol().equals("(")) {
-                    values.push(operators.pop().operate(values.pop(), values.pop()));
+                while (evaluator.operators.peek().symbol().equals("(")) {
+                    evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
                 }
-                operators.pop();
-                if ("!".equals(operators.peek().symbol())) {
-                    values.push(!values.pop());
-                    operators.pop();
+                evaluator.operators.pop();
+                if ("!".equals(evaluator.operators.peek().symbol())) {
+                    evaluator.values.push(!evaluator.values.pop());
+                    evaluator.operators.pop();
                 }
                 return;
             }
-            operators.push(this);
+            evaluator.operators.push(this);
         }
     }
 }

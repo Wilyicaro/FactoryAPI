@@ -71,7 +71,7 @@ public interface UIDefinition extends Predicate<UIAccessor> {
     static UIDefinition createBeforeTick(Consumer<UIAccessor> beforeTick){
         return new UIDefinition() {
             @Override
-            public void beforeInit(UIAccessor accessor) {
+            public void beforeTick(UIAccessor accessor) {
                 UIDefinition.super.beforeTick(accessor);
                 beforeTick.accept(accessor);
             }
@@ -81,7 +81,7 @@ public interface UIDefinition extends Predicate<UIAccessor> {
     static UIDefinition createAfterTick(Consumer<UIAccessor> afterTick){
         return new UIDefinition() {
             @Override
-            public void beforeInit(UIAccessor accessor) {
+            public void afterTick(UIAccessor accessor) {
                 UIDefinition.super.afterTick(accessor);
                 afterTick.accept(accessor);
             }

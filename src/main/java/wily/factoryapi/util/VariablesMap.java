@@ -118,4 +118,9 @@ public class VariablesMap<K, V> implements Map<K, V> {
             this(variablesMap, variablesMap.changes);
         }
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
 }

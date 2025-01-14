@@ -262,13 +262,13 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static void parseDrawMultilineStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseTextElements(uiDefinition, elementName, element);
             parseElements(uiDefinition, elementName, element,  (s, d) -> parseNumberElement(elementName, s, d), "lineSpacing","width");
-            uiDefinition.getDefinitions().add(UIDefinition.createAfterInit(a-> {
+            uiDefinition.getDefinitions().add(UIDefinition.createAfterInit(elementName, a-> {
                 a.getElement(elementName+".component", Component.class).ifPresent(c-> {
                     int lineSpacing = a.getInteger(elementName+".lineSpacing", 12);
                     int width = a.getInteger(elementName+".width", 0);
                     List<FormattedCharSequence> lines = Minecraft.getInstance().font.split(c,width);
                     a.putStaticElement(elementName+".linesCount", lines.size());
-                    a.putLayoutElement(elementName,accessorFunction.apply(a).addRenderable(elementName, SimpleLayoutRenderable.create(width, lineSpacing * lines.size(), r-> ((guiGraphics, i, j, f)->{
+                    a.putLayoutElement(elementName, accessorFunction.apply(a).addRenderable(elementName, SimpleLayoutRenderable.create(width, lineSpacing * lines.size(), r-> ((guiGraphics, i, j, f)->{
                         for (int i1 = 0; i1 < lines.size(); i1++) {
                             guiGraphics.drawString(Minecraft.getInstance().font, lines.get(i1), r.getX(), r.getY() + i1 * lineSpacing, a.getInteger(elementName + ".color", 0xFFFFFF), a.getBoolean(elementName + ".shadow", true));
                         }
@@ -276,6 +276,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                 });
             }));
         }
+
         static void parseRenderItemsElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseElements(uiDefinition, elementName, element, (s, d) -> parseBooleanElement(elementName, s, d),"isFake","allowDecorations");
             UIDefinitionManager.ElementType.parseElement(uiDefinition, elementName, element, "items", (s, d)->d.asListOpt(d1->DynamicUtil.getItemFromDynamic(d1, true)).result().map(l-> UIDefinition.createBeforeInit(elementName, (a)-> a.putStaticElement(s,l.stream().map(ArbitrarySupplier::get).toArray(ItemStack[]::new)))).orElse(null));
@@ -431,7 +432,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         map.clear();
         resourceManager.listResources(UI_DEFINITIONS, r -> r.getPath().endsWith(".json")).forEach((l, r) -> {
             try (BufferedReader bufferedReader = r.openAsReader()) {
-                map.put(l,fromDynamic(l.toString(), new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse(bufferedReader))));
+                map.put(l, fromDynamicWithTarget(l.toString(), new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse(bufferedReader))));
             } catch (IOException exception) {
                 FactoryAPI.LOGGER.warn(exception.getMessage());
             }
@@ -447,14 +448,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
     }
 
-    public static <T> UIDefinition fromDynamic(String name, Dynamic<T> dynamic) {
-        String targetType = dynamic.get("targetType").asString("id");
-
-        Class<?> targetClass = dynamic.get("targetUI").asString().map(s -> targetType.equals("id") ? NAMED_UI_TARGETS.get(ResourceLocation.tryParse(s)) : targetType.equals("class") ? getClassFromString(name, s) : null).result().orElse(null);
-        Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(null) : null;
-
-        String targetRange = dynamic.get("targetRange").asString("instance");
-
+    public static <T> UIDefinition fromDynamic(String name, Dynamic<T> dynamic, Predicate<UIAccessor> extraCondition) {
+        Optional<UIDefinition> applyConditionDefinition = dynamic.get("applyCondition").map(d-> ElementType.parseBooleanElement("applyCondition", d)).result();
         UIDefinition uiDefinition = new UIDefinition() {
             final List<UIDefinition> definitions = new ArrayList<>();
 
@@ -465,8 +460,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
 
             @Override
             public boolean test(UIAccessor accessor) {
-                dynamic.get("applyCondition").map(d-> ElementType.parseBooleanElement("applyCondition", d)).result().ifPresent(accessor.getDefinitions()::add);
-                return accessor.getBoolean("applyCondition", true) && (accessor.toString().equals(name) || targetClass != null && (targetRange.equals("instance") && targetClass.isInstance(accessor) || targetRange.equals("class") && targetClass == accessor.getClass())) || targetTitle != null && accessor.getScreen() != null && accessor.getScreen().getTitle().equals(targetTitle);
+                applyConditionDefinition.ifPresent(d-> d.beforeInit(accessor));
+                return accessor.getBoolean("applyCondition", true) && extraCondition.test(accessor);
             }
 
             @Override
@@ -478,6 +473,20 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         return uiDefinition;
     }
 
+    public static <T> UIDefinition fromDynamic(String name, Dynamic<T> dynamic) {
+        return fromDynamic(name, dynamic, a-> true);
+    }
+
+    public static <T> UIDefinition fromDynamicWithTarget(String name, Dynamic<T> dynamic) {
+        String targetType = dynamic.get("targetType").asString("id");
+
+        Class<?> targetClass = dynamic.get("targetUI").asString().map(s -> targetType.equals("id") ? NAMED_UI_TARGETS.get(ResourceLocation.tryParse(s)) : targetType.equals("class") ? getClassFromString(name, s) : null).result().orElse(null);
+        Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(null) : null;
+
+        String targetRange = dynamic.get("targetRange").asString("instance");
+        return fromDynamic(name, dynamic, accessor -> (accessor.toString().equals(name) || targetClass != null && (targetRange.equals("instance") && targetClass.isInstance(accessor) || targetRange.equals("class") && targetClass == accessor.getClass())) || targetTitle != null && accessor.getScreen() != null && accessor.getScreen().getTitle().equals(targetTitle));
+    }
+
     public static void parseAllElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, Dynamic<?> dynamic, Function<String,String> nameModifier){
         dynamic.get("elements").asMapOpt(Dynamic::asString, d-> d).result().ifPresentOrElse(m->m.forEach((s,d)->tryParseElement(uiDefinition, accessorFunction, s, d, nameModifier)), ()-> dynamic.get("elements").asStream().forEach(d->tryParseElement(uiDefinition, accessorFunction, d.get("name").asString(), d, nameModifier)));
     }
@@ -487,17 +496,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public void openDefaultScreenAndAddDefinition(Optional<ResourceLocation> defaultScreen, UIDefinition uiDefinition) {
-        Screen s = defaultScreen.map(DEFAULT_SCREENS_MAP::get).orElse(parent-> new Screen(Component.empty()) {
-            @Override
-            public boolean isPauseScreen() {
-                return UIAccessor.of(this).getBoolean("isPauseScreen", false);
-            }
-
-            @Override
-            public String toString() {
-                return FactoryAPICommand.UIDefinitionPayload.ID.toString();
-            }
-        }).apply(Minecraft.getInstance().screen);
+        Screen s = defaultScreen.map(DEFAULT_SCREENS_MAP::get).orElse(parent-> new Screen(Component.empty()) {}).apply(Minecraft.getInstance().screen);
         UIAccessor.of(s).getStaticDefinitions().add(uiDefinition);
         Minecraft.getInstance().setScreen(s);
     }

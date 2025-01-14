@@ -169,9 +169,10 @@ public class ListMap<K,V> implements DualMap<K,V> {
 
     @Override
     public V remove(Object o) {
-        if (containsKey(o)){
-            keys.remove(o);
-            return values.remove(keys.indexOf(o));
+        int index = keys.indexOf(o);
+        if (index >= 0){
+            keys.remove(index);
+            return values.remove(index);
         }
         return null;
     }
