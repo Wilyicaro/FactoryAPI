@@ -6,7 +6,10 @@ import com.google.common.cache.LoadingCache;
 import com.mojang.brigadier.arguments.ArgumentType;
 import io.netty.buffer.Unpooled;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.repository.Pack;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.resources.ResourceLocation;
@@ -143,6 +146,10 @@ public interface FactoryAPIPlatform {
         return registry./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(location);
     }
 
+    static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey){
+        return access.lookupOrThrow(ResourceKey.<T>createRegistryKey(resourceKey.registry())).get(resourceKey);
+    }
+
     static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {
         //? if fabric {
         ContainerItemContext context = ItemContainerPlatform.modifiableStackContext(container);
@@ -179,9 +186,9 @@ public interface FactoryAPIPlatform {
         return craftyStorage;
         //?} elif forge {
         /*//? if <1.20.5 {
-        /^return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
-        ^///?} else
-        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;
+        return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
+        //?} else
+        /^return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;^/
         *///?} elif neoforge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
         *///?} else

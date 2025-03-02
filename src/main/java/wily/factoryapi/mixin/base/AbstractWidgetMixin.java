@@ -1,6 +1,7 @@
 package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 //? if >=1.20.5 {
 /*import net.minecraft.client.gui.components.WidgetTooltipHolder;
@@ -16,8 +17,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.client.WidgetAccessor;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 @Mixin(AbstractWidget.class)
@@ -35,6 +38,7 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
     @Unique ResourceLocation overrideSprite = null;
     @Unique ResourceLocation highlightedOverrideSprite = null;
     @Unique Consumer<AbstractWidget> onPressOverride = null;
+    @Unique ArbitrarySupplier<Boolean> visibility = ArbitrarySupplier.empty();
 
     @Override
     public void setSpriteOverride(ResourceLocation sprite) {
@@ -63,6 +67,16 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
     @Unique
     private void onPress(){
         if (getOnPressOverride() != null) getOnPressOverride().accept((AbstractWidget) (Object) this);
+    }
+
+    @Override
+    public void setVisibility(ArbitrarySupplier<Boolean> supplier) {
+        this.visibility = supplier;
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    public void render(GuiGraphics arg, int i, int j, float f, CallbackInfo ci) {
+        if (visibility.isPresent()) visible = visibility.get();
     }
 
     @Inject(method = "onClick", at = @At("HEAD"))

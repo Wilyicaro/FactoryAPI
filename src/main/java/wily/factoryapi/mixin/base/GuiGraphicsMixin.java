@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
-import wily.factoryapi.util.FactoryScreenUtil;
+import wily.factoryapi.util.ColorUtil;
 //? if <=1.20.1 {
 /*import wily.factoryapi.base.client.GuiSpriteScaling;
 *///?}
@@ -166,17 +166,16 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void setColor(int color) {
-            //? if >=1.21.2 {
-            /*context().flush();
-            RenderSystem.setShaderColor(FactoryScreenUtil.getRed(color),FactoryScreenUtil.getGreen(color),FactoryScreenUtil.getBlue(color),FactoryScreenUtil.getAlpha(color));
-            *///?} else {
-            context().setColor(FactoryScreenUtil.getRed(color),FactoryScreenUtil.getGreen(color),FactoryScreenUtil.getBlue(color),FactoryScreenUtil.getAlpha(color));
-            //?}
+        public void setColor(int color, boolean changeBlend) {
+            setColor(ColorUtil.getRed(color), ColorUtil.getGreen(color), ColorUtil.getBlue(color), ColorUtil.getAlpha(color), changeBlend);
         }
 
         @Override
-        public void setColor(float r, float g, float b, float a) {
+        public void setColor(float r, float g, float b, float a, boolean changeBlend) {
+            if (changeBlend) {
+                if (a < 1) RenderSystem.enableBlend();
+                else RenderSystem.disableBlend();
+            }
             //? if >=1.21.2 {
             /*context().flush();
             RenderSystem.setShaderColor(r,g,b,a);
@@ -193,7 +192,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         //? if >=1.21.2 {
         /*@Override
         public void setBlitColor(float r, float g, float b, float a) {
-            blitColor = FactoryScreenUtil.colorFromFloat(r,g,b,a);
+            blitColor = ColorUtil.colorFromFloat(r,g,b,a);
         }
 
         @Override

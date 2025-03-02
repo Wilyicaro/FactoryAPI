@@ -5,13 +5,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ArbitrarySupplier;
@@ -22,6 +28,7 @@ import wily.factoryapi.util.VariablesMap;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -39,7 +46,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
     @Nullable
     Screen getScreen();
 
-    void reloadUI();
+    default void reloadUI(){
+        beforeInit();
+        getRenderables().clear();
+        afterInit();
+    }
 
     boolean initialized();
 
@@ -50,8 +61,31 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         putStaticElement("windowHeight", Minecraft.getInstance().getWindow().getHeight());
         putStaticElement("width", Minecraft.getInstance().getWindow().getGuiScaledWidth());
         putStaticElement("height", Minecraft.getInstance().getWindow().getGuiScaledHeight());
+        getElements().put("hasScreen", ()-> Minecraft.getInstance().screen != null);
         getElements().put("renderablesCount", getRenderables()::size);
         FactoryAPIPlatform.getMods().forEach(i -> putStaticElement("loadedMods." + i.getId(), true));
+        ServerData serverData = Minecraft.getInstance().getCurrentServer();
+        if (serverData != null)
+            putStaticElement("serverIp."+serverData.ip,true);
+        Inventory inventory = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.getInventory();
+        if (inventory != null) {
+            for (int i = 0; i < inventory.items.size(); i++) {
+                int index = i;
+                getElements().put("inventory." + index, () -> inventory.items.get(index));
+            }
+            for (int i = 0; i < inventory.armor.size(); i++) {
+                int index = i;
+                getElements().put("inventory.armor." + index, () -> inventory.armor.get(index));
+            }
+            getElements().put("inventory.offhand", () -> inventory.offhand.get(0));
+        }
+        putSupplierComponent("username", () -> Component.literal(Minecraft.getInstance().getUser().getName()));
+        if (getScreen() instanceof MenuAccess<?> access){
+            getElements().put("slotsCount", access.getMenu().slots::size);
+            for (Slot slot : access.getMenu().slots) {
+                getElements().put("menu.slot." + slot.getContainerSlot(), slot::getItem);
+            }
+        }
         getDefinitions().clear();
         FactoryAPIClient.uiDefinitionManager.applyStatic(accessor);
         getStaticDefinitions().stream().filter(d -> d.test(this)).forEach(getDefinitions()::add);
@@ -61,11 +95,6 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     List<UIDefinition> getStaticDefinitions();
 
-    default void staticInit() {
-        beforeInit();
-        getRenderables().clear();
-        afterInit();
-    }
 
     default void beforeInit() {
         beforeInit(this);
@@ -73,6 +102,9 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     default void afterInit() {
         afterInit(this);
+        if (FactoryOptions.UI_DEFINITION_LOGGING.get()){
+            FactoryAPI.LOGGER.warn(getElements());
+        }
     }
 
     default void beforeTick() {
@@ -114,11 +146,6 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     VariablesMap<String, ArbitrarySupplier<?>> getElements();
 
-    @Override
-    default VariablesMap.View getView() {
-        return getElements().getView();
-    }
-
     default <E> E putStaticElement(String name, E e) {
         getElements().put(name, ArbitrarySupplier.of(e));
         return e;
@@ -140,9 +167,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     default <E extends AbstractWidget> E putWidget(String name, E e) {
         putBearer(name + ".message", Bearer.of(e::getMessage, e::setMessage));
+        getElement(name + ".tooltip", Component.class).ifPresent(c-> e.setTooltip(Tooltip.create(c)));
         putBearer(name + ".spriteOverride", Bearer.of(WidgetAccessor.of(e)::getSpriteOverride, WidgetAccessor.of(e)::setSpriteOverride));
         putBearer(name + ".highlightedSpriteOverride", Bearer.of(WidgetAccessor.of(e)::getSpriteOverride, WidgetAccessor.of(e)::setHighlightedSpriteOverride));
         putBearer(name + ".onPressOverride", Bearer.of(WidgetAccessor.of(e)::getOnPressOverride, WidgetAccessor.of(e)::setOnPressOverride));
+        WidgetAccessor.of(e).setVisibility(getElement(name + ".isVisible", Boolean.class));
         return putLayoutElement(name, e, e::setWidth, /*? if <=1.20.1 {*//*WidgetAccessor.of(e)*//*?} else {*/e/*?}*/::setHeight);
     }
 
@@ -150,6 +179,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         putStaticElement(name, component);
         putStaticElement(name + ".width", Minecraft.getInstance().font.width(component));
         return component;
+    }
+
+    default void putSupplierComponent(String name, ArbitrarySupplier<Component> component) {
+        getElements().put(name, component);
+        getElements().put(name+".width", component.map(c->Minecraft.getInstance().font.width(c)));
     }
 
     default Vec3 putVec3(String name, Vec3 offset) {
@@ -168,7 +202,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 guiGraphics.pose().pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
                 RenderSystem.enableBlend();
-                FactoryGuiGraphics.of(guiGraphics).setColor(FactoryScreenUtil.getRed(color), FactoryScreenUtil.getGreen(color), FactoryScreenUtil.getBlue(color), FactoryScreenUtil.getAlpha(color));
+                FactoryGuiGraphics.of(guiGraphics).setColor(color);
                 guiGraphics.pose().translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 guiGraphics.pose().scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
@@ -257,6 +291,14 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     default Component getComponent(String name) {
         return getComponent(name, null);
+    }
+
+    default Vec3 getVec3(String name, Vec3 defaultValue) {
+        return getElementValue(name, defaultValue, Vec3.class);
+    }
+
+    default Vec3 getVec3(String name) {
+        return getVec3(name, null);
     }
 
     @Override

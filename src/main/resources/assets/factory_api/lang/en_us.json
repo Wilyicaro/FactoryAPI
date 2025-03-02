@@ -1,4 +1,12 @@
 {
+  "_comment": "Options",
+  "options.factory_api.title": "Factory API Options",
+  "options.factory_api.uiDefinitionLogging": "UI Definition Logging",
+  "options.factory_api.nearestMipmapScaling": "Nearest Mipmap Scaling",
+  "options.factory_api.manualMipmapPath": "Manual Mipmap Path",
+  "options.factory_api.randomBlockRotations": "Random Block Rotations",
+  "options.factory_api.expressionFailLogging": "Expression Fail Logging",
+
   "_comment": "Tier",
   "tier.factory_api.energy": "%sEnergy ",
   "tier.factory_api.stored": "Stored ",

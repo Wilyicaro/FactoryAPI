@@ -131,14 +131,28 @@ public interface FactoryGuiGraphics {
          //?} else
         /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
     }
-    void setColor(int color);
 
-    void setColor(float r, float g, float b, float a);
+    void setColor(int color, boolean changeBlend);
+
+    void setColor(float r, float g, float b, float a, boolean changeBlend);
+
+    default void setColor(int color){
+        setColor(color, false);
+    }
+
+    default void setColor(float r, float g, float b, float a){
+        setColor(r, g, b, a, false);
+    }
+
 
     float[] getColor();
 
+    default void clearColor(boolean changeBlend){
+        setColor(1.0f,1.0f,1.0f,1.0f, changeBlend);
+    }
+
     default void clearColor(){
-        setColor(1.0f,1.0f,1.0f,1.0f);
+        clearColor(false);
     }
 
     //? if >=1.21.2 {

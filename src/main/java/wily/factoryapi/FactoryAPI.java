@@ -1,13 +1,12 @@
 package wily.factoryapi;
 
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
-//? if >=1.21.2 {
-/*import net.minecraft.util.profiling.Profiler;
-*///?}
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.MinecraftServer;
+import wily.factoryapi.base.config.FactoryCommonOptions;
+import wily.factoryapi.base.config.FactoryConfig;
 //? if fabric {
 import net.fabricmc.api.EnvType;
 import wily.factoryapi.base.fabric.FabricStorages;
@@ -40,9 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.*;
-import wily.factoryapi.base.network.CommonNetwork;
-import wily.factoryapi.base.network.FactoryAPICommand;
-import wily.factoryapi.base.network.HelloPayload;
+import wily.factoryapi.base.network.*;
 import wily.factoryapi.init.FactoryRegistries;
 import wily.factoryapi.util.DynamicUtil;
 
@@ -50,6 +47,9 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 //? if forge || neoforge
 /*@Mod(FactoryAPI.MOD_ID)*/
@@ -63,6 +63,7 @@ public class FactoryAPI {
         }
     };
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+    public static MinecraftServer currentServer;
 
     public FactoryAPI(){
         init();
@@ -101,37 +102,64 @@ public class FactoryAPI {
 
     public static void init() {
         LOGGER.info("Initializing FactoryAPI!");
+        FactoryConfig.registerCommonStorage(createModLocation("common"), FactoryCommonOptions.COMMON_STORAGE);
         FactoryEvent.registerPayload(r->{
             r.register( false, FactoryAPICommand.UIDefinitionPayload.ID);
             r.register( false, HelloPayload.ID_S2C);
             r.register( true, HelloPayload.ID_C2S);
+            r.register( false, CommonConfigSyncPayload.ID_S2C);
+            r.register( true, CommonConfigSyncPayload.ID_C2S);
+            r.register(false, OpenExtraMenuPayload.ID);
+            //? if >=1.21.2 {
+            /*r.register(false, CommonRecipeManager.ClientPayload.ID);
+            *///?}
         });
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
         FactoryRegistries.init();
         FactoryIngredient.init();
-        FactoryEvent.setup(()->FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get()));
-        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->CommonNetwork.forceEnabledPlayer(sp,()->CommonNetwork.sendToPlayer(sp, HelloPayload.createS2C())));
+        FactoryEvent.setup(()->{
+            FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get());
+            FactoryCommonOptions.COMMON_STORAGE.load();
+        });
+        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->CommonNetwork.forceEnabledPlayer(sp,()->{
+            CommonNetwork.sendToPlayer(sp, HelloPayload.createS2C());
+            FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(sp, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
+            //? if >=1.21.2 {
+            /*CommonNetwork.sendToPlayer(sp, new CommonRecipeManager.ClientPayload(CommonRecipeManager.recipesByType));
+            *///?}
+        }));
+        //? if >=1.21.2 {
+        /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.recipesByType = server.getRecipeManager().getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id().location(), Function.identity())));
+        FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.register(playerList-> {
+            updateRecipes.accept(playerList.getServer());
+            CommonNetwork.sendToPlayers(playerList.getPlayers(), new CommonRecipeManager.ClientPayload(CommonRecipeManager.recipesByType));
+        });
+        FactoryEvent.serverStarted(updateRecipes);
+        *///?}
         FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.remove(sp.getUUID()));
-        FactoryEvent.serverStopped(s-> SECURE_EXECUTOR.clear());
+        FactoryEvent.serverStopped(s-> {
+            SECURE_EXECUTOR.clear();
+            CommonNetwork.ENABLED_PLAYERS.clear();
+            currentServer = null;
+        });
         //? if fabric {
         FabricStorages.registerDefaultStorages();
         //?}
     }
 
-    public static ProfilerFiller getProfiler(){
-        return /*? if <1.21.2 {*/Minecraft.getInstance().getProfiler/*?} else {*//*Profiler.get*//*?}*/();
-    }
-
     public static ResourceLocation createLocation(String namespace, String path){
         return ResourceLocation.tryBuild(namespace,path);
     }
+
     public static ResourceLocation createLocation(String location){
         return ResourceLocation.tryParse(location);
     }
+
     public static ResourceLocation createModLocation(String path){
         return createLocation(MOD_ID,path);
     }
+
     public static ResourceLocation createVanillaLocation(String path){
         //? if <1.20.5 {
         return new ResourceLocation(path);
@@ -196,16 +224,24 @@ public class FactoryAPI {
         /*throw new AssertionError();*/
     }
 
+    public static RegistryAccess getRegistryAccess(){
+        return currentServer == null || isClient() && FactoryAPIClient.hasLevel() ? FactoryAPIClient.getRegistryAccess() : FactoryAPI.currentServer.registryAccess();
+    }
+
+    public static <T> Field getAccessibleField(Class<T> fieldClass, String field){
+        try {
+            Field f = fieldClass.getDeclaredField(field);
+            f.setAccessible(true);
+            return f;
+        } catch (NoSuchFieldException var1) {
+            throw new IllegalStateException("Couldn't get field %s for %s".formatted(field, fieldClass), var1);
+        }
+    }
+
     public static <T> Map<String, Field> getAccessibleFieldsMap(Class<T> fieldsClass, String... fields){
         Map<String,Field> map = new HashMap<>();
         for (String s : fields) {
-            try {
-                Field field = fieldsClass.getDeclaredField(s);
-                field.setAccessible(true);
-                map.put(s, field);
-            } catch (NoSuchFieldException var1) {
-                throw new IllegalStateException("Couldn't get field %s for %s".formatted(s, fieldsClass), var1);
-            }
+            map.put(s, getAccessibleField(fieldsClass, s));
         }
         return map;
     }

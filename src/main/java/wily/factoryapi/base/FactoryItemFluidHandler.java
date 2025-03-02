@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 //? if <1.20.5
 import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
-public class FactoryItemFluidHandler extends FactoryFluidHandler {
+public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPlatformItemFluidHandler {
     private final ItemStack container;
 
     public FactoryItemFluidHandler(int capacity, ItemStack container) {
@@ -29,16 +29,17 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
     public FactoryItemFluidHandler(int capacity, ItemStack stack, Predicate<FluidInstance> validator, TransportState transportState) {
         super(capacity, null, validator, SlotsIdentifier.GENERIC, transportState);
         this.container = stack;
+
     }
 
     //? if <1.20.5 {
-    
     private CompoundTag getFluidCompound(ItemStack stack){
-        return isBlockItem() ? stack.getOrCreateTag().getCompound(BLOCK_ENTITY_TAG).getCompound("singleTank") : stack.getOrCreateTag().getCompound(FactoryAPI.getLoader().isFabric() ? "fluidStorage" : "Fluid");
+        return isBlockItem() ? stack.getOrCreateTag().getCompound(BLOCK_ENTITY_TAG).getCompound("singleTank") : stack.getOrCreateTag().getCompound(getStorageKey());
     }
     //?}
+
     public String getStorageKey() {
-        return isBlockItem() ? "singleTank" : "Fluid";
+        return isBlockItem() ? "singleTank" : /*? if fabric {*/"fluidVariant"/*?} else {*//*"Fluid"*//*?}*/;
     }
 
     public boolean isBlockItem() {
@@ -72,7 +73,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
 
     @Override
     public @NotNull FluidInstance getFluidInstance() {
-        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container).getCompound("fluid"))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> FluidInstance.fromTag(c.getCompound(getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
+        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> FluidInstance.fromTag(c.getCompound(getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
     }
 
     //? if <1.20.5 {
@@ -97,7 +98,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
             return 0;
         }
 
-        FluidInstance contained = this.getFluidInstance();
+        FluidInstance contained = this.getFluidInstance().copy();
         if (contained.isEmpty())
         {
             int fillAmount = Math.min(getMaxFluid(), resource.getAmount());
@@ -133,7 +134,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
     public @NotNull FluidInstance drain(int maxDrain, boolean simulate) {
         if (container.getCount() != 1 || maxDrain <= 0 || !getTransport().canExtract()) return FluidInstance.empty();
 
-        FluidInstance contained = this.getFluidInstance();
+        FluidInstance contained = this.getFluidInstance().copy();
         if (contained.isEmpty())
             return FluidInstance.empty();
 
@@ -151,6 +152,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
 
         return drained;
     }
+
     protected void setContainerToEmpty() {
         //? if <1.20.5 {
         container.removeTagKey(getStorageKey());
@@ -186,5 +188,10 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler {
     @Override
     public int getMaxFluid() {
         return /*? if <1.20.5 {*/ getFluidCompound(container).contains("capacity") ? getFluidCompound(container).getInt("capacity") : super.getMaxFluid() /*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> c.getCompound(getStorageKey()).getInt("capacity"),c-> c.contains(getStorageKey()), super.getMaxFluid()) : container.getOrDefault(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),super.getMaxFluid()) *//*?}*/;
+    }
+
+    @Override
+    public ItemStack getContainer() {
+        return container;
     }
 }

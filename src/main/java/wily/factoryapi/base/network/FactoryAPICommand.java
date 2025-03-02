@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.UIDefinitionManager;
+import wily.factoryapi.base.config.FactoryConfig;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -69,14 +70,36 @@ public class FactoryAPICommand {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandBuildContext) {
-        commandDispatcher.register(Commands.literal("factoryapi").requires(commandSourceStack -> commandSourceStack.hasPermission(2)).
-                then(Commands.literal("display").then(Commands.literal("ui_definition").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("ui_definition", CompoundTagArgument.compoundTag()).executes(context -> {
-                    CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.empty(), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
-                    return 0;
-                }).then(Commands.argument("default_screen", ResourceLocationArgument.id()).executes(context -> {
-                    CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.of(ResourceLocationArgument.getId(context, "default_screen")), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
-                    return 0;
-                })))))));
+        var command = Commands.literal("factoryapi").requires(commandSourceStack -> commandSourceStack.hasPermission(2));
+
+
+        command.then(Commands.literal("display").then(Commands.literal("ui_definition").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("ui_definition", CompoundTagArgument.compoundTag()).executes(context -> {
+            CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.empty(), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
+            return 0;
+        }).then(Commands.argument("default_screen", ResourceLocationArgument.id()).executes(context -> {
+            CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.of(ResourceLocationArgument.getId(context, "default_screen")), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
+            return 0;
+        }))))));
+
+        var config = Commands.literal("config");
+        FactoryConfig.COMMON_STORAGES.forEach((k,s)->{
+            config.then(Commands.literal(k.toString()).then(Commands.literal("reload").executes(c->{
+                s.load();
+                return 1;
+            })).then(Commands.literal("set").then(Commands.argument("value", CompoundTagArgument.compoundTag()).executes(c->{
+                s.decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, CompoundTagArgument.getCompoundTag(c, "value")));
+                s.sync();
+                return 1;
+            }))).then(Commands.literal("save").executes(c->{
+                s.save();
+                return 1;
+            })));
+        });
+
+        command.then(config);
+
+
+        commandDispatcher.register(command);
     }
 
     public record UIDefinitionPayload(Optional<ResourceLocation> defaultScreen, CompoundTag uiDefinitionNbt) implements CommonNetwork.Payload {

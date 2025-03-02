@@ -2,7 +2,7 @@ package wily.factoryapi.util;
 
 import com.mojang.serialization.Codec;
 
-import java.util.Map;
+import java.util.*;
 
 public interface DualMap<K,V> extends Map<K,V> {
     /**
@@ -50,4 +50,13 @@ public interface DualMap<K,V> extends Map<K,V> {
     default Codec<K> createKeyCodec(Codec<V> codec){
         return codec.xmap(this::getKey,this::get);
     }
+
+    default Codec<V> createCodec(Codec<K> keyCodec, K defaultKey, V defaultValue){
+        return keyCodec.xmap(k-> getOrDefault(k, defaultValue), v-> getKeyOrDefault(v, defaultKey));
+    }
+
+    default Codec<K> createKeyCodec(Codec<V> codec, K defaultKey, V defaultValue){
+        return codec.xmap(v-> getKeyOrDefault(v, defaultKey), k-> getOrDefault(k, defaultValue));
+    }
+
 }

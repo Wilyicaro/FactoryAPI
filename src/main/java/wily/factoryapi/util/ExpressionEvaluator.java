@@ -1,12 +1,12 @@
 package wily.factoryapi.util;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import net.minecraft.util.Mth;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.base.Bearer;
+import wily.factoryapi.base.config.FactoryCommonOptions;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -15,13 +15,13 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<Value> values, Stack<Operator> operators, Bearer<Function> function, Cache<VariablesMap.View, Number> cache) {
+public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<Value> values, Stack<Operator> operators, Bearer<Function> function) {
     public static final LoadingCache<String,ExpressionEvaluator> EXPRESSION_CACHE = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(12)).build(CacheLoader.from(ExpressionEvaluator::create));
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("(:?\\d+\\.?\\d*)|(\\$\\{[A-Za-z_.]+})|(#[A-Z\\d]+)|([+\\-/*%&|^()])|(sqrt|cbrt|min|max|clamp)");
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("(\\$\\{[\\dA-Za-z_.-]+})|(:?\\d+\\.?\\d*)|(#[A-Z\\d]+)|([+\\-/*%&|^()]|>>|<<)|(sqrt|cbrt|pow|min|max|clamp)");
 
     public ExpressionEvaluator(String expression, List<Token> tokens){
-        this(expression, tokens, new Stack<>(), new Stack<>(), Bearer.of(null), CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(3)).build());
+        this(expression, tokens, new Stack<>(), new Stack<>(), Bearer.of(null));
     }
 
     public static ExpressionEvaluator create(String expression) {
@@ -30,12 +30,6 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
 
     public static ExpressionEvaluator of(String expression) {
         return EXPRESSION_CACHE.getUnchecked(expression);
-    }
-
-    public Number evaluateCached(VariableResolver variableResolver) {
-        // Disabled cache, thinking in a better solution :)
-        //return cache.asMap().computeIfAbsent(variableResolver.getView(), i-> evaluate(variableResolver));
-        return evaluate(variableResolver);
     }
 
     public Number evaluate(VariableResolver variableResolver) {
@@ -53,7 +47,7 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
 
             return values.pop().value();
         } catch (Exception e) {
-            FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}", e.getMessage(), toString());
+            if (FactoryCommonOptions.EXPRESSION_FAIL_LOGGING.get()) FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}", e.getMessage(), toString());
             return 0;
         }
     }
@@ -65,33 +59,29 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         while (matcher.find()) {
             String token;
 
-            if (matcher.group(1) != null) {
+           if (matcher.group(1) != null) {
                 token = matcher.group(1);
-                boolean isFallback = token.startsWith(":");
-                if (isFallback) token = token.substring(1);
-                tokens.add(token.contains(".") ? Value.of(Double.parseDouble(token), isFallback) : Value.of(Integer.parseInt(token), isFallback));
-            }
-            else if (matcher.group(2) != null) {
-                token = matcher.group(2);
                 String variableName = token.substring(2, token.length() - 1);
                 tokens.add(new Variable(variableName));
-            }
-            else if (matcher.group(3) != null) {
+           } else if (matcher.group(2) != null) {
+               token = matcher.group(2);
+               boolean isFallback = token.startsWith(":");
+               if (isFallback) token = token.substring(1);
+               tokens.add(token.contains(".") ? Value.of(Double.parseDouble(token), isFallback) : Value.of(Integer.parseInt(token), isFallback));
+           } else if (matcher.group(3) != null) {
                 long colorValue = Long.parseLong(matcher.group(3).substring(1), 16);
                 if (colorValue > Integer.MAX_VALUE) {
                     colorValue -= (1L << 32);
                 }
                 tokens.add(Value.of(colorValue));
-            }
-            else if (matcher.group(4) != null) {
-                tokens.add(new Operator(matcher.group(4).charAt(0)));
-            }
-            else if (matcher.group(5) != null) {
+            } else if (matcher.group(4) != null) {
+                tokens.add(new Operator(matcher.group(4)));
+            } else if (matcher.group(5) != null) {
                 tokens.add(Function.of(matcher.group(5)));
             }
         }
 
-        if (!tokens.isEmpty() && tokens.get(0) instanceof Operator o && (o.symbol == '-' || o.symbol == '+')) tokens.add(0,Value.of(0));
+        if (!tokens.isEmpty() && tokens.get(0) instanceof Operator o && (o.symbol.equals("-") || o.symbol.equals("+"))) tokens.add(0,Value.of(0));
         return tokens;
     }
 
@@ -141,40 +131,42 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         }
     }
 
-    public record Operator(char symbol) implements Token {
+    public record Operator(String symbol) implements Token {
 
         public boolean hasPrecedence(Operator second) {
-            if (second.symbol() == '(' || second.symbol() == ')')
+            if (second.symbol().equals("(") || second.symbol().equals(")"))
                 return false;
-            return (symbol() != '*' && symbol() != '/') || (second.symbol() != '+' && second.symbol() != '-');
+            return (!symbol().equals("*") && !symbol().equals("/")) || (!second.symbol().equals("+") && !second.symbol().equals("-"));
         }
 
         public Value operate(Value b, Value a) {
             boolean integers = a.isInteger() && b.isInteger();
             return switch (symbol()) {
-                case '+' -> integers ? Value.of(a.value().intValue() + b.value().intValue()) : Value.of(a.value().doubleValue() + b.value().doubleValue());
-                case '-' -> integers ? Value.of(a.value().intValue() - b.value().intValue()) : Value.of(a.value().doubleValue() - b.value().doubleValue());
-                case '*' -> integers ? Value.of(a.value().intValue() * b.value().intValue()) : Value.of(a.value().doubleValue() * b.value().doubleValue());
-                case '^' ->  Value.of(Math.pow(a.value().doubleValue(), b.value().doubleValue()));
-                case '/' -> {
+                case "+" -> integers ? Value.of(a.value().intValue() + b.value().intValue()) : Value.of(a.value().doubleValue() + b.value().doubleValue());
+                case "-" -> integers ? Value.of(a.value().intValue() - b.value().intValue()) : Value.of(a.value().doubleValue() - b.value().doubleValue());
+                case "*" -> integers ? Value.of(a.value().intValue() * b.value().intValue()) : Value.of(a.value().doubleValue() * b.value().doubleValue());
+                case "/" -> {
                     if (b.value().doubleValue() == 0) throw new ArithmeticException("Cannot divide by zero");
                     yield integers ? Value.of(a.value().intValue() / b.value().intValue()) : Value.of(a.value().doubleValue() / b.value().doubleValue());
                 }
-                case '%' -> integers ? Value.of(a.value().intValue() % b.value().intValue()) : Value.of(a.value().doubleValue() % b.value().doubleValue());
-                case '&' -> Value.of(a.value().intValue() & b.value().intValue());
-                case '|' -> Value.of(a.value().intValue() | b.value().intValue());
+                case "%" -> integers ? Value.of(a.value().intValue() % b.value().intValue()) : Value.of(a.value().doubleValue() % b.value().doubleValue());
+                case "&" -> Value.of(a.value().intValue() & b.value().intValue());
+                case "|" -> Value.of(a.value().intValue() | b.value().intValue());
+                case "^" ->  Value.of(a.value().intValue() ^ b.value().intValue());
+                case ">>" -> Value.of(a.value().intValue() >> b.value().intValue());
+                case "<<" -> Value.of(a.value().intValue() << b.value().intValue());
                 default -> throw new IllegalArgumentException("Unsupported operator: " + symbol());
             };
         }
 
         @Override
         public void process(ExpressionEvaluator evaluator, VariableResolver variableResolver) {
-            if (symbol() != '(' && symbol() != ')'){
+            if (!symbol().equals("(") && !symbol().equals(")")){
                 while (!evaluator.operators.isEmpty() && hasPrecedence(evaluator.operators.peek())) {
                     evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
                 }
-            } else if (symbol() == ')'){
-                while (evaluator.operators.peek().symbol() != '(') {
+            } else if (symbol().equals(")")){
+                while (!evaluator.operators.peek().symbol().equals("(")) {
                     evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
                 }
                 evaluator.operators.pop();
@@ -213,6 +205,7 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
             return switch (type){
                 case "sqrt" -> Value.of(Math.sqrt(args.get(0).value().doubleValue()));
                 case "cbrt" -> Value.of(Math.cbrt(args.get(0).value().doubleValue()));
+                case "pow" -> Value.of(Math.pow(args.get(0).value().doubleValue(),args.get(1).value().doubleValue()));
                 case "min" -> integers() ? Value.of(Math.min(args.get(0).value().intValue(), args.get(1).value().intValue())) : Value.of(Math.min(args.get(0).value().doubleValue(), args.get(1).value().doubleValue()));
                 case "max" -> integers() ? Value.of(Math.max(args.get(0).value().intValue(), args.get(1).value().intValue())) : Value.of(Math.max(args.get(0).value().doubleValue(), args.get(1).value().doubleValue()));
                 case "clamp" -> integers() ? Value.of(Mth.clamp(args.get(0).value().intValue(), args.get(1).value().intValue(), args.get(2).value().intValue())) : Value.of(Mth.clamp(args.get(0).value().doubleValue(), args.get(1).value().doubleValue(), args.get(2).value().doubleValue()));

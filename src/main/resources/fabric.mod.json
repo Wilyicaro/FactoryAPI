@@ -20,6 +20,9 @@
     ],
     "client": [
       "wily.factoryapi.FactoryAPIClient::init"
+    ],
+    "modmenu": [
+      "wily.factoryapi.base.compat.client.FactoryAPIModMenuCompat"
     ]
   },
   "accessWidener": "${aw}",
@@ -27,7 +30,7 @@
     "${mod_id}.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
+    "fabric-api": ">=${fabric_api_version}",
     "minecraft": ["${mc_version_range}"]
   },
   "suggests": {

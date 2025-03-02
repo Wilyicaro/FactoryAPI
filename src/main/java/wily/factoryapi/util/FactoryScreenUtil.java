@@ -12,7 +12,6 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -22,47 +21,18 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
-import wily.factoryapi.base.IFactoryItem;
-import wily.factoryapi.base.client.IFactoryBlockEntityWLRenderer;
 import wily.factoryapi.base.client.IFactoryItemClientExtension;
+import wily.factoryapi.base.client.UIAccessor;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FactoryScreenUtil {
     private static final Minecraft mc = Minecraft.getInstance();
-
-
-    public static float getRed(int color) {
-        return (color >> 16 & 0xFF) / 255.0F;
-    }
-
-    public static float getGreen(int color) {
-        return (color >> 8 & 0xFF) / 255.0F;
-    }
-
-    public static float getBlue(int color) {
-        return (color & 0xFF) / 255.0F;
-    }
-
-    public static float getAlpha(int color) {
-        return (color >> 24 & 0xFF) / 255.0F;
-    }
-
-    public static int colorFromFloat(float r, float g, float b, float a) {
-        return (int)(a * 255f) << 24 | (int)(r * 255f) << 16 | (int)(g * 255f) << 8 | (int)(b * 255f);
-    }
-
-    public static int colorFromFloat(float[] rgba) {
-        return colorFromFloat(rgba.length == 0 ? 0 : rgba[0], rgba.length <= 1 ? 0 : rgba[1], rgba.length <= 2 ? 0 : rgba[2], rgba.length <= 3 ? 0 : rgba[3]);
-    }
-
-    public static float[] rgbaToFloat(int rgba) {
-        return new float[]{getRed(rgba),getGreen(rgba),getBlue(rgba),getAlpha(rgba)};
-    }
 
     public static void drawString(PoseStack stack, String text, int x, int y, int color, boolean shadow) {
         Font font = mc.font;
@@ -108,9 +78,11 @@ public class FactoryScreenUtil {
         outlinePixel.accept(x+ width -3, y + height - 2);
 
     }
+
     public static void drawGUIBackground(GuiGraphics graphics, int x, int y, int width, int height) {
         drawGUIBackground(graphics, x,y,width,height,-16777216, -3750202, -11184811, -1);
     }
+
     public static void drawGUISlot(GuiGraphics graphics, int x, int y, int width, int height, int shadowColor, int lightColor, int cornerColor, Integer backGroundColor) {
         graphics.fill(x, y, x + width - 1, y + 1, shadowColor);
         graphics.fill(x, y + 1, x + 1, y + height - 1, shadowColor);
@@ -122,15 +94,19 @@ public class FactoryScreenUtil {
         if (backGroundColor != null)
             graphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, backGroundColor);
     }
+
     public static void drawGUISlot(GuiGraphics graphics, int x, int y, int width, int height) {
         drawGUISlot(graphics,x,y,width,height, -13158601, -1, -7631989, -7631989);
     }
+
     public static void drawGUISubSlot(GuiGraphics graphics, int x, int y, int width, int height) {
         drawGUISlot(graphics,x,y,width,height, -16777216, -1, -13158601, -14342875);
     }
+
     public static void drawGUIFluidSlot(GuiGraphics graphics, int x, int y, int width, int height) {
         drawGUISlot(graphics,x,y,width,height, -13158601, -1, -7631989, -8947849);
     }
+
     public static void drawGUISlotOutline(GuiGraphics graphics, int x, int y, int width, int height) {
         drawGUISlot(graphics,x,y,width,height, -10263709, -5066062, -8158333, null);
     }
@@ -177,5 +153,25 @@ public class FactoryScreenUtil {
 
     public static boolean isMouseOver(double mouseX, double mouseY, int posX, int posY, int sizeX, int sizeY){
         return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
+    }
+
+    public static void applyOffset(GuiGraphics graphics, float x, float y, float z){
+        if (x != 0 || y != 0 | z != 0) graphics.pose().translate(x, y, z);
+    }
+
+    public static void applyScale(GuiGraphics graphics, float x, float y, float z){
+        if (x != 1 || y != 1 || z != 1) graphics.pose().scale(x, y, z);
+    }
+
+    public static void applyColor(GuiGraphics graphics, int color){
+        if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
+    }
+
+    public static UIAccessor getScreenAccessor(){
+        return UIAccessor.of(mc.screen);
+    }
+
+    public static UIAccessor getGuiAccessor(){
+        return UIAccessor.of(mc.gui);
     }
 }

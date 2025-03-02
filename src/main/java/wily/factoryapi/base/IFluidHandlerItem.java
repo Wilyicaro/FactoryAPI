@@ -21,7 +21,7 @@ public interface IFluidHandlerItem<T extends IPlatformFluidHandler> extends IFac
 
    @Override
    default <T extends IPlatformHandler> ArbitrarySupplier<T> getStorage(FactoryStorage<T> storage, ItemStack stack) {
-      if (storage == FactoryStorage.FLUID) return ()-> (T) new FactoryItemFluidHandler(getCapacity(),stack,this::isFluidValid,getTransport());
+      if (storage == FactoryStorage.FLUID) return ArbitrarySupplier.of(new FactoryItemFluidHandler(getCapacity(),stack,this::isFluidValid,getTransport())).cast();
       return ()->null;
    }
 }

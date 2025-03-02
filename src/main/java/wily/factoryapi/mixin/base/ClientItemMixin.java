@@ -36,8 +36,8 @@ public class ClientItemMixin {
                 //? if forge || neoforge && <1.20.5 {
                 /*renderProperties = new IClientItemExtensions() {
                     @Override
-                    public @NotNull HumanoidModel<?> getHumanoidArmorModel(/^? if >1.21.2 {^/LivingEntityRenderState livingEntityRenderState /^?} else {^//^LivingEntity livingEntity^//^?}^/, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                        return c.getHumanoidArmorModel(/^? if >1.21.2 {^/livingEntityRenderState /^?} else {^//^livingEntity^//^?}^/,itemStack,equipmentSlot,original);
+                    public @NotNull HumanoidModel<?> getHumanoidArmorModel(/^? if >1.21.2 {^//^LivingEntityRenderState livingEntityRenderState ^//^?} else {^/LivingEntity livingEntity/^?}^/, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                        return c.getHumanoidArmorModel(/^? if >1.21.2 {^//^livingEntityRenderState ^//^?} else {^/livingEntity/^?}^/,itemStack,equipmentSlot,original);
                     }
                 };
                 *///?}

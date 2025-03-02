@@ -13,7 +13,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.network.chat.ComponentSerialization;
 //?}
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -23,11 +22,12 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.ArbitrarySupplier;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DynamicUtil {
     public static final ListMap<ResourceLocation, ArbitrarySupplier<ItemStack>> COMMON_ITEMS = new ListMap<>();
@@ -39,12 +39,13 @@ public class DynamicUtil {
         /*if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
         return i;
     }).orElse(ItemStack.EMPTY)));
-    public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, Minecraft.getInstance().level.registryAccess())));
+    public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, FactoryAPI.getRegistryAccess())));
 
     public static final Codec<Vec3> VEC3_OPTIONAL_CODEC = RecordCodecBuilder.create(i-> i.group(Codec.DOUBLE.fieldOf("x").orElse(0d).forGetter(Vec3::x),Codec.DOUBLE.fieldOf("y").orElse(0d).forGetter(Vec3::y),Codec.DOUBLE.fieldOf("z").orElse(0d).forGetter(Vec3::z)).apply(i,Vec3::new));
     public static final Codec<Vec3> VEC3_OBJECT_CODEC = Codec.either(VEC3_OPTIONAL_CODEC,Vec3.CODEC.fieldOf("value").codec()).xmap(e-> e.map(v->v,v->v), Either::right);
 
-    public static final Codec<ItemStack> ITEM_CODEC = RecordCodecBuilder.create(i -> i.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder), Codec.INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount), /*? if <1.20.5 {*/CompoundTag.CODEC.optionalFieldOf("nbt").forGetter((itemStack) -> Optional.ofNullable(itemStack.getTag()))/*?} else {*//*DataComponentPatch.CODEC.fieldOf("components").forGetter(ItemStack::getComponentsPatch)*//*?}*/).apply(i, /*? if >1.20.1 {*/ItemStack::new/*?} else {*//*(item,count,nbt)->{ItemStack stack = new ItemStack(item,count); stack.setTag(nbt.orElse(null)); return stack;}*//*?}*/));
+    public static final Codec<ItemStack> COMPLETE_ITEM_CODEC = RecordCodecBuilder.create(i -> i.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder), Codec.INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount), /*? if <1.20.5 {*/CompoundTag.CODEC.optionalFieldOf("nbt").forGetter((itemStack) -> Optional.ofNullable(itemStack.getTag()))/*?} else {*//*DataComponentPatch.CODEC.fieldOf("components").orElse(DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)*//*?}*/).apply(i, /*? if >1.20.1 {*/ItemStack::new/*?} else {*//*(item,count,nbt)->{ItemStack stack = new ItemStack(item,count); stack.setTag(nbt.orElse(null)); return stack;}*//*?}*/));
+    public static final Codec<ItemStack> ITEM_CODEC = Codec.either(BuiltInRegistries.ITEM.holderByNameCodec().xmap(ItemStack::new,ItemStack::getItemHolder), COMPLETE_ITEM_CODEC).xmap(e->e.right().orElseGet(e.left()::get), Either::right);
     public static Codec<ArbitrarySupplier<ItemStack>> ITEM_WITHOUT_DATA_SUPPLIER_CODEC = Codec.of(ITEM_CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemWithoutDataFromDynamic);
     public static Codec<ArbitrarySupplier<ItemStack>> ITEM_SUPPLIER_CODEC = Codec.of(ITEM_CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemFromDynamic);
 
@@ -55,7 +56,7 @@ public class DynamicUtil {
         return getItemFromDynamic(ops, input, true);
     }
     public static <T> DataResult<Pair<ArbitrarySupplier<ItemStack>,T>> getItemFromDynamic(DynamicOps<T> ops, T input, boolean allowData){
-        return DataResult.success(Pair.of(getItemFromDynamic(new Dynamic<>(ops,input),true),input));
+        return DataResult.success(Pair.of(getItemFromDynamic(new Dynamic<>(ops,input),allowData),input));
     }
 
     public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean allowData){
@@ -67,11 +68,11 @@ public class DynamicUtil {
     }
 
     public static <T> Dynamic<T> convertToRegistryIfPossible(Dynamic<T> dynamic){
-        return !(dynamic.getOps() instanceof RegistryOps<?>) && Minecraft.getInstance().level != null ? dynamic.convert(getActualRegistryOps(dynamic.getOps())) : dynamic;
+        return !(dynamic.getOps() instanceof RegistryOps<?>) && (!FactoryAPI.isClient() || FactoryAPIClient.hasLevel()) ? dynamic.convert(getActualRegistryOps(dynamic.getOps())) : dynamic;
     }
 
     public static <T> DynamicOps<T> getActualRegistryOps(DynamicOps<T> ops){
-        return Minecraft.getInstance().level == null ? ops : (DynamicOps<T>) REGISTRY_OPS_CACHE.getUnchecked(ops);
+        return FactoryAPI.isClient() && !FactoryAPIClient.hasLevel() ? ops : (DynamicOps<T>) REGISTRY_OPS_CACHE.getUnchecked(ops);
     }
 
     public static Codec<Component> getComponentCodec(){

@@ -1,10 +1,10 @@
 package wily.factoryapi.util;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.base.config.FactoryCommonOptions;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -13,13 +13,13 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record BooleanExpressionEvaluator(String expression, List<Token> tokens, Stack<Boolean> values, Stack<Operator> operators, Cache<VariablesMap.View, Boolean> cache) {
+public record BooleanExpressionEvaluator(String expression, List<Token> tokens, Stack<Boolean> values, Stack<Operator> operators) {
     public static final LoadingCache<String, BooleanExpressionEvaluator> EXPRESSION_CACHE = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(15)).build(CacheLoader.from(BooleanExpressionEvaluator::create));
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("(:?\\d+\\.?\\d*)|(\\$\\{[A-Za-z_.]+}(?::false|:true)?)|(!|&&|&|\\|\\||\\|)|(==|!=|>=|<=|>|<)");
+    private static final Pattern TOKEN_PATTERN = Pattern.compile("(\\$\\{[\\dA-Za-z_.-]+})|(:?(?:false|true))|(:?\\d+\\.?\\d*)|(!|&&|&|\\|\\||\\|)|(==|!=|>=|<=|>|<)");
 
     public BooleanExpressionEvaluator(String expression, List<Token> tokens){
-        this(expression, tokens, new Stack<>(), new Stack<>(), CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(5)).build());
+        this(expression, tokens, new Stack<>(), new Stack<>());
     }
 
     public static BooleanExpressionEvaluator create(String expression) {
@@ -30,11 +30,6 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         return EXPRESSION_CACHE.getUnchecked(expression);
     }
 
-    public Boolean evaluateCached(VariableResolver variableResolver) {
-        // Disabled cache, thinking in a better solution :)
-        //return cache.asMap().computeIfAbsent(variableResolver.getView(), i-> evaluate(variableResolver));
-        return evaluate(variableResolver);
-    }
 
     public Boolean evaluate(VariableResolver variableResolver) {
         values.clear();
@@ -50,7 +45,7 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
 
             return values.pop();
         } catch (Exception e) {
-            FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}", e.getMessage(), toString());
+            if (FactoryCommonOptions.EXPRESSION_FAIL_LOGGING.get()) FactoryAPI.LOGGER.warn("Incorrect expression syntax: {} \nExpression: {}", e.getMessage(), toString());
             return false;
         }
     }
@@ -61,20 +56,19 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
 
         while (matcher.find()) {
             if (matcher.group(1) != null) {
-                tokens.add(new NumberValue(Double.parseDouble(matcher.group(1))));
-            }
-            else if (matcher.group(2) != null) {
+                String token = matcher.group(1);
+                String variableName = token.substring(2, token.length() - 1);
+                tokens.add(new Variable(variableName));
+            } if (matcher.group(2) != null) {
                 String token = matcher.group(2);
-                boolean endsWithTrue = token.endsWith("true");
-                boolean hasFallback = token.endsWith("false") || endsWithTrue;
-                String variableName = token.substring(2, token.length() - (hasFallback ? endsWithTrue ? 6 : 7 : 1));
-                tokens.add(new Variable(variableName, hasFallback ? endsWithTrue : null));
-            }
-            else if (matcher.group(3) != null) {
-                tokens.add(new Operator(matcher.group(3)));
-            }
-            else if (matcher.group(4) != null) {
-                tokens.add(new Equality(matcher.group(4)));
+                tokens.add(new BooleanValue(Boolean.parseBoolean(token.startsWith(":") ? token.substring(1) : token)));
+            } else if (matcher.group(3) != null) {
+                String token = matcher.group(3);
+                tokens.add(new NumberValue(Double.parseDouble(token.startsWith(":") ? token.substring(1) : token)));
+            } else if (matcher.group(4) != null) {
+                tokens.add(new Operator(matcher.group(4)));
+            } else if (matcher.group(5) != null) {
+                tokens.add(new Equality(matcher.group(5)));
             }
         }
         return tokens;
@@ -82,18 +76,48 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
 
     public interface Token {
         void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver);
+        default Token relativeToken(BooleanExpressionEvaluator evaluator, int ordinal){
+            int tokenIndex = evaluator.tokens.indexOf(this) + ordinal;
+            return tokenIndex < evaluator.tokens.size() && tokenIndex >= 0 ? null : evaluator.tokens.get(tokenIndex);
+        }
     }
 
-    public record Variable(String name, Boolean fallbackValue) implements NumberLikeValue {
+    public record Variable(String name) implements NumberLikeValue, BooleanLikeValue {
         @Override
-        public Number value(VariableResolver variableResolver) {
-            return variableResolver.getNumber(name, null);
+        public Number numberValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
+            return variableResolver.getNumber(name, relativeToken(evaluator, 1) instanceof NumberLikeValue value ? value.numberValue(evaluator, variableResolver) : null);
+        }
+
+        @Override
+        public Boolean booleanValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
+            return variableResolver.getBoolean(name, relativeToken(evaluator, 1) instanceof BooleanLikeValue value ? value.booleanValue(evaluator, variableResolver) : null);
         }
 
         @Override
         public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
-            if (value(variableResolver) != null) return;
-            boolean variable = variableResolver.getBoolean(name(), fallbackValue);
+            if (numberValue(evaluator, variableResolver) != null) return;
+            BooleanLikeValue.super.process(evaluator, variableResolver);
+        }
+    }
+
+    public record BooleanValue(boolean value) implements BooleanLikeValue {
+        @Override
+        public Boolean booleanValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
+            return value;
+        }
+
+        @Override
+        public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
+            if (relativeToken(evaluator, -1) instanceof Variable v && v.booleanValue(evaluator, variableResolver) != null) return;
+            BooleanLikeValue.super.process(evaluator, variableResolver);
+        }
+    }
+
+    public interface BooleanLikeValue extends Token {
+        Boolean booleanValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver);
+        default void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
+            Boolean variable;
+            if ((variable = booleanValue(evaluator, variableResolver)) == null) return;
             if (!evaluator.operators.isEmpty() && evaluator.operators.peek().symbol().equals("!")) {
                 variable = !variable;
                 evaluator.operators.pop();
@@ -103,7 +127,7 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
     }
 
     public interface NumberLikeValue extends Token {
-        Number value(VariableResolver variableResolver);
+        Number numberValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver);
         @Override
         default void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
         }
@@ -111,7 +135,7 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
 
     public record NumberValue(Number value) implements NumberLikeValue {
         @Override
-        public Number value(VariableResolver variableResolver) {
+        public Number numberValue(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
             return value();
         }
     }
@@ -132,7 +156,7 @@ public record BooleanExpressionEvaluator(String expression, List<Token> tokens, 
         @Override
         public void process(BooleanExpressionEvaluator evaluator, VariableResolver variableResolver) {
             int tokenIndex = evaluator.tokens().indexOf(this);
-            if (tokenIndex > 0 && tokenIndex < evaluator.tokens().size() - 1 && evaluator.tokens().get(tokenIndex - 1) instanceof NumberLikeValue n && evaluator.tokens().get(tokenIndex + 1) instanceof NumberLikeValue n1) evaluator.values.push(applyEquality(n1.value(variableResolver).doubleValue(), n.value(variableResolver).doubleValue()));
+            if (tokenIndex > 0 && tokenIndex < evaluator.tokens().size() - 1 && evaluator.tokens().get(tokenIndex - 1) instanceof NumberLikeValue n && evaluator.tokens().get(tokenIndex + 1) instanceof NumberLikeValue n1) evaluator.values.push(applyEquality(n1.numberValue(evaluator, variableResolver).doubleValue(), n.numberValue(evaluator, variableResolver).doubleValue()));
         }
     }
 

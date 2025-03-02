@@ -44,7 +44,7 @@ public class FluidRenderUtil {
     public static TextureAtlasSprite fluidSprite(FluidInstance fluid, boolean hasColor){
         TextureAtlasSprite fluidSprite = FactoryAPIClient.getFluidStillTexture(fluid.getFluid());
         if (hasColor){
-            int color = FactoryAPIClient.getFluidColor(fluid.getFluid(),null,null);
+            int color = FactoryAPIClient.getFluidColor(fluid);
             float a = ((color & 0xFF000000) >> 24) / 255F;
             a = a <= 0.001F ? 1 : a;
             float r = ((color & 0xFF0000) >> 16) / 255F;

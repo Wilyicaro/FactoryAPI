@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
+import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.util.FactoryItemUtil;
 
 import java.util.function.BiPredicate;
@@ -153,7 +154,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         nbt.put("Items", nbtTagList);
         return nbt;
         //?} else
-        /*return be == null ? new CompoundTag() : ContainerHelper.saveAllItems(new CompoundTag(),getItems(),be.getLevel().registryAccess());*/
+        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPI.getRegistryAccess());*/
     }
 
     @Override
@@ -174,7 +175,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
             }
         }
         //?} else
-        /*if (be != null) ContainerHelper.loadAllItems(tag,getItems(),be.getLevel().registryAccess());*/
+        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPI.getRegistryAccess());*/
     }
 
     @Override

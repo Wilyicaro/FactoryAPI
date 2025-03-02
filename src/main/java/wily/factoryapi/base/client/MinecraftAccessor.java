@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 
 public interface MinecraftAccessor {
-    static  MinecraftAccessor getInstance(){
+    static MinecraftAccessor getInstance(){
         return (MinecraftAccessor) Minecraft.getInstance();
     }
     //? if <1.20.5 {
@@ -13,4 +13,8 @@ public interface MinecraftAccessor {
     boolean setUser(User user);
 
     boolean hasGameLoaded();
+
+    static void reloadResourcePacksIfLoaded(){
+        if (MinecraftAccessor.getInstance().hasGameLoaded()) Minecraft.getInstance().reloadResourcePacks();
+    }
 }

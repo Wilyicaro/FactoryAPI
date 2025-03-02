@@ -165,7 +165,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
 
     @Override
     default FluidVariant getResource() {
-        return FluidVariant.of(getFluidInstance().getFluid());
+        return getFluidInstance().toVariant();
     }
 
     @Override

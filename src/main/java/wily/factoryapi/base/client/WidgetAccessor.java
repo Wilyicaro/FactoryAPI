@@ -2,7 +2,9 @@ package wily.factoryapi.base.client;
 
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.resources.ResourceLocation;
+import wily.factoryapi.base.ArbitrarySupplier;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public interface WidgetAccessor {
@@ -20,6 +22,7 @@ public interface WidgetAccessor {
 
     void setOnPressOverride(Consumer<AbstractWidget> onPressOverride);
 
+    void setVisibility(ArbitrarySupplier<Boolean> supplier);
 
     //? if <=1.20.1
     /*void setHeight(int height);*/

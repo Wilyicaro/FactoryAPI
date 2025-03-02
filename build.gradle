@@ -16,6 +16,12 @@ def loader = property("loom.platform")
 
 repositories {
     maven { url "https://maven.neoforged.net/releases/" }
+
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
+
 }
 configurations.configureEach {
     resolutionStrategy {
@@ -28,6 +34,7 @@ dependencies {
     if (loader == "fabric") {
         modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
         modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+        modImplementation("com.terraformersmc:modmenu:${modmenu_version}")
 
         include modApi("teamreborn:energy:${team_reborn_energy_version}") {
             exclude(group: "net.fabricmc.fabric-api")
@@ -35,6 +42,8 @@ dependencies {
         }
     } else if (loader == "forge") {
         forge "net.minecraftforge:forge:${stonecutter.current.version}-${forge_version}"
+        compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixin_extras_version}"))
+        implementation(include("io.github.llamalad7:mixinextras-${loader}:${mixin_extras_version}"))
     } else if (loader == "neoforge") {
         neoForge "net.neoforged:neoforge:${neoforge_version}"
     }
@@ -128,6 +137,7 @@ processResources {
             "mod_issues" : mod_issues,
             "neoforge_version" : neoforge_version,
             "forge_version" : forge_version,
+            "fabric_api_version" : fabric_api_version,
             "mc_version_range" : version_range,
             "mc_version" : stonecutter.current.version,
             "aw": aw

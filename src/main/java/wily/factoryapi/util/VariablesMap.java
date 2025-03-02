@@ -1,23 +1,26 @@
 package wily.factoryapi.util;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class VariablesMap<K, V> implements Map<K, V> {
     protected Pattern pattern;
     private final Map<K, V> map;
 
-    protected int changes = 0;
-    protected View actualView = new View(this);
     protected boolean patternNeedsChange = true;
 
     protected void setChanged(){
         patternNeedsChange = true;
-        changes++;
-        actualView = new View(this);
     }
 
     public Pattern getPattern(){
@@ -109,18 +112,22 @@ public class VariablesMap<K, V> implements Map<K, V> {
         return map.entrySet();
     }
 
-    public View getView(){
-        return actualView;
-    }
-
-    public record View(Map<?,?> map, int version){
-        public View(VariablesMap<?,?> variablesMap){
-            this(variablesMap, variablesMap.changes);
-        }
-    }
 
     @Override
     public String toString() {
-        return map.toString();
+        if (isEmpty()) return "{}";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        var iterator = entrySet().iterator();
+        while (iterator.hasNext()){
+            var entry = iterator.next();
+            sb.append(entry.getKey() == this ? "(this Map)" : entry.getKey());
+            sb.append('=');
+            sb.append(entry.getValue() == this ? "(this Map)" : entry.getValue() instanceof Supplier<?> s ?"()->"+ s.get() : entry.getValue());
+            if (iterator.hasNext()) sb.append(',').append(' ');
+        }
+        sb.append('}');
+        return sb.toString();
     }
 }

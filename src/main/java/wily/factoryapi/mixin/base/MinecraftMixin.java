@@ -72,14 +72,14 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     @Inject(method = "resizeDisplay",at = @At("RETURN"))
     public void resizeDisplay(CallbackInfo ci) {
         if (this.level != null) {
-            UIAccessor.of(gui).staticInit();
+            UIAccessor.of(gui).reloadUI();
             FactoryAPIClient.RESIZE_DISPLAY.invoker.accept(Minecraft.getInstance());
         }
     }
     @Inject(method = "setScreen",at = @At("RETURN"))
     public void setScreen(Screen screen, CallbackInfo ci) {
-        if (screen == null && this.level != null) {
-            UIAccessor.of(gui).staticInit();
+        if (this.level != null) {
+            UIAccessor.of(gui).reloadUI();
         }
     }
     @Inject(method = "stop",at = @At("RETURN"))
@@ -163,7 +163,7 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         this.reportingContext = ReportingContext.create(ReportEnvironment.local(), userApiService);
         this.realmsDataFetcher = new RealmsDataFetcher(RealmsClient.create(Minecraft.getInstance()));
         //? if >=1.20.3
-        RealmsAvailabilityAccessor.setFuture(userPropertiesFuture);
+        RealmsAvailabilityAccessor.setFuture(null);
         return true;
     }
 }

@@ -8,6 +8,8 @@ import net.minecraft.Util;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.util.ExtraCodecs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -15,24 +17,29 @@ import java.util.stream.Stream;
 
 public record GuiMetadataSection(GuiSpriteScaling scaling) {
     public static final GuiMetadataSection DEFAULT = new GuiMetadataSection(GuiSpriteScaling.DEFAULT);
-
     public static final Codec<GuiMetadataSection> CODEC = RecordCodecBuilder.create((instance) ->  instance.group(strictOptionalField(GuiSpriteScaling.CODEC, "scaling", GuiSpriteScaling.DEFAULT).forGetter(GuiMetadataSection::scaling)).apply(instance, GuiMetadataSection::new));
-    public static final MetadataSectionType<GuiMetadataSection> TYPE = new MetadataSectionType<>() {
-        @Override
-        public String getMetadataSectionName() {
-            return "gui";
+    public static final MetadataSectionType<GuiMetadataSection> TYPE = fromCodec("gui", CODEC);
+    public static final List<MetadataSectionType<?>> DEFAULT_TYPES = new ArrayList<>(List.of(TYPE, MipmapMetadataSection.TYPE));
+
+
+    public static <T> MetadataSectionType<T> fromCodec(String name, Codec<T> codec){
+        return new MetadataSectionType<>() {
+            @Override
+            public String getMetadataSectionName() {
+                return name;
             }
 
 
-        public GuiMetadataSection fromJson(JsonObject jsonObject) {
-            return CODEC.parse(JsonOps.INSTANCE, jsonObject).result().orElse(DEFAULT);
-        }
+            public T fromJson(JsonObject jsonObject) {
+                return codec.parse(JsonOps.INSTANCE, jsonObject).result().orElse(null);
+            }
 
-        @Override
-        public JsonObject toJson(GuiMetadataSection object) {
-            return Util.getOrThrow(CODEC.encodeStart(JsonOps.INSTANCE, object), IllegalArgumentException::new).getAsJsonObject();
-        }
-    };
+            @Override
+            public JsonObject toJson(T object) {
+                return Util.getOrThrow(codec.encodeStart(JsonOps.INSTANCE, object), IllegalArgumentException::new).getAsJsonObject();
+            }
+        };
+    }
     public static <A> MapCodec<Optional<A>> strictOptionalField(Codec<A> codec, String string) {
         return new StrictOptionalFieldCodec<>(string, codec);
     }

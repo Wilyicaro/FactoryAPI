@@ -23,6 +23,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIPlatform;
+import java.util.Objects;
 
 //? if fabric {
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -132,6 +133,10 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         return getFluid() == Fluids.EMPTY ? 0 : amount;
     }
 
+    public long getPlatformAmount(){
+        return getPlatformFluidAmount(getAmount());
+    }
+
     public void setAmount(int amount){
         if (getFluid() != Fluids.EMPTY) this.amount = amount;
     }
@@ -147,9 +152,9 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         if (stack == null) stack = new FluidStack(fluid,amount);
         stack.setAmount(amount);
         //? if <1.20.5 || forge {
-        /^stack.setTag(getTag());
-        ^///?} else
-        stack.applyComponents(getComponents());
+        stack.setTag(getTag());
+        //?} else
+        /^stack.applyComponents(getComponents());^/
         return stack;
     }
     *///?}
@@ -175,12 +180,15 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     public static CompoundTag toTag(FluidInstance stack){
         return CODEC.encodeStart(NbtOps.INSTANCE,stack).result().map(t-> t instanceof CompoundTag c ? c : null).orElse(new CompoundTag());
     }
+
     public static long getPlatformBucketFluidAmount(){
         return FactoryAPI.getLoader().isFabric() ? 81000L : 1000;
     }
-    public static long getPlatformFluidAmount(long amount){
+
+    public static long getPlatformFluidAmount(int amount){
         return (long) (((float)amount / 1000) * getPlatformBucketFluidAmount());
     }
+
     public static int getMilliBucketsFluidAmount(long amount){
         return (int) (((float)amount / getPlatformBucketFluidAmount()) * 1000);
     }
@@ -212,6 +220,16 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
 
     public Component getName() {
         return getFluid().defaultFluidState().createLegacyBlock().getBlock().getName();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj) || obj instanceof FluidInstance i && i.isFluidEqual(this) && i.getAmount() == getAmount() &&/*? if <1.20.5 || forge {*/  Objects.equals(tag, i.tag) /*?} else {*//*components.equals(i.components)*//*?}*/;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fluid, amount, /*? if <1.20.5 || forge {*/  tag /*?} else {*//*components*//*?}*/);
     }
 
     public static void encode( /*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf, FluidInstance instance){

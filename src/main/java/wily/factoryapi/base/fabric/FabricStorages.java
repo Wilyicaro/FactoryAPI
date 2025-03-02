@@ -28,20 +28,17 @@ public class FabricStorages {
                 return s.getStorage(FactoryStorage.ENERGY,d).get();
             else return null;
         });
-        CraftyEnergyStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) ->
-        {
+        CraftyEnergyStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) -> {
             if (be instanceof IFactoryStorage s && s.getStorage(FactoryStorage.CRAFTY_ENERGY,d).isPresent())
                 return s.getStorage(FactoryStorage.CRAFTY_ENERGY,d).get();
             return null;
         });
-        FluidStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) ->
-        {
+        FluidStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) -> {
             if (be instanceof IFactoryStorage s && s.getStorage(FactoryStorage.FLUID,d).isPresent())
                 return s.getStorage(FactoryStorage.FLUID,d).get();
             return null;
         });
-        ItemStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) ->
-        {
+        ItemStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) -> {
             if (be instanceof IFactoryStorage s && s.getStorage(FactoryStorage.ITEM,d).isPresent())
                 return s.getStorage(FactoryStorage.ITEM,d).get();
             return null;
