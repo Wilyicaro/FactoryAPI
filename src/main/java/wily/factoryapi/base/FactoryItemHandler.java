@@ -1,5 +1,10 @@
 package wily.factoryapi.base;
 
+//? if fabric {
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+//?}
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
@@ -15,7 +20,7 @@ import wily.factoryapi.util.FactoryItemUtil;
 
 import java.util.function.BiPredicate;
 
-public class FactoryItemHandler extends SimpleContainer implements IPlatformItemHandler{
+public class FactoryItemHandler extends SimpleContainer implements IPlatformItemHandler {
     protected BlockEntity be;
     protected TransportState transportState;
 
@@ -193,7 +198,16 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         return be != null && be.isRemoved();
     }
 
-    public static class SidedWrapper extends FactoryItemHandler implements IModifiableTransportHandler{
+    //? if fabric {
+    protected final InventoryStorage inventoryStorage = InventoryStorage.of(this, null);
+
+    @Override
+    public Storage<ItemVariant> getHandler() {
+        return inventoryStorage;
+    }
+    //?}
+
+    public static class SidedWrapper extends FactoryItemHandler implements IModifiableTransportHandler {
 
         private final IPlatformItemHandler  platformItemHandler;
         public int[] slots = new int[0];
@@ -202,6 +216,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
             super(platformItemHandler, platformItemHandler.getTransport());
             this.platformItemHandler = platformItemHandler;
         }
+
         @Override
         public boolean canPlaceItem(int i, @NotNull ItemStack arg) {
             return platformItemHandler.canPlaceItem(i,arg) && ArrayUtils.contains(slots,i);

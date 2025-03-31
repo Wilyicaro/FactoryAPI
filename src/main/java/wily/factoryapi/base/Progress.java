@@ -2,6 +2,7 @@ package wily.factoryapi.base;
 
 import net.minecraft.nbt.CompoundTag;
 import org.apache.commons.lang3.ArrayUtils;
+import wily.factoryapi.util.CompoundTagUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +72,8 @@ public class Progress implements ITagSerializable<CompoundTag> {
     public void deserializeTag(CompoundTag tag) {
         for (int i = 0; i < entries.size(); i++) {
             ProgressEntry p = entries.get(i);
-            int[] array = tag.getIntArray(identifier.name);
-            if (i*2 < array.length) {
+            int[] array = CompoundTagUtil.getIntArrayOrEmpty(tag, identifier.name);
+            if (i * 2 < array.length) {
                 p.set(array[i * 2]);
                 p.maxProgress = array[i * 2 + 1];
             }

@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.client.WidgetAccessor;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 @Mixin(AbstractButton.class)
 public abstract class AbstractButtonMixin extends AbstractWidget implements WidgetAccessor {
@@ -30,10 +31,11 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
         }
     }
 
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractButton;onPress()V"), cancellable = true)
     public void keyPressed(int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
         if (getOnPressOverride() != null) {
-            cir.setReturnValue(super.keyPressed(i, j, k));
+            getOnPressOverride().accept(this);
+            cir.setReturnValue(true);
         }
     }
 
@@ -41,11 +43,11 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
         ResourceLocation sprite = getSpriteOverride();
         if (sprite != null) {
-            RenderSystem.enableBlend();
-            FactoryGuiGraphics.of(guiGraphics).setColor(1.0f,1.0f,1.0f,alpha);
+            FactoryScreenUtil.enableBlend();
+            FactoryGuiGraphics.of(guiGraphics).setColor(1.0f,1.0f,1.0f, alpha);
             FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
             FactoryGuiGraphics.of(guiGraphics).setColor(1.0f,1.0f,1.0f,1.0f);
-            RenderSystem.disableBlend();
+            FactoryScreenUtil.disableBlend();
         }
     }
 }

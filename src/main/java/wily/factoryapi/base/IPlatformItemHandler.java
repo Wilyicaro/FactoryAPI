@@ -1,19 +1,12 @@
 package wily.factoryapi.base;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 //? if fabric {
-import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 //?} else if forge {
 /*import net.minecraftforge.items.IItemHandlerModifiable;
 *///?} else if neoforge {
@@ -27,55 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public interface IPlatformItemHandler extends Container, ITagSerializable<CompoundTag>, IPlatformHandler /*? if forge || neoforge {*//*, IItemHandlerModifiable*//*?} else if fabric {*/, SlottedStorage<ItemVariant>/*?}*/ {
-    //? if fabric {
-    LoadingCache<IPlatformItemHandler, List<SingleSlotStorage<ItemVariant>>> ITEM_SLOTS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(key->{
-        List<SingleSlotStorage<ItemVariant>> slots = new ArrayList<>();
-        for (int i = 0; i < key.getContainerSize(); i++) {
-            int index = i;
-            slots.add(new SingleSlotStorage<>() {
-                @Override
-                public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-                    ItemStack insertion = resource.toStack((int) maxAmount);
-                    transaction.addCloseCallback((t, r) -> {
-                        if (r.wasCommitted()) key.insertItem(index, insertion, false);
-                    });
-                    return insertion.getCount() - key.insertItem(index, insertion, true).getCount();
-                }
-
-                @Override
-                public long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-                    if (!resource.matches(key.getItem(index))) return 0;
-                    transaction.addCloseCallback((t, r) -> {
-                        if (r.wasCommitted()) key.extractItem(index, (int) maxAmount, false);
-                    });
-                    return key.extractItem(index, (int) maxAmount, true).getCount();
-                }
-
-                @Override
-                public boolean isResourceBlank() {
-                    return getResource().isBlank();
-                }
-
-                @Override
-                public ItemVariant getResource() {
-                    return ItemVariant.of(key.getItem(index));
-                }
-
-                @Override
-                public long getAmount() {
-                    return key.getItem(index).getCount();
-                }
-
-                @Override
-                public long getCapacity() {
-                    return key.getItem(index).getMaxStackSize();
-                }
-            });
-        }
-        return slots;
-    }));
-    //?}
+public interface IPlatformItemHandler extends Container, ITagSerializable<CompoundTag>, IPlatformHandler /*? if forge || neoforge {*//*, IItemHandlerModifiable*//*?} else if fabric {*/,IPlatformHandlerApi<Storage<ItemVariant>>/*?}*/ {
 
     @Override
     default ItemStack removeItemNoUpdate(int i){
@@ -151,65 +96,7 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
     ItemStack extractItem(int slot, int amount, boolean simulate);
 
 
-    //? if fabric {
-    @Override
-    default @UnmodifiableView List<SingleSlotStorage<ItemVariant>> getSlots() {
-        ITEM_SLOTS_CACHE.asMap().keySet().removeIf(IPlatformHandler::isRemoved);
-        List<SingleSlotStorage<ItemVariant>> slots;
-        while ((slots = ITEM_SLOTS_CACHE.getUnchecked(this)).size() != getContainerSize())
-            ITEM_SLOTS_CACHE.invalidate(this);
-        return slots;
-    }
-
-    @Override
-    default int getSlotCount() {
-        return getSlots().size();
-    }
-
-    @Override
-    default SingleSlotStorage<ItemVariant> getSlot(int slot) {
-        return getSlots().get(slot);
-    }
-
-    @Override
-    default long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        StoragePreconditions.notNegative(maxAmount);
-        long amount = 0;
-        for (SingleSlotStorage<ItemVariant> part : getSlots()) {
-            amount += part.insert(resource, maxAmount - amount, transaction);
-            if (amount == maxAmount) break;
-        }
-        return amount;
-    }
-
-    @Override
-    default long extract(ItemVariant resource, long maxAmount, TransactionContext transaction) {
-        StoragePreconditions.notNegative(maxAmount);
-        long amount = 0;
-
-        for (SingleSlotStorage<ItemVariant> part : getSlots()) {
-            amount += part.extract(resource, maxAmount - amount, transaction);
-            if (amount == maxAmount) break;
-        }
-
-        return amount;
-    }
-
-    @Override
-    default boolean supportsInsertion() {
-        return getTransport().canInsert();
-    }
-
-    @Override
-    default boolean supportsExtraction() {
-        return getTransport().canExtract();
-    }
-
-    @Override
-    default Iterator<StorageView<ItemVariant>> iterator() {
-        return getSlots().stream().map(s-> (StorageView<ItemVariant>) s).iterator();
-    }
-    //?} else if forge || neoforge {
+    //? if forge || neoforge {
     /*@Override
     default int getSlots() {
         return getContainerSize();

@@ -1,57 +1,17 @@
 package wily.factoryapi.util;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.joml.Matrix4f;
 import wily.factoryapi.FactoryAPIClient;
+import wily.factoryapi.base.client.FactoryGuiGraphics;
 
 public class FluidRenderUtil {
-    public static void renderTiledFluid(GuiGraphics graphics, int posX, int posY, int i, int j, int renderAmount, int fluidWidth, TextureAtlasSprite fluidSprite){
-        int drawWidth = Math.min(fluidWidth - i, 16);
-        int drawHeight = Math.min(renderAmount - j, 16);
-
-        int drawX = posX + i;
-        int drawY = posY + j;
-
-        float minU = fluidSprite.getU0();
-        float maxU = fluidSprite.getU1();
-        float minV = fluidSprite.getV0();
-        float maxV = fluidSprite.getV1();
-        float dH = minV + (maxV - minV) * drawHeight / 16F;
-        float dW = minU + (maxU - minU) * drawWidth / 16F;
-        Matrix4f matrix4f = graphics.pose().last().pose();
-
-        //? if <1.20.5 {
-        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.vertex(matrix4f, drawX, drawY + drawHeight, 0).uv(minU, dH).endVertex();
-        bufferBuilder.vertex(matrix4f,drawX + drawWidth, drawY + drawHeight, 0).uv(dW, dH).endVertex();
-        bufferBuilder.vertex(matrix4f,drawX + drawWidth, drawY, 0).uv(dW, minV).endVertex();
-        bufferBuilder.vertex(matrix4f,drawX, drawY, 0).uv(minU, minV).endVertex();
-        BufferUploader.drawWithShader(bufferBuilder.end());
-        //?} else {
-        /*BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, drawX, drawY + drawHeight, 0).setUv(minU, dH);
-        bufferBuilder.addVertex(matrix4f,drawX + drawWidth, drawY + drawHeight, 0).setUv(dW, dH);
-        bufferBuilder.addVertex(matrix4f,drawX + drawWidth, drawY, 0).setUv(dW, minV);
-        bufferBuilder.addVertex(matrix4f,drawX, drawY, 0).setUv(minU, minV);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        *///?}
+    public static void renderTiledFluid(GuiGraphics graphics, int x, int y, int offsetX, int offsetY, int fluidWidth, int fluidHeight, TextureAtlasSprite fluidSprite){
+        FactoryGuiGraphics.of(graphics).blit(fluidSprite.atlasLocation(), x + offsetX, y + offsetY, fluidSprite.getX() * 16f / fluidSprite.contents().width(), fluidSprite.getY() * 16f / fluidSprite.contents().height(), Math.min(fluidWidth - offsetX, 16), Math.min(fluidHeight - offsetY, 16), Math.round((1 / (fluidSprite.getU0() / fluidSprite.getX())) * 16 / fluidSprite.contents().width()), Math.round((1 / (fluidSprite.getV0() / fluidSprite.getY())) * 16 / fluidSprite.contents().height()));
     }
 
-    public static TextureAtlasSprite fluidSprite(FluidInstance fluid, boolean hasColor){
-        TextureAtlasSprite fluidSprite = FactoryAPIClient.getFluidStillTexture(fluid.getFluid());
-        if (hasColor){
-            int color = FactoryAPIClient.getFluidColor(fluid);
-            float a = ((color & 0xFF000000) >> 24) / 255F;
-            a = a <= 0.001F ? 1 : a;
-            float r = ((color & 0xFF0000) >> 16) / 255F;
-            float g = ((color & 0xFF00) >> 8) / 255F;
-            float b = (color & 0xFF) / 255F;
-            RenderSystem.setShaderColor(r,g,b,a);
-        }
-        return fluidSprite;
+    public static int getFixedColor(FluidInstance fluid){
+        int color = FactoryAPIClient.getFluidColor(fluid);
+        return ColorUtil.getA(color) <= 0 ? ColorUtil.withAlpha(color, 1.0f) : color;
     }
 }

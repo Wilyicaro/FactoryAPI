@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIPlatform;
 import java.util.Objects;
+import java.util.Optional;
 
 //? if fabric {
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -99,11 +100,12 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     public DataComponentMap getComponents() {
         return components;
     }
+
     public DataComponentPatch getComponentsPatch() {
         return !this.isEmpty() ? components.asPatch() : DataComponentPatch.EMPTY;
     }
 
-    public <T> T set(DataComponentType<? super T> type, @Nullable T component) {
+    public <T> T set(DataComponentType<T> type, @Nullable T component) {
         return this.components.set(type, component);
     }
 
@@ -168,10 +170,11 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     }
     public static FluidInstance fromTag(CompoundTag tag){
         return CODEC.parse(NbtOps.INSTANCE,tag).result().orElseGet(()->{
-            if (tag.contains("FluidName") || tag.contains("fluidVariant") && FactoryAPI.getLoader().isFabric()){
-                Fluid fluid = FactoryAPIPlatform.getRegistryValue(FactoryAPI.createLocation(FactoryAPI.getLoader().isFabric() ? tag.getCompound("fluidVariant").getString("fluid") : tag.getString("FluidName")),BuiltInRegistries.FLUID);
+            Optional<String> fluidId = /*? if fabric {*/CompoundTagUtil.getCompoundTag(tag,"fluidVariant").flatMap(c->CompoundTagUtil.getString(c,"fluid"))/*?} else {*//*CompoundTagUtil.getString(tag, "FluidName")*//*?}*/;
+            if (fluidId.isPresent()){
+                Fluid fluid = FactoryAPIPlatform.getRegistryValue(FactoryAPI.createLocation(fluidId.get()), BuiltInRegistries.FLUID);
                 if (fluid == Fluids.EMPTY) return FluidInstance.empty();
-                return FluidInstance.create(fluid,getMilliBucketsFluidAmount(tag.getLong(FactoryAPI.getLoader().isFabric() ? "amount": "Amount")));
+                return FluidInstance.create(fluid,getMilliBucketsFluidAmount(CompoundTagUtil.getLong(tag,/*? if fabric {*/"amount"/*?} else {*//*"Amount"*//*?}*/).orElse(0L)));
             }
             return empty();
         });

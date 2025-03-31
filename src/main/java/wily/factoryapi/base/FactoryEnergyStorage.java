@@ -3,6 +3,7 @@ package wily.factoryapi.base;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.util.CompoundTagUtil;
 
 public class FactoryEnergyStorage implements IPlatformEnergyStorage {
     public static final String KEY = "energy";
@@ -85,7 +86,7 @@ public class FactoryEnergyStorage implements IPlatformEnergyStorage {
 
     @Override
     public void deserializeTag(CompoundTag nbt) {
-        setEnergyStored(nbt.getInt("energy"));
+        setEnergyStored(CompoundTagUtil.getInt(nbt, "energy").orElse(0));
     }
 
     @Override

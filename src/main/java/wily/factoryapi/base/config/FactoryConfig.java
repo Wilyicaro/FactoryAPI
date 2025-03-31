@@ -3,6 +3,7 @@ package wily.factoryapi.base.config;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.*;
 import net.minecraft.resources.ResourceLocation;
@@ -72,6 +73,14 @@ public interface FactoryConfig<T> extends Bearer<T> {
 
         default <T> void sync(FactoryConfig<T> config) {
         }
+
+        default boolean allowSync(){
+            return false;
+        }
+
+        default boolean allowClientSync(){
+            return allowSync() && FactoryAPIClient.hasLevel();
+        }
     }
 
     static <T> void saveOptionAndConsume(FactoryConfig<T> config, T newValue, Consumer<T> consumer) {
@@ -87,7 +96,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
     class StorageHandler implements StorageAccess {
         public File file;
         public final Map<String, FactoryConfig<?>> configMap;
-        public final boolean allowSync;
+        protected final boolean allowSync;
 
         public StorageHandler(Map<String, FactoryConfig<?>> configMap, boolean allowSync){
             this.configMap = configMap;
@@ -149,6 +158,11 @@ public interface FactoryConfig<T> extends Bearer<T> {
             if (FactoryAPI.currentServer == null) {
                 CommonNetwork.sendToServer(CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_C2S, this));
             } else CommonNetwork.sendToPlayers(FactoryAPI.currentServer.getPlayerList().getPlayers(), CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, this));
+        }
+
+        @Override
+        public boolean allowSync() {
+            return allowSync;
         }
 
         @Override
@@ -271,7 +285,9 @@ public interface FactoryConfig<T> extends Bearer<T> {
     static <T> void decodeConfigs(Map<String,? extends FactoryConfig<?>> configs, Dynamic<T> dynamic){
         dynamic.asMapOpt().result().ifPresent(m->m.forEach(p-> p.getFirst().asString().result().ifPresent(s-> {
             FactoryConfig<?> config = configs.get(s);
-            config.decode(p.getSecond());
+            if (config == null){
+                LOGGER.warn("Config named as {} with value {} wasn't found", s, p.getSecond().toString());
+            } else config.decode(p.getSecond());
         })));
     }
 
@@ -285,7 +301,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
             return;
         }
         try (BufferedReader r = Files.newReader(file, Charsets.UTF_8)){
-            GsonHelper.parse(r).asMap().forEach((s,e)->{
+            JsonParser.parseReader(r).getAsJsonObject().asMap().forEach((s, e)->{
                 FactoryConfig<?> config = configs.get(s);
                 if (config == null) {
                     LOGGER.warn("Config named as {} from {} config file wasn't found",s, file.toString());

@@ -9,3 +9,4 @@ extendable class net/minecraft/world/item/crafting/Ingredient
 accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/util/stream/Stream;)V
 accessible field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
 mutable field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier

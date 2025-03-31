@@ -2,6 +2,7 @@ package wily.factoryapi.base;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import wily.factoryapi.util.CompoundTagUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ public class TransportSide implements IHasIdentifier,IModifiableTransportHandler
     public static void deserializeTag(CompoundTag nbt, SideList<TransportSide> sided, List<? extends IHasIdentifier> list) {
         if (!nbt.isEmpty())
             for (Direction direction : Direction.values()) {
-                int[] slotsState = nbt.getIntArray(direction.getName());
+                int[] slotsState = CompoundTagUtil.getIntArrayOrEmpty(nbt, direction.getName());
                 sided.put(direction, new TransportSide(!list.isEmpty() ?  list.get(slotsState[0]).identifier() : sided.get(direction).identifier(), TransportState.byOrdinal(slotsState[slotsState.length - 1])));
             }
     }

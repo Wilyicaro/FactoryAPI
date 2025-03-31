@@ -23,7 +23,7 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.core.component./^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/;
 import net.minecraft.core.component.DataComponentType;
 *///?}
 import net.minecraft.resources.HolderSetCodec;
@@ -52,7 +52,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     public static final MapCodec<StackIngredient> CODEC = RecordCodecBuilder.mapCodec(
             builder -> builder.group(
                             HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(),false).fieldOf("items").forGetter(StackIngredient::values),
-                            /*? if >=1.20.5 {*//*DataComponentPredicate*//*?} else {*/CompoundTag/*?}*/.CODEC.fieldOf(/*? if >=1.20.5 {*//*"components"*//*?} else {*/"nbt"/*?}*/).forGetter(StackIngredient::/*? if >=1.20.5 {*//*components*//*?} else {*/getTag/*?}*/),
+                            /*? if >=1.20.5 {*//*/^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/*//*?} else {*/CompoundTag/*?}*/.CODEC.fieldOf(/*? if >=1.20.5 {*//*"components"*//*?} else {*/"nbt"/*?}*/).forGetter(StackIngredient::/*? if >=1.20.5 {*//*components*//*?} else {*/getTag/*?}*/),
                             Codec.BOOL.optionalFieldOf("strict", false).forGetter(StackIngredient::isStrict),
                             Codec.INT.optionalFieldOf("count", 1).forGetter(StackIngredient::getCount))
                     .apply(builder, StackIngredient::new));
@@ -62,7 +62,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     public static final CommonNetwork.Identifier<StackIngredient> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("stack_ingredient"),StackIngredient::decode);
     private final HolderSet<Item> values;
     //? if >=1.20.5 {
-    /*private final DataComponentPredicate components;
+    /*private final /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ components;
     *///?} else {
     private final CompoundTag tag;
     //?}
@@ -70,7 +70,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     protected final ItemStack[] stacks;
     private final int count;
 
-    public StackIngredient(HolderSet<Item> values, /*? if >=1.20.5 {*/ /*DataComponentPredicate components*//*?} else {*/CompoundTag tag/*?}*/, boolean strict, int count) {
+    public StackIngredient(HolderSet<Item> values, /*? if >=1.20.5 {*/ /*/^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ components*//*?} else {*/CompoundTag tag/*?}*/, boolean strict, int count) {
         super(/*? if <1.21.2 {*/Stream.empty() /*?} else {*//*values*//*?}*/);
         this.values = values;
         //? if >=1.20.5 {
@@ -103,7 +103,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     }
 
     //? if <1.21.2 {
-    
+
     @Override
     public boolean isEmpty() {
         return stacks.length == 0;
@@ -123,7 +123,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     }
 
     //? if >=1.20.5 {
-    /*public DataComponentPredicate components() {
+    /*public /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ components() {
         return components;
     }
     *///?} else {
@@ -157,7 +157,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
     public static <T> StackIngredient of(boolean strict, DataComponentType<? super T> type, T value, int count, ItemLike... items) {
-        return of(strict, DataComponentPredicate.builder().expect(type, value).build(), count, items);
+        return of(strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/.builder().expect(type, value).build(), count, items);
     }
 
     /^*
@@ -171,7 +171,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
     public static StackIngredient of(boolean strict, DataComponentMap map, int count, ItemLike... items) {
-        return of(strict, DataComponentPredicate.allOf(map), count,items);
+        return of(strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/.allOf(map), count,items);
     }
 
     /^*
@@ -179,35 +179,35 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
      ^/
     @SafeVarargs
     public static StackIngredient of(boolean strict, DataComponentMap map, int count, Holder<Item>... items) {
-        return of(strict, DataComponentPredicate.allOf(map), count,items);
+        return of(strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/.allOf(map), count,items);
     }
 
     /^*
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
     public static StackIngredient of(boolean strict, DataComponentMap map, HolderSet<Item> items, int count) {
-        return of(strict, DataComponentPredicate.allOf(map), items, count);
+        return of(strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/.allOf(map), items, count);
     }
 
     /^*
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
     @SafeVarargs
-    public static StackIngredient of(boolean strict, DataComponentPredicate predicate, int count, Holder<Item>... items) {
+    public static StackIngredient of(boolean strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ predicate, int count, Holder<Item>... items) {
         return of(strict, predicate, HolderSet.direct(items), count);
     }
 
     /^*
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
-    public static StackIngredient of(boolean strict, DataComponentPredicate predicate, int count, ItemLike... items) {
+    public static StackIngredient of(boolean strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ predicate, int count, ItemLike... items) {
         return of(strict, predicate, HolderSet.direct(Arrays.stream(items).map(ItemLike::asItem).map(Item::builtInRegistryHolder).toList()), count);
     }
 
     /^*
      * Creates a new ingredient matching any item from the list, containing the given components
      ^/
-    public static StackIngredient of(boolean strict, DataComponentPredicate predicate, HolderSet<Item> items, int count) {
+    public static StackIngredient of(boolean strict, /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ predicate, HolderSet<Item> items, int count) {
         return new StackIngredient(items, predicate, strict,count);
     }
     *///?}

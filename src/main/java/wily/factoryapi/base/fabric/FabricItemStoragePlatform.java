@@ -18,7 +18,7 @@ import wily.factoryapi.base.TransportState;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-public interface FabricItemStoragePlatform extends IPlatformItemHandler, IPlatformHandlerApi<Storage<ItemVariant>> {
+public interface FabricItemStoragePlatform extends IPlatformItemHandler {
     @Override
     default int getContainerSize() {
         int s = 0;

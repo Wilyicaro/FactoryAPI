@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
+import wily.factoryapi.util.CompoundTagUtil;
 
 import java.util.*;
 
@@ -43,13 +44,13 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
     default List<SlotsIdentifier> getFluidSlotsIdentifiers() { return IHasIdentifier.getSlotsIdentifiers(getTanks()); }
 
     default void loadTag(CompoundTag compoundTag) {
-        getStorage(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("CYEnergy")));
-        getStorage(FactoryStorage.ENERGY).ifPresent((e)->e.deserializeTag(compoundTag.getCompound("Energy")));
-        if (!getTanks().isEmpty()) getTanks().forEach((tank)->  tank.deserializeTag(compoundTag.getCompound(tank.getName())));
-        getStorage(FactoryStorage.ITEM).ifPresent((e)-> e.deserializeTag(compoundTag.getCompound("inventory")));
-        getStorageSides(FactoryStorage.FLUID).ifPresent((f)-> TransportSide.deserializeTag(compoundTag.getCompound("fluidSides"), f, getTanks()));
-        getStorageSides(FactoryStorage.ITEM).ifPresent((i)-> TransportSide.deserializeTag(compoundTag.getCompound("itemSides"), i, getItemSlotsIdentifiers()));
-        getStorageSides(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)-> TransportSide.deserializeTag(compoundTag.getCompound("energySides"), e));
+        getStorage(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag, "CYEnergy")));
+        getStorage(FactoryStorage.ENERGY).ifPresent((e)->e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"Energy")));
+        if (!getTanks().isEmpty()) getTanks().forEach((tank)->  tank.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,tank.getName())));
+        getStorage(FactoryStorage.ITEM).ifPresent((e)-> e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"inventory")));
+        getStorageSides(FactoryStorage.FLUID).ifPresent((f)-> TransportSide.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"fluidSides"), f, getTanks()));
+        getStorageSides(FactoryStorage.ITEM).ifPresent((i)-> TransportSide.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"itemSides"), i, getItemSlotsIdentifiers()));
+        getStorageSides(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)-> TransportSide.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"energySides"), e));
     }
 
     default void saveTag(CompoundTag compoundTag) {

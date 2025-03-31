@@ -3,6 +3,7 @@ package wily.factoryapi.util;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -31,18 +32,6 @@ public class FactoryItemUtil {
     /*public static final Codec<List<Item>> ITEM_COMPONENTS_CODEC = ResourceLocation.CODEC.xmap(r-> FactoryAPIPlatform.getRegistryValue(r,BuiltInRegistries.ITEM), BuiltInRegistries.ITEM::getKey).listOf();
     public static final StreamCodec<RegistryFriendlyByteBuf,List<Item>> ITEM_COMPONENTS_STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(ITEM_COMPONENTS_CODEC);
     *///?}
-
-    public static boolean compoundContains(CompoundTag comparator, CompoundTag contains){
-        Map<String, Tag> map = new HashMap<>(comparator.tags);
-
-        for (String key : contains.getAllKeys()) {
-            if (map.containsKey(key)){
-                if (map.get(key).getAsString().equals(contains.get(key).getAsString()) || (map.get(key) instanceof ListTag l1 && contains.get(key) instanceof ListTag l2 && l2.containsAll(l1))||(map.get(key) instanceof CompoundTag ct1 && contains.get(key) instanceof CompoundTag ct2 && compoundContains(ct1,ct2)) )map.remove(key);
-            }
-        }
-
-        return map.isEmpty();
-    }
 
     public static CompoundTag getFromJson(JsonObject obj){
         return CompoundTag.CODEC.parse(JsonOps.INSTANCE,obj).result().orElseGet(CompoundTag::new);
@@ -86,7 +75,11 @@ public class FactoryItemUtil {
     }
 
     public static int getEnchantmentLevel(ItemStack stack, /*? if >=1.21 {*/ /*ResourceKey<Enchantment> *//*?} else {*/Enchantment/*?}*/ enchantment){
-        return /*? if <1.21 {*/EnchantmentHelper.getItemEnchantmentLevel(enchantment, stack)/*?} else {*//*FactoryAPIPlatform.getRegistryValue(FactoryAPI.getRegistryAccess(), enchantment).map(e->stack.getEnchantments().getLevel(e)).orElse(0)*//*?}*/;
+        return getEnchantmentLevel(stack, enchantment, FactoryAPI.currentServer.registryAccess());
+    }
+
+    public static int getEnchantmentLevel(ItemStack stack, /*? if >=1.21 {*/ /*ResourceKey<Enchantment> *//*?} else {*/Enchantment/*?}*/ enchantment, RegistryAccess registryAccess){
+        return /*? if <1.21 {*/EnchantmentHelper.getItemEnchantmentLevel(enchantment, stack)/*?} else {*//*FactoryAPIPlatform.getRegistryValue(registryAccess, enchantment).map(e->stack.getEnchantments().getLevel(e)).orElse(0)*//*?}*/;
     }
 
 }

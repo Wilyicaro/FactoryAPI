@@ -1,5 +1,6 @@
 package wily.factoryapi.mixin.base;
 
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.util.ColorUtil;
+import wily.factoryapi.util.FactoryScreenUtil;
 //? if <=1.20.1 {
 /*import wily.factoryapi.base.client.GuiSpriteScaling;
 *///?}
@@ -48,13 +50,13 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
 
         public void disableDepthTest() {
-            RenderSystem.disableDepthTest();
+            FactoryScreenUtil.disableDepthTest();
             //? if >=1.21.2
             /*depthTest = false;*/
         }
 
         public void enableDepthTest() {
-            RenderSystem.enableDepthTest();
+            FactoryScreenUtil.enableDepthTest();
             //? if >=1.21.2
             /*depthTest = true;*/
         }
@@ -173,8 +175,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         @Override
         public void setColor(float r, float g, float b, float a, boolean changeBlend) {
             if (changeBlend) {
-                if (a < 1) RenderSystem.enableBlend();
-                else RenderSystem.disableBlend();
+                if (a < 1) FactoryScreenUtil.enableBlend();
+                else FactoryScreenUtil.disableBlend();
             }
             //? if >=1.21.2 {
             /*context().flush();

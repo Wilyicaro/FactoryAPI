@@ -13,8 +13,10 @@ import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
@@ -28,11 +30,9 @@ import wily.factoryapi.util.VariablesMap;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public interface UIAccessor extends UIDefinition, VariableResolver {
     static UIAccessor of(Screen screen) {
@@ -48,7 +48,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     default void reloadUI(){
         beforeInit();
-        getRenderables().clear();
+        getChildrenRenderables().clear();
         afterInit();
     }
 
@@ -62,22 +62,31 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         putStaticElement("width", Minecraft.getInstance().getWindow().getGuiScaledWidth());
         putStaticElement("height", Minecraft.getInstance().getWindow().getGuiScaledHeight());
         getElements().put("hasScreen", ()-> Minecraft.getInstance().screen != null);
-        getElements().put("renderablesCount", getRenderables()::size);
+        if (getChildrenRenderables() != null)
+            getElements().put("renderablesCount", getChildrenRenderables()::size);
         FactoryAPIPlatform.getMods().forEach(i -> putStaticElement("loadedMods." + i.getId(), true));
         ServerData serverData = Minecraft.getInstance().getCurrentServer();
         if (serverData != null)
             putStaticElement("serverIp."+serverData.ip,true);
         Inventory inventory = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.getInventory();
         if (inventory != null) {
-            for (int i = 0; i < inventory.items.size(); i++) {
+            List<ItemStack> items = inventory./*? if >1.21.4 {*//*getNonEquipmentItems()*//*?} else {*/items/*?}*/;
+            for (int i = 0; i < items.size(); i++) {
                 int index = i;
-                getElements().put("inventory." + index, () -> inventory.items.get(index));
+                getElements().put("inventory." + index, () -> items.get(index));
             }
+            //? if >1.21.4 {
+            /*Inventory.EQUIPMENT_SLOT_MAPPING.forEach((i, equipmentSlot)->{
+                if (equipmentSlot == EquipmentSlot.OFFHAND) return;
+                getElements().put("inventory.armor." + equipmentSlot.getIndex(), () -> inventory.getItem(i));
+            });
+            *///?} else {
             for (int i = 0; i < inventory.armor.size(); i++) {
                 int index = i;
                 getElements().put("inventory.armor." + index, () -> inventory.armor.get(index));
             }
-            getElements().put("inventory.offhand", () -> inventory.offhand.get(0));
+            //?}
+            getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*//*inventory.getItem(Inventory.SLOT_OFFHAND)*//*?} else {*/inventory.offhand.get(0)/*?}*/);
         }
         putSupplierComponent("username", () -> Component.literal(Minecraft.getInstance().getUser().getName()));
         if (getScreen() instanceof MenuAccess<?> access){
@@ -117,7 +126,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     List<GuiEventListener> getChildren();
 
-    List<Renderable> getRenderables();
+    List<Renderable> getChildrenRenderables();
 
     <T extends GuiEventListener> T removeChild(T widget);
 
@@ -128,20 +137,20 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
     }
 
     default <T extends GuiEventListener> T addChild(String name, T listener) {
-        return addChild(getInteger(name + ".order", getRenderables().size()), listener);
+        return addChild(getInteger(name + ".order", getChildrenRenderables().size()), listener);
     }
 
     default <T extends Renderable> T addRenderable(T renderable) {
-        return addRenderable(getRenderables().size(), renderable);
+        return addRenderable(getChildrenRenderables().size(), renderable);
     }
 
     default <T extends Renderable> T addRenderable(int index, T renderable) {
-        getRenderables().add(Math.min(Math.max(0, index), getRenderables().size()), renderable);
+        getChildrenRenderables().add(Math.min(Math.max(0, index), getChildrenRenderables().size()), renderable);
         return renderable;
     }
 
     default <T extends Renderable> T addRenderable(String name, T renderable) {
-        return addRenderable(getInteger(name + ".order", getRenderables().size()), renderable);
+        return addRenderable(getInteger(name + ".order", getChildrenRenderables().size()), renderable);
     }
 
     VariablesMap<String, ArbitrarySupplier<?>> getElements();
@@ -201,13 +210,13 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 if (getElements().get(name+".index") instanceof Bearer<?> b) b.secureCast(Integer.class).set(i1);
                 guiGraphics.pose().pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
-                RenderSystem.enableBlend();
+                FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
                 guiGraphics.pose().translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 guiGraphics.pose().scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
                 guiGraphics.pose().popPose();
-                RenderSystem.disableBlend();
+                FactoryScreenUtil.disableBlend();
                 FactoryGuiGraphics.of(guiGraphics).clearColor();
             }
         };
@@ -339,7 +348,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             }
 
             @Override
-            public List<Renderable> getRenderables() {
+            public List<Renderable> getChildrenRenderables() {
                 return renderables;
             }
 

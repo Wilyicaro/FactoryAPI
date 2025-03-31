@@ -11,20 +11,37 @@ import wily.factoryapi.util.ProgressElementRenderUtil;
 
 public interface IFactoryDrawableType {
     IFactoryDrawableType EMPTY = new IFactoryDrawableType() {
-        public void draw(GuiGraphics graphics, int x, int y) {}
-        public ResourceLocation texture() {return null;}
-        public int width() {return 0;}
+        public void draw(GuiGraphics graphics, int x, int y) {
+        }
 
-        public int height() {return 0;}
+        public ResourceLocation texture() {
+            return null;
+        }
 
-        public int uvX() {return 0;}
+        public int width() {
+            return 0;
+        }
 
-        public int uvY() {return 0;}
+        public int height() {
+            return 0;
+        }
 
-        public boolean isSprite() {return false;}
+        public int uvX() {
+            return 0;
+        }
+
+        public int uvY() {
+            return 0;
+        }
+
+        public boolean isSprite() {
+            return false;
+        }
     };
 
-    static IFactoryDrawableType empty(){return EMPTY;}
+    static IFactoryDrawableType empty(){
+        return EMPTY;
+    }
 
     ResourceLocation texture();
 
@@ -41,21 +58,25 @@ public interface IFactoryDrawableType {
             return new DrawableStatic(this,posX,posY);
         }
     }
+
     static DrawableImage create(ResourceLocation texture, int uvX, int uvY, int width, int height){
         return new DrawableImage(texture, uvX, uvY, width, height);
     }
+
     static DrawableImage create(ResourceLocation texture,  int width, int height){
         return new DrawableImage(texture, 0, 0, width, height);
     }
+
     static DrawableImage create(ResourceLocation texture,  int width, int height, boolean isSprite){
         return new DrawableImage(texture, 0, 0, width, height, isSprite);
     }
-    record DrawableProgress(DrawableImage drawable,boolean reverse, Direction plane) implements IFactoryDrawableType {
+
+    record DrawableProgress(IFactoryDrawableType drawable, boolean reverse, Direction plane) implements Wrapper{
         public void drawProgress(GuiGraphics graphics,int x, int y, float percentage){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y,percentage,this);
         }
         public void drawProgress(GuiGraphics graphics,int x, int y, int progress, int max){
-            ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, max <= 0 ? 0 : (float) progress / max,this);
+            ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, Math.max(0, (float) progress / max),this);
         }
         public void drawProgress(GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
             progress.forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
@@ -64,13 +85,6 @@ public interface IFactoryDrawableType {
         public DrawableStaticProgress createStatic(int posX, int posY){
             return new DrawableStaticProgress(this,posX,posY);
         }
-
-        public ResourceLocation texture() {return drawable.texture;}
-        public int width() {return drawable.width;}
-        public int height() {return drawable.height;}
-        public int uvX() {return drawable.uvX;}
-        public int uvY() {return drawable.uvY;}
-        public boolean isSprite() {return drawable.isSprite;}
     }
 
     int width();
@@ -81,12 +95,7 @@ public interface IFactoryDrawableType {
     }
 
     default void drawAsFluidTank(GuiGraphics graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
-        ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,instance,capacity, hasColor);
-    }
-
-    @Deprecated
-    default void drawAsFluidTank(GuiGraphics graphics, int x, int y, int progress, FluidInstance instance, boolean hasColor){
-        drawAsFluidTank(graphics,x,y,instance, progress == 0 ? 0 : (instance.getAmount() / (progress /height())),hasColor);
+        ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,instance,capacity,hasColor);
     }
 
     default boolean inMouseLimit(double mouseX, double mouseY, int posX, int posY){
@@ -95,7 +104,9 @@ public interface IFactoryDrawableType {
 
     default void draw(GuiGraphics graphics, int x, int y) {
         if (isSprite()) FactoryGuiGraphics.of(graphics).blitSprite(texture(),x,y,width(),height());
-            else FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());
+        else {
+            FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());
+        }
     }
 
     int uvX();
@@ -103,9 +114,48 @@ public interface IFactoryDrawableType {
 
     boolean isSprite();
 
+    interface Wrapper extends IFactoryDrawableType {
+        IFactoryDrawableType drawable();
+        @Override
+        default ResourceLocation texture() {
+            return drawable().texture();
+        }
+
+        @Override
+        default int width() {
+            return drawable().width();
+        }
+
+        @Override
+        default int height() {
+            return drawable().height();
+        }
+
+        @Override
+        default int uvX() {
+            return drawable().uvX();
+        }
+
+        @Override
+        default int uvY() {
+            return drawable().uvY();
+        }
+
+        @Override
+        default boolean isSprite() {
+            return drawable().isSprite();
+        }
+    }
+
     enum Direction {
         VERTICAL,HORIZONTAL;
-        public boolean isVertical(){return  this == VERTICAL;}
-        public boolean isHorizontal(){return  this == HORIZONTAL;}
+
+        public boolean isVertical(){
+            return  this == VERTICAL;
+        }
+
+        public boolean isHorizontal(){
+            return  this == HORIZONTAL;
+        }
     }
 }

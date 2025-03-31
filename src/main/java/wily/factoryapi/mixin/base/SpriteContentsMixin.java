@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceMetadata;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -45,12 +46,17 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
     @Inject(method = "increaseMipLevel", at = @At("RETURN"))
     public void increaseMipLevel(int i, CallbackInfo ci) {
         MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElse(MipmapMetadataSection.createFallback((SpriteContents) (Object) this));
-
+        NativeImage original = byMipLevel[0];
         for (Map.Entry<Integer, MipmapMetadataSection.Level> entry : manualMipmap.levels().entrySet()) {
             if (entry.getKey() > i) break;
             NativeImage image = entry.getValue().image();
+            int divisor = (int) Math.pow(2, entry.getKey());
+            int width = original.getWidth() / divisor;
+            int height = original.getHeight() / divisor;
             if (image == null) {
                 FactoryAPI.LOGGER.error("Failed to replace generated mipmap from texture {}: {} failed to load", name(), entry.getValue().texture());
+            } else if (image.getWidth() != width || image.getHeight() != height) {
+                FactoryAPI.LOGGER.error("Failed to replace generated mipmap from texture {}: {} has an incorrect size, it should be {}x{}", name(), entry.getValue().texture(), width, height);
             } else byMipLevel[entry.getKey()] = image;
         }
     }

@@ -40,7 +40,7 @@ public class FabricStorages {
         });
         ItemStorage.SIDED.registerFallback((level, blockPos,blockState,be,d) -> {
             if (be instanceof IFactoryStorage s && s.getStorage(FactoryStorage.ITEM,d).isPresent())
-                return s.getStorage(FactoryStorage.ITEM,d).get();
+                return s.getStorage(FactoryStorage.ITEM,d).get().getHandler();
             return null;
         });
     }

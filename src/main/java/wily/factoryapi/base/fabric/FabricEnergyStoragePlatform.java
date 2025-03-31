@@ -10,6 +10,7 @@ import team.reborn.energy.api.base.SimpleEnergyStorage;
 import wily.factoryapi.base.IPlatformEnergyStorage;
 import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.TransportState;
+import wily.factoryapi.util.CompoundTagUtil;
 
 public interface FabricEnergyStoragePlatform extends IPlatformEnergyStorage, IPlatformHandlerApi<EnergyStorage> {
 
@@ -82,8 +83,8 @@ public interface FabricEnergyStoragePlatform extends IPlatformEnergyStorage, IPl
     }
 
     @Override
-    default void deserializeTag(CompoundTag nbt) {
-        setEnergyStored(nbt.getInt(KEY));
+    default void deserializeTag(CompoundTag tag) {
+        setEnergyStored(CompoundTagUtil.getInt(tag, KEY).orElse(0));
     }
 
 }

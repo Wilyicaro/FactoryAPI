@@ -12,7 +12,6 @@ import net.minecraft.world.item.equipment.EquipmentModel;
 /^import net.minecraft.client.resources.model.EquipmentClientInfo;
 ^///?}
 *///?}
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -36,8 +35,8 @@ public interface IFactoryItemClientExtension {
         return original;
     }
     //? if >=1.21.2 && neoforge {
-    /*default Model getHumanoidArmorModel(ItemStack stack, /^? if <1.21.4 {^/ EquipmentModel.LayerType/^?} else {^//^EquipmentClientInfo.LayerType^//^?}^/ layerType, Model original){
-        return getHumanoidArmorModel(stack,layerType == /^? if <1.21.4 {^/ EquipmentModel.LayerType/^?} else {^//^EquipmentClientInfo.LayerType^//^?}^/.HUMANOID_LEGGINGS ? EquipmentSlot.LEGS : EquipmentSlot.CHEST, original);
+    /*default Model getHumanoidArmorModel(ItemStack stack, /^? if <1.21.4 {^/ /^EquipmentModel.LayerType^//^?} else {^/EquipmentClientInfo.LayerType/^?}^/ layerType, Model original){
+        return getHumanoidArmorModel(stack,layerType == /^? if <1.21.4 {^/ /^EquipmentModel.LayerType^//^?} else {^/EquipmentClientInfo.LayerType/^?}^/.HUMANOID_LEGGINGS ? EquipmentSlot.LEGS : EquipmentSlot.CHEST, original);
     }
     *///?}
 

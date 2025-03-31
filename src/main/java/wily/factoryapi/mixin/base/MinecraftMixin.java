@@ -161,7 +161,7 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         this.profileKeyPairManager = ProfileKeyPairManager.create(userApiService, user, Minecraft.getInstance().gameDirectory.toPath());
         this.telemetryManager = new ClientTelemetryManager(Minecraft.getInstance(), userApiService, user);
         this.reportingContext = ReportingContext.create(ReportEnvironment.local(), userApiService);
-        this.realmsDataFetcher = new RealmsDataFetcher(RealmsClient.create(Minecraft.getInstance()));
+        this.realmsDataFetcher = new RealmsDataFetcher(/*? if >1.21.4 {*//*RealmsClient.getOrCreate()*//*?} else {*/RealmsClient.create(Minecraft.getInstance())/*?}*/);
         //? if >=1.20.3
         RealmsAvailabilityAccessor.setFuture(null);
         return true;

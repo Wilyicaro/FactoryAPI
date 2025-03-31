@@ -117,7 +117,7 @@ public interface FactoryGuiGraphics {
                     return minecraft.getTextureManager().register("tile", new DynamicTexture(tileImage));
                     //?} else {
                     /*ResourceLocation tileLocation = opt.get().withPrefix("_"+string);
-                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(tileImage));
+                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(/^? if >1.21.4 {^//^tileLocation::toString, ^//^?}^/tileImage));
                     return tileLocation;
                     *///?}
                 }

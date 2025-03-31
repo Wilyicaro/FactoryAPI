@@ -6,11 +6,17 @@ import com.google.common.cache.LoadingCache;
 import com.mojang.brigadier.arguments.ArgumentType;
 import io.netty.buffer.Unpooled;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.resources.ResourceLocation;
 //? if forge {
@@ -97,8 +103,6 @@ import wily.factoryapi.base.forge.ForgeItemStoragePlatform;
 *///?}
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -148,6 +152,27 @@ public interface FactoryAPIPlatform {
 
     static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey){
         return access.lookupOrThrow(ResourceKey.<T>createRegistryKey(resourceKey.registry())).get(resourceKey);
+    }
+
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, blockHolder.getId()))*//*?}*/;
+    }
+
+    static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, itemHolder.getId())).useItemDescriptionPrefix()*//*?}*/;
+    }
+
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, blockHolder.getId())).overrideDescription(blockHolder.get().getDescriptionId())*//*?}*/;
+    }
+
+    @FunctionalInterface
+    interface BlockEntitySupplier<T extends BlockEntity> {
+        T create(BlockPos blockPos, BlockState blockState);
+    }
+
+    static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntitySupplier<T> supplier, Block... blocks){
+        return /*? if <1.21.2 {*/BlockEntityType.Builder.of(supplier::create, blocks).build(null)/*?} else {*/ /*new BlockEntityType<>(supplier::create, Set.of(blocks))*//*?}*/;
     }
 
     static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {
@@ -290,8 +315,7 @@ public interface FactoryAPIPlatform {
                 //? if fabric {
                 if (storage == FactoryStorage.ITEM) {
                 Storage<ItemVariant> variantStorage = ItemStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
-                if (variantStorage instanceof IPlatformItemHandler) return ()->((T) variantStorage);
-                if (variantStorage!= null)
+                if (variantStorage != null)
                     return ()->((T)(FabricItemStoragePlatform)()-> variantStorage);
                 } else if (storage == FactoryStorage.FLUID) {
                 Storage<FluidVariant> variantStorage = FluidStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
@@ -301,7 +325,7 @@ public interface FactoryAPIPlatform {
                 }else if (storage == FactoryStorage.ENERGY) {
                 EnergyStorage energyStorage = EnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
                       if (energyStorage instanceof IPlatformEnergyStorage) return ()->(T) energyStorage;
-                        if (energyStorage!= null)
+                      if (energyStorage!= null)
                             return ()->((T)(FabricEnergyStoragePlatform)()-> energyStorage);
                     }
                     else if (storage == FactoryStorage.CRAFTY_ENERGY) {

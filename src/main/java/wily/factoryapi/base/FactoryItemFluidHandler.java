@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.ItemContainerPlatform;
 import wily.factoryapi.init.FactoryRegistries;
+import wily.factoryapi.util.CompoundTagUtil;
 import wily.factoryapi.util.FluidInstance;
 
 import java.util.function.Function;
@@ -73,7 +74,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
 
     @Override
     public @NotNull FluidInstance getFluidInstance() {
-        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> FluidInstance.fromTag(c.getCompound(getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
+        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> FluidInstance.fromTag(CompoundTagUtil.getCompoundTagOrEmpty(c, getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
     }
 
     //? if <1.20.5 {
@@ -175,7 +176,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
         //?} else {
         /*if (b){
             CompoundTag beTag = container.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-            CompoundTag tag = beTag.getCompound(getStorageKey());
+            CompoundTag tag = CompoundTagUtil.getCompoundTagOrEmpty(beTag, getStorageKey());
             tag.putInt("capacity",capacity);
             beTag.put(getStorageKey(),tag);
             container.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
@@ -187,7 +188,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
 
     @Override
     public int getMaxFluid() {
-        return /*? if <1.20.5 {*/ getFluidCompound(container).contains("capacity") ? getFluidCompound(container).getInt("capacity") : super.getMaxFluid() /*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> c.getCompound(getStorageKey()).getInt("capacity"),c-> c.contains(getStorageKey()), super.getMaxFluid()) : container.getOrDefault(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),super.getMaxFluid()) *//*?}*/;
+        return /*? if <1.20.5 {*/ getFluidCompound(container).contains("capacity") ? getFluidCompound(container).getInt("capacity") : super.getMaxFluid() /*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> CompoundTagUtil.getInt(c, getStorageKey()).orElse(0),c-> c.contains(getStorageKey()), super.getMaxFluid()) : container.getOrDefault(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),super.getMaxFluid()) *//*?}*/;
     }
 
     @Override

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,T>, T extends IFactoryDrawableType> extends Rect2i implements IFactoryDrawableType, Renderable{
-    public  T drawable;
+    public T drawable;
     protected final List<Component> tooltips = new ArrayList<>();
     public boolean hovered = false;
     protected Minecraft mc = Minecraft.getInstance();

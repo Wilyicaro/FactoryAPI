@@ -49,7 +49,7 @@ public class CommonRecipeManager {
 
     //? if <1.21.2 {
     public static RecipeManager getRecipeManager(){
-        return FactoryAPIPlatform.isClient() ? FactoryAPIClient.getRecipeManager() : FactoryAPI.currentServer.getRecipeManager();
+        return FactoryAPI.currentServer == null ? FactoryAPIClient.getRecipeManager() : FactoryAPI.currentServer.getRecipeManager();
     }
     //?}
 

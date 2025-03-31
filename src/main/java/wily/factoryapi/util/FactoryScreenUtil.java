@@ -1,5 +1,10 @@
 package wily.factoryapi.util;
 
+//? if >1.21.4 {
+/*import com.mojang.blaze3d.opengl.GlStateManager;
+ *///?} else {
+import com.mojang.blaze3d.platform.GlStateManager;
+//?}
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,12 +18,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -38,9 +42,25 @@ public class FactoryScreenUtil {
         Font font = mc.font;
         MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
         font.drawInBatch(/*? if >=1.21.2 {*//*Component.literal(text)*//*?} else {*/ text/*?}*/, (float)x, (float)y, color, shadow, stack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880, font.isBidirectional());
-        RenderSystem.disableDepthTest();
+        disableDepthTest();
         source.endBatch();
-        RenderSystem.enableDepthTest();
+        enableDepthTest();
+    }
+
+    public static void disableDepthTest(){
+        GlStateManager._disableDepthTest();
+    }
+
+    public static void enableDepthTest(){
+        GlStateManager._enableDepthTest();
+    }
+
+    public static void disableBlend(){
+        GlStateManager._disableBlend();
+    }
+
+    public static void enableBlend(){
+        GlStateManager._enableBlend();
     }
 
     public static void prepTextScale(PoseStack poseStack, Consumer<PoseStack> runnable, float x, float y, float scale) {
@@ -120,8 +140,7 @@ public class FactoryScreenUtil {
     }
 
     public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
-        ItemStack stack = state.getBlock().asItem().getDefaultInstance();
-        BakedModel bakedModel = mc.getBlockRenderer().getBlockModel(state);
+        Item item = state.getBlock().asItem();
         graphics.pose().pushPose();
         graphics.pose().translate(i + 8F, j + 8F, 250F);
         graphics.pose().scale(1.0F, -1.0F, 1.0F);
@@ -132,16 +151,15 @@ public class FactoryScreenUtil {
         graphics.pose().translate(-0.5f, -0.5f, -0.5f);
         Lighting.setupForFlatItems();
         IFactoryItemClientExtension e;
-        bakedModel.getTransforms().getTransform(ItemDisplayContext.NONE).apply(false, graphics.pose());
         BlockEntityRenderer<BlockEntity> blockEntityRenderer;
         if (be == null || (blockEntityRenderer = mc.getBlockEntityRenderDispatcher().getRenderer(be)) == null) {
-            if ((e = IFactoryItemClientExtension.map.get(state.getBlock().asItem())) != null && e.getCustomRenderer() != null) {
-                e.getCustomRenderer().renderByItemBlockState(state, stack, ItemDisplayContext.NONE, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
+            if ((e = IFactoryItemClientExtension.map.get(item)) != null && e.getCustomRenderer() != null) {
+                e.getCustomRenderer().renderByItemBlockState(state, item.getDefaultInstance(), ItemDisplayContext.NONE, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
             } else {
                 mc.getBlockRenderer().renderSingleBlock(state, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
             }
         } else {
-            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY);
+            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY /*? if >1.21.4 {*//*, Vec3.ZERO*//*?}*/);
         }
         graphics.flush();
         graphics.pose().popPose();

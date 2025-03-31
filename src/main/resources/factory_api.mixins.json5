@@ -15,9 +15,7 @@
     //? if fabric {
     "fabric.LevelRendererMixin",
     "fabric.ModelBlockRendererMixin",
-    //?} else if forge && >=1.21.2 {
-    /*"forge.ModelDiscoveryMixin",
-    *///?}
+    //?}
     //? if >=1.21.2 {
     /*"EntityRenderStateMixin",
     "EntityRendererMixin",
@@ -27,6 +25,9 @@
     //?}
     //? if <1.20.5 && (forge || neoforge) {
     /*"forge.ForgeGuiMixin",
+    *///?}
+    //? if >=1.21.5 {
+    /*"RenderPipelinesAccessor",
     *///?}
     "SpriteLoaderMixin",
     "AbstractContainerScreenMixin",
@@ -48,7 +49,8 @@
     "MultiVariantMixin",
     "MenuScreensAccessor",
     "CreateWorldScreenMixin",
-    "TabNavigationBarAccessor"
+    "TabNavigationBarAccessor",
+    "AddExtraModelsMixin"
   ],
   "mixins": [
     //? if fabric {
@@ -63,7 +65,9 @@
     *///?}
     //? if <1.21.2 {
     "RecipeManagerAccessor",
-    //?}
+    //?} else {
+    /*"FuelValuesAccessor",
+    *///?}
     "IngredientMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",

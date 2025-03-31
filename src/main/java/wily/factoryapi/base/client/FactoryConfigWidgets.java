@@ -49,7 +49,7 @@ public class FactoryConfigWidgets {
         } else if (config.control() instanceof FactoryConfigControl.FromInt<T> c){
             return CycleButton.<T>builder(b-> config.getDisplay().captionFunction().apply(config.getDisplay().name(), b)).withValues(listSupplier(c.valueGetter(), c.valuesSize())).withTooltip(tooltipFunction::apply).withInitialValue(config.get()).create(x, y, width, 20, config.getDisplay().name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, object,afterSet));
         } else if (config.control() instanceof FactoryConfigControl.FromDouble<T> c){
-            return new AbstractSliderButton(x, y, width, 16, config.getDisplay().captionFunction().apply(config.getDisplay().name(), config.get()), c.valueSetter().apply(config.get())) {
+            return new AbstractSliderButton(x, y, width, 20, config.getDisplay().captionFunction().apply(config.getDisplay().name(), config.get()), c.valueSetter().apply(config.get())) {
                 @Override
                 protected void updateMessage() {
                     setMessage(config.getDisplay().captionFunction().apply(config.getDisplay().name(), c.valueGetter().apply(value)));

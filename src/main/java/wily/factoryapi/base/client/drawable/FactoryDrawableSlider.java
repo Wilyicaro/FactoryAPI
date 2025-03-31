@@ -26,19 +26,18 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
         this.maxValue = maxValue;
         customWidth = buttonWidth;
     }
+
     public FactoryDrawableSlider(int x, int y, Function<FactoryDrawableSlider,Component> customText, IFactoryDrawableType buttonImage, int buttonWidth, int sliderWidth, int initialValue, int maxValue) {
         this(x, y, customText, buttonImage,IFactoryDrawableType.create(buttonImage.texture(),buttonImage.uvX() + buttonImage.width(), buttonImage.uvY(), sliderWidth, buttonImage.height()),buttonWidth,sliderWidth, initialValue,maxValue);
     }
 
-
-
     public int getValue() {
         return value;
     }
+
     public float getPercentage(){
         return (float)value / maxValue;
     }
-
 
     @Override
     public boolean mouseClicked(double d, double e, int i) {
@@ -73,10 +72,10 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
     public boolean inMouseLimit(double mouseX, double mouseY) {
         return sliderBackground.inMouseLimit((int) mouseX, (int) mouseY,getX(),getY());
     }
+
     public boolean inButtonLimit(double mouseX, double mouseY){
         return FactoryScreenUtil.isMouseOver(mouseX,mouseY,relativePosX,getY(),width(),height());
     }
-
 
     @Override
     public void draw(GuiGraphics graphics) {

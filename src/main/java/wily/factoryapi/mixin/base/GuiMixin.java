@@ -71,7 +71,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     }
 
     @Override
-    public List<Renderable> getRenderables() {
+    public List<Renderable> getChildrenRenderables() {
         return renderables;
     }
 

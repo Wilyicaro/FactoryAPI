@@ -79,16 +79,15 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     protected void renderBg(GuiGraphics graphics, int i, int j, float f) {
         graphics.pose().pushPose();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
+        FactoryScreenUtil.enableBlend();
+        FactoryScreenUtil.enableDepthTest();
         RenderSystem.setShaderColor(1,1,1,alpha);
         if (useGeneratedBackground) FactoryScreenUtil.drawGUIBackground(graphics, getX(), getY(), width, height);
         else drawable.draw(graphics,getX(),getY());
         IWindowWidget.super.render(graphics,i,j,f);
         RenderSystem.setShaderColor(1,1,1,1);
-        RenderSystem.disableBlend();
-        RenderSystem.disableDepthTest();
+        FactoryScreenUtil.disableBlend();
+        FactoryScreenUtil.disableDepthTest();
         graphics.pose().popPose();
     }
 

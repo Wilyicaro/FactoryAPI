@@ -1,6 +1,8 @@
 //? if fabric {
 package wily.factoryapi.mixin.base.fabric;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -14,13 +16,16 @@ import wily.factoryapi.base.IFactoryBlock;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
-    @Inject( at = @At( value = "TAIL" ), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, method = "getLightColor(Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I")
-    private static void getLightmapCoordinates(BlockAndTintGetter world, BlockState state, BlockPos pos, CallbackInfoReturnable<Integer> cir, int i, int j) {
-        if (state.getBlock() instanceof IFactoryBlock b){
-            int k = b.getLightEmission(state,world, pos);
-            if ( j < k ) j = k;
-            cir.setReturnValue(i << 20 | j << 4);
-        }
+    //? if <1.21.5 {
+    @ModifyExpressionValue(method = "getLightColor(Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"))
+    private static int getLightColors(int original, @Local(argsOnly = true) BlockAndTintGetter level, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
+        return state.getBlock() instanceof IFactoryBlock b ? b.getLightEmission(state, level, pos) : original;
     }
+    //?} else {
+    /*@ModifyExpressionValue(method = "getLightColor(Lnet/minecraft/client/renderer/LevelRenderer$BrightnessGetter;Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"))
+    private static int getLightColors(int original, @Local(argsOnly = true) BlockAndTintGetter level, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
+        return state.getBlock() instanceof IFactoryBlock b ? b.getLightEmission(state, level, pos) : original;
+    }
+    *///?}
 }
 //?}

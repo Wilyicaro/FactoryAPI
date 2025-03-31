@@ -29,10 +29,6 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
 
     @Shadow public abstract boolean isHoveredOrFocused();
 
-
-    @Shadow public abstract void playDownSound(SoundManager arg);
-
-    @Shadow public boolean active;
     @Shadow public boolean visible;
 
     @Unique ResourceLocation overrideSprite = null;
@@ -82,21 +78,6 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
     @Inject(method = "onClick", at = @At("HEAD"))
     public void onClick(double d, double e, CallbackInfo ci) {
         onPress();
-    }
-
-    @Override
-    public boolean keyPressed(int i, int j, int k) {
-        if (this.active && this.visible) {
-            if (CommonInputs.selected(i)) {
-                this.playDownSound(Minecraft.getInstance().getSoundManager());
-                this.onPress();
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
     }
 
     //? <=1.20.1 {
