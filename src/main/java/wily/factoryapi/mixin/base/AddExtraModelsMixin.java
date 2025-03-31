@@ -20,16 +20,23 @@ import wily.factoryapi.FactoryAPIClient;
 import java.util.*;
 import java.util.function.Function;
 
-@Mixin(/*? if <1.21.2 {*/ModelBakery/*?} else if <1.21.5 {*//*BlockStateModelLoader*//*?} else {*//*BlockStateDefinitions*//*?}*/.class)
+@Mixin(/*? if <1.21 {*/ModelBakery/*?} else if <1.21.5 {*//*BlockStateModelLoader*//*?} else {*//*BlockStateDefinitions*//*?}*/.class)
 public abstract class AddExtraModelsMixin {
-    //? if <1.21.2 {
+    //? if <1.21 {
     @Shadow protected abstract void loadTopLevel(ModelResourceLocation par1);
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", shift = At.Shift.AFTER, ordinal = 0))
     private void init(BlockColors blockColors, ProfilerFiller profilerFiller, Map map, Map map2, CallbackInfo ci){
         FactoryAPIClient.extraModels.forEach((r, id)->loadTopLevel(BlockModelShaper.stateToModelLocation(r, id.blockState())));
     }
-    //?} else if <1.21.5 {
+    //?} else if <1.21.2 {
+    /*@Shadow protected abstract void loadBlockStateDefinitions(ResourceLocation par1, StateDefinition<Block, BlockState> par2);
+
+    @Inject(method = "loadAllBlockStates", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V"))
+    private void definitionLocationToBlockMapper(CallbackInfo ci){
+        FactoryAPIClient.extraModels.forEach((r, id)-> loadBlockStateDefinitions(r, id.stateDefinition()));
+    }
+    *///?} else if <1.21.5 {
     /*@Inject(method = "definitionLocationToBlockMapper", at = @At("RETURN"))
     private static void definitionLocationToBlockMapper(CallbackInfoReturnable<Function<ResourceLocation, StateDefinition<Block, BlockState>>> cir, @Local Map<ResourceLocation, StateDefinition<Block, BlockState>> map){
         FactoryAPIClient.extraModels.forEach((r, id)-> map.put(r, id.stateDefinition()));
