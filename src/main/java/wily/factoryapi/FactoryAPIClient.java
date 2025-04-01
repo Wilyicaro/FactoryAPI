@@ -67,6 +67,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import wily.factoryapi.base.FactoryExtraMenuSupplier;
 import wily.factoryapi.base.client.screen.FactoryConfigScreen;
 import wily.factoryapi.base.network.OpenExtraMenuPayload;
+import wily.factoryapi.base.network.SecureExecutor;
 import wily.factoryapi.mixin.base.MenuScreensAccessor;
 import wily.factoryapi.mixin.base.MenuTypeAccessor;
 //? if >=1.21.2 {
@@ -145,7 +146,7 @@ import java.util.function.Supplier;
 
 public class FactoryAPIClient {
     public static final ResourceLocation BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
-    public static final CommonNetwork.SecureExecutor SECURE_EXECUTOR = new CommonNetwork.SecureExecutor() {
+    public static final SecureExecutor SECURE_EXECUTOR = new SecureExecutor() {
         @Override
         public boolean isSecure() {
             return Minecraft.getInstance().player != null;
@@ -286,7 +287,7 @@ public class FactoryAPIClient {
     }
     *///?}
 
-    public static <T extends AbstractContainerMenu> void handleExtraMenu(CommonNetwork.SecureExecutor executor, Player player, MenuType<T> menuType, OpenExtraMenuPayload payload){
+    public static <T extends AbstractContainerMenu> void handleExtraMenu(SecureExecutor executor, Player player, MenuType<T> menuType, OpenExtraMenuPayload payload){
         var menu = ((MenuTypeAccessor)menuType).getConstructor() instanceof FactoryExtraMenuSupplier<?> supplier ? (T) supplier.create(payload.menuId(), player.getInventory(), payload.extra()) : menuType.create(payload.menuId(), player.getInventory());
         player.containerMenu = menu;
         executor.execute(()-> Minecraft.getInstance().setScreen(MenuScreensAccessor.getConstructor(menuType).create(menu, player.getInventory(), payload.component())));

@@ -34,8 +34,8 @@ public record OpenExtraMenuPayload(int menuId, MenuType<?> menuType, Component c
     }
 
     @Override
-    public void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
-        if (FactoryAPI.isClient()) FactoryAPIClient.handleExtraMenu(executor, player.get(), menuType, this);
+    public void apply(Context context) {
+        if (FactoryAPI.isClient()) FactoryAPIClient.handleExtraMenu(context.executor(), context.player(), menuType, this);
     }
 
     @Override

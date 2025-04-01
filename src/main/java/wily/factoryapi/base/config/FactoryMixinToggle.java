@@ -3,6 +3,7 @@ package wily.factoryapi.base.config;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 import net.minecraft.util.GsonHelper;
@@ -69,7 +70,7 @@ public class FactoryMixinToggle extends Stocker<Boolean> {
                 return;
             }
             try (BufferedReader r = Files.newReader(file, Charsets.UTF_8)) {
-                GsonHelper.parse(r).asMap().forEach((s, e) -> {
+                JsonParser.parseReader(r).getAsJsonObject().asMap().forEach((s, e) -> {
                     FactoryMixinToggle config = configMap.get(s);
                     if (config == null) {
                         LOGGER.warn("Config named as {} from {} config file wasn't found", s, file.toString());

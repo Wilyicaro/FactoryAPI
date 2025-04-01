@@ -41,7 +41,6 @@ import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.*;
 import wily.factoryapi.base.network.*;
 import wily.factoryapi.init.FactoryRegistries;
-import wily.factoryapi.util.DynamicUtil;
 
 import java.lang.reflect.Field;
 import java.nio.file.Path;
@@ -56,7 +55,7 @@ import java.util.stream.Collectors;
 public class FactoryAPI {
     public static final String MOD_ID = "factory_api";
 
-    public static final CommonNetwork.SecureExecutor SECURE_EXECUTOR = new CommonNetwork.SecureExecutor() {
+    public static final SecureExecutor SECURE_EXECUTOR = new SecureExecutor() {
         @Override
         public boolean isSecure() {
             return true;
@@ -198,9 +197,11 @@ public class FactoryAPI {
 
     public enum Loader {
         FABRIC,FORGE,NEOFORGE;
+
         public boolean isForgeLike(){
             return this == FORGE || this == NEOFORGE;
         }
+
         public boolean isFabric(){
             return this == FABRIC;
         }
@@ -222,10 +223,6 @@ public class FactoryAPI {
         /*return FMLEnvironment.dist.isClient();
          *///?} else
         /*throw new AssertionError();*/
-    }
-
-    public static RegistryAccess getRegistryAccess(){
-        return currentServer == null || isClient() && FactoryAPIClient.hasLevel() ? FactoryAPIClient.getRegistryAccess() : FactoryAPI.currentServer.registryAccess();
     }
 
     public static <T> Field getAccessibleField(Class<T> fieldClass, String field){

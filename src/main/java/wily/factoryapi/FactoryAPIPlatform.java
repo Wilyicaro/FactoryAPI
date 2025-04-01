@@ -189,6 +189,9 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
+    static RegistryAccess getRegistryAccess(){
+        return FactoryAPI.currentServer == null || isClient() && FactoryAPIClient.hasLevel() ? FactoryAPIClient.getRegistryAccess() : FactoryAPI.currentServer.registryAccess();
+    }
 
     static IPlatformEnergyStorage getItemEnergyStorage(ItemStack stack) {
         //? if fabric {

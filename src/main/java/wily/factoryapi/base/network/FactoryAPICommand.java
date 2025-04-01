@@ -106,8 +106,8 @@ public class FactoryAPICommand {
         public static final CommonNetwork.Identifier<UIDefinitionPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("ui_definition_s2c"),UIDefinitionPayload::decode);
 
         @Override
-        public void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
-            executor.execute(()-> FactoryAPIClient.uiDefinitionManager.openDefaultScreenAndAddDefinition(defaultScreen, UIDefinitionManager.fromDynamic(ID.toString(), new Dynamic<>(NbtOps.INSTANCE, uiDefinitionNbt))));
+        public void apply(Context context) {
+            context.executor().execute(()-> FactoryAPIClient.uiDefinitionManager.openDefaultScreenAndAddDefinition(defaultScreen, UIDefinitionManager.fromDynamic(ID.toString(), new Dynamic<>(NbtOps.INSTANCE, uiDefinitionNbt))));
         }
         public static UIDefinitionPayload decode(CommonNetwork.PlayBuf buf) {
             return new UIDefinitionPayload(buf.get().readOptional(FriendlyByteBuf::readResourceLocation), buf.get().readNbt());

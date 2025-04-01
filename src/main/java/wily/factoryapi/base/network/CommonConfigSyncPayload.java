@@ -36,14 +36,9 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
     }
 
     @Override
-    public void apply(CommonNetwork.SecureExecutor secureExecutor, Supplier<Player> supplier) {
+    public void apply(Context context) {
         FactoryConfig.COMMON_STORAGES.get(commonConfigStorage).decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, configTag));
-    }
-
-    @Override
-    public void applyServer(Supplier<Player> player) {
-        if (player.get() instanceof ServerPlayer sp && sp.hasPermissions(2)) {
-            CommonNetwork.Payload.super.applyServer(player);
+        if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp.hasPermissions(2)){
             FactoryConfig.StorageHandler handler = FactoryConfig.COMMON_STORAGES.get(commonConfigStorage);
             CommonNetwork.sendToPlayers(sp.server.getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
             handler.save();

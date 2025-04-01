@@ -22,11 +22,11 @@ public class HelloPayload extends CommonNetwork.EmptyPayload {
     }
 
     @Override
-    public void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
-        if (player.get() instanceof ServerPlayer){
-            CommonNetwork.ENABLED_PLAYERS.add(player.get().getUUID());
-        }else{
-            executor.execute(()->{
+    public void apply(Context context) {
+        if (context.player() instanceof ServerPlayer sp){
+            CommonNetwork.ENABLED_PLAYERS.add(sp.getUUID());
+        } else {
+            context.executor().execute(()->{
                 FactoryAPIClient.hasModOnServer = true;
                 CommonNetwork.sendToServer(createC2S());
             });

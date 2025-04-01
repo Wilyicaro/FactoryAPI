@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.util.FactoryItemUtil;
 
 import java.util.function.BiPredicate;
@@ -159,7 +160,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         nbt.put("Items", nbtTagList);
         return nbt;
         //?} else
-        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPI.getRegistryAccess());*/
+        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());*/
     }
 
     @Override
@@ -180,7 +181,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
             }
         }
         //?} else
-        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPI.getRegistryAccess());*/
+        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());*/
     }
 
     @Override
@@ -209,7 +210,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
 
     public static class SidedWrapper extends FactoryItemHandler implements IModifiableTransportHandler {
 
-        private final IPlatformItemHandler  platformItemHandler;
+        private final IPlatformItemHandler platformItemHandler;
         public int[] slots = new int[0];
 
         public SidedWrapper(IPlatformItemHandler platformItemHandler) {

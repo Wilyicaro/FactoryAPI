@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ArbitrarySupplier;
 
 import java.util.Map;
@@ -39,7 +40,7 @@ public class DynamicUtil {
         /*if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
         return i;
     }).orElse(ItemStack.EMPTY)));
-    public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, FactoryAPI.getRegistryAccess())));
+    public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, FactoryAPIPlatform.getRegistryAccess())));
 
     public static final Codec<Vec3> VEC3_OPTIONAL_CODEC = RecordCodecBuilder.create(i-> i.group(Codec.DOUBLE.fieldOf("x").orElse(0d).forGetter(Vec3::x),Codec.DOUBLE.fieldOf("y").orElse(0d).forGetter(Vec3::y),Codec.DOUBLE.fieldOf("z").orElse(0d).forGetter(Vec3::z)).apply(i,Vec3::new));
     public static final Codec<Vec3> VEC3_OBJECT_CODEC = Codec.either(VEC3_OPTIONAL_CODEC,Vec3.CODEC.fieldOf("value").codec()).xmap(e-> e.map(v->v,v->v), Either::right);

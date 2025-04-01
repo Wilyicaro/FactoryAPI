@@ -45,7 +45,7 @@ public interface FactoryIngredient extends Predicate<ItemStack>,CommonNetwork.Pa
         return (Ingredient) this;
     }
 
-    default void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
+    default void apply(Context context) {
     }
 
     int getCount();

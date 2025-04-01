@@ -65,7 +65,7 @@ public class CommonRecipeManager {
         }
 
         @Override
-        public void apply(CommonNetwork.SecureExecutor executor, Supplier<Player> player) {
+        public void apply(Context context) {
             recipesByType = syncRecipeTypes;
         }
 

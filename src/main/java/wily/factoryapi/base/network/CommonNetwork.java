@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.chat.ComponentSerialization;
 //?}
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 //? if fabric {
@@ -38,51 +39,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface CommonNetwork {
-    abstract class SecureExecutor implements Executor {
-     public abstract boolean isSecure();
-        final Collection<BooleanSupplier> queue = new ConcurrentLinkedQueue<>();
-        public void executeAll(){
-            queue.removeIf(BooleanSupplier::getAsBoolean);
-        }
-        public void execute(Runnable runnable){
-            executeWhen(()->{
-                if (isSecure()) {
-                    runnable.run();
-                    return true;
-                }return false;
-            });
-        }
-        public void executeWhen(BooleanSupplier supplier){
-            queue.add(supplier);
-        }
-        public void executeNowIfPossible(BooleanSupplier supplier){
-            if (!supplier.getAsBoolean()) executeWhen(supplier);
-        }
-        static BooleanSupplier createBooleanRunnable(Runnable action, BooleanSupplier supplier){
-            return ()->{
-                boolean execute = supplier.getAsBoolean();
-                if (execute){
-                    action.run();
-                    return true;
-                }return false;
-            };
-        }
-        public void executeNowIfPossible(Runnable action, BooleanSupplier supplier){
-            executeNowIfPossible(createBooleanRunnable(action,supplier));
-        }
-        public void clear(){
-            queue.clear();
-        }
-
-    }
-
     List<UUID> ENABLED_PLAYERS = new ArrayList<>();
 
     interface Identifier<T extends Payload>{
@@ -136,30 +96,73 @@ public interface CommonNetwork {
         }
 
         static PlayBuf fromBuf(FriendlyByteBuf buf) {
-            return of(/*? if <1.20.5 {*/buf/*?} else {*//*new RegistryFriendlyByteBuf(buf, FactoryAPI.getRegistryAccess())*//*?}*/);
+            return of(/*? if <1.20.5 {*/buf/*?} else {*//*new RegistryFriendlyByteBuf(buf, FactoryAPIPlatform.getRegistryAccess())*//*?}*/);
         }
     }
 
     interface Payload /*? if >1.20.1 {*/ extends CustomPacketPayload /*?}*/{
-        void apply(SecureExecutor executor, Supplier<Player> player);
+        interface Context {
+            SecureExecutor executor();
+
+            Player player();
+
+            default MinecraftServer server(){
+                return player().getServer();
+            }
+
+            boolean isClient();
+
+            static Context createClientContext(){
+                return createContext(FactoryAPIClient.SECURE_EXECUTOR, FactoryAPIClient::getClientPlayer, true);
+            }
+
+            static Context createServerContext(Supplier<Player> player){
+                return createContext(FactoryAPI.SECURE_EXECUTOR, player, true);
+            }
+
+            static Context createContext(SecureExecutor executor, Supplier<Player> playerSupplier, boolean isClient){
+                return new Context() {
+                    @Override
+                    public SecureExecutor executor() {
+                        return executor;
+                    }
+
+                    @Override
+                    public Player player() {
+                        return playerSupplier.get();
+                    }
+
+                    @Override
+                    public boolean isClient() {
+                        return isClient;
+                    }
+                };
+            }
+        }
+
+        void apply(Context context);
 
         default void applyClient(){
-            apply(FactoryAPIClient.SECURE_EXECUTOR,FactoryAPIClient::getClientPlayer);
+            apply(Context.createClientContext());
         }
 
         default void applyServer(Supplier<Player> player){
-            apply(FactoryAPI.SECURE_EXECUTOR,player);
+            apply(Context.createServerContext(player));
         }
+
         default void applySided(boolean client, Supplier<Player> player){
             if (client) applyClient();
             else applyServer(player);
         }
 
         Identifier<? extends Payload> identifier();
+
         default void encode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/ buf){
             encode(()->buf);
         }
+
         void encode(PlayBuf buf);
+
         //? >=1.20.5 {
         /*@Override
         default Type<? extends CustomPacketPayload> type(){
@@ -260,6 +263,7 @@ public interface CommonNetwork {
         /*throw new AssertionError();
          *///?}
     }
+
     static void encodeComponent(PlayBuf buf, Component component){
         /*? if >=1.20.5 {*/ /*ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) *//*?} else {*/ buf.get().writeComponent(component)/*?}*/;
     }
