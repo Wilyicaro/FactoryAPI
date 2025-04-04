@@ -49,21 +49,9 @@ public class FactoryConfigWidgets {
         } else if (config.control() instanceof FactoryConfigControl.FromInt<T> c){
             return CycleButton.<T>builder(b-> config.getDisplay().captionFunction().apply(config.getDisplay().name(), b)).withValues(listSupplier(c.valueGetter(), c.valuesSize())).withTooltip(tooltipFunction::apply).withInitialValue(config.get()).create(x, y, width, 20, config.getDisplay().name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, object,afterSet));
         } else if (config.control() instanceof FactoryConfigControl.FromDouble<T> c){
-            return new AbstractSliderButton(x, y, width, 20, config.getDisplay().captionFunction().apply(config.getDisplay().name(), config.get()), c.valueSetter().apply(config.get())) {
-                @Override
-                protected void updateMessage() {
-                    setMessage(config.getDisplay().captionFunction().apply(config.getDisplay().name(), c.valueGetter().apply(value)));
-                    setTooltip(tooltipFunction.apply(c.valueGetter().apply(value)));
-                }
-
-                @Override
-                protected void applyValue() {
-                    FactoryConfig.saveOptionAndConsume(config, c.valueGetter().apply(value), afterSet);
-                    value = c.valueSetter().apply(config.get());
-                }
-            };
+            return createSlider(config, x, y, width, afterSet, c.valueGetter(), c.valueSetter(), tooltipFunction);
         } else if (config.control() instanceof FactoryConfigControl.Int c) {
-            return CycleButton.<Integer>builder(b-> config.getDisplay().captionFunction().apply(config.getDisplay().name(), (T) b)).withValues(listSupplier(v-> c.min() + v, c.max()::getAsInt)).withTooltip(((Function<Integer, Tooltip>)tooltipFunction)::apply).withInitialValue((Integer) config.get()).create(x, y, width, 20, config.getDisplay().name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, (T)object, afterSet));
+            return createSlider((FactoryConfig<Integer>)config, x, y, width, (Consumer<Integer>)afterSet, d-> (int)((c.max().getAsInt() - c.min()) * d) + c.min(), i->  (double)(i - c.min()) / (c.max().getAsInt() - c.min()), (Function<Integer, Tooltip>) tooltipFunction);
         } else if (config.control() instanceof FactoryConfigControl.TextEdit<T> c){
             EditBox editBox = new EditBox(Minecraft.getInstance().font, x, y, width, 20, config.getDisplay().name());
 
@@ -88,6 +76,22 @@ public class FactoryConfigWidgets {
             return editBox;
         }
         return null;
+    }
+
+    public static <T> AbstractSliderButton createSlider(FactoryConfig<T> config, int x, int y, int width, Consumer<T> afterSet, Function<Double,T> valueGetter, Function<T,Double> valueSetter, Function<T,Tooltip> tooltipFunction){
+        return new AbstractSliderButton(x, y, width, 20, config.getDisplay().captionFunction().apply(config.getDisplay().name(), config.get()), valueSetter.apply(config.get())) {
+            @Override
+            protected void updateMessage() {
+                setMessage(config.getDisplay().captionFunction().apply(config.getDisplay().name(), valueGetter.apply(value)));
+                setTooltip(tooltipFunction.apply(valueGetter.apply(value)));
+            }
+
+            @Override
+            protected void applyValue() {
+                FactoryConfig.saveOptionAndConsume(config, valueGetter.apply(value), afterSet);
+                value = valueSetter.apply(config.get());
+            }
+        };
     }
 
     public static <T> AbstractWidget createWidget(FactoryConfig<T> config) {

@@ -49,7 +49,7 @@ public class FuelManager {
 
     //? if >=1.21.2 {
     /*public static FuelValues getFuelValues(){
-        return FactoryAPI.isClient() ? FactoryAPIClient.hasLevel() ? FactoryAPIClient.getLevel().fuelValues() : null : FactoryAPI.currentServer.fuelValues();
+        return FactoryAPI.currentServer == null ? FactoryAPIClient.hasLevel() ? FactoryAPIClient.getLevel().fuelValues() : null : FactoryAPI.currentServer.fuelValues();
     }
     *///?}
 

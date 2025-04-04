@@ -32,8 +32,8 @@ public class FactoryConfigScreen extends Screen {
         super(title);
         parent = screen;
         for (FactoryConfig<?>  config : configs) {
-            if (config.getStorageAccess().allowSync() && !config.getStorageAccess().allowClientSync()) continue;
-            AbstractWidget widget = FactoryConfigWidgets.createWidget( config, 0, 0, 150, b-> config.sync()); ;
+            if (config.getStorageAccess().allowSync() && !config.getStorageAccess().allowClientSync(Minecraft.getInstance().player)) continue;
+            AbstractWidget widget = FactoryConfigWidgets.createWidget( config, 0, 0, 150, b-> config.sync());
             if (widget != null) optionWidgets.add(widget);
         }
     }

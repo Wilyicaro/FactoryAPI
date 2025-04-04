@@ -236,7 +236,8 @@ public class FactoryAPIClient {
             DynamicUtil.REGISTRY_OPS_CACHE.invalidateAll();
             DynamicUtil.DYNAMIC_ITEMS_CACHE.asMap().keySet().forEach(DynamicUtil.DYNAMIC_ITEMS_CACHE::refresh);
             if (hasModOnServer) FactoryConfig.COMMON_STORAGES.values().forEach(c-> {
-                if (c.allowSync()) c.load();
+                if (c.isServerOnly()) c.reset();
+                else if (c.allowSync()) c.load();
             });
             hasModOnServer = false;
         });

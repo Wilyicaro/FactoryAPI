@@ -9,6 +9,7 @@ import com.mojang.serialization.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,8 +79,8 @@ public interface FactoryConfig<T> extends Bearer<T> {
             return false;
         }
 
-        default boolean allowClientSync(){
-            return allowSync() && FactoryAPIClient.hasLevel();
+        default boolean allowClientSync(Player player){
+            return allowSync() && (player != null && (player.hasPermissions(2) || player.getServer().isSingleplayerOwner(player.getGameProfile())));
         }
     }
 
@@ -97,6 +98,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
         public File file;
         public final Map<String, FactoryConfig<?>> configMap;
         protected final boolean allowSync;
+        protected boolean serverOnly;
 
         public StorageHandler(Map<String, FactoryConfig<?>> configMap, boolean allowSync){
             this.configMap = configMap;
@@ -138,6 +140,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
         }
 
         public StorageHandler withServerFile(MinecraftServer server, String serverDirectoryFile){
+            this.serverOnly = true;
             return withFile(MinecraftServerAccessor.of(server).getStorageSource().getDimensionPath(Level.OVERWORLD).resolve(serverDirectoryFile).toFile());
         }
 
@@ -165,13 +168,30 @@ public interface FactoryConfig<T> extends Bearer<T> {
             return allowSync;
         }
 
+        public void reset(){
+            configMap.values().forEach(FactoryConfig::reset);
+        }
+
+        public void resetAndLoad(){
+            reset();
+            load();
+        }
+
+        public boolean isServerManaged(){
+            return allowSync || isServerOnly();
+        }
+
+        public boolean isServerOnly(){
+            return serverOnly;
+        }
+
         @Override
         public void save() {
             if (file == null) {
                 LOGGER.warn("Failed to save config, its file wasn't set.");
                 return;
             }
-            if (allowSync && FactoryAPI.currentServer == null && FactoryAPI.isClient() && FactoryAPIClient.hasLevel()) return;
+            if (isServerManaged() && FactoryAPI.currentServer == null && FactoryAPI.isClient() && FactoryAPIClient.hasLevel()) return;
             FactoryConfig.save(file, configMap);
         }
 
@@ -244,7 +264,6 @@ public interface FactoryConfig<T> extends Bearer<T> {
                 return display;
             }
 
-
             @Override
             public void set(T t) {
                 bearer.set(t);
@@ -258,6 +277,55 @@ public interface FactoryConfig<T> extends Bearer<T> {
         };
     }
 
+    class Builder<T> {
+        private String key;
+        private T defaultValue;
+        private FactoryConfigDisplay<T> display;
+        private FactoryConfigControl<T> control;
+        private Consumer<T> afterSet = value -> {};
+
+        public Builder<T> key(String key){
+            this.key = key;
+            return this;
+        }
+
+        public Builder<T> display(FactoryConfigDisplay<T> display){
+            this.display = display;
+            return this;
+        }
+
+        public Builder<T> displayFromKey(Function<String,FactoryConfigDisplay<T>> display){
+            return display(display.apply(key));
+        }
+
+        public Builder<T> control(FactoryConfigControl<T> control){
+            this.control = control;
+            return this;
+        }
+
+        public Builder<T> defaultValue(T defaultValue){
+            this.defaultValue = defaultValue;
+            return this;
+        }
+
+        public Builder<T> afterSet(Consumer<T> afterSet){
+            this.afterSet = afterSet;
+            return this;
+        }
+
+        public FactoryConfig<T> build(StorageAccess access){
+            return create(key, display, control, defaultValue, afterSet, access);
+        }
+
+        public FactoryConfig<T> buildAndRegister(StorageHandler handler){
+            return handler.register(build(handler));
+        }
+
+        public static Builder<Boolean> createToggle(){
+            return new Builder<Boolean>().control(FactoryConfigControl.TOGGLE);
+        }
+    }
+
     static FactoryConfig<Boolean> createBoolean(String key, FactoryConfigDisplay<Boolean> display, boolean defaultValue, Consumer<Boolean> consumer, StorageAccess access){
         return create(key, display, defaultValue, Bearer.of(defaultValue), FactoryConfigControl.TOGGLE, consumer, access);
     }
@@ -267,7 +335,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
     }
 
     static FactoryConfig<Integer> createInteger(String key, FactoryConfigDisplay<Integer> display, FactoryConfigControl<Integer> control, int defaultValue, Consumer<Integer> consumer, StorageAccess access){
-        return create(key, display, defaultValue, Bearer.of(defaultValue), control, consumer, access);
+        return create(key, display, control, defaultValue, consumer, access);
     }
 
     static <T> FactoryConfig<T> create(String key, FactoryConfigDisplay<T> display, FactoryConfigControl<T> control, T defaultValue, Consumer<T> consumer, StorageAccess access) {

@@ -2,6 +2,7 @@ package wily.factoryapi.mixin.base;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.color.block.BlockColors;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
@@ -25,9 +26,10 @@ public abstract class AddExtraModelsMixin {
     //? if <1.21 {
     @Shadow protected abstract void loadTopLevel(ModelResourceLocation par1);
 
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", shift = At.Shift.AFTER, ordinal = 0))
-    private void init(BlockColors blockColors, ProfilerFiller profilerFiller, Map map, Map map2, CallbackInfo ci){
+    @WrapWithCondition(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", ordinal = 0))
+    private boolean init(ProfilerFiller instance, String string){
         FactoryAPIClient.extraModels.forEach((r, id)->loadTopLevel(BlockModelShaper.stateToModelLocation(r, id.blockState())));
+        return true;
     }
     //?} else if <1.21.2 {
     /*@Shadow protected abstract void loadBlockStateDefinitions(ResourceLocation par1, StateDefinition<Block, BlockState> par2);
