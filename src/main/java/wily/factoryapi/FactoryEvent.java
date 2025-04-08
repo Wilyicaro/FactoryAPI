@@ -45,13 +45,13 @@ import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.server.*;
 import net.neoforged.bus.api.EventPriority;
 //? if <1.20.5 {
-/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-^///?} else {
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+//?} else {
+/^import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-//?}
+^///?}
 *///?}
 
 //? if >1.20.1
@@ -181,8 +181,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -196,8 +196,8 @@ public class FactoryEvent<T> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -227,7 +227,7 @@ public class FactoryEvent<T> {
         else MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, AddReloadListenerEvent.class, e-> e.addListener(reloadListener));
         *///?} elif neoforge {
         /*if (type == PackType.CLIENT_RESOURCES) FactoryAPIClient.registerReloadListener(reloadListener);
-        else NeoForge.EVENT_BUS.addListener(/^? if <1.21.4 {^//^AddReloadListenerEvent^//^?} else {^/AddServerReloadListenersEvent/^?}^/.class, e-> e.addListener(/^? if >= 1.21.4 {^/FactoryAPI.createLocation(reloadListener.getName()), /^?}^/reloadListener));
+        else NeoForge.EVENT_BUS.addListener(/^? if <1.21.4 {^/AddReloadListenerEvent/^?} else {^//^AddServerReloadListenersEvent^//^?}^/.class, e-> e.addListener(/^? if >= 1.21.4 {^//^FactoryAPI.createLocation(reloadListener.getName()), ^//^?}^/reloadListener));
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -325,17 +325,17 @@ public class FactoryEvent<T> {
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^/RegisterPayloadHandlerEvent/^?} else {^/ /^RegisterPayloadHandlersEvent^//^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
                 public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
-                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    /^? if <1.20.5 {^/IPayloadRegistrar/^?} else {^/ /^PayloadRegistrar^//^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
                     //? if <1.20.5 {
-                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.applySided(arg.flow().isClientbound(), ()-> arg.player().orElse(null)));
-                    ^///?} else {
-                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.applySided(arg.flow().isClientbound(), ()-> arg.player().orElse(null)));
+                    //?} else {
+                    /^if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
                     else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
-                    //?}
+                    ^///?}
                 }
             });
         });

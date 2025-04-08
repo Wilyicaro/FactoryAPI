@@ -10,7 +10,9 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 /*import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
 *///?}
 //?} else if forge {
-/*import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+/*import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 *///?} else if neoforge {
 /*import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
@@ -54,8 +56,17 @@ public class FuelManager {
     *///?}
 
     public static int getBurnTime(ItemStack stack){
-        //? if forge || neoforge {
-        /*return stack.getBurnTime(null/^? if >1.21.2 && neoforge {^//^, getFuelValues()^//^?}^/);
+        if (stack.isEmpty()) return 0;
+        //? if forge {
+        /*//? if <1.21.2 {
+        return ForgeHooks.getBurnTime(stack, null);
+        //?} else {
+        /^FuelValues fuelValues = getFuelValues();
+        int ret = stack.getBurnTime(null);
+        return ForgeEventFactory.getItemBurnTime(stack, ret == -1 ? fuelValues == null ? 0 : fuelValues.burnDuration(stack) : ret, null);
+        ^///?}
+        *///?} else if neoforge {
+        /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
         *///?} else {
         //? if <1.21.2 {
         return Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(stack.getItem()), 0);

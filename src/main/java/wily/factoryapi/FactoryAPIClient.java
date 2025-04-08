@@ -111,12 +111,12 @@ import net.minecraftforge.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.ModList;
 //? if <1.20.5 {
-/^import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
-^///?} else {
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+//?} else {
+/^import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-//?}
+^///?}
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -248,14 +248,14 @@ public class FactoryAPIClient {
         /*FactoryAPIPlatform.getModEventBus().addListener(RegisterClientExtensionsEvent.class,r->IFactoryItemClientExtension.map.forEach((i,c)->r.registerItem(new IClientItemExtensions() {
             @Override
             //? if <1.21.2 {
-            /^public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                 return c.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
             }
-            ^///?} else {
-            public Model getHumanoidArmorModel(ItemStack itemStack, /^? if <1.21.4 {^/ /^EquipmentModel.LayerType^//^?} else {^/EquipmentClientInfo.LayerType/^?}^/ layerType, Model original) {
+            //?} else {
+            /^public Model getHumanoidArmorModel(ItemStack itemStack, /^¹? if <1.21.4 {¹^/ EquipmentModel.LayerType/^¹?} else {¹^//^¹EquipmentClientInfo.LayerType¹^//^¹?}¹^/ layerType, Model original) {
                 return c.getHumanoidArmorModel(itemStack, layerType, original);
             }
-            //?}
+            ^///?}
         }, i)));
         *///?}
         //? if >=1.21.4 {
@@ -311,8 +311,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -326,8 +326,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.END)  listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
