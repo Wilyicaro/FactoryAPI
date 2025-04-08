@@ -6,7 +6,6 @@ package wily.factoryapi;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 *///?}
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -295,7 +294,7 @@ public class FactoryEvent<T> {
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? <1.20.5 {
                 if (c2s) ServerPlayNetworking.registerGlobalReceiver(id.location(), (m, l, h, b, s) -> id.decode(b).applyServer(()->h.player));
-                else FactoryAPIClient.registerPayload(id);
+                else if (FactoryAPI.isClient()) FactoryAPIClient.registerPayload(id);
                 //?} else {
                 /*if (c2s) {
                     PayloadTypeRegistry.playC2S().register(id.type(),id.codec());
