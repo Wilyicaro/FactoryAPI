@@ -3,17 +3,17 @@
 
 import net.minecraft.client.gui.GuiGraphics;
 //? forge {
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-//?} else {
-/^import net.neoforged.neoforge.client.gui.overlay.ExtendedGui;
-^///?}
+/^import net.minecraftforge.client.gui.overlay.ForgeGui;
+^///?} else {
+import net.neoforged.neoforge.client.gui.overlay.ExtendedGui;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.util.FactoryGuiElement;
 
-@Mixin(/^? forge {^/ForgeGui/^?} else {^//^ExtendedGui^//^?}^/.class)
+@Mixin(/^? forge {^//^ForgeGui^//^?} else {^/ExtendedGui/^?}^/.class)
 public class ForgeGuiMixin {
 
     @Inject(method = "renderRecordOverlay", at = @At(value = "HEAD"), remap = false, cancellable = true)

@@ -45,7 +45,7 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
 
     @Inject(method = "increaseMipLevel", at = @At("RETURN"))
     public void increaseMipLevel(int i, CallbackInfo ci) {
-        MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElse(MipmapMetadataSection.createFallback((SpriteContents) (Object) this));
+        MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
         NativeImage original = byMipLevel[0];
         for (Map.Entry<Integer, MipmapMetadataSection.Level> entry : manualMipmap.levels().entrySet()) {
             if (entry.getKey() > i) break;
