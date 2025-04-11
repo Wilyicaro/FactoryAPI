@@ -21,7 +21,7 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
     }
 
     default List<IPlatformFluidHandler> getTanks(){
-        return NonNullList.create();
+        return Collections.emptyList();
     }
 
     default Map<SlotsIdentifier, int[]> itemSlotsIdentifiers() {
@@ -38,15 +38,17 @@ public interface IFactoryExpandedStorage extends IFactoryStorage {
     default List<Direction> getBlockedSides(){
         return Collections.emptyList();
     }
+
     default List<SlotsIdentifier> getItemSlotsIdentifiers(){
         return List.copyOf(itemSlotsIdentifiers().keySet());
     }
+
     default List<SlotsIdentifier> getFluidSlotsIdentifiers() { return IHasIdentifier.getSlotsIdentifiers(getTanks()); }
 
     default void loadTag(CompoundTag compoundTag) {
-        getStorage(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)->e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag, "CYEnergy")));
-        getStorage(FactoryStorage.ENERGY).ifPresent((e)->e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"Energy")));
-        if (!getTanks().isEmpty()) getTanks().forEach((tank)->  tank.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,tank.getName())));
+        getStorage(FactoryStorage.CRAFTY_ENERGY).ifPresent((e)-> e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag, "CYEnergy")));
+        getStorage(FactoryStorage.ENERGY).ifPresent((e)-> e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"Energy")));
+        if (!getTanks().isEmpty()) getTanks().forEach((tank)-> tank.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,tank.getName())));
         getStorage(FactoryStorage.ITEM).ifPresent((e)-> e.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"inventory")));
         getStorageSides(FactoryStorage.FLUID).ifPresent((f)-> TransportSide.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"fluidSides"), f, getTanks()));
         getStorageSides(FactoryStorage.ITEM).ifPresent((i)-> TransportSide.deserializeTag(CompoundTagUtil.getCompoundTagOrEmpty(compoundTag,"itemSides"), i, getItemSlotsIdentifiers()));

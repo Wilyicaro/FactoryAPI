@@ -26,7 +26,6 @@ public record MipmapMetadataSection(Map<Integer, Level> levels) {
     public static MipmapMetadataSection createFallback(SpriteContents contents, int maxLevel){
         String baseName = FilenameUtils.getBaseName(contents.name().getPath());
         if (!baseName.isEmpty()) {
-            FactoryAPI.LOGGER.warn("actual mipmap max level {} check: {}", maxLevel, baseName);
             MipmapMetadataSection section = new MipmapMetadataSection(new HashMap<>());
             for (int i = 1; i <= maxLevel; i++) {
                 ResourceLocation resourceLocation = contents.name().withPath("%s/%s/%s.png".formatted(FactoryOptions.MANUAL_MIPMAP_PATH.get(), baseName, i));

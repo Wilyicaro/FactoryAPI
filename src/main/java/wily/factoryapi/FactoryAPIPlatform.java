@@ -139,10 +139,12 @@ public interface FactoryAPIPlatform {
 
     static Component getPlatformEnergyComponent() {
         //? if fabric {
-        return Component.literal("Energy (E)").withStyle(ChatFormatting.GOLD);
-        //?} elif forge || neoforge {
-        /*return Component.literal("Forge Energy (FE)").withStyle(ChatFormatting.GREEN);
-        *///?} else
+        return Component.translatable("energy.factory_api.fabric").withStyle(ChatFormatting.GOLD);
+        //?} elif forge {
+        /*return Component.translatable("energy.factory_api.forge").withStyle(ChatFormatting.GREEN);
+        *///?} elif neoforge {
+        /*return Component.translatable("energy.factory_api.neoforge").withStyle(ChatFormatting.GREEN);
+         *///?} else
         /*throw new AssertionError();*/
     }
 
@@ -155,15 +157,27 @@ public interface FactoryAPIPlatform {
     }
 
     static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, blockHolder.getId()))*//*?}*/;
+        return setupBlockProperties(properties, blockHolder.getId());
+    }
+
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, id))*//*?}*/;
     }
 
     static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder){
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, itemHolder.getId())).useItemDescriptionPrefix()*//*?}*/;
+        return setupItemProperties(properties, itemHolder.getId());
+    }
+
+    static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()*//*?}*/;
     }
 
     static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, blockHolder.getId())).overrideDescription(blockHolder.get().getDescriptionId())*//*?}*/;
+        return setupBlockItemProperties(properties, blockHolder.getId());
+    }
+
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id){
+        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()*//*?}*/;
     }
 
     @FunctionalInterface
@@ -214,9 +228,9 @@ public interface FactoryAPIPlatform {
         return craftyStorage;
         //?} elif forge {
         /*//? if <1.20.5 {
-        return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
-        //?} else
-        /^return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;^/
+        /^return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;
         *///?} elif neoforge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
         *///?} else
@@ -296,18 +310,20 @@ public interface FactoryAPIPlatform {
         list.get(direction).setTransport(transportState);
         return list.get(direction) != null ? (U)list.get(direction) : null;
     }
+
     static IPlatformItemHandler filteredOf(IPlatformItemHandler itemHandler, Direction direction, int[] slots, TransportState transportState) {
         FactoryItemHandler.SidedWrapper storage = FactoryAPIPlatform.filteredOf(itemHandler,direction,transportState,FactoryItemHandler.SidedWrapper::new);
         if (storage != null) storage.slots = slots;
         return storage;
     }
+
     static IPlatformFluidHandler filteredOf(IPlatformFluidHandler fluidHandler, Direction direction, TransportState transportState) {
         return filteredOf((FactoryFluidHandler)fluidHandler,direction,transportState,FactoryFluidHandler.SidedWrapper::new);
     }
+
     static IPlatformEnergyStorage filteredOf(IPlatformEnergyStorage energyStorage, Direction direction, TransportState transportState) {
         return filteredOf((FactoryEnergyStorage) energyStorage,direction,transportState,FactoryEnergyStorage.SidedWrapper::new);
     }
-
 
     static IFactoryStorage getPlatformFactoryStorage(BlockEntity be) {
         if (be instanceof IFactoryStorage st) return st;
@@ -394,18 +410,18 @@ public interface FactoryAPIPlatform {
                 forEach(o-> Registry.register(registry,o.getId(),o.get()));
             }
             @Override
-            public <V extends T> Holder<V> add(String id, Supplier<V> supplier) {
-                ResourceLocation location = FactoryAPI.createLocation(getNamespace(),id);
+            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
+                ResourceLocation id = FactoryAPI.createLocation(getNamespace(), name);
                 Holder<V> h = new Holder<>() {
                     V obj;
                     @Override
                     public ResourceLocation getId() {
-                        return location;
+                        return id;
                     }
 
                     @Override
                     public V get() {
-                        return obj == null ? (obj = supplier.get()) : obj ;
+                        return obj == null ? (obj = supplier.apply(getId())) : obj ;
                     }
                 };
                 REGISTER_LIST.add((Holder<T>) h);
@@ -443,8 +459,8 @@ public interface FactoryAPIPlatform {
                 REGISTER.register(getModEventBus());
             }
             @Override
-            public <V extends T> Holder<V> add(String id, Supplier<V> supplier) {
-                return deferredToRegisterHolder(REGISTER.register(id,supplier));
+            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
+                return deferredToRegisterHolder(REGISTER.register(name,()-> supplier.apply(FactoryAPI.createLocation(getNamespace(), name))));
             }
             @NotNull
             @Override
@@ -466,6 +482,10 @@ public interface FactoryAPIPlatform {
         return FabricLoader.getInstance().getMappingResolver().mapClassName("official",className);
         //?} else
         /*return className;*/
+    }
+
+    static Stream<ModInfo> getVisibleModsStream(){
+        return getMods().stream().filter(info->!info.isHidden());
     }
 
     static Collection<ModInfo> getMods() {

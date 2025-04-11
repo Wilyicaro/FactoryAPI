@@ -343,7 +343,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
     }
 
     static boolean hasCommonConfigEnabled(FactoryConfig<Boolean> config, boolean defaultValue) {
-        return (FactoryAPI.isClient() && !FactoryAPIClient.hasModOnServer ? defaultValue : config.get());
+        return (FactoryAPI.isClient() && config.getStorageAccess() instanceof StorageHandler h && !FactoryAPIClient.hasModOnServer(COMMON_STORAGES.getKey(h).getNamespace()) ? defaultValue : config.get());
     }
 
     static boolean hasCommonConfigEnabled(FactoryConfig<Boolean> config) {

@@ -33,9 +33,9 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
 ^///?}
 //? if >=1.20.5 {
-/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadFlow;
 import net.minecraftforge.network.payload.PayloadProtocol;
-^///?}
+//?}
 *///?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -177,7 +177,7 @@ public class FactoryEvent<T> {
         //? if fabric {
         ServerTickEvents.START_SERVER_TICK.register(apply::accept);
         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^/TickEvent.ServerTickEvent/^?} else {^//^TickEvent.ServerTickEvent.Pre^//^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ServerTickEvent^//^?} else {^/TickEvent.ServerTickEvent.Pre/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
@@ -192,7 +192,7 @@ public class FactoryEvent<T> {
         //? if fabric {
         ServerTickEvents.END_SERVER_TICK.register(apply::accept);
          //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^/TickEvent.ServerTickEvent/^?} else {^//^TickEvent.ServerTickEvent.Post^//^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ServerTickEvent^//^?} else {^/TickEvent.ServerTickEvent.Post/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
         *///?} elif neoforge {
@@ -289,7 +289,7 @@ public class FactoryEvent<T> {
 
     public static void registerPayload(Consumer<PayloadRegistry> registry){
         //? if fabric {
-        registry.accept(new FactoryEvent.PayloadRegistry() {
+        registry.accept(new PayloadRegistry() {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? <1.20.5 {
@@ -307,21 +307,21 @@ public class FactoryEvent<T> {
             }
         });
          //?} elif forge {
-        /*registry.accept(new FactoryEvent.PayloadRegistry() {
+        /*registry.accept(new PayloadRegistry() {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                EventNetworkChannel NETWORK = /^? <=1.20.1 {^//^NetworkRegistry.^//^?}^/ChannelBuilder.named(id.location())./^? if <=1.20.1 {^//^networkProtocolVersion(()->"1").serverAcceptedVersions(s-> true).clientAcceptedVersions(s-> true).^//^?} else {^/optional()./^?}^/eventNetworkChannel();
+                /^EventNetworkChannel NETWORK = /^¹? <=1.20.1 {¹^//^¹NetworkRegistry.¹^//^¹?}¹^/ChannelBuilder.named(id.location())./^¹? if <=1.20.1 {¹^//^¹networkProtocolVersion(()->"1").serverAcceptedVersions(s-> true).clientAcceptedVersions(s-> true).¹^//^¹?} else {¹^/optional()./^¹?}¹^/eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    var source = p.getSource()/^? <=1.20.1 {^//^.get()^//^?}^/;
-                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^? if <=1.20.1 {^//^p.getSource().get().getDirection().getReceptionSide().isClient()^//^?} else {^/ source.isClientSide()/^?}^/, source::getSender);
+                    var source = p.getSource()/^¹? <=1.20.1 {¹^//^¹.get()¹^//^¹?}¹^/;
+                    if (/^¹? >1.20.1 {¹^/p.getChannel().equals(id.location()) && /^¹?}¹^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^¹? if <=1.20.1 {¹^//^¹p.getSource().get().getDirection().getReceptionSide().isClient()¹^//^¹?} else {¹^/ source.isClientSide()/^¹?}¹^/, source::getSender);
                     source.setPacketHandled(true);
                 });
-                //?} else {
-                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location()).payloadChannel().play();
+                ^///?} else {
+                PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location()).payloadChannel().play();
                 if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
                 else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
-                ^///?}
+                //?}
             }
         });
         *///?} elif neoforge {

@@ -41,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.*;
 import wily.factoryapi.base.network.*;
 import wily.factoryapi.init.FactoryRegistries;
+import wily.factoryapi.util.ModInfo;
 
 import java.lang.reflect.Field;
 import java.nio.file.Path;
@@ -63,6 +64,7 @@ public class FactoryAPI {
     };
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
     public static MinecraftServer currentServer;
+
 
     public FactoryAPI(){
         init();
@@ -121,25 +123,28 @@ public class FactoryAPI {
             FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get());
             FactoryCommonOptions.COMMON_STORAGE.load();
         });
-        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->CommonNetwork.forceEnabledPlayer(sp,()->{
-            CommonNetwork.sendToPlayer(sp, HelloPayload.createS2C());
+        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->{
+            CommonNetwork.sendToPlayer(sp, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
             FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(sp, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
             //? if >=1.21.2 {
-            /*CommonNetwork.sendToPlayer(sp, new CommonRecipeManager.ClientPayload(CommonRecipeManager.recipesByType));
+            /*CommonNetwork.sendToPlayer(sp, CommonRecipeManager.ClientPayload.getInstance(), true);
             *///?}
-        }));
+        });
         //? if >=1.21.2 {
-        /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.recipesByType = server.getRecipeManager().getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id().location(), Function.identity())));
+        /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
         FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.register(playerList-> {
             updateRecipes.accept(playerList.getServer());
-            CommonNetwork.sendToPlayers(playerList.getPlayers(), new CommonRecipeManager.ClientPayload(CommonRecipeManager.recipesByType));
+            CommonNetwork.sendToPlayers(playerList.getPlayers(), CommonRecipeManager.ClientPayload.getInstance());
         });
         FactoryEvent.serverStarted(updateRecipes);
         *///?}
-        FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.remove(sp.getUUID()));
+        FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.removeAll(sp.getUUID()));
         FactoryEvent.serverStopped(s-> {
             SECURE_EXECUTOR.clear();
             CommonNetwork.ENABLED_PLAYERS.clear();
+            //? if >=1.21.2 {
+            /*CommonRecipeManager.clearRecipes();
+            *///?}
             currentServer = null;
         });
         //? if fabric {

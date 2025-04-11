@@ -59,12 +59,12 @@ public class FuelManager {
         if (stack.isEmpty()) return 0;
         //? if forge {
         /*//? if <1.21.2 {
-        return ForgeHooks.getBurnTime(stack, null);
-        //?} else {
-        /^FuelValues fuelValues = getFuelValues();
+        /^return ForgeHooks.getBurnTime(stack, null);
+        ^///?} else {
+        FuelValues fuelValues = getFuelValues();
         int ret = stack.getBurnTime(null);
         return ForgeEventFactory.getItemBurnTime(stack, ret == -1 ? fuelValues == null ? 0 : fuelValues.burnDuration(stack) : ret, null);
-        ^///?}
+        //?}
         *///?} else if neoforge {
         /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
         *///?} else {

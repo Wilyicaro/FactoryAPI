@@ -50,5 +50,9 @@
   "tooltip.factory_api.gui_left": "Left",
   "tooltip.factory_api.gui_right": "Right",
   "tooltip.factory_api.gui_back": "Back",
-  "tooltip.factory_api.gui_front": "Front"
+  "tooltip.factory_api.gui_front": "Front",
+
+  "energy.factory_api.fabric": "Energy (E)",
+  "energy.factory_api.forge": "Forge Energy (FE)",
+  "energy.factory_api.neoforge": "Forge Energy (FE)"
 }

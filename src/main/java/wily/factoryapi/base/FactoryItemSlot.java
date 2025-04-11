@@ -8,12 +8,12 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.Predicate;
 
 public class FactoryItemSlot extends Slot implements IHasIdentifier {
-
     SlotsIdentifier identifier;
 
     public TransportState transportState;
     private Type type = Type.DEFAULT;
-    protected Predicate<FactoryItemSlot> active = (s)->true;
+    protected Predicate<FactoryItemSlot> active = (s)-> true;
+
 
     public enum Type{
         DEFAULT,BIG;
@@ -38,12 +38,15 @@ public class FactoryItemSlot extends Slot implements IHasIdentifier {
         this.type = type;
         return this;
     }
+
     public int getCustomX(){
         return x;
     }
+
     public int getCustomY(){
         return y;
     }
+
     public Type getType() {
         return type;
     }

@@ -24,12 +24,14 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 //?}
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class CommonRecipeManager {
 
     public static <R extends Recipe<?>> /*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/ byId(ResourceLocation id, RecipeType<R> type) {
-        return (/*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/)/*? if <1.21.2 {*/getRecipeManager().byKey(id).orElse(null)/*?} else {*//*recipesByType.get(type).get(id)*//*?}*/;
+        return (/*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/)/*? if <1.21.2 {*/getRecipeManager().byKey(id).orElse(null)/*?} else {*//*recipesByType.getOrDefault(type, Collections.emptyMap()).get(id)*//*?}*/;
     }
 
     public static <R extends Recipe<?>> Collection</*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/> byType(RecipeType<R> type) {
@@ -54,11 +56,36 @@ public class CommonRecipeManager {
     //?}
 
     //? if >=1.21.2 {
-    /*public static Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
+    /*private static final Set<RecipeType<?>> recipeTypesToSync = new HashSet<>();
+    private static Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
 
+    public static void updateRecipes(RecipeManager manager){
+        recipesByType = manager.getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id().location(), Function.identity())));
+        for (RecipeType<?> recipeType : recipeTypesToSync) {
+            ClientPayload.getInstance().syncRecipeTypes.put(recipeType, recipesByType.get(recipeType));
+        }
+    }
+
+    public static void clearRecipes(){
+        recipesByType = Collections.emptyMap();
+        ClientPayload.getInstance().syncRecipeTypes.clear();
+    }
+
+    public static boolean canSyncType(RecipeType<?> type){
+        return recipeTypesToSync.contains(type);
+    }
+
+    public static void addRecipeTypeToSync(RecipeType<?> recipeType){
+        recipeTypesToSync.add(recipeType);
+    }
 
     public record ClientPayload(Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("send_client_recipes"), ClientPayload::new);
+        private static final ClientPayload instance = new ClientPayload(new HashMap<>());
+
+        public static ClientPayload getInstance(){
+            return instance;
+        }
 
         public ClientPayload(CommonNetwork.PlayBuf buf){
             this(buf.get().readMap(b->b.readById(BuiltInRegistries.RECIPE_TYPE::byId), b->b.readMap(FriendlyByteBuf::readResourceLocation, b1->RecipeHolder.STREAM_CODEC.decode(buf.get()))));

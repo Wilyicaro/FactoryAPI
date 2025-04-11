@@ -320,15 +320,15 @@ public interface ItemContainerPlatform {
     //?} elif forge {
     /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
         //? if <1.20.5 {
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-        //?} else
-        /^return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.FLUID,stack).secureCast(IPlatformItemFluidHandler.class).orElse(null) : null;^/
+        /^return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.FLUID,stack).secureCast(IPlatformItemFluidHandler.class).orElse(null) : null;
     }
     static IEnergyStorage getItemEnergyStorage(ItemStack stack){
         //? if <1.20.5 {
-        return stack.getCapability(ForgeCapabilities.ENERGY).orElse(null);
-        //?} else
-        /^return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.ENERGY,stack).orElse(null) : null;^/
+        /^return stack.getCapability(ForgeCapabilities.ENERGY).orElse(null);
+        ^///?} else
+        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.ENERGY,stack).orElse(null) : null;
     }
     *///?} elif neoforge {
     /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
