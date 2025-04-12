@@ -227,10 +227,7 @@ public interface FactoryAPIPlatform {
         if (craftyStorage == null) return getItemCraftyEnergyStorageApi(stack);
         return craftyStorage;
         //?} elif forge {
-        /*//? if <1.20.5 {
-        /^return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
-        ^///?} else
-        return stack.getItem() instanceof IFactoryItem i ? i.getStorage(FactoryStorage.CRAFTY_ENERGY,stack).orElse(null) : null;
+        /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
         *///?} elif neoforge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
         *///?} else

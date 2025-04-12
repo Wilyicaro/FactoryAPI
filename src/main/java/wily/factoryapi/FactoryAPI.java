@@ -5,6 +5,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import wily.factoryapi.base.config.FactoryCommonOptions;
 import wily.factoryapi.base.config.FactoryConfig;
 //? if fabric {
@@ -70,10 +72,9 @@ public class FactoryAPI {
         init();
 
         //? if forge {
-        /*MinecraftForge.EVENT_BUS.addGenericListener(AttachCapabilitiesEvent.class, event->{
-            AttachCapabilitiesEvent<?> e = (AttachCapabilitiesEvent<?>) event;
-            if (e.getObject() instanceof IFactoryStorage be){
-                e.addCapability(FactoryAPI.createModLocation( "factory_api_capabilities"), new ICapabilityProvider() {
+        /*MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<BlockEntity>, BlockEntity>addGenericListener(BlockEntity.class, event->{
+            if (event.getObject() instanceof IFactoryStorage be){
+                event.addCapability(FactoryAPI.createModLocation("fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.BLOCK_CAPABILITY_MAP.get(capability);
@@ -83,12 +84,15 @@ public class FactoryAPI {
                         return LazyOptional.empty();
                     }
                 });
-            }else if (e.getObject() instanceof ItemStack s && s.getItem() instanceof IFactoryItem i){
-                e.addCapability(FactoryAPI.createModLocation( "factory_api_capabilities"), new ICapabilityProvider() {
+            }
+        });
+        MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<ItemStack>, ItemStack>addGenericListener(ItemStack.class,event->{
+            if (event.getObject().getItem() instanceof IFactoryItem i){
+                event.addCapability(FactoryAPI.createModLocation("item_fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.ITEM_CAPABILITY_MAP.get(capability);
-                        ArbitrarySupplier<? extends IPlatformHandler> handler = i.getStorage(storage,s);
+                        ArbitrarySupplier<? extends IPlatformHandler> handler = i.getStorage(storage, event.getObject());
                         if (storage != null && handler.isPresent())
                             return LazyOptional.of(handler::get).cast();
                         return LazyOptional.empty();

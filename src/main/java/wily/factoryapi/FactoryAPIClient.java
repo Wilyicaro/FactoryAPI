@@ -313,7 +313,7 @@ public class FactoryAPIClient {
         //? if fabric {
         ClientTickEvents.START_CLIENT_TICK.register(listener::accept);
         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Pre/^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^/TickEvent.ClientTickEvent/^?} else {^//^TickEvent.ClientTickEvent.Pre^//^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
@@ -328,7 +328,7 @@ public class FactoryAPIClient {
         //? if fabric {
         ClientTickEvents.END_CLIENT_TICK.register(listener::accept);
         //?} elif forge {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Post/^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^/TickEvent.ClientTickEvent/^?} else {^//^TickEvent.ClientTickEvent.Post^//^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.END)  listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
@@ -436,10 +436,10 @@ public class FactoryAPIClient {
 
         //?} elif forge {
         /*//? if <1.21 {
-        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
-        ^///?} else {
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(), getDeltaTracker()));
-        //?}
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
+        //?} else {
+        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, CustomizeGuiOverlayEvent.class, e-> registry.accept(e.getGuiGraphics(), getDeltaTracker()));
+        ^///?}
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(RenderGuiEvent.Post.class, e-> registry.accept(e.getGuiGraphics(),e.getPartialTick()));
          *///?} else

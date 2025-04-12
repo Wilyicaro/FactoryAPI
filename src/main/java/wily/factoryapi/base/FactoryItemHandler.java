@@ -35,6 +35,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     public boolean canTakeItem(Container container, int i, ItemStack itemStack) {
         return getTransport().canExtract();
     }
+
     @Override
     public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
         return getTransport().canInsert() && (!(be instanceof IFactoryExpandedStorage storage) || storage.getSlots(null).get(slot).mayPlace(stack));
@@ -209,7 +210,6 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     //?}
 
     public static class SidedWrapper extends FactoryItemHandler implements IModifiableTransportHandler {
-
         private final IPlatformItemHandler platformItemHandler;
         public int[] slots = new int[0];
 
@@ -230,7 +230,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
 
         @Override
         public ItemStack getItem(int i) {
-            return platformItemHandler.getItem(i);
+            return ArrayUtils.contains(slots,i) ? platformItemHandler.getItem(i) : ItemStack.EMPTY;
         }
 
         @Override
