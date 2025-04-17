@@ -189,7 +189,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     }
 
     public static long getPlatformFluidAmount(int amount){
-        return (long) (((float)amount / 1000) * getPlatformBucketFluidAmount());
+        return (long) ((amount / 1000F) * getPlatformBucketFluidAmount());
     }
 
     public static int getMilliBucketsFluidAmount(long amount){

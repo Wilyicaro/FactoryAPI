@@ -142,20 +142,22 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
     //? if fabric {
     @Override
     default long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        FluidInstance instance = FluidInstance.create(resource.getFluid(),maxAmount);
         transaction.addCloseCallback((t,r)->{
             if (r.wasCommitted())
-                fill(FluidInstance.create(resource.getFluid(),maxAmount),false);
+                fill(instance,false);
         });
-        return fill(FluidInstance.create(resource.getFluid(),maxAmount),true);
+        return FluidInstance.getPlatformFluidAmount(fill(instance,true));
     }
 
     @Override
     default long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        FluidInstance instance = FluidInstance.create(resource.getFluid(),maxAmount);
         transaction.addCloseCallback((t,r)->{
             if (r.wasCommitted())
-                drain(FluidInstance.create(resource.getFluid(),maxAmount),false);
+                drain(instance,false);
         });
-        return drain(FluidInstance.create(resource.getFluid(),maxAmount),true).getAmount();
+        return drain(instance,true).getPlatformAmount();
     }
 
     @Override
@@ -170,12 +172,12 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
 
     @Override
     default long getAmount() {
-        return getFluidInstance().getAmount();
+        return getFluidInstance().getPlatformAmount();
     }
 
     @Override
     default long getCapacity() {
-        return getMaxFluid();
+        return FluidInstance.getPlatformFluidAmount(getMaxFluid());
     }
     //?} else if forge || neoforge {
     /*@Override

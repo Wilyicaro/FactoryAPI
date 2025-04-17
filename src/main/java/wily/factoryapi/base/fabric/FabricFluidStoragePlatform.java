@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.base.IPlatformFluidHandler;
 import wily.factoryapi.base.IPlatformHandlerApi;
@@ -30,6 +31,16 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler, IPlat
     }
 
     @Override
+    default long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        return getHandler().insert(resource, maxAmount, transaction);
+    }
+
+    @Override
+    default long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        return getHandler().extract(resource, maxAmount, transaction);
+    }
+
+    @Override
     default boolean isFluidValid(@NotNull FluidInstance stack) {
         return true;
     }
@@ -39,7 +50,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler, IPlat
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
             try (Transaction nested = transaction.openNested()){
-                i = getHandler().insert(FluidVariant.of(resource.getFluid()), FluidInstance.getPlatformFluidAmount(resource.getAmount()), nested);
+                i = insert(FluidVariant.of(resource.getFluid()), FluidInstance.getPlatformFluidAmount(resource.getAmount()), nested);
                 if (!simulate) nested.commit();
             }
             transaction.commit();
@@ -52,7 +63,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler, IPlat
         try (Transaction transaction = Transaction.openOuter()) {
             long i;
             try (Transaction nested = transaction.openNested()) {
-                i = getHandler().extract(FluidVariant.of(resource.getFluid()), resource.getAmount(), nested);
+                i = extract(FluidVariant.of(resource.getFluid()), resource.getPlatformAmount(), nested);
                 if (!simulate) nested.commit();
             }
             transaction.commit();
