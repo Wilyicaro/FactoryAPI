@@ -13,6 +13,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.TypedDataComponent;
 *///?}
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -55,11 +56,25 @@ public class FactoryItemUtil {
         /*return ItemStack.isSameItemSameComponents(itemStack,itemStack1);*/
     }
 
-    public static boolean compareItems(ItemStack itemStack, ItemStack itemStack1, boolean checkCount){
-        if (checkCount) return ItemStack.matches(itemStack, itemStack1);
-        else return equalItems(itemStack, itemStack1);
+    public static boolean compareItems(ItemStack itemStack, ItemStack itemStack1, boolean checkCount) {
+        return compareItems(itemStack, itemStack1, checkCount, true);
     }
 
+    public static boolean compareItems(ItemStack itemStack, ItemStack itemStack1, boolean checkCount, boolean strict){
+        if (strict) {
+            if (checkCount) return ItemStack.matches(itemStack, itemStack1);
+            else return equalItems(itemStack, itemStack1);
+        } else if (ItemStack.isSameItem(itemStack, itemStack1) && (!checkCount || itemStack.getCount() == itemStack1.getCount())){
+            //? if <1.20.5 {
+            return NbtUtils.compareNbt(itemStack.getTag(), itemStack1.getTag(), true);
+            //?} else {
+            /*for (TypedDataComponent<?> component : itemStack1.getComponents()) {
+                if (!Objects.equals(itemStack.get(component.type()),component.value())) return false;
+            }
+            *///?}
+        }
+        return false;
+    }
 
     public static boolean hasCustomName(ItemStack stack){
         return /*? if <1.20.5 {*/stack.hasCustomHoverName()/*?} else {*//*stack.has(DataComponents.CUSTOM_NAME)*//*?}*/;

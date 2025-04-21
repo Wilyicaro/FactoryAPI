@@ -15,13 +15,13 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<Value> values, Stack<Operator> operators, Bearer<Function> function) {
+public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<Value> values, Stack<Operator> operators, TokenProcessor processor) {
     public static final LoadingCache<String,ExpressionEvaluator> EXPRESSION_CACHE = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(12)).build(CacheLoader.from(ExpressionEvaluator::create));
 
     private static final Pattern TOKEN_PATTERN = Pattern.compile("(\\$\\{[\\dA-Za-z_.-]+})|(:?\\d+\\.?\\d*)|(#[A-Z\\d]+)|([+\\-/*%&|^()]|>>|<<)|(sqrt|cbrt|pow|min|max|clamp)");
 
     public ExpressionEvaluator(String expression, List<Token> tokens){
-        this(expression, tokens, new Stack<>(), new Stack<>(), Bearer.of(null));
+        this(expression, tokens, new Stack<>(), new Stack<>(), new TokenProcessor());
     }
 
     public static ExpressionEvaluator create(String expression) {
@@ -35,10 +35,10 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
     public Number evaluate(VariableResolver variableResolver) {
         values.clear();
         operators.clear();
-        function.set(null);
+        processor.clearFunction();
         try {
-            for (Token token : tokens) {
-                token.process(this, variableResolver);
+            for (int i = 0; i < tokens.size(); i++) {
+                processor.process(i, this, variableResolver);
             }
 
             while (!operators.isEmpty()) {
@@ -85,22 +85,52 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         return tokens;
     }
 
-    public void pushValueOrApplyFunction(Value value) {
-        if (function.isEmpty()){
-            values.push(value);
-        } else {
-            function.get().args.add(value);
-            if (function.get().canEvaluate()){
-                values.push(function.get().tryEvaluate());
-                function.get().args.clear();
-                function.set(null);
-            }
-        }
-
+    public interface Token {
+        void process(TokenProcessor processor);
     }
 
-    public interface Token {
-        void process(ExpressionEvaluator evaluator, VariableResolver variableResolver);
+    public static class TokenProcessor {
+        private ExpressionEvaluator evaluator;
+        private int index;
+        private VariableResolver resolver;
+        private Function function;
+
+        public Token relative(int offset){
+            int relative = index + offset;
+            return relative < evaluator.tokens.size() && relative >= 0 ? evaluator.tokens.get(relative) : null;
+        }
+
+        public void process(int index, ExpressionEvaluator evaluator, VariableResolver resolver){
+            this.index = index;
+            this.evaluator = evaluator;
+            this.resolver = resolver;
+            evaluator.tokens.get(index).process(this);
+        }
+
+        public ExpressionEvaluator evaluator(){
+            return evaluator;
+        }
+
+        public VariableResolver resolver() {
+            return resolver;
+        }
+
+        public void clearFunction(){
+            function = null;
+        }
+
+        public void pushValueOrApplyFunction(Value value) {
+            if (function == null){
+                evaluator.values().push(value);
+            } else {
+                function.args.add(value);
+                if (function.canEvaluate()){
+                    evaluator.values().push(function.tryEvaluate());
+                    function.args.clear();
+                    clearFunction();
+                }
+            }
+        }
     }
 
     public record Value(Number value, boolean isInteger, boolean isFallback) implements Token {
@@ -116,18 +146,18 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         }
 
         @Override
-        public void process(ExpressionEvaluator evaluator, VariableResolver variableResolver) {
-            if (!isFallback() || !evaluator.values.peek().isValid()) {
-                if (isFallback()) evaluator.values.pop();
-                evaluator.pushValueOrApplyFunction(this);
+        public void process(TokenProcessor processor) {
+            if (!isFallback() || !processor.evaluator().values.peek().isValid()) {
+                if (isFallback()) processor.evaluator().values.pop();
+                processor.pushValueOrApplyFunction(this);
             }
         }
     }
 
     public record Variable(String name) implements Token {
         @Override
-        public void process(ExpressionEvaluator evaluator, VariableResolver variableResolver) {
-            evaluator.pushValueOrApplyFunction(Value.of(variableResolver.getNumber(name(), null)));
+        public void process(TokenProcessor processor) {
+            processor.pushValueOrApplyFunction(Value.of(processor.resolver().getNumber(name(), null)));
         }
     }
 
@@ -160,19 +190,19 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         }
 
         @Override
-        public void process(ExpressionEvaluator evaluator, VariableResolver variableResolver) {
+        public void process(TokenProcessor processor) {
             if (!symbol().equals("(") && !symbol().equals(")")){
-                while (!evaluator.operators.isEmpty() && hasPrecedence(evaluator.operators.peek())) {
-                    evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
+                while (!processor.evaluator().operators.isEmpty() && hasPrecedence(processor.evaluator().operators.peek())) {
+                    processor.evaluator().values.push(processor.evaluator().operators.pop().operate(processor.evaluator().values.pop(), processor.evaluator().values.pop()));
                 }
             } else if (symbol().equals(")")){
-                while (!evaluator.operators.peek().symbol().equals("(")) {
-                    evaluator.values.push(evaluator.operators.pop().operate(evaluator.values.pop(), evaluator.values.pop()));
+                while (!processor.evaluator().operators.peek().symbol().equals("(")) {
+                    processor.evaluator().values.push(processor.evaluator().operators.pop().operate(processor.evaluator().values.pop(), processor.evaluator().values.pop()));
                 }
-                evaluator.operators.pop();
+                processor.evaluator().operators.pop();
                 return;
             }
-            evaluator.operators.push(this);
+            processor.evaluator().operators.push(this);
         }
     }
 
@@ -214,14 +244,14 @@ public record ExpressionEvaluator(String expression, List<Token> tokens, Stack<V
         }
 
         @Override
-        public void process(ExpressionEvaluator evaluator, VariableResolver variableResolver) {
-            if (evaluator.function.isPresent()){
-                String message = "Last function with incomplete arguments: %s with %s of %s".formatted(evaluator.function.get().type, evaluator.function.get().args.size(), evaluator.function.get().argsCount);
-                evaluator.function.get().args.clear();
-                evaluator.function.set(this);
+        public void process(TokenProcessor processor) {
+            if (processor.function != null){
+                String message = "Last function with incomplete arguments: %s with %s of %s".formatted(processor.function.type, processor.function.args.size(), processor.function.argsCount);
+                processor.function.args.clear();
+                processor.function = this;
                 throw new UnsupportedOperationException(message);
             }
-            evaluator.function.set(this);
+            processor.function = this;
         }
     }
 }

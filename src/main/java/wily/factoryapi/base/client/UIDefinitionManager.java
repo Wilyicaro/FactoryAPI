@@ -281,8 +281,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         ElementType RENDER_ITEMS = registerConditional("render_items", ElementType::parseRenderItemsElements);
         ElementType COMPARE_ITEMS = registerConditional("compare_items", ((uiDefinition, accessorFunction, elementName, element) -> {
             parseElements(uiDefinition, elementName, element, (s,d)-> parseItemStackElement(elementName, s, d), "firstItem","secondItem");
-            parseElements(uiDefinition, elementName, element, (s,d)-> parseBooleanElement(elementName, s, d), "checkCount");
-            uiDefinition.getDefinitions().add(UIDefinition.createBeforeInit(elementName, a -> a.getElements().put(elementName, ()-> FactoryItemUtil.compareItems(a.getElementValue(elementName+".firstItem", null, ItemStack.class), a.getElementValue(elementName+".secondItem", null, ItemStack.class), a.getBoolean(elementName+".checkCount",true)))));
+            parseElements(uiDefinition, elementName, element, (s,d)-> parseBooleanElement(elementName, s, d), "checkCount", "strict");
+            uiDefinition.getDefinitions().add(UIDefinition.createBeforeInit(elementName, a -> a.getElements().put(elementName, ()-> FactoryItemUtil.compareItems(a.getElementValue(elementName+".firstItem", null, ItemStack.class), a.getElementValue(elementName+".secondItem", null, ItemStack.class), a.getBoolean(elementName+".checkCount",true), a.getBoolean(elementName+".strict",true)))));
         }));
         ElementType CHANCE = registerConditional("chance", ((uiDefinition, accessorFunction, elementName, element) -> {
             RandomSource rand = RandomSource.create();
