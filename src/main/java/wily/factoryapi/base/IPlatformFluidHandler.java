@@ -50,11 +50,11 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
      * This function is a way to determine which fluids can exist inside a given handler. General purpose tanks will
      * basically always return TRUE for this.
      *
-     * @param stack Stack to test with for validity
+     * @param instance Instance to test with for validity
      * @return TRUE if the tank can hold the FluidInstance, not considering current state.
      * (Basically, is a given fluid EVER allowed in this tank?) Return FALSE if the answer to that question is 'no.'
      */
-    boolean isFluidValid(@NotNull FluidInstance stack);
+    boolean isFluidValid(@NotNull FluidInstance instance);
 
     /**
      * Basically, fills FluidInstance into the fluid handler.
@@ -102,8 +102,6 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
 
     /**
      * Defines the capacity of the fluid handler, if supported.
-     * <p>
-     * This method is not Fluid-sensitive.
      *
      * @param capacity The capacity to replace the actual maximum fluid amount.
      * @throws UnsupportedOperationException if it isn't implemented in the handler
@@ -113,7 +111,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
     }
 
     /**
-     * Basically, returns the name used for internal operations, as serializing CompoundTag.
+     * Basically, returns the name used for internal operations, as serializing CompoundTag in IFactoryExpandedStorage.
      * <p>
      *
      * @return the name of the used identifier with "Tank" suffix.
@@ -135,7 +133,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
     @Override
     default CompoundTag serializeTag() {
         CompoundTag tag = FluidInstance.toTag(getFluidInstance());
-        tag.putInt("capacity",getMaxFluid());
+        tag.putInt("capacity", getMaxFluid());
         return tag;
     }
 
@@ -179,6 +177,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
     default long getCapacity() {
         return FluidInstance.getPlatformFluidAmount(getMaxFluid());
     }
+
     //?} else if forge || neoforge {
     /*@Override
     default @NotNull FluidStack getFluid() {

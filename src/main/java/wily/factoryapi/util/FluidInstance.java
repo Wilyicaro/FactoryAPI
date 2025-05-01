@@ -64,18 +64,23 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     public static FluidInstance empty() {
         return EMPTY;
     }
+
     public static FluidInstance create(FluidInstance fluidInstance, int amount){
         return create(fluidInstance.getFluid(),amount);
     }
+
     public static FluidInstance create(Fluid fluid, int amount){
         return new FluidInstance(fluid,amount);
     }
+
     public static FluidInstance create(Fluid fluid){
         return new FluidInstance(fluid,1000);
     }
+
     public static FluidInstance create(Fluid fluid, long amount){
         return new FluidInstance(fluid,getMilliBucketsFluidAmount(amount));
     }
+
     //? if <1.20.5 || forge {
     public CompoundTag getNonNullTag() {
         return getTag() == null ? new CompoundTag() : getTag();

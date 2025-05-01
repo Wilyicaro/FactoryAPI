@@ -59,6 +59,12 @@ public interface FactoryGuiGraphics {
         this.blitSprite(resourceLocation, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
     }
 
+    void enableScissor(int x, int y, int xd, int yd, boolean matrixAffects);
+
+    default void enableScissor(int x, int y, int xd, int yd){
+        enableScissor(x, y, xd, yd, true);
+    }
+
     //? if <1.20.2 {
     /*default void blitNineSlicedSprite(TextureAtlasSprite textureAtlasSprite, GuiSpriteScaling.NineSlice nineSlice, int x, int y, int z, int width, int height) {
         GuiSpriteScaling.NineSlice.Border border = nineSlice.border();

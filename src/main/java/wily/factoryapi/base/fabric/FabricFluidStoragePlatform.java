@@ -41,7 +41,7 @@ public interface FabricFluidStoragePlatform extends IPlatformFluidHandler, IPlat
     }
 
     @Override
-    default boolean isFluidValid(@NotNull FluidInstance stack) {
+    default boolean isFluidValid(@NotNull FluidInstance instance) {
         return true;
     }
 

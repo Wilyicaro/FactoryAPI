@@ -369,12 +369,17 @@ public interface FactoryConfig<T> extends Bearer<T> {
             return;
         }
         try (BufferedReader r = Files.newReader(file, Charsets.UTF_8)){
-            JsonParser.parseReader(r).getAsJsonObject().asMap().forEach((s, e)->{
-                FactoryConfig<?> config = configs.get(s);
-                if (config == null) {
-                    LOGGER.warn("Config named as {} from {} config file wasn't found",s, file.toString());
-                } else config.decode(new Dynamic<>(JsonOps.INSTANCE,e));
-            });
+            if (JsonParser.parseReader(r) instanceof JsonObject obj) {
+                obj.asMap().forEach((s, e)->{
+                    FactoryConfig<?> config = configs.get(s);
+                    if (config == null) {
+                        LOGGER.warn("Config named as {} from {} config file wasn't found",s, file.toString());
+                    } else config.decode(new Dynamic<>(JsonOps.INSTANCE,e));
+                });
+            } else {
+                LOGGER.warn("Config file {} can't be loaded, it's certainly corrupt or in a wrong syntax",file.toString());
+            }
+
         } catch (IOException e) {
             LOGGER.warn("Failed to load the config {}: {}",file.toString(),e);
         }

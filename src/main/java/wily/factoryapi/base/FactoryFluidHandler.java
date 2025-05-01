@@ -85,8 +85,8 @@ public class FactoryFluidHandler implements IPlatformFluidHandler{
     }
 
     @Override
-    public boolean isFluidValid(@NotNull FluidInstance stack) {
-        return validator.test(stack);
+    public boolean isFluidValid(@NotNull FluidInstance instance) {
+        return validator.test(instance);
     }
 
     @Override

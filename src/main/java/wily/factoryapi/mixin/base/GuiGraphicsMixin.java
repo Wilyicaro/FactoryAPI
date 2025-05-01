@@ -4,11 +4,14 @@ package wily.factoryapi.mixin.base;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,6 +37,10 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     *///?}
     @Mutable
     @Shadow @Final private MultiBufferSource.BufferSource bufferSource;
+
+    @Shadow protected abstract void applyScissor(ScreenRectangle arg);
+
+    @Shadow @Final private GuiGraphics.ScissorStack scissorStack;
     @Unique
     private MultiBufferSource.BufferSource lastBufferSource;
 
@@ -164,6 +171,25 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             }
             context().blitSprite(getRenderFunction(), textureAtlasSprite, x, y, width, height);
             if (z != 0) context().pose().popPose();
+            *///?}
+        }
+
+        @Override
+        public void enableScissor(int x, int y, int xd, int yd, boolean matrixAffects) {
+            //? if <1.21.4 {
+            if (matrixAffects) {
+                Matrix4f matrix4f = context().pose().last().pose();
+                Vector3f vector3f = matrix4f.transformPosition(x, y, 0.0F, new Vector3f());
+                Vector3f vector3f2 = matrix4f.transformPosition(xd, yd, 0.0F, new Vector3f());
+                applyScissor(scissorStack.push(new ScreenRectangle(Mth.floor(vector3f.x), Mth.floor(vector3f.y), Mth.floor(vector3f2.x - vector3f.x), Mth.floor(vector3f2.y - vector3f.y))));
+            } else context().enableScissor(x, y, xd, yd);
+            //?} else {
+            /*
+            if (matrixAffects) {
+                context().enableScissor(x, y, xd, yd);
+            } else {
+                applyScissor(scissorStack.push(new ScreenRectangle(x, y, xd - x, yd - y)));
+            }
             *///?}
         }
 

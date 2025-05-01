@@ -10,3 +10,4 @@ accessible method net/minecraft/world/item/crafting/Ingredient <init> (Ljava/uti
 accessible field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
 mutable field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
 accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
