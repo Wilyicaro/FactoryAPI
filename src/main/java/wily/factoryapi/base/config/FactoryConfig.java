@@ -380,8 +380,8 @@ public interface FactoryConfig<T> extends Bearer<T> {
                 LOGGER.warn("Config file {} can't be loaded, it's certainly corrupt or in a wrong syntax",file.toString());
             }
 
-        } catch (IOException e) {
-            LOGGER.warn("Failed to load the config {}: {}",file.toString(),e);
+        } catch (IOException | RuntimeException e) {
+            LOGGER.warn("Failed to load the config {}: {}", file.toString(), e);
         }
     }
 

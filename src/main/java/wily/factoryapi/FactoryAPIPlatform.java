@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -632,8 +633,8 @@ public interface FactoryAPIPlatform {
             /*throw new AssertionError();*/
         }) : null;
     }
+
     static boolean isPackHidden(Pack pack) {
         return /*? if fabric && >=1.20.4 {*/ ((FabricResourcePackProfile)pack).fabric_isHidden() /*?} else {*/ /*false*//*?}*/;
     }
-
 }

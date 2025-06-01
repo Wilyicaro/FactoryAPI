@@ -11,7 +11,6 @@ import java.util.Set;
 public class FactoryAPIMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(String mixinPackage) {
-        FactoryAPI.getConfigDirectory();
     }
 
     @Override

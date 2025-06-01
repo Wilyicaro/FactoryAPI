@@ -127,13 +127,7 @@ public class FactoryAPI {
             FactoryAPIPlatform.registerByClassArgumentType(FactoryAPICommand.JsonArgument.class, FactoryRegistries.JSON_ARGUMENT_TYPE.get());
             FactoryCommonOptions.COMMON_STORAGE.load();
         });
-        FactoryEvent.PlayerEvent.JOIN_EVENT.register(sp->{
-            CommonNetwork.sendToPlayer(sp, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
-            FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(sp, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
-            //? if >=1.21.2 {
-            /*CommonNetwork.sendToPlayer(sp, CommonRecipeManager.ClientPayload.getInstance(), true);
-            *///?}
-        });
+        FactoryEvent.PlayerEvent.JOIN_EVENT.register(HelloPayload::sendInitialPayloads);
         //? if >=1.21.2 {
         /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
         FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.register(playerList-> {

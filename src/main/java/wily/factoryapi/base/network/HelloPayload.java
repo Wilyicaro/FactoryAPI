@@ -4,6 +4,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
+import wily.factoryapi.FactoryAPIPlatform;
+import wily.factoryapi.base.config.FactoryConfig;
+import wily.factoryapi.util.ModInfo;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -34,6 +37,14 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
                 CommonNetwork.sendToServer(new HelloPayload(modIds.stream().filter(FactoryAPI::isModLoaded).collect(Collectors.toSet()), ID_C2S));
             });
         }
+    }
+
+    public static void sendInitialPayloads(ServerPlayer serverPlayer){
+        CommonNetwork.sendToPlayer(serverPlayer, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
+        FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(serverPlayer, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
+        //? if >=1.21.2 {
+        /*CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
+         *///?}
     }
 
     @Override

@@ -184,8 +184,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
                 applyScissor(scissorStack.push(new ScreenRectangle(Mth.floor(vector3f.x), Mth.floor(vector3f.y), Mth.floor(vector3f2.x - vector3f.x), Mth.floor(vector3f2.y - vector3f.y))));
             } else context().enableScissor(x, y, xd, yd);
             //?} else {
-            /*
-            if (matrixAffects) {
+            
+            /*if (matrixAffects) {
                 context().enableScissor(x, y, xd, yd);
             } else {
                 applyScissor(scissorStack.push(new ScreenRectangle(x, y, xd - x, yd - y)));

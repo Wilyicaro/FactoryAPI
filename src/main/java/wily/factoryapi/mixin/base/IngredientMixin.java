@@ -1,5 +1,6 @@
 package wily.factoryapi.mixin.base;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 //? if >=1.21.2 {
 /*import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,12 +17,13 @@ import wily.factoryapi.base.network.CommonNetwork;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Mixin(Ingredient.class)
 public abstract class IngredientMixin implements FactoryIngredient {
     //? if >=1.21.2 {
-    /*@Shadow @Final protected HolderSet<Item> values;
-    @Mutable
+
+    /*@Mutable
     @Shadow @Final public static StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> OPTIONAL_CONTENTS_STREAM_CODEC;
     @Unique
     private ItemStack[] stacks;
@@ -33,10 +35,15 @@ public abstract class IngredientMixin implements FactoryIngredient {
         return FactoryIngredient.DEFAULT_ID;
     }
 
+    @Unique
+    private Ingredient self(){
+        return (Ingredient) (Object) this;
+    }
+
     @Override
     public ItemStack[] getStacks() {
         //? if >=1.21.2 {
-        /*return stacks == null ? stacks = values.stream().map(ItemStack::new).toArray(ItemStack[]::new) : stacks;
+        /*return stacks == null ? stacks = self().items()/^? if <1.21.4 {^/.stream()/^?}^/.map(ItemStack::new).toArray(ItemStack[]::new) : stacks;
         *///?} else
         return getItems();
     }
