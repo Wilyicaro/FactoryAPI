@@ -78,17 +78,19 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     }
 
     protected void renderBg(GuiGraphics graphics, int i, int j, float f) {
-        graphics.pose().pushPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.enableBlend();
         FactoryScreenUtil.enableDepthTest();
-        RenderSystem.setShaderColor(1,1,1,alpha);
+        //? if <1.21.6
+        /*RenderSystem.setShaderColor(1,1,1,alpha);*/
         if (useGeneratedBackground) FactoryScreenUtil.drawGUIBackground(graphics, getX(), getY(), width, height);
         else drawable.draw(graphics,getX(),getY());
         IWindowWidget.super.render(graphics,i,j,f);
-        RenderSystem.setShaderColor(1,1,1,1);
+        //? if <1.21.6
+        /*RenderSystem.setShaderColor(1,1,1,1);*/
         FactoryScreenUtil.disableBlend();
         FactoryScreenUtil.disableDepthTest();
-        graphics.pose().popPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).popPose();
     }
 
     @Override
@@ -105,11 +107,11 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     @Override
     protected void renderWidget(GuiGraphics graphics, int i, int j, float f) {
         if (!isVisible()) return;
-        graphics.pose().pushPose();
-        graphics.pose().translate(0D,0D,  getBlitOffset());
+        FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).translate(0D,0D,  getBlitOffset());
         renderBg(graphics,i,j,f);
         renderToolTip(graphics,i,j);
-        graphics.pose().popPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).popPose();
     }
 
     public float getBlitOffset(){

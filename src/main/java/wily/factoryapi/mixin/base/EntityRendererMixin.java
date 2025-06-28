@@ -1,5 +1,5 @@
 //? if >=1.21.2 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -18,4 +18,4 @@ public class EntityRendererMixin {
         FactoryRenderStateExtension.Accessor.of(entityRenderState).getExtensions().forEach(e-> e.tryExtractToRenderState(entity,f));
     }
 }
-*///?}
+//?}

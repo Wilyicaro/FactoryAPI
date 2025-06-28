@@ -43,8 +43,8 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
         CommonNetwork.sendToPlayer(serverPlayer, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
         FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(serverPlayer, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
         //? if >=1.21.2 {
-        /*CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
-         *///?}
+        CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
+         //?}
     }
 
     @Override

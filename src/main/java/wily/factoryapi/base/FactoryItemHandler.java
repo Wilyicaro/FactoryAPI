@@ -146,7 +146,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     @Override
     public CompoundTag serializeTag() {
         //? if <1.20.5 {
-        ListTag nbtTagList = new ListTag();
+        /*ListTag nbtTagList = new ListTag();
 
         for(int i = 0; i < getContainerSize(); ++i) {
             if (!getItem(i).isEmpty()) {
@@ -160,8 +160,8 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
-        //?} else
-        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());*/
+        *///?} else
+        return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());
     }
 
     @Override
@@ -172,7 +172,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     @Override
     public void deserializeTag(CompoundTag tag) {
         //? if <1.20.5 {
-        ListTag tagList = tag.getList("Items", 10);
+        /*ListTag tagList = tag.getList("Items", 10);
 
         for(int i = 0; i < tagList.size(); ++i) {
             CompoundTag itemTags = tagList.getCompound(i);
@@ -181,8 +181,8 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
                 setItem(slot, ItemStack.of(itemTags));
             }
         }
-        //?} else
-        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());*/
+        *///?} else
+        ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());
     }
 
     @Override

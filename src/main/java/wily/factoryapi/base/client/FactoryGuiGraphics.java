@@ -100,7 +100,7 @@ public interface FactoryGuiGraphics {
     void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m);
     *///?}
 
-    default void blitTiledSprite(/*? >=1.21.2 {*/ /*Function<ResourceLocation, RenderType> function, *//*?}*/TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
+    default void blitTiledSprite(/*? >=1.21.2 {*/ Function<ResourceLocation, RenderType> function, /*?}*/TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
         Minecraft minecraft = Minecraft.getInstance();
         if (l <= 0 || m <= 0 ) {
             return;
@@ -120,12 +120,12 @@ public interface FactoryGuiGraphics {
                     NativeImage tileImage = new NativeImage(width, height, false);
                     image.copyRect(tileImage,  n * image.getWidth() / r, o * image.getHeight() / s, 0, 0, width, height, false, false);
                     //? if <1.21.4 {
-                    return minecraft.getTextureManager().register("tile", new DynamicTexture(tileImage));
-                    //?} else {
-                    /*ResourceLocation tileLocation = opt.get().withPrefix("_"+string);
-                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(/^? if >1.21.4 {^//^tileLocation::toString, ^//^?}^/tileImage));
+                    /*return minecraft.getTextureManager().register("tile", new DynamicTexture(tileImage));
+                    *///?} else {
+                    ResourceLocation tileLocation = opt.get().withPrefix("_"+string);
+                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(/*? if >1.21.4 {*/tileLocation::toString, /*?}*/tileImage));
                     return tileLocation;
-                    *///?}
+                    //?}
                 }
             } catch (IOException e) {
                 FactoryAPI.LOGGER.warn(e.getMessage());
@@ -133,9 +133,9 @@ public interface FactoryGuiGraphics {
             return null;
         });
         //? if <1.21.2 {
-        blit(tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q);
-         //?} else
-        /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
+        /*blit(tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q);
+         *///?} else
+        context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);
     }
 
     void setColor(int color, boolean changeBlend);
@@ -162,7 +162,7 @@ public interface FactoryGuiGraphics {
     }
 
     //? if >=1.21.2 {
-    /*void setBlitColor(int color);
+    void setBlitColor(int color);
 
     void setBlitColor(float r, float g, float b, float a);
 
@@ -171,7 +171,7 @@ public interface FactoryGuiGraphics {
     default void clearBlitColor(){
         setBlitColor(1.0f,1.0f,1.0f,1.0f);
     }
-    *///?}
+    //?}
 
     void disableDepthTest();
 

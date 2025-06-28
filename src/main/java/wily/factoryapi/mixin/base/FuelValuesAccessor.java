@@ -1,5 +1,5 @@
 //? if >=1.21.2 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import it.unimi.dsi.fastutil.objects.Object2IntSortedMap;
 import net.minecraft.world.item.Item;
@@ -12,4 +12,4 @@ public interface FuelValuesAccessor {
     @Accessor
     Object2IntSortedMap<Item> getValues();
 }
-*///?}
+//?}

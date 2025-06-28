@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public record MipmapMetadataSection(Map<Integer, Level> levels) {
     public static final MipmapMetadataSection EMPTY = new MipmapMetadataSection(Collections.emptyMap());
     public static final Codec<MipmapMetadataSection> CODEC = Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, Object::toString), Level.CODEC).xmap(MipmapMetadataSection::new, MipmapMetadataSection::levels);
-    public static final MetadataSectionType<MipmapMetadataSection> TYPE = /*? if >1.21.3 {*//*new MetadataSectionType<>("mipmap", CODEC)*//*?} else if >1.20.1 {*/ MetadataSectionType.fromCodec("mipmap", CODEC)/*?} else {*//*GuiMetadataSection.fromCodec("mipmap", CODEC)*//*?}*/;
+    public static final MetadataSectionType<MipmapMetadataSection> TYPE = /*? if >1.21.3 {*/new MetadataSectionType<>("mipmap", CODEC)/*?} else if >1.20.1 {*/ /*MetadataSectionType.fromCodec("mipmap", CODEC)*//*?} else {*//*GuiMetadataSection.fromCodec("mipmap", CODEC)*//*?}*/;
     public static final Pattern MANUAL_MIPMAP_PATTERN = Pattern.compile(".+/(\\d).png");
 
     public static MipmapMetadataSection createFallback(SpriteContents contents, int maxLevel){
