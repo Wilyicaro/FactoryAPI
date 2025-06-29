@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiSpriteManager;
 //?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-//?}
+/*import com.mojang.blaze3d.pipeline.RenderPipeline;
+*///?}
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

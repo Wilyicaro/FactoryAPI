@@ -240,11 +240,12 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         FactoryGuiElement factoryGuiElement = elementLocalRef.get();
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
     }
-    //?} else
-    /^//? if >=1.21.6 {^/
+    //?} else {
     /^// Thank you so much /s
-    ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
-    ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
+    @Unique
+    final ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
+    @Unique
+    final ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
     @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
     public void renderExperienceBar(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         ci.set(new CallbackInfo("renderContextualBar", true));
@@ -266,7 +267,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
         fge.remove();ci.remove();
     }
-    ¹^///?}
+    ^///?}
     *///?} else {
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
     public void renderExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
