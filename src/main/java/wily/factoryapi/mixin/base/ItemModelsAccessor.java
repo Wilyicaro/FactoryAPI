@@ -1,5 +1,5 @@
 //? if >=1.21.4 {
-package wily.factoryapi.mixin.base;
+/*package wily.factoryapi.mixin.base;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.renderer.item.ItemModel;
@@ -16,4 +16,4 @@ public interface ItemModelsAccessor {
         return null;
     }
 }
-//?}
+*///?}

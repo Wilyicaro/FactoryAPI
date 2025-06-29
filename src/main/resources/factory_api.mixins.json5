@@ -6,20 +6,20 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     //? if <1.21.4 {
-    /*"BlockEntityWithoutLevelRendererMixin",
-    *///?} else {
-    "SpecialModelRenderersAccessor",
+    "BlockEntityWithoutLevelRendererMixin",
+    //?} else {
+    /*"SpecialModelRenderersAccessor",
     "ItemModelsAccessor",
     "ItemTintSourcesAccessor",
-    //?}
+    *///?}
     //? if fabric {
     "fabric.LevelRendererMixin",
     "fabric.ModelBlockRendererMixin",
     //?}
     //? if >=1.21.2 {
-    "EntityRenderStateMixin",
+    /*"EntityRenderStateMixin",
     "EntityRendererMixin",
-    //?}
+    *///?}
     //? if >1.20.2 {
     "RealmsAvailabilityAccessor",
     //?}
@@ -27,8 +27,8 @@
     /*"forge.ForgeGuiMixin",
     *///?}
     //? if >=1.21.5 {
-    "RenderPipelinesAccessor",
-    //?}
+    /*"RenderPipelinesAccessor",
+    *///?}
     "SpriteLoaderMixin",
     "AbstractContainerScreenMixin",
     "AbstractWidgetMixin",
@@ -64,10 +64,10 @@
     "neoforge.ItemCapabilityMixin",
     *///?}
     //? if <1.21.2 {
-    /*"RecipeManagerAccessor",
-    *///?} else {
-    "FuelValuesAccessor",
-    //?}
+    "RecipeManagerAccessor",
+    //?} else {
+    /*"FuelValuesAccessor",
+    *///?}
     "IngredientMixin",
     "MinecraftServerMixin",
     "PlayerListMixin",

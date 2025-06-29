@@ -116,8 +116,8 @@ public class FactoryAPI {
             r.register( true, CommonConfigSyncPayload.ID_C2S);
             r.register(false, OpenExtraMenuPayload.ID);
             //? if >=1.21.2 {
-            r.register(false, CommonRecipeManager.ClientPayload.ID);
-            //?}
+            /*r.register(false, CommonRecipeManager.ClientPayload.ID);
+            *///?}
         });
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
@@ -129,20 +129,20 @@ public class FactoryAPI {
         });
         FactoryEvent.PlayerEvent.JOIN_EVENT.register(HelloPayload::sendInitialPayloads);
         //? if >=1.21.2 {
-        Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
+        /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
         FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.register(playerList-> {
             updateRecipes.accept(playerList.getServer());
             CommonNetwork.sendToPlayers(playerList.getPlayers(), CommonRecipeManager.ClientPayload.getInstance());
         });
         FactoryEvent.serverStarted(updateRecipes);
-        //?}
+        *///?}
         FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.removeAll(sp.getUUID()));
         FactoryEvent.serverStopped(s-> {
             SECURE_EXECUTOR.clear();
             CommonNetwork.ENABLED_PLAYERS.clear();
             //? if >=1.21.2 {
-            CommonRecipeManager.clearRecipes();
-            //?}
+            /*CommonRecipeManager.clearRecipes();
+            *///?}
             currentServer = null;
         });
         //? if fabric {
@@ -164,9 +164,9 @@ public class FactoryAPI {
 
     public static ResourceLocation createVanillaLocation(String path){
         //? if <1.20.5 {
-        /*return new ResourceLocation(path);
-        *///?} else
-        return ResourceLocation.withDefaultNamespace(path);
+        return new ResourceLocation(path);
+        //?} else
+        /*return ResourceLocation.withDefaultNamespace(path);*/
     }
 
     public static Loader getLoader() {

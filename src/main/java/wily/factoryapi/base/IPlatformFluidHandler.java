@@ -125,8 +125,8 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
         setFluid(FluidInstance.fromTag(tag));
         Tag t = tag.tags.get("capacity");
         if (t instanceof NumericTag) {
-            if (t instanceof LongTag l) setCapacity(FluidInstance.getMilliBucketsFluidAmount(l./*? if >1.21.4 {*/value/*?} else {*//*getAsLong*//*?}*/()));
-            else if (t instanceof IntTag i) setCapacity(i./*? if >1.21.4 {*/value/*?} else {*//*getAsInt*//*?}*/());
+            if (t instanceof LongTag l) setCapacity(FluidInstance.getMilliBucketsFluidAmount(l./*? if >1.21.4 {*//*value*//*?} else {*/getAsLong/*?}*/()));
+            else if (t instanceof IntTag i) setCapacity(i./*? if >1.21.4 {*//*value*//*?} else {*/getAsInt/*?}*/());
         }
     }
 

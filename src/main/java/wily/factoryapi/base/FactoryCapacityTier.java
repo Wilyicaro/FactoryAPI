@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 //? if >=1.20.5
-import net.minecraft.network.codec.StreamCodec;
+/*import net.minecraft.network.codec.StreamCodec;*/
 import net.minecraft.util.StringRepresentable;
 import wily.factoryapi.FactoryAPI;
 
@@ -21,7 +21,7 @@ public enum FactoryCapacityTier implements StringRepresentable {
 
     public static final Codec<FactoryCapacityTier> CODEC = StringRepresentable.fromEnum(FactoryCapacityTier::values);
     //? if >=1.20.5
-    public static final StreamCodec<FriendlyByteBuf,FactoryCapacityTier> STREAM_CODEC = StreamCodec.of(FriendlyByteBuf::writeEnum, b->b.readEnum(FactoryCapacityTier.class));
+    /*public static final StreamCodec<FriendlyByteBuf,FactoryCapacityTier> STREAM_CODEC = StreamCodec.of(FriendlyByteBuf::writeEnum, b->b.readEnum(FactoryCapacityTier.class));*/
 
     public final ChatFormatting formatting;
     private final double conductivity;

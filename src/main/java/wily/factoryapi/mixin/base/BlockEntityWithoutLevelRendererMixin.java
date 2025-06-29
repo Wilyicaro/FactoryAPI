@@ -1,5 +1,5 @@
 //? if <1.21.4 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -26,4 +26,4 @@ public abstract class BlockEntityWithoutLevelRendererMixin {
         }
     }
 }
-*///?}
+//?}

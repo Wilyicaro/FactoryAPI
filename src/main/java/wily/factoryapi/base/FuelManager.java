@@ -5,10 +5,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 //? fabric {
 //? if <1.21.2 {
-/*import net.fabricmc.fabric.api.registry.FuelRegistry;
-*///?} else {
-import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
-//?}
+import net.fabricmc.fabric.api.registry.FuelRegistry;
+//?} else {
+/*import net.fabricmc.fabric.api.registry.FuelRegistryEvents;
+*///?}
 //?} else if forge {
 /*import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -19,9 +19,9 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.neoforged.bus.api.EventPriority;
 *///?}
 //? if >=1.21.2 {
-import wily.factoryapi.mixin.base.FuelValuesAccessor;
+/*import wily.factoryapi.mixin.base.FuelValuesAccessor;
 import net.minecraft.world.level.block.entity.FuelValues;
-//?}
+*///?}
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -42,18 +42,18 @@ public class FuelManager {
      * */
     public static Map<Item, Integer> getMap(){
         //? if <1.21.2 {
-        /*return AbstractFurnaceBlockEntity.getFuel();
-        *///?} else {
-        FuelValues fuelValues = getFuelValues();
+        return AbstractFurnaceBlockEntity.getFuel();
+        //?} else {
+        /*FuelValues fuelValues = getFuelValues();
         return fuelValues == null ? Collections.emptyMap() : ((FuelValuesAccessor)fuelValues).getValues();
-        //?}
+        *///?}
     }
 
     //? if >=1.21.2 {
-    public static FuelValues getFuelValues(){
+    /*public static FuelValues getFuelValues(){
         return FactoryAPI.currentServer == null ? FactoryAPIClient.hasLevel() ? FactoryAPIClient.getLevel().fuelValues() : null : FactoryAPI.currentServer.fuelValues();
     }
-    //?}
+    *///?}
 
     public static int getBurnTime(ItemStack stack){
         if (stack.isEmpty()) return 0;
@@ -69,11 +69,11 @@ public class FuelManager {
         /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
         *///?} else {
         //? if <1.21.2 {
-        /*return Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(stack.getItem()), 0);
-        *///?} else {
-        FuelValues fuelValues = getFuelValues();
+        return Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(stack.getItem()), 0);
+        //?} else {
+        /*FuelValues fuelValues = getFuelValues();
         return fuelValues == null ? 0 : fuelValues.burnDuration(stack);
-        //?}
+        *///?}
         //?}
     }
 
@@ -88,10 +88,10 @@ public class FuelManager {
     public static void add(Item item, int burnTime){
         //? if fabric {
         //? if <1.21.2 {
-        /*FuelRegistry.INSTANCE.add(item, burnTime);
-        *///?} else {
-        FuelRegistryEvents.BUILD.register((call, c)->call.add(item, burnTime));
-        //?}
+        FuelRegistry.INSTANCE.add(item, burnTime);
+        //?} else {
+        /*FuelRegistryEvents.BUILD.register((call, c)->call.add(item, burnTime));
+        *///?}
         //?} elif forge || neoforge {
         /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, FurnaceFuelBurnTimeEvent.class, e-> {
             if (e.getItemStack().is(item)) e.setBurnTime(burnTime);

@@ -1,5 +1,5 @@
 //? if >=1.21.4 {
-package wily.factoryapi.mixin.base;
+/*package wily.factoryapi.mixin.base;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -16,4 +16,4 @@ public interface ItemTintSourcesAccessor {
         return null;
     }
 }
-//?}
+*///?}

@@ -1,5 +1,5 @@
 //? if >=1.21.2 {
-package wily.factoryapi.base.client;
+/*package wily.factoryapi.base.client;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.Entity;
@@ -31,4 +31,4 @@ public interface FactoryRenderStateExtension<E extends Entity> {
         <T extends FactoryRenderStateExtension<?>> T getExtension(Class<T> extensionClass);
     }
 }
-//?}
+*///?}

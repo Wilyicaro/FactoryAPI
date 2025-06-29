@@ -40,7 +40,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
         FactoryConfig.COMMON_STORAGES.get(commonConfigStorage).decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, configTag));
         if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp.hasPermissions(2)){
             FactoryConfig.StorageHandler handler = FactoryConfig.COMMON_STORAGES.get(commonConfigStorage);
-            CommonNetwork.sendToPlayers(sp/*? if <1.21.6 {*//*.server*//*?} else {*/.getServer()/*?}*/.getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
+            CommonNetwork.sendToPlayers(sp/*? if <1.21.6 {*/.server/*?} else {*//*.getServer()*//*?}*/.getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
             handler.save();
         }
     }

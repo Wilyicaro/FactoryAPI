@@ -1,5 +1,5 @@
 //? if >=1.21.2 {
-package wily.factoryapi.mixin.base;
+/*package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,4 +22,4 @@ public class EntityRenderStateMixin implements FactoryRenderStateExtension.Acces
         return (T) extensions.get(extensionClass);
     }
 }
-//?}
+*///?}

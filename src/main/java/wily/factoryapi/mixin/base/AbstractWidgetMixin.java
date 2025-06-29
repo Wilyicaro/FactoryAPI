@@ -4,8 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 //? if >=1.20.5 {
-import net.minecraft.client.gui.components.WidgetTooltipHolder;
-//?} else {
+/*import net.minecraft.client.gui.components.WidgetTooltipHolder;
+*///?} else {
 //?}
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.CommonInputs;
