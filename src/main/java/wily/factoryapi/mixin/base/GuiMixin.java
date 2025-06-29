@@ -242,7 +242,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     }
     //?} else
     /^//? if >=1.21.6 {^/
-    /^¹// Thank you so much /s
+    /^// Thank you so much /s
     ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
     ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
     @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))

@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 /*import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.util.ProblemReporter;
 *///?}
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;

@@ -1,11 +1,13 @@
 package wily.factoryapi.base.client;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 //? if >1.20.1 {
 import net.minecraft.client.gui.GuiSpriteManager;
+//?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 //?}
 
 import net.minecraft.client.renderer.MultiBufferSource;
