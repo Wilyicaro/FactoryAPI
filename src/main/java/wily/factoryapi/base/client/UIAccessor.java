@@ -208,14 +208,14 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             int amount = getInteger(name+".amount", 1);
             for (int i1 = 0; i1 < amount; i1++) {
                 if (getElements().get(name+".index") instanceof Bearer<?> b) b.secureCast(Integer.class).set(i1);
-                guiGraphics.pose().pushPose();
+                FactoryGuiMatrixStack.of(guiGraphics.pose()).pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
                 FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
-                guiGraphics.pose().translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
-                guiGraphics.pose().scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
+                FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
+                FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
-                guiGraphics.pose().popPose();
+                FactoryGuiMatrixStack.of(guiGraphics.pose()).popPose();
                 FactoryScreenUtil.disableBlend();
                 FactoryGuiGraphics.of(guiGraphics).clearColor();
             }

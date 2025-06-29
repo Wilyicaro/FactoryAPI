@@ -3,9 +3,11 @@ package wily.factoryapi.base.client.drawable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import wily.factoryapi.base.client.FactoryGuiMatrixStack;
 import wily.factoryapi.util.FluidInstance;
 
 import java.util.ArrayList;
@@ -52,14 +54,14 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
     @Override
     public void draw(GuiGraphics graphics, int x, int y) {
         IFactoryDrawableType.super.draw(graphics, x, y);
-        graphics.pose().pushPose();
-        graphics.pose().translate(0F,0F,1F);
+        FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).translate(0F,0F,1F);
         if (overlay != null) {
             int dX = overlay instanceof AbstractDrawableStatic<?,?> d ? d.getX() : 0;
             int dY = overlay instanceof AbstractDrawableStatic<?,?> d ? d.getY() : 0;
             overlay.draw(graphics, x + dX + (width() - overlay.width()) / 2, y + dY + (height() - overlay.height()) / 2);
         }
-        graphics.pose().popPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).popPose();
     }
 
     @Override
@@ -85,6 +87,10 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         if (!visible.get()) return;
         hovered = inMouseLimit(i,j);
         draw(guiGraphics);
+        //? if >=1.21.6 {
+        /*if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
+        *///?} else {
         if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
+        //?}
     }
 }

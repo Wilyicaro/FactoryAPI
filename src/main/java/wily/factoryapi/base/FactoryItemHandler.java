@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 //?}
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
@@ -13,6 +14,12 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+//? if >=1.21.6 {
+/*import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.util.ProblemReporter;
+*///?}
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
@@ -160,8 +167,15 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
-        //?} else
-        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());*/
+        //?} else {
+        /*//? if <1.21.6 {
+        return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());
+        //?} else {
+        /^TagValueOutput withoutContext = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
+        ContainerHelper.saveAllItems(withoutContext,getItems(), true);
+        return withoutContext.buildResult();
+        ^///?}
+        *///?}
     }
 
     @Override
@@ -181,8 +195,13 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
                 setItem(slot, ItemStack.of(itemTags));
             }
         }
-        //?} else
-        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());*/
+        //?} else {
+        /*//? if <1.21.6 {
+        ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());
+        //?} else {
+        /^ContainerHelper.loadAllItems(TagValueInput.create(ProblemReporter.DISCARDING, FactoryAPIPlatform.getRegistryAccess(), tag), getItems());
+        ^///?}
+        *///?}
     }
 
     @Override

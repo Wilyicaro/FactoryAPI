@@ -20,7 +20,10 @@ import net.minecraft.client.color.item.ItemColor;
 //?}
 //? if >=1.21.2 {
 /*import net.minecraft.util.profiling.Profiler;
- *///?}
+*///?}
+//? if >=1.21.6 {
+/*import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+*///?}
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -86,7 +89,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 //? if fabric {
 import wily.factoryapi.base.compat.client.FactoryAPIModMenuCompat;
+//? if <1.21.6 {
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+//?} else {
+/*import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
+*///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -110,12 +117,12 @@ import net.minecraftforge.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.ModList;
 //? if <1.20.5 {
-/^import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
-^///?} else {
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+//?} else {
+/^import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
-//?}
+^///?}
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -317,8 +324,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Pre.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Pre.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -332,8 +339,8 @@ public class FactoryAPIClient {
             if (e.phase == TickEvent.Phase.END)  listener.accept(Minecraft.getInstance());
         });
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ClientTickEvent.class^//^?} else {^/ClientTickEvent.Post.class/^?}^/, e-> {
-            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ listener.accept(Minecraft.getInstance());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ClientTickEvent.class/^?} else {^//^ClientTickEvent.Post.class^//^?}^/, e-> {
+            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ listener.accept(Minecraft.getInstance());
         });
          *///?} else
         /*throw new AssertionError();*/
@@ -467,9 +474,9 @@ public class FactoryAPIClient {
     }
     //?}
 
-    public static void registerRenderType(RenderType renderType, Block... blocks) {
+    public static void registerRenderType(/*? if <1.21.6 {*/RenderType/*?} else {*//*ChunkSectionLayer*//*?}*/ renderType, Block... blocks) {
         //? if fabric {
-        BlockRenderLayerMap.INSTANCE.putBlocks(renderType,blocks);
+        BlockRenderLayerMap/*? if <1.21.6 {*/.INSTANCE/*?}*/.putBlocks(renderType,blocks);
         //?} elif forge || neoforge {
         /*for (Block block : blocks) {
             ItemBlockRenderTypes.setRenderLayer(block,renderType);
@@ -478,9 +485,9 @@ public class FactoryAPIClient {
         /*throw new AssertionError();*/
     }
 
-    public static void registerRenderType(RenderType renderType, Fluid... fluids) {
+    public static void registerRenderType(/*? if <1.21.6 {*/RenderType/*?} else {*//*ChunkSectionLayer*//*?}*/ renderType, Fluid... fluids) {
         //? if fabric {
-        BlockRenderLayerMap.INSTANCE.putFluids(renderType,fluids);
+        BlockRenderLayerMap/*? if <1.21.6 {*/.INSTANCE/*?}*/.putFluids(renderType,fluids);
         //?} elif forge || neoforge {
         /*for (Fluid fluid : fluids) {
             ItemBlockRenderTypes.setRenderLayer(fluid,renderType);

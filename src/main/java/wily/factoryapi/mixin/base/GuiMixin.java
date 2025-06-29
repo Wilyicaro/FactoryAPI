@@ -1,10 +1,20 @@
 package wily.factoryapi.mixin.base;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
+//? if >=1.21.6 {
+/*import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
+import net.minecraft.client.gui.contextualbar.ExperienceBarRenderer;
+import net.minecraft.client.gui.contextualbar.JumpableVehicleBarRenderer;
+import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
+*///?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -208,6 +218,57 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     }
     *///?}
 
+    //? if >=1.21.6 {
+    /*//? if !neoforge {
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+        ci.set(new CallbackInfo("renderContextualBar", true));
+        elementLocalRef.set(switch (instance) {
+            case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
+            case LocatorBarRenderer ignored -> FactoryGuiElement.LOCATOR_BAR;
+            case JumpableVehicleBarRenderer ignored -> FactoryGuiElement.JUMP_METER;
+            default -> null;
+        });
+        FactoryGuiElement factoryGuiElement = elementLocalRef.get();
+        if (factoryGuiElement != null) factoryGuiElement.prepareMixin(graphics, this, ci.get());
+        if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
+    }
+
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+        if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
+        FactoryGuiElement factoryGuiElement = elementLocalRef.get();
+        if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
+    }
+    //?} else {
+    /^// Thank you so much /s
+    @Unique
+    final ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
+    @Unique
+    final ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
+    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+        ci.set(new CallbackInfo("renderContextualBar", true));
+        fge.set(switch (instance) {
+            case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
+            case LocatorBarRenderer ignored -> FactoryGuiElement.LOCATOR_BAR;
+            case JumpableVehicleBarRenderer ignored -> FactoryGuiElement.JUMP_METER;
+            default -> null;
+        });
+        FactoryGuiElement factoryGuiElement = fge.get();
+        if (factoryGuiElement != null) factoryGuiElement.prepareMixin(graphics, this, ci.get());
+        if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
+    }
+
+    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+        if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
+        FactoryGuiElement factoryGuiElement = fge.get();
+        if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
+        fge.remove();ci.remove();
+    }
+    ^///?}
+    *///?} else {
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
     public void renderExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.EXPERIENCE_BAR.prepareMixin(guiGraphics, this, ci);
@@ -227,6 +288,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     public void renderJumpMeterReturn(PlayerRideableJumping playerRideableJumping, GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.JUMP_METER.finalizeMixin(guiGraphics, this);
     }
+    //?}
 
     @Inject(method = /*? if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else {*/"renderSelectedItemName"/*?}*/, at = @At("HEAD"), cancellable = true/*? if forge || neoforge {*//*, remap = false*//*?}*/)
     public void renderSelectedItemName(GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {

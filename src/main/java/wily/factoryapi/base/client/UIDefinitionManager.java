@@ -2,9 +2,14 @@ package wily.factoryapi.base.client;
 
 import com.google.gson.JsonElement;
 import com.mojang.realmsclient.RealmsMainScreen;
+//? if >=1.21.6 {
+/*import com.mojang.realmsclient.gui.screens.configuration.RealmsBackupScreen;
+import com.mojang.realmsclient.gui.screens.configuration.RealmsInviteScreen;
+*///?} else {
 import com.mojang.realmsclient.gui.screens.RealmsBackupScreen;
-import com.mojang.realmsclient.gui.screens.RealmsConfirmScreen;
 import com.mojang.realmsclient.gui.screens.RealmsInviteScreen;
+//?}
+import com.mojang.realmsclient.gui.screens.RealmsConfirmScreen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryEvent;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
+import wily.factoryapi.base.client.FactoryGuiMatrixStack;
 import wily.factoryapi.base.client.UIAccessor;
 
 public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRender> pre, FactoryEvent<GuiRender> modifiedPre, FactoryEvent<GuiRender> post, FactoryEvent<GuiRender> modifiedPost) {
@@ -16,6 +17,9 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
     public static final FactoryGuiElement PLAYER_HEALTH = new FactoryGuiElement("player_health");
     public static final FactoryGuiElement VEHICLE_HEALTH = new FactoryGuiElement("vehicle_health");
     public static final FactoryGuiElement EXPERIENCE_BAR = new FactoryGuiElement("experience_bar");
+    //? if >=1.21.6 {
+    /*public static final FactoryGuiElement LOCATOR_BAR = new FactoryGuiElement("locator_bar");
+    *///?}
     public static final FactoryGuiElement JUMP_METER = new FactoryGuiElement("jump_meter");
     public static final FactoryGuiElement SELECTED_ITEM_NAME = new FactoryGuiElement("selected_item_name");
     public static final FactoryGuiElement SPECTATOR_TOOLTIP = new FactoryGuiElement("spectator_tooltip");
@@ -75,7 +79,7 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
 
     public void prepareRender(GuiGraphics graphics, UIAccessor accessor){
         pre.invoker.render(graphics);
-        graphics.pose().pushPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.applyOffset(graphics, getOffset( "translateX", accessor), getOffset("translateY", accessor), getOffset("translateZ", accessor));
         FactoryScreenUtil.applyScale(graphics, getScale("scaleX", accessor), getScale("scaleY", accessor), getScale("scaleZ", accessor));
         FactoryScreenUtil.applyOffset(graphics, getOffset("scaledTranslateX", accessor), getOffset("scaledTranslateY", accessor), getOffset("scaledTranslateZ", accessor));
@@ -86,7 +90,7 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
     public void finalizeRender(GuiGraphics graphics, UIAccessor accessor){
         modifiedPost.invoker.render(graphics);
         int color = getColor(accessor);
-        graphics.pose().popPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).popPose();
         if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
         post.invoker.render(graphics);
     }

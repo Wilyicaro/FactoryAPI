@@ -159,9 +159,9 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         if (stack == null) stack = new FluidStack(fluid,amount);
         stack.setAmount(amount);
         //? if <1.20.5 || forge {
-        /^stack.setTag(getTag());
-        ^///?} else
-        stack.applyComponents(getComponents());
+        stack.setTag(getTag());
+        //?} else
+        /^stack.applyComponents(getComponents());^/
         return stack;
     }
     *///?}

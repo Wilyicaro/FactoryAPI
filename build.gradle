@@ -275,3 +275,15 @@ publishMods {
     }
 
 }
+
+loom {
+    runConfigs.all {
+        ideConfigGenerated(true) // Run configurations are not created for subprojects by default
+        runDir = "../../run" // Use a shared run folder and just create separate worlds
+    }
+}
+
+// We don't need this since we are using Mojmap
+configurations.all {
+    exclude group: "io.github.juuxel", module: "unprotect"
+}
