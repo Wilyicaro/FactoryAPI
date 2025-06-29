@@ -208,22 +208,22 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     }
     *///?}
 
-    @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true, require = 0)
     public void renderExperienceBar(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.EXPERIENCE_BAR.prepareMixin(guiGraphics, this, ci);
     }
 
-    @Inject(method = "renderExperienceBar", at = @At("RETURN"))
+    @Inject(method = "renderExperienceBar", at = @At("RETURN"), require = 0)
     public void renderExperienceBarReturn(GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.EXPERIENCE_BAR.finalizeMixin(guiGraphics, this);
     }
 
-    @Inject(method = "renderJumpMeter", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderJumpMeter", at = @At("HEAD"), cancellable = true, require = 0)
     public void renderJumpMeter(PlayerRideableJumping playerRideableJumping, GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.JUMP_METER.prepareMixin(guiGraphics, this, ci);
     }
 
-    @Inject(method = "renderJumpMeter", at = @At("RETURN"))
+    @Inject(method = "renderJumpMeter", at = @At("RETURN"), require = 0)
     public void renderJumpMeterReturn(PlayerRideableJumping playerRideableJumping, GuiGraphics guiGraphics, int i, CallbackInfo ci) {
         FactoryGuiElement.JUMP_METER.finalizeMixin(guiGraphics, this);
     }

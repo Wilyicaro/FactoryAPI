@@ -1,5 +1,6 @@
 package wily.factoryapi.base.client;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -100,7 +101,7 @@ public interface FactoryGuiGraphics {
     void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m);
     *///?}
 
-    default void blitTiledSprite(/*? >=1.21.2 {*/ Function<ResourceLocation, RenderType> function, /*?}*/TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
+    default void blitTiledSprite(/*? >=1.21.2 {*/ /*? if <1.21.6 {*//*Function<ResourceLocation, RenderType>*//*?} else {*/RenderPipeline/*?}*/ function, /*?}*/TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
         Minecraft minecraft = Minecraft.getInstance();
         if (l <= 0 || m <= 0 ) {
             return;

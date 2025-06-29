@@ -19,9 +19,11 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 /*import net.minecraft.client.color.item.ItemColor;
 *///?}
 //? if >=1.21.2 {
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.util.profiling.Profiler;
- //?}
+//?}
+//? if >=1.21.6 {
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+//?}
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -472,7 +474,7 @@ public class FactoryAPIClient {
     }
     *///?}
 
-    public static void registerRenderType(/*? if <1.21.6 {*//*.RenderType*//*?} else {*/ChunkSectionLayer/*?}*/ renderType, Block... blocks) {
+    public static void registerRenderType(/*? if <1.21.6 {*//*RenderType*//*?} else {*/ChunkSectionLayer/*?}*/ renderType, Block... blocks) {
         //? if fabric {
         BlockRenderLayerMap/*? if <1.21.6 {*//*.INSTANCE*//*?}*/.putBlocks(renderType,blocks);
         //?} elif forge || neoforge {
@@ -483,7 +485,7 @@ public class FactoryAPIClient {
         /*throw new AssertionError();*/
     }
 
-    public static void registerRenderType(/*? if <1.21.6 {*//*.RenderType*//*?} else {*/ChunkSectionLayer/*?}*/ renderType, Fluid... fluids) {
+    public static void registerRenderType(/*? if <1.21.6 {*//*RenderType*//*?} else {*/ChunkSectionLayer/*?}*/ renderType, Fluid... fluids) {
         //? if fabric {
         BlockRenderLayerMap/*? if <1.21.6 {*//*.INSTANCE*//*?}*/.putFluids(renderType,fluids);
         //?} elif forge || neoforge {

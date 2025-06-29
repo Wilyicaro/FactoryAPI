@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryEvent;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
+import wily.factoryapi.base.client.FactoryGuiMatrixStack;
 import wily.factoryapi.base.client.UIAccessor;
 
 public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRender> pre, FactoryEvent<GuiRender> modifiedPre, FactoryEvent<GuiRender> post, FactoryEvent<GuiRender> modifiedPost) {
@@ -75,7 +76,7 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
 
     public void prepareRender(GuiGraphics graphics, UIAccessor accessor){
         pre.invoker.render(graphics);
-        graphics.pose().pushPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.applyOffset(graphics, getOffset( "translateX", accessor), getOffset("translateY", accessor), getOffset("translateZ", accessor));
         FactoryScreenUtil.applyScale(graphics, getScale("scaleX", accessor), getScale("scaleY", accessor), getScale("scaleZ", accessor));
         FactoryScreenUtil.applyOffset(graphics, getOffset("scaledTranslateX", accessor), getOffset("scaledTranslateY", accessor), getOffset("scaledTranslateZ", accessor));
@@ -86,7 +87,7 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
     public void finalizeRender(GuiGraphics graphics, UIAccessor accessor){
         modifiedPost.invoker.render(graphics);
         int color = getColor(accessor);
-        graphics.pose().popPose();
+        FactoryGuiMatrixStack.of(graphics.pose()).popPose();
         if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
         post.invoker.render(graphics);
     }

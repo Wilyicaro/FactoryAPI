@@ -3,6 +3,7 @@ package wily.factoryapi.base.client.drawable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -86,6 +87,10 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         if (!visible.get()) return;
         hovered = inMouseLimit(i,j);
         draw(guiGraphics);
-        if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
+        //? if >=1.21.6 {
+        if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
+        //?} else {
+        /*if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
+        *///?}
     }
 }

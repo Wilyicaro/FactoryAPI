@@ -22,11 +22,11 @@ public abstract class SpectatorGuiMixin implements SpectatorGuiAccessor {
     public void renderHotbarReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
         FactoryGuiElement.SPECTATOR_HOTBAR.finalizeMixin(guiGraphics);
     }
-    @Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true, require = 0)
     public void renderTooltip(GuiGraphics guiGraphics, CallbackInfo ci) {
         FactoryGuiElement.SPECTATOR_TOOLTIP.prepareMixin(guiGraphics, ci);
     }
-    @Inject(method = "renderTooltip", at = @At("RETURN"))
+    @Inject(method = "renderTooltip", at = @At("RETURN"), require = 0)
     public void renderTooltipReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
         FactoryGuiElement.SPECTATOR_TOOLTIP.finalizeMixin(guiGraphics);
     }
