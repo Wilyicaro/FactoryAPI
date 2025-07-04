@@ -13,7 +13,9 @@ import net.fabricmc.fabric.api.registry.FuelRegistry;
 /*import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+//? if <1.21.6 {
 import net.minecraftforge.eventbus.api.EventPriority;
+//?}
 *///?} else if neoforge {
 /*import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.bus.api.EventPriority;
@@ -59,14 +61,14 @@ public class FuelManager {
         if (stack.isEmpty()) return 0;
         //? if forge {
         /*//? if <1.21.2 {
-        /^return ForgeHooks.getBurnTime(stack, null);
-        ^///?} else {
-        FuelValues fuelValues = getFuelValues();
+        return ForgeHooks.getBurnTime(stack, null);
+        //?} else {
+        /^FuelValues fuelValues = getFuelValues();
         int ret = stack.getBurnTime(null);
         return ForgeEventFactory.getItemBurnTime(stack, ret == -1 ? fuelValues == null ? 0 : fuelValues.burnDuration(stack) : ret, null);
-        //?}
+        ^///?}
         *///?} else if neoforge {
-        /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
+        /*return stack.getBurnTime(null/^? if >1.21.2 {^/, getFuelValues()/^?}^/);
         *///?} else {
         //? if <1.21.2 {
         return Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(stack.getItem()), 0);
@@ -92,8 +94,12 @@ public class FuelManager {
         //?} else {
         /*FuelRegistryEvents.BUILD.register((call, c)->call.add(item, burnTime));
         *///?}
-        //?} elif forge || neoforge {
+        //?} elif forge && <1.21.6 || neoforge {
         /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, FurnaceFuelBurnTimeEvent.class, e-> {
+            if (e.getItemStack().is(item)) e.setBurnTime(burnTime);
+        });
+        *///?} elif forge {
+        /*FurnaceFuelBurnTimeEvent.BUS.addListener(e-> {
             if (e.getItemStack().is(item)) e.setBurnTime(burnTime);
         });
         *///?} else
