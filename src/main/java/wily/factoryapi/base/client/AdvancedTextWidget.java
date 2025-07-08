@@ -23,7 +23,7 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
     private int[] heightPerLine = new int[0];
     private int lineSpacing = 12;
     private boolean centered = false;
-    private int color = 0xFFFFFF;
+    private int color = 0xFFFFFFFF;
     private boolean shadow = true;
     private boolean multipleHeights = true;
 

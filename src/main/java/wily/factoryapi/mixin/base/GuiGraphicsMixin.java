@@ -220,6 +220,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             *///?}
         }
 
+        //? if <1.21.6 {
         @Override
         public void setColor(int color, boolean changeBlend) {
             setColor(ColorUtil.getRed(color), ColorUtil.getGreen(color), ColorUtil.getBlue(color), ColorUtil.getAlpha(color), changeBlend);
@@ -231,13 +232,11 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
                 if (a < 1) FactoryScreenUtil.enableBlend();
                 else FactoryScreenUtil.disableBlend();
             }
-            //? if <1.21.6 {
             //? if >=1.21.2 {
             /*context().flush();
-            RenderSystem.setShaderColor(r,g,b,a);
+            RenderSystem.setShaderColor(r, g, b, a);
             *///?} else {
-            context().setColor(r,g,b,a);
-            //?}
+            context().setColor(r, g, b, a);
             //?}
         }
 
@@ -249,6 +248,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             return RenderSystem.getShaderColor();
             //?}
         }
+        //?}
 
         //? if >=1.21.2 {
         /*@Override

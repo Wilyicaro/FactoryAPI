@@ -141,6 +141,8 @@ public interface FactoryGuiGraphics {
         /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
     }
 
+    //? if <1.21.6 {
+
     void setColor(int color, boolean changeBlend);
 
     void setColor(float r, float g, float b, float a, boolean changeBlend);
@@ -163,6 +165,8 @@ public interface FactoryGuiGraphics {
     default void clearColor(){
         clearColor(false);
     }
+
+    //?}
 
     //? if >=1.21.2 {
     /*void setBlitColor(int color);

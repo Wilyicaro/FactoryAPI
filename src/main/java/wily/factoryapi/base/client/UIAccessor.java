@@ -210,14 +210,21 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 if (getElements().get(name+".index") instanceof Bearer<?> b) b.secureCast(Integer.class).set(i1);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
+                //? if <1.21.6 {
                 FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
+                //?} else
+                /*FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);*/
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).popPose();
                 FactoryScreenUtil.disableBlend();
+                //? if <1.21.6 {
                 FactoryGuiGraphics.of(guiGraphics).clearColor();
+                //?} else
+                /*FactoryGuiGraphics.of(guiGraphics).clearBlitColor();*/
+
             }
         };
     }

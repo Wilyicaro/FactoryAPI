@@ -201,15 +201,18 @@ public class FactoryScreenUtil {
         return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
     }
 
-    public static void applyOffset(GuiGraphics graphics, float x, float y, float z){
+    public static void applyOffset(GuiGraphics graphics, float x, float y, float z) {
         if (x != 0 || y != 0 | z != 0) FactoryGuiMatrixStack.of(graphics.pose()).translate(x, y, z);
     }
 
-    public static void applyScale(GuiGraphics graphics, float x, float y, float z){
+    public static void applyScale(GuiGraphics graphics, float x, float y, float z) {
         if (x != 1 || y != 1 || z != 1) FactoryGuiMatrixStack.of(graphics.pose()).scale(x, y, z);
     }
 
-    public static void applyColor(GuiGraphics graphics, int color){
+    public static void applyColor(GuiGraphics graphics, int color) {
+        //? if >=1.21.6 {
+        /*if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
+        *///?} else
         if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
     }
 

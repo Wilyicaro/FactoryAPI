@@ -29,15 +29,20 @@ public class ProgressElementRenderUtil {
             int fluidWidth = type.width();
             int posY = y + type.height() - fluidHeight;
             if (hasColor) {
-                FactoryGuiGraphics.of(graphics).setColor(FluidRenderUtil.getFixedColor(instance),true);
+                //? if <1.21.6 {
+                FactoryGuiGraphics.of(graphics).setColor(FluidRenderUtil.getFixedColor(instance), true);
+                //?} else
+                /*FactoryGuiGraphics.of(graphics).setBlitColor(FluidRenderUtil.getFixedColor(instance));*/
             }
             for (int i = 0; i < fluidWidth; i += 16) {
                 for (int j = 0; j < fluidHeight; j += 16) {
                    FluidRenderUtil.renderTiledFluid(graphics, x, posY, i, j, fluidWidth, fluidHeight, FactoryAPIClient.getFluidStillTexture(instance.getFluid()));
                 }
             }
-
+            //? if <1.21.6 {
             FactoryGuiGraphics.of(graphics).clearColor(true);
+            //?} else
+            /*FactoryGuiGraphics.of(graphics).clearBlitColor();*/
         }
         type.draw(graphics,x,y);
     }

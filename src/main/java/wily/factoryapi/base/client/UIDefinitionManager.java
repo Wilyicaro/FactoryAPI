@@ -342,7 +342,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static void parseDrawStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseTextElements(uiDefinition, elementName, element);
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.getDefinitions().add(UIDefinition.createAfterInit(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics.drawString(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
+            uiDefinition.getDefinitions().add(UIDefinition.createAfterInit(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics.drawString(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
         }
 
         static void parseDrawMultilineStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
@@ -353,7 +353,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                 a.getElement(elementName+".component", Component.class).ifPresent(c-> {
                     int lineSpacing = a.getInteger(elementName+".lineSpacing", 12);
                     int width = a.getInteger(elementName+".width", 0);
-                    AdvancedTextWidget advancedTextWidget = a.putLayoutElement(elementName, accessorFunction.apply(a).addChild(elementName, new AdvancedTextWidget(a).lineSpacing(lineSpacing).withLines(c,width).withColor(a.getInteger(elementName + ".color", 0xFFFFFF)).withShadow(a.getBoolean(elementName + ".shadow", true)).centered(a.getBoolean(elementName + ".centered", false))), i-> {}, i->{});
+                    AdvancedTextWidget advancedTextWidget = a.putLayoutElement(elementName, accessorFunction.apply(a).addChild(elementName, new AdvancedTextWidget(a).lineSpacing(lineSpacing).withLines(c,width).withColor(a.getInteger(elementName + ".color", 0xFFFFFFFF)).withShadow(a.getBoolean(elementName + ".shadow", true)).centered(a.getBoolean(elementName + ".centered", false))), i-> {}, i->{});
                     a.putStaticElement(elementName+".linesCount", advancedTextWidget.getLines().size());
                 });
             }));

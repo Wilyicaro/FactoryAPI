@@ -86,17 +86,26 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     @Override
     public void draw(GuiGraphics graphics, int x, int y) {
         if (color != null)
-            FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F,color.getGreen() / 255F, color.getBlue() / 255F, 1F);
+            //? if <1.21.6 {
+            FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+            //?} else
+            /*FactoryGuiGraphics.of(graphics).setBlitColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);*/
         super.draw(graphics, x, y);
-        FactoryGuiGraphics.of(graphics).setColor(1, 1, 1, FactoryGuiGraphics.of(graphics).getColor()[3]);
+        if (color != null)
+            //? if <1.21.6 {
+            FactoryGuiGraphics.of(graphics).clearColor();
+            //?} else
+            /*FactoryGuiGraphics.of(graphics).clearBlitColor();*/
         if (isSelected() || hovered && hoverSelection) {
             if (selection != null) selection.draw(graphics, x, y);
             else graphics.renderOutline(x, y, width(), height(), -1);
         }
     }
+
     public ScreenRectangle getRectangle() {
         return FactoryScreenUtil.rect2iToRectangle(this);
     }
+
     public boolean isSelected(){
         return selected == Boolean.TRUE;
     }

@@ -91,6 +91,9 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
         modifiedPost.invoker.render(graphics);
         int color = getColor(accessor);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
+        //? if >=1.21.6 {
+        /*if (color != -1) FactoryGuiGraphics.of(graphics).clearBlitColor();
+         *///?} else
         if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
         post.invoker.render(graphics);
     }
