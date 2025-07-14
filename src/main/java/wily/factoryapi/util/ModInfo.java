@@ -12,6 +12,7 @@ public interface ModInfo {
     Optional<String> getIssues();
 
     Optional<String> getSources();
+
     Collection<String> getCredits();
 
     Collection<String> getLicense();
@@ -27,6 +28,7 @@ public interface ModInfo {
     String getVersion();
 
     String getName();
+
     default boolean isHidden(){
         return false;
     }

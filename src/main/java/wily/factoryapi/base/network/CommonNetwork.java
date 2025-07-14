@@ -27,8 +27,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraftforge.network.PacketDistributor;
 *///?} elif neoforge {
 /*//? if >1.21.5 {
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-//?}
+/^import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+^///?}
 import net.neoforged.neoforge.network.PacketDistributor;
 *///?}
 import net.minecraft.world.item.ItemStack;
@@ -224,9 +224,9 @@ public interface CommonNetwork {
         /^PacketDistributor.PLAYER.with(serverPlayer).send(NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND, payload.type().id(), payload::encode));^/
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.PLAYER.with(serverPlayer).send(payload);
-         ^///?} else
-        PacketDistributor.sendToPlayer(serverPlayer, payload);
+        PacketDistributor.PLAYER.with(serverPlayer).send(payload);
+         //?} else
+        /^PacketDistributor.sendToPlayer(serverPlayer, payload);^/
         *///?} else {
         /*throw new AssertionError();
          *///?}
@@ -262,12 +262,12 @@ public interface CommonNetwork {
         /^PacketDistributor.SERVER.noArg().send(NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND, payload.type().id(), payload::encode));^/
         *///?} elif neoforge {
         /*//? if <1.20.5 {
-        /^PacketDistributor.SERVER.noArg().send(payload);
-         ^///?} else if <=1.21.5 {
+        PacketDistributor.SERVER.noArg().send(payload);
+         //?} else if <=1.21.5 {
         /^PacketDistributor.sendToServer(payload);
         ^///?} else {
-        ClientPacketDistributor.sendToServer(payload);
-        //?}
+        /^ClientPacketDistributor.sendToServer(payload);
+        ^///?}
         *///?} else {
         /*throw new AssertionError();
          *///?}

@@ -35,8 +35,8 @@ public interface IFactoryItemClientExtension {
         return original;
     }
     //? if >=1.21.2 && neoforge {
-    /*default Model getHumanoidArmorModel(ItemStack stack, /^? if <1.21.4 {^/ /^EquipmentModel.LayerType^//^?} else {^/EquipmentClientInfo.LayerType/^?}^/ layerType, Model original){
-        return getHumanoidArmorModel(stack,layerType == /^? if <1.21.4 {^/ /^EquipmentModel.LayerType^//^?} else {^/EquipmentClientInfo.LayerType/^?}^/.HUMANOID_LEGGINGS ? EquipmentSlot.LEGS : EquipmentSlot.CHEST, original);
+    /*default Model getHumanoidArmorModel(ItemStack stack, /^? if <1.21.4 {^/ EquipmentModel.LayerType/^?} else {^//^EquipmentClientInfo.LayerType^//^?}^/ layerType, Model original){
+        return getHumanoidArmorModel(stack,layerType == /^? if <1.21.4 {^/ EquipmentModel.LayerType/^?} else {^//^EquipmentClientInfo.LayerType^//^?}^/.HUMANOID_LEGGINGS ? EquipmentSlot.LEGS : EquipmentSlot.CHEST, original);
     }
     *///?}
 
