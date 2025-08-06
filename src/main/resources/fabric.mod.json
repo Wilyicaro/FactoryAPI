@@ -7,6 +7,9 @@
   "authors": [
     "${mod_authors}"
   ],
+  "contributors": [
+    "${mod_credits}"
+  ],
   "contact": {
     "sources": "${mod_source}",
     "issues": "${mod_issues}"

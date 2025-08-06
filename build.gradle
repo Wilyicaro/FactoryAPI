@@ -133,6 +133,7 @@ processResources {
             "mod_license" : mod_license,
             "mod_description" : mod_description,
             "mod_authors" : mod_authors,
+            "mod_credits" : mod_credits,
             "mod_group" : project.group,
             "mod_source" : mod_source,
             "mod_issues" : mod_issues,
