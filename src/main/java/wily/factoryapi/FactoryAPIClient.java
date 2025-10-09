@@ -451,7 +451,7 @@ public class FactoryAPIClient {
 
     public static void registerMenuScreen(Consumer<MenuScreenRegister> registry) {
         //? if fabric {
-        registry.accept(MenuScreens::register);;
+        registry.accept(MenuScreens::register);
         //?} elif forge || <1.20.4 && neoforge {
         /*setup(m-> registry.accept(MenuScreens::register));
         *///?} elif neoforge {
@@ -467,7 +467,7 @@ public class FactoryAPIClient {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, RegisterColorHandlersEvent.Block.class, e->registry.accept(e::register));
         *///?} elif forge && <1.21.9 {
         /*RegisterColorHandlersEvent.Block.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e-> registry.accept(e::register));
-        *///?} elif forge && <1.21.9 {
+        *///?} elif forge {
         /*RegisterColorHandlersEvent.Block.BUS.addListener(e-> registry.accept(e::register));
         *///?} else
         /*throw new AssertionError();*/
