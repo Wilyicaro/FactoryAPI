@@ -24,7 +24,7 @@ public class FactoryConfigScreen extends Screen {
     public static final Component TITLE = Component.translatable("options.factory_api.title");
     protected final List<AbstractWidget> optionWidgets = new ArrayList<>();
 
-    public static final List<FactoryConfig<?>> CONFIGS = new ArrayList<>(List.of(FactoryOptions.NEAREST_MIPMAP_SCALING, FactoryOptions.RANDOM_BLOCK_ROTATIONS, FactoryOptions.UI_DEFINITION_LOGGING, FactoryCommonOptions.EXPRESSION_FAIL_LOGGING));
+    public static final List<FactoryConfig<?>> CONFIGS = new ArrayList<>(List.of(FactoryOptions.NEAREST_MIPMAP_SCALING, FactoryOptions.RANDOM_BLOCK_ROTATIONS, FactoryOptions.MANUAL_MIPMAP, FactoryOptions.UI_DEFINITION_LOGGING, FactoryCommonOptions.EXPRESSION_FAIL_LOGGING));
     public final Screen parent;
     private ConfigList list;
 
@@ -101,14 +101,25 @@ public class FactoryConfigScreen extends Screen {
                 return arg2 == null ? new Entry(ImmutableList.of(arg), arg3) : new Entry(ImmutableList.of(arg, arg2), arg3);
             }
 
+            //? if >=1.21.9 {
+            /*@Override
+            public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
+                renderContent(guiGraphics, i, j, bl, f, getContentY());
+            }
+            *///?} else {
             @Override
             public void render(GuiGraphics arg, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
+                renderContent(arg, n, o, bl, f, j);
+            }
+            //?}
+
+            public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f, int contentY) {
                 int p = 0;
                 int q = this.screen.width / 2 - 155;
 
                 for (AbstractWidget abstractWidget : this.children) {
-                    abstractWidget.setPosition(q + p, j);
-                    abstractWidget.render(arg, n, o, f);
+                    abstractWidget.setPosition(q + p, contentY);
+                    abstractWidget.render(guiGraphics, i, j, f);
                     p += 160;
                 }
             }

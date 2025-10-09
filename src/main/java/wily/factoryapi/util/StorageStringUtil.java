@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ICraftyEnergyStorage;
 import wily.factoryapi.base.IPlatformEnergyStorage;
@@ -114,10 +115,9 @@ public class StorageStringUtil {
         InputConstants.Key key = InputConstants.Type.KEYSYM.getOrCreate(glfw);
         int keyCode = key.getValue();
         if (keyCode != InputConstants.UNKNOWN.getValue()) {
-            long windowHandle = Minecraft.getInstance().getWindow().getWindow();
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
-                    return InputConstants.isKeyDown(windowHandle, keyCode);
+                    return InputConstants.isKeyDown(Minecraft.getInstance().getWindow()/*? if <1.21.9 {*/.getWindow()/*?}*/, keyCode);
                 }
             } catch (Exception ignored) {
             }

@@ -8,17 +8,25 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 /*import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-*///?} else if neoforge {
+*///?} else if neoforge && <1.21.9 {
 /*import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+*///?} else if neoforge {
+/*import com.google.common.primitives.Ints;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 *///?}
 import net.minecraft.nbt.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.util.FluidInstance;
 
 
-public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IPlatformHandler, IHasIdentifier/*? if forge || neoforge {*//*, IFluidHandler, IFluidTank*//*?} else if fabric {*/, SingleSlotStorage<FluidVariant>/*?}*/ {
+public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IPlatformHandler, IHasIdentifier/*? if forge || (neoforge && <1.21.9) {*//*, IFluidHandler, IFluidTank*//*?} else if fabric {*/, SingleSlotStorage<FluidVariant>/*?} else if neoforge {*//*, ResourceHandler<FluidResource>*//*?}*/ {
 
 
     /**
@@ -178,7 +186,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
         return FluidInstance.getPlatformFluidAmount(getMaxFluid());
     }
 
-    //?} else if forge || neoforge {
+    //?} else if forge || (neoforge && <1.21.9) {
     /*@Override
     default @NotNull FluidStack getFluid() {
         return new FluidStack(getFluidInstance().getFluid(),getFluidInstance().getAmount());
@@ -234,6 +242,73 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
     default @NotNull FluidStack drain(int i, FluidAction fluidAction) {
         FluidInstance drained = drain(i,fluidAction.simulate());
         return new FluidStack(drained.getFluid(),drained.getAmount());
+    }
+    *///?} else if neoforge {
+
+    /*default int size() {
+        return 1;
+    }
+
+    default FluidResource getResource(int i) {
+        return FluidResource.of(getFluidInstance().toStack());
+    }
+
+    default long getAmountAsLong(int i) {
+        return getFluidInstance().getAmount();
+    }
+
+    default long getCapacityAsLong(int i, FluidResource resource) {
+        return getMaxFluid();
+    }
+
+    default boolean isValid(int i, FluidResource resource) {
+        return isFluidValid(FluidInstance.create(resource.getFluid(), 1000));
+    }
+
+    default int insert(int i, FluidResource resource, int j, TransactionContext transactionContext) {
+        FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    fill(fluid, false);
+                }
+            });
+
+        return fill(fluid, true);
+    }
+
+    default int extract(int i, FluidResource resource, int j, TransactionContext transactionContext) {
+        FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    drain(fluid, false);
+                }
+            });
+
+        return drain(fluid, true).getAmount();
     }
     *///?}
 }

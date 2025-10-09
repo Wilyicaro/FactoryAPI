@@ -6,6 +6,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
+//? if >=1.21.9 {
+/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +28,23 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
         super(i, j, k, l, component);
     }
 
+    //? if >=1.21.9 {
+    /*@Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
+    public void onClick(MouseButtonEvent mouseButtonEvent, boolean bl, CallbackInfo ci) {
+        if (getOnPressOverride() != null) {
+            super.onClick(mouseButtonEvent, bl);
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractButton;onPress(Lnet/minecraft/client/input/InputWithModifiers;)V"), cancellable = true)
+    public void keyPressed(KeyEvent keyEvent, CallbackInfoReturnable<Boolean> cir) {
+        if (getOnPressOverride() != null) {
+            getOnPressOverride().accept(this);
+            cir.setReturnValue(true);
+        }
+    }
+    *///?} else {
     @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     public void onClick(double d, double e, CallbackInfo ci) {
         if (getOnPressOverride() != null) {
@@ -39,6 +60,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             cir.setReturnValue(true);
         }
     }
+    //?}
 
     @Inject(method = "renderString", at = @At("HEAD"))
     public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {

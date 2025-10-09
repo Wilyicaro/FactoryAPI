@@ -6,6 +6,7 @@
   "options.factory_api.manualMipmapPath": "Manual Mipmap Path",
   "options.factory_api.randomBlockRotations": "Random Block Rotations",
   "options.factory_api.expressionFailLogging": "Expression Fail Logging",
+  "options.factory_api.manualMipmap": "Manual Mipmap",
 
   "_comment": "Tier",
   "tier.factory_api.energy": "%sEnergy ",

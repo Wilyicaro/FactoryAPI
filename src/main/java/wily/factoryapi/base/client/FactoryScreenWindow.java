@@ -7,9 +7,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//? if >=1.21.9 {
+/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -27,7 +32,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     public boolean dragging = false;
 
-    public boolean useGeneratedBackground;
+    public ResourceLocation backgroundSprite;
     protected final ItemRenderer itemRenderer;
 
     protected final Font font = Minecraft.getInstance().font;
@@ -36,6 +41,10 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     protected final DrawableStatic drawable;
     public T parent;
+
+    protected int lastX;
+    protected int lastY;
+
     public FactoryScreenWindow(AbstractDrawableButton<?> config, DrawableStatic drawable, T parent){
         super(drawable.getX(),drawable.getY(),drawable.width(), drawable.height(), Component.empty());
         this.config = config;
@@ -58,15 +67,28 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         parent.children().forEach(l-> {if (l instanceof FactoryScreenWindow<?> s) onClick.accept(s);});
         if (parent instanceof IWindowWidget w) w.getNestedRenderables().forEach(l-> {if (l instanceof FactoryScreenWindow<?> s) onClick.accept(s);});
     }
+
     public void onClickWidget(){
         alpha = 1.0F;
         parent.setFocused(this);
     }
-    public void onClickOutside(double mouseX, double mouseY){
+
+    public void onClickOutside(double mouseX, double mouseY) {
         setFocused(false);
         alpha = 0.88F;
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean keyPressed(KeyEvent keyEvent) {
+        if (keyEvent.isEscape() && isVisible()) {
+            onClose();
+            return true;
+        }
+
+        return false;
+    }
+    *///?} else {
     @Override
     public boolean keyPressed(int i, int j, int k) {
         if (i == 256 && isVisible()) {
@@ -76,6 +98,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
         return false;
     }
+    //?}
 
     protected void renderBg(GuiGraphics graphics, int i, int j, float f) {
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
@@ -83,7 +106,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         FactoryScreenUtil.enableDepthTest();
         //? if <1.21.6
         RenderSystem.setShaderColor(1,1,1,alpha);
-        if (useGeneratedBackground) FactoryScreenUtil.drawGUIBackground(graphics, getX(), getY(), width, height);
+        if (backgroundSprite != null) FactoryGuiGraphics.of(graphics).blitSprite(backgroundSprite, getX(), getY(), width, height);
         else drawable.draw(graphics,getX(),getY());
         IWindowWidget.super.render(graphics,i,j,f);
         //? if <1.21.6
@@ -121,6 +144,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     public void renderToolTip(GuiGraphics graphics, int i, int j) {
 
     }
+
     @Override
     public boolean isMouseOver(double d, double e) {
         return isVisible() && FactoryScreenUtil.isMouseOver(d,e,getX(),getY(),width,height);
@@ -130,43 +154,73 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         actualMouseX = mouseX;
         actualMouseY = mouseY;
     }
+
     public void updateLastMouse(int mouseX, int mouseY){
         lastX = mouseX;
         lastY = mouseY;
     }
 
-
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        return handleClick(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button()) || IWindowWidget.super.mouseClicked(mouseButtonEvent, bl);
+    }
 
     @Override
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        return handleRelease(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button()) || IWindowWidget.super.mouseReleased(mouseButtonEvent);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+        if (!isVisible() || ((parent.isDragging() && !dragging))) return false;
+        if (IWindowWidget.super.mouseDragged(mouseButtonEvent, d, e)) return true;
+        return handleDragging(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button(), d, e) ;
+    }
+
+    *///?} else {
+    @Override
     public boolean mouseClicked(double d, double e, int i) {
-        if (!isVisible()) return false;
-        if (i == 0) {
-            if (isMouseOver(d,e) || config.isMouseOver(d,e)) {
-                onClickWidget();
-                if (isMouseOver(d,e))updateActualMouse(d, e);
-            }else  onClickOutside(d,e);
-        }
-        return IWindowWidget.super.mouseClicked(d, e, i);
+        return handleClick(d, e, i) || IWindowWidget.super.mouseClicked(d, e, i);
     }
 
     @Override
     public boolean mouseReleased(double d, double e, int i) {
+        return handleRelease(d, e, i) || IWindowWidget.super.mouseReleased(d, e, i);
+    }
+
+    @Override
+    public boolean mouseDragged(double x, double y, int i, double dx, double dy) {
+        if (!isVisible() || ((parent.isDragging() && !dragging))) return false;
+        if (IWindowWidget.super.mouseDragged(x, y, i, dx, dy)) return true;
+        return handleDragging(x, y, i, dx, dy);
+    }
+    //?}
+
+    public boolean handleClick(double d, double e, int i) {
+        if (!isVisible()) return false;
+        if (i == 0) {
+            if (isMouseOver(d,e) || config.isMouseOver(d,e)) {
+                onClickWidget();
+                if (isMouseOver(d,e)) updateActualMouse(d, e);
+            } else onClickOutside(d,e);
+        }
+        return false;
+    }
+
+    public boolean handleRelease(double d, double e, int i) {
         if (dragging) {
             parent.setDragging(dragging = false);;
             updateLastMouse(getX(),getY());
             return true;
         }
-        return IWindowWidget.super.mouseReleased(d, e, i);
+        return false;
     }
-    int lastX;
-    int lastY;
-    @Override
-    public boolean mouseDragged(double d, double e, int i, double f, double g) {
-        if (!isVisible() || ((parent.isDragging() && !dragging))) return false;
-        if (IWindowWidget.super.mouseDragged(d, e, i,f,g)) return true;
-        if (i == 0 && ((isMouseOver(d,e) || dragging))) {
-            double newX =  (lastX + d - actualMouseX);
-            double newY = (lastY + e - actualMouseY);
+
+    public boolean handleDragging(double x, double y, int i, double dx, double dy) {
+        if (i == 0 && ((isMouseOver(x, y) || dragging))) {
+            double newX =  (lastX + x - actualMouseX);
+            double newY = (lastY + y - actualMouseY);
             if (newX + width < parent.width && newX > 0 )
                 setX((int) newX);
             if (newY + height < parent.height && newY > 0)
@@ -176,6 +230,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         }
         return false;
     }
+
     public Rect2i getBounds() {
         return new Rect2i(getX(),getY(),width,height);
     }

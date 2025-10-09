@@ -1,21 +1,27 @@
 package wily.factoryapi.base.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-//? if >1.20.1 {
+//? if >1.20.1 && <1.21.9 {
 import net.minecraft.client.gui.GuiSpriteManager;
 //?}
+//? if >=1.21.9 {
+/*import net.minecraft.data.AtlasIds;
+*///?}
 //? if >=1.21.6 {
 /*import com.mojang.blaze3d.pipeline.RenderPipeline;
 *///?}
 
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 
@@ -26,8 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public interface FactoryGuiGraphics {
-    Map<TextureAtlasSprite, Map<String,ResourceLocation>> spriteTilesCache = new ConcurrentHashMap<>();
-
     GuiGraphics context();
 
     MultiBufferSource.BufferSource getBufferSource();
@@ -38,9 +42,15 @@ public interface FactoryGuiGraphics {
         return ((Accessor) guiGraphics).getFactoryGuiGraphics();
     }
 
-    static GuiSpriteManager getSprites(){
+    //? if >=1.21.9 {
+    /*static TextureAtlas getSprites() {
+        return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI);
+    }
+    *///?} else {
+    static GuiSpriteManager getSprites() {
         return /*? if >1.20.1 {*/ Minecraft.getInstance().getGuiSprites()/*?} else {*//*FactoryAPIClient.sprites*//*?}*/;
     }
+    //?}
 
     void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
 
@@ -64,7 +74,7 @@ public interface FactoryGuiGraphics {
 
     void enableScissor(int x, int y, int xd, int yd, boolean matrixAffects);
 
-    default void enableScissor(int x, int y, int xd, int yd){
+    default void enableScissor(int x, int y, int xd, int yd) {
         enableScissor(x, y, xd, yd, true);
     }
 
@@ -103,43 +113,54 @@ public interface FactoryGuiGraphics {
     void blitSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m);
     *///?}
 
-    default void blitTiledSprite(/*? >=1.21.2 {*/ /*/^? if <1.21.6 {^/Function<ResourceLocation, RenderType>/^?} else {^//^RenderPipeline^//^?}^/ function, *//*?}*/TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
-        Minecraft minecraft = Minecraft.getInstance();
+    //? if <1.21.2 {
+    default void blitTiledSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
         if (l <= 0 || m <= 0 ) {
             return;
         }
         if (p <= 0 || q <= 0) {
             throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + p + "x" + q);
         }
+        RenderSystem.setShaderTexture(0, textureAtlasSprite.atlasLocation());
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        Matrix4f matrix4f = context().pose().last().pose();
 
-        ResourceLocation tile = spriteTilesCache.computeIfAbsent(textureAtlasSprite, sp-> new ConcurrentHashMap<>()).computeIfAbsent("tile_" + n + "x" + o + "_" + p + "x" + q,(string)->{
-            try {
-                TextureAtlas atlas = (TextureAtlas) minecraft.getTextureManager().getTexture(textureAtlasSprite.atlasLocation());
-                Optional<ResourceLocation> opt = AtlasAccessor.of(atlas).getTexturesByName().entrySet().stream().filter(e-> e.getValue() == textureAtlasSprite).findFirst().map(Map.Entry::getKey);
-                if (opt.isPresent()) {
-                    NativeImage image = NativeImage.read(minecraft.getResourceManager().getResourceOrThrow(opt.get().withPath("textures/gui/sprites/" +opt.get().getPath() + ".png")).open());
-                    int width = (int)Math.ceil(p * image.getWidth() / (double) r);
-                    int height = (int)Math.ceil(q * image.getHeight() / (double) s);
-                    NativeImage tileImage = new NativeImage(width, height, false);
-                    image.copyRect(tileImage,  n * image.getWidth() / r, o * image.getHeight() / s, 0, 0, width, height, false, false);
-                    //? if <1.21.4 {
-                    return minecraft.getTextureManager().register("tile", new DynamicTexture(tileImage));
-                    //?} else {
-                    /*ResourceLocation tileLocation = opt.get().withPrefix("_"+string);
-                    minecraft.getTextureManager().register(tileLocation, new DynamicTexture(/^? if >1.21.4 {^//^tileLocation::toString, ^//^?}^/tileImage));
-                    return tileLocation;
-                    *///?}
-                }
-            } catch (IOException e) {
-                FactoryAPI.LOGGER.warn(e.getMessage());
+        //? if >=1.20.5 {
+        /*BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        *///?} else {
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        //?}
+
+        for(int t = 0; t < l; t += p) {
+            int u = Math.min(p, l - t);
+
+            for(int v = 0; v < m; v += q) {
+                int w = Math.min(q, m - v);
+                addBlitSpriteQuad(textureAtlasSprite, bufferBuilder, matrix4f, r, s, n, o, i + t, j + v, k, u, w);
             }
-            return null;
-        });
-        //? if <1.21.2 {
-        blit(tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q);
-         //?} else
-        /*context().blit(function,tile,i,j,Math.min(n,p),Math.min(o,q),l,m,p,q,k);*/
+        }
+        BufferUploader.drawWithShader(bufferBuilder./*? if <1.20.5 {*/end/*?} else {*//*buildOrThrow*//*?}*/());
     }
+
+    private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+        addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i), textureAtlasSprite.getU((float)(k + p) / (float)i), textureAtlasSprite.getV((float)l / (float)j), textureAtlasSprite.getV((float)(l + q) / (float)j));
+    }
+
+    private void addBlitQuad(BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, float f, float g, float h, float n) {
+        //? if <1.20.5 {
+        bufferBuilder.vertex(matrix4f, (float)i, (float)k, (float)m).uv(f, h).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)i, (float)l, (float)m).uv(f, n).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)j, (float)l, (float)m).uv(g, n).endVertex();
+        bufferBuilder.vertex(matrix4f, (float)j, (float)k, (float)m).uv(g, h).endVertex();
+        //?} else {
+        /*bufferBuilder.addVertex(matrix4f, (float)i, (float)k, (float)m).setUv(f, h);
+        bufferBuilder.addVertex(matrix4f, (float)i, (float)l, (float)m).setUv(f, n);
+        bufferBuilder.addVertex(matrix4f, (float)j, (float)l, (float)m).setUv(g, n);
+        bufferBuilder.addVertex(matrix4f, (float)j, (float)k, (float)m).setUv(g, h);
+        *///?}
+    }
+    //?}
 
     //? if <1.21.6 {
 
@@ -147,22 +168,22 @@ public interface FactoryGuiGraphics {
 
     void setColor(float r, float g, float b, float a, boolean changeBlend);
 
-    default void setColor(int color){
+    default void setColor(int color) {
         setColor(color, false);
     }
 
-    default void setColor(float r, float g, float b, float a){
+    default void setColor(float r, float g, float b, float a) {
         setColor(r, g, b, a, false);
     }
 
 
     float[] getColor();
 
-    default void clearColor(boolean changeBlend){
+    default void clearColor(boolean changeBlend) {
         setColor(1.0f,1.0f,1.0f,1.0f, changeBlend);
     }
 
-    default void clearColor(){
+    default void clearColor() {
         clearColor(false);
     }
 
@@ -175,21 +196,24 @@ public interface FactoryGuiGraphics {
 
     int getBlitColor();
 
-    default void clearBlitColor(){
+    default void clearBlitColor() {
         setBlitColor(1.0f,1.0f,1.0f,1.0f);
     }
     *///?}
 
+    @Deprecated
     void disableDepthTest();
 
+    @Deprecated
     void enableDepthTest();
 
     interface AtlasAccessor {
-        static AtlasAccessor of(TextureAtlas atlas){
+        static AtlasAccessor of(TextureAtlas atlas) {
             return (AtlasAccessor) atlas;
         }
         Map<ResourceLocation,TextureAtlasSprite> getTexturesByName();
     }
+
     interface Accessor {
         FactoryGuiGraphics getFactoryGuiGraphics();
     }

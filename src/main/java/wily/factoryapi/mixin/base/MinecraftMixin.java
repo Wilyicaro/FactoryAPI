@@ -1,6 +1,7 @@
 package wily.factoryapi.mixin.base;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.UserApiService;
 //? if >=1.20.3 {
 import com.mojang.authlib.yggdrasil.ProfileResult;
@@ -30,6 +31,7 @@ import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.MinecraftAccessor;
 import wily.factoryapi.base.client.UIAccessor;
 
+import java.net.Proxy;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(Minecraft.class)
@@ -55,7 +57,12 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     @Shadow @Final private CompletableFuture<UserApiService.UserProperties> userPropertiesFuture;
     //?}
 
+    //? if <1.21.9 {
     @Shadow @Final private YggdrasilAuthenticationService authenticationService;
+    //?} else {
+    /*@Shadow @Final private Proxy proxy;
+    @Shadow @Final private boolean offlineDeveloperMode;
+    *///?}
 
     @Mutable
     @Shadow @Final private ClientTelemetryManager telemetryManager;
@@ -138,9 +145,18 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
             return false;
         }
         this.user = splashManager.user = user;
+        //? if >=1.21.9 {
+        /*MinecraftSessionService session = Minecraft.getInstance().services().sessionService();
+        YggdrasilAuthenticationService authenticationService = this.offlineDeveloperMode
+                ? YggdrasilAuthenticationService.createOffline(this.proxy)
+                : new YggdrasilAuthenticationService(this.proxy);
+        *///?} else {
+        MinecraftSessionService session = Minecraft.getInstance().getMinecraftSessionService();
+        boolean offlineDeveloperMode = user.getType() != User.Type.MSA;
+        //?}
         //? if >=1.20.3 {
-        this.profileFuture = CompletableFuture.supplyAsync(() -> Minecraft.getInstance().getMinecraftSessionService().fetchProfile(user.getProfileId(), true), Util.nonCriticalIoPool());
-        this.userApiService = user.getType() != User.Type.MSA ? UserApiService.OFFLINE : this.authenticationService.createUserApiService(user.getAccessToken());
+        this.profileFuture = CompletableFuture.supplyAsync(() -> session.fetchProfile(user.getProfileId(), true), Util.nonCriticalIoPool());
+        this.userApiService = offlineDeveloperMode ? UserApiService.OFFLINE : authenticationService.createUserApiService(user.getAccessToken());
         this.userPropertiesFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 return userApiService.fetchProperties();

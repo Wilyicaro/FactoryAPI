@@ -112,7 +112,7 @@ public interface CommonNetwork {
             Player player();
 
             default MinecraftServer server(){
-                return player().getServer();
+                return FactoryAPIPlatform.getEntityServer(player());
             }
 
             boolean isClient();

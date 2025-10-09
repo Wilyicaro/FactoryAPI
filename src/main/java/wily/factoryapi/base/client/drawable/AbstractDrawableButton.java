@@ -3,6 +3,9 @@ package wily.factoryapi.base.client.drawable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+//? if >=1.21.9 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -63,14 +66,54 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
         return inMouseLimit(d,e);
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        return handleClick(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button());
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        return  handleRelease(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button());
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+        return handleDragging(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button(), d, e);
+    }
+
+    *///?} else {
     @Override
     public boolean mouseClicked(double d, double e, int i) {
+        return handleClick(d, e, i);
+    }
+
+    @Override
+    public boolean mouseReleased(double d, double e, int i) {
+        return handleRelease(d, e, i);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int i, double f, double g) {
+        return handleDragging(mouseX, mouseY, i, f, g);
+    }
+    //?}
+
+    public boolean handleClick(double d, double e, int i) {
         if (inMouseLimit(d,e) && visible.get()) {
             FactoryScreenUtil.playButtonDownSound(grave);
             if (selected != null) selected = !selected;
             onPress.accept((D) this,i);
             return true;
         }
+        return false;
+    }
+
+    public boolean handleRelease(double d, double e, int i) {
+        return false;
+    }
+
+    public boolean handleDragging(double mouseX, double mouseY, int i, double dx, double dy) {
         return false;
     }
 
@@ -98,7 +141,13 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
             /*FactoryGuiGraphics.of(graphics).clearBlitColor();*/
         if (isSelected() || hovered && hoverSelection) {
             if (selection != null) selection.draw(graphics, x, y);
-            else graphics.renderOutline(x, y, width(), height(), -1);
+            else {
+                //? if >=1.21.9 {
+                /*graphics.submitOutline(x, y, width(), height(), -1);
+                *///?} else {
+                graphics.renderOutline(x, y, width(), height(), -1);
+                //?}
+            }
         }
     }
 

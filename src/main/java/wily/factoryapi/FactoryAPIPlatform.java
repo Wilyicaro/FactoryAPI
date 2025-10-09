@@ -10,7 +10,9 @@ import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -84,11 +86,20 @@ import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.ItemCapability;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
+//? if <1.21.9 {
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.IItemHandler;
+//?} else {
+/^import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.fml.loading.FMLLoader;
+^///?}
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
@@ -100,11 +111,16 @@ import net.neoforged.neoforgespi.language.IModInfo;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.bus.api.IEventBus;
 *///?}
-//? if forge || neoforge {
+//? if forge || (neoforge && <1.21.9) {
 /*import wily.factoryapi.base.forge.FactoryCapabilities;
 import wily.factoryapi.base.forge.ForgeEnergyHandlerPlatform;
 import wily.factoryapi.base.forge.ForgeFluidHandlerPlatform;
 import wily.factoryapi.base.forge.ForgeItemStoragePlatform;
+*///?} else if neoforge {
+/*import wily.factoryapi.base.forge.FactoryCapabilities;
+import wily.factoryapi.base.neoforge.NeoForgeEnergyHandlerPlatform;
+import wily.factoryapi.base.neoforge.NeoForgeFluidHandlerPlatform;
+import wily.factoryapi.base.neoforge.NeoForgeItemStoragePlatform;
 *///?}
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -135,9 +151,12 @@ public interface FactoryAPIPlatform {
     //? if forge {
     /*ListMap<Capability<?>, FactoryStorage<?>> ITEM_CAPABILITY_MAP = new ListMap.Builder<Capability<?>, FactoryStorage<?>>().put(ForgeCapabilities.FLUID_HANDLER_ITEM, FactoryStorage.FLUID).put(ForgeCapabilities.ITEM_HANDLER,FactoryStorage.ITEM).put(ForgeCapabilities.ENERGY,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY,FactoryStorage.CRAFTY_ENERGY).build();
     ListMap<Capability<?>, FactoryStorage<?>> BLOCK_CAPABILITY_MAP = new ListMap.Builder<Capability<?>, FactoryStorage<?>>().put(ForgeCapabilities.FLUID_HANDLER, FactoryStorage.FLUID).put(ForgeCapabilities.ITEM_HANDLER,FactoryStorage.ITEM).put(ForgeCapabilities.ENERGY,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY,FactoryStorage.CRAFTY_ENERGY).build();
-    *///?} else if neoforge {
+    *///?} else if neoforge && <1.21.9 {
     /*ListMap<ItemCapability<?,?>, FactoryStorage<?>> ITEM_CAPABILITY_MAP = new ListMap.Builder<ItemCapability<?,?>, FactoryStorage<?>>().put(Capabilities.FluidHandler.ITEM, FactoryStorage.FLUID).put(Capabilities.ItemHandler.ITEM,FactoryStorage.ITEM).put(Capabilities.EnergyStorage.ITEM,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY_ITEM,FactoryStorage.CRAFTY_ENERGY).build();
     ListMap<BlockCapability<?,Direction>, FactoryStorage<?>> BLOCK_CAPABILITY_MAP = new ListMap.Builder<BlockCapability<?,Direction>, FactoryStorage<?>>().put(Capabilities.FluidHandler.BLOCK, FactoryStorage.FLUID).put(Capabilities.ItemHandler.BLOCK,FactoryStorage.ITEM).put(Capabilities.EnergyStorage.BLOCK,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY,FactoryStorage.CRAFTY_ENERGY).build();
+    *///?} else if neoforge {
+    /*ListMap<ItemCapability<?,?>, FactoryStorage<?>> ITEM_CAPABILITY_MAP = new ListMap.Builder<ItemCapability<?,?>, FactoryStorage<?>>().put(Capabilities.Fluid.ITEM, FactoryStorage.FLUID).put(Capabilities.Item.ITEM,FactoryStorage.ITEM).put(Capabilities.Energy.ITEM,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY_ITEM,FactoryStorage.CRAFTY_ENERGY).build();
+    ListMap<BlockCapability<?,Direction>, FactoryStorage<?>> BLOCK_CAPABILITY_MAP = new ListMap.Builder<BlockCapability<?,Direction>, FactoryStorage<?>>().put(Capabilities.Fluid.BLOCK, FactoryStorage.FLUID).put(Capabilities.Item.BLOCK,FactoryStorage.ITEM).put(Capabilities.Energy.BLOCK,FactoryStorage.ENERGY).put(FactoryCapabilities.CRAFTY_ENERGY,FactoryStorage.CRAFTY_ENERGY).build();
     *///?}
 
     ListMap<String, ModInfo> MOD_INFOS = new ListMap<>();
@@ -153,35 +172,35 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
-    static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry){
+    static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry) {
         return registry./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(location);
     }
 
-    static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey){
+    static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey) {
         return access.lookupOrThrow(ResourceKey.<T>createRegistryKey(resourceKey.registry())).get(resourceKey);
     }
 
-    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, RegisterListing.Holder<? extends Block> blockHolder) {
         return setupBlockProperties(properties, blockHolder.getId());
     }
 
-    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id){
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id) {
         return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, id))*//*?}*/;
     }
 
-    static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder){
+    static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder) {
         return setupItemProperties(properties, itemHolder.getId());
     }
 
-    static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id){
+    static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id) {
         return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()*//*?}*/;
     }
 
-    static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder){
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder) {
         return setupBlockItemProperties(properties, blockHolder.getId());
     }
 
-    static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id){
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id) {
         return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()*//*?}*/;
     }
 
@@ -190,7 +209,7 @@ public interface FactoryAPIPlatform {
         T create(BlockPos blockPos, BlockState blockState);
     }
 
-    static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntitySupplier<T> supplier, Block... blocks){
+    static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntitySupplier<T> supplier, Block... blocks) {
         return /*? if <1.21.2 {*/BlockEntityType.Builder.of(supplier::create, blocks).build(null)/*?} else {*/ /*new BlockEntityType<>(supplier::create, Set.of(blocks))*//*?}*/;
     }
 
@@ -201,15 +220,22 @@ public interface FactoryAPIPlatform {
         if (handStorage instanceof  IPlatformFluidHandler p) return p;
         if (container.getItem() instanceof IFluidHandlerItem<?> f) return createItemFluidHandler(f,container);
         return handStorage != null ? (FabricFluidStoragePlatform)()-> handStorage : null;
-        //?} elif forge || neoforge {
+        //?} elif forge || (neoforge && <1.21.9) {
         /*IFluidHandlerItem handler = ItemContainerPlatform.getItemFluidHandler(container);
         return handler == null ? null : handler instanceof IPlatformFluidHandler f ? f : (ForgeFluidHandlerPlatform)()-> handler;
+        *///?} elif neoforge {
+        /*ResourceHandler<FluidResource> handler = ItemContainerPlatform.getItemFluidHandler(container);
+        return handler == null ? null : handler instanceof IPlatformFluidHandler f ? f : (NeoForgeFluidHandlerPlatform)()-> handler;
         *///?} else
         /*throw new AssertionError();*/
     }
 
-    static RegistryAccess getRegistryAccess(){
+    static RegistryAccess getRegistryAccess() {
         return FactoryAPI.currentServer == null || isClient() && FactoryAPIClient.hasLevel() ? FactoryAPIClient.getRegistryAccess() : FactoryAPI.currentServer.registryAccess();
+    }
+
+    static MinecraftServer getEntityServer(Entity entity) {
+        return entity.level().getServer();
     }
 
     static IPlatformEnergyStorage getItemEnergyStorage(ItemStack stack) {
@@ -219,9 +245,12 @@ public interface FactoryAPIPlatform {
         if (handStorage instanceof  IPlatformEnergyStorage p) return p;
         if (stack.getItem() instanceof IEnergyStorageItem<?>) return getItemEnergyStorage(stack,context);
         return handStorage != null ? (FabricEnergyStoragePlatform)()-> handStorage : null;
-        //?} elif forge || neoforge {
+        //?} elif forge || (neoforge && <1.21.9) {
         /*IEnergyStorage storage = ItemContainerPlatform.getItemEnergyStorage(stack);
         return storage == null ? null : storage instanceof IPlatformEnergyStorage f ? f : (ForgeEnergyHandlerPlatform)()-> storage;
+        *///?} elif neoforge {
+        /*EnergyHandler storage = ItemContainerPlatform.getItemEnergyStorage(stack);
+        return storage == null ? null : storage instanceof IPlatformEnergyStorage f ? f : (NeoForgeEnergyHandlerPlatform)()-> storage;
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -233,9 +262,12 @@ public interface FactoryAPIPlatform {
         return craftyStorage;
         //?} elif forge {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY).orElse(null);
-        *///?} elif neoforge {
+        *///?} elif neoforge && <1.21.9 {
         /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM);
+        *///?} elif neoforge {
+        /*return stack.getCapability(FactoryCapabilities.CRAFTY_ENERGY_ITEM, ItemAccess.forStack(stack));
         *///?} else
+
         /*throw new AssertionError();*/
     }
 
@@ -250,7 +282,7 @@ public interface FactoryAPIPlatform {
         return container.getItem() instanceof ICraftyStorageItem f ? new SimpleItemCraftyStorage(container,0,f.getCapacity(), f.getMaxConsume(), f.getMaxReceive(),f.getTransport(),f.getSupportedEnergyTier(), ItemContainerPlatform.isBlockItem(container)) : null;
     }
     //?} else if forge {
-    /*static <T> RegisterListing.Holder<T> deferredToRegisterHolder(RegistryObject<T> holder){
+    /*static <T> RegisterListing.Holder<T> deferredToRegisterHolder(RegistryObject<T> holder) {
         return new RegisterListing.Holder<>() {
             @Override
             public ResourceLocation getId() {
@@ -266,22 +298,22 @@ public interface FactoryAPIPlatform {
         return capability == null ? null : entity.getCapability(capability,direction).orElse(null);
     }
     //? if <1.21.6 {
-    static IEventBus getModEventBus(){
+    static IEventBus getModEventBus() {
         return FMLJavaModLoadingContext.get().getModEventBus();
     }
-    static IEventBus getForgeEventBus(){
+    static IEventBus getForgeEventBus() {
         return MinecraftForge.EVENT_BUS;
     }
     //?} else {
-    /^static BusGroup getModEventBus(){
+    /^static BusGroup getModEventBus() {
         return FMLJavaModLoadingContext.get().getModBusGroup();
     }
-    static BusGroup getForgeEventBus(){
+    static BusGroup getForgeEventBus() {
         return BusGroup.DEFAULT;
     }
     ^///?}
     *///?} else if neoforge {
-    /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder){
+    /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder) {
         return new RegisterListing.Holder<>() {
             @Override
             public ResourceLocation getId() {
@@ -296,19 +328,21 @@ public interface FactoryAPIPlatform {
     static <T> T getBlockCapability(BlockEntity entity, BlockCapability<T,Direction> capability, Direction direction) {
         return capability == null ? null : capability.getCapability(entity.getLevel(),entity.getBlockPos(),entity.getBlockState(),entity, direction);
     }
-    static IEventBus getModEventBus(){
+    static IEventBus getModEventBus() {
         return ModLoadingContext.get().getActiveContainer().getEventBus();
     }
-    static IEventBus getForgeEventBus(){
+    static IEventBus getForgeEventBus() {
         return NeoForge.EVENT_BUS;
     }
     *///?}
 
     //? if forge || neoforge {
-    /*static IFluidHandler.FluidAction fluidActionOf(boolean simulate){
+    /*//? if forge || <1.21.9 {
+    static IFluidHandler.FluidAction fluidActionOf(boolean simulate) {
         return(simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
     }
-    static FluidInstance fluidStackToInstance(FluidStack stack){
+    //?}
+    static FluidInstance fluidStackToInstance(FluidStack stack) {
         return new FluidInstance(stack.getFluid(),stack.getAmount());
     }
     *///?}
@@ -362,7 +396,7 @@ public interface FactoryAPIPlatform {
                         ICraftyEnergyStorage energyStorage = CraftyEnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
                         if (energyStorage!= null) return ()->((T)energyStorage);
                     }
-                //?} elif neoforge || forge {
+                //?} elif (neoforge && <1.21.9) || forge {
                 /*Object handler = getBlockCapability(be,BLOCK_CAPABILITY_MAP.getKey(storage),direction);
                 if (handler != null) {
                     if (storage == FactoryStorage.ENERGY)
@@ -374,6 +408,18 @@ public interface FactoryAPIPlatform {
                     else if (storage == FactoryStorage.FLUID)
                         return (() -> (T) (handler instanceof IPlatformFluidHandler fluidHandler ? fluidHandler : (ForgeFluidHandlerPlatform) () -> (IFluidHandler) handler));
                 }
+                *///?} else if neoforge {
+                /*Object handler = getBlockCapability(be, BLOCK_CAPABILITY_MAP.getKey(storage),direction);
+                if (handler != null) {
+                    if (storage == FactoryStorage.ENERGY)
+                        return (() -> (T) (handler instanceof IPlatformEnergyStorage energyHandler ? energyHandler : (NeoForgeEnergyHandlerPlatform) () -> (EnergyHandler) handler));
+                    else if (storage == FactoryStorage.CRAFTY_ENERGY && handler instanceof ICraftyEnergyStorage energyHandler)
+                        return (() -> (T) energyHandler);
+                    else if (storage == FactoryStorage.ITEM)
+                        return (() -> (T) (handler instanceof IPlatformItemHandler itemHandler ? itemHandler : (NeoForgeItemStoragePlatform) () -> (ResourceHandler<ItemResource>) handler));
+                    else if (storage == FactoryStorage.FLUID)
+                        return (() -> (T) (handler instanceof IPlatformFluidHandler fluidHandler ? fluidHandler : (NeoForgeFluidHandlerPlatform) () -> (ResourceHandler<FluidResource>) handler));
+                }
                 *///?}
                 return ArbitrarySupplier.empty();
             }
@@ -382,12 +428,7 @@ public interface FactoryAPIPlatform {
 
 
     static boolean isClient() {
-        //? if fabric {
-        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
-        //?} else if forge || neoforge {
-        /*return FMLEnvironment.dist.isClient();
-        *///?} else
-        /*throw new AssertionError();*/
+        return FactoryAPI.isClient();
     }
 
     static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> void registerByClassArgumentType(Class<A> infoClass, I argumentTypeInfo) {
@@ -495,16 +536,19 @@ public interface FactoryAPIPlatform {
         /*return className;*/
     }
 
-    static Stream<ModInfo> getVisibleModsStream(){
+    static Stream<ModInfo> getVisibleModsStream() {
         return getMods().stream().filter(info->!info.isHidden());
     }
 
     static Collection<ModInfo> getMods() {
         //? if fabric {
         FabricLoader.getInstance().getAllMods().forEach(m-> getModInfo(m.getMetadata().getId()));
-        //?} else if forge || neoforge {
+        //?} else if forge || (neoforge && <1.21.9) {
         /*LoadingModList.get().getMods().forEach(m-> getModInfo(m.getModId()));
+        *///?} else if neoforge {
+        /*FMLLoader.getCurrent().getLoadingModList().getMods().forEach(m-> getModInfo(m.getModId()));
         *///?}
+
         return MOD_INFOS.values();
     }
 
@@ -623,7 +667,11 @@ public interface FactoryAPIPlatform {
             }
             @Override
             public Optional<Path> findResource(String s) {
-                return Optional.of(this.info.getFile().findResource(s)).filter(Files::exists);
+                //? if forge || (neoforge && <1.21.9) {
+                /^return Optional.of(this.info.getFile().findResource(s)).filter(Files::exists);
+                ^///?} else if neoforge {
+                /^return Optional.of(this.info.getFile().getFilePath().resolve(s));
+                ^///?}
             }
 
             @Override

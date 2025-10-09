@@ -34,6 +34,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+//? if >=1.21.9 {
+/^import net.neoforged.fml.loading.FMLLoader;
+^///?}
 *///?}
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -130,7 +133,7 @@ public class FactoryAPI {
         });
         *///?}
         //? if forge || neoforge
-        /*if (FMLEnvironment.dist == Dist.CLIENT) FactoryAPIClient.init();*/
+        /*if (isClient()) FactoryAPIClient.init();*/
     }
 
     public static void init() {
@@ -211,9 +214,11 @@ public class FactoryAPI {
     public static boolean isLoadingMod(String modId) {
         //? if fabric {
         return isModLoaded(modId);
-        //?} else if forge || neoforge {
+        //?} else if forge || (neoforge && <1.21.9) {
         /*return LoadingModList.get().getModFileById(modId) != null;
-         *///?} else
+        *///?} else if neoforge {
+        /*return FMLLoader.getCurrent().getLoadingModList().getModFileById(modId) != null;
+        *///?} else
         /*throw new AssertionError();*/
     }
 
@@ -250,9 +255,11 @@ public class FactoryAPI {
     public static boolean isClient() {
         //? if fabric {
         return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
-        //?} else if forge || neoforge {
+         //?} else if forge || (neoforge && <1.21.9) {
         /*return FMLEnvironment.dist.isClient();
-         *///?} else
+         *///?} else if neoforge {
+        /*return FMLEnvironment.getDist().isClient();
+        *///?} else
         /*throw new AssertionError();*/
     }
 

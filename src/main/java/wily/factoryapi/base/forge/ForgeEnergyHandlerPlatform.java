@@ -1,4 +1,4 @@
-//? if forge || neoforge {
+//? if forge || (neoforge && <1.21.9) {
 /*package wily.factoryapi.base.forge;
 
 import net.minecraft.nbt.CompoundTag;

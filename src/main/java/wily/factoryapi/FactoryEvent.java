@@ -192,8 +192,10 @@ public class FactoryEvent<T> {
         /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ServerTickEvent^//^?} else {^/TickEvent.ServerTickEvent.Pre/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.START) apply.accept(e.getServer());
         });
-        *///?} elif forge {
+        *///?} elif forge && <1.21.9 {
         /*TickEvent.ServerTickEvent.Pre.BUS.addListener(e-> apply.accept(e.getServer()));
+        *///?} elif forge {
+        /*TickEvent.ServerTickEvent.Pre.BUS.addListener(e-> apply.accept(e.server()));
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
             /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
@@ -209,8 +211,10 @@ public class FactoryEvent<T> {
         /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ServerTickEvent^//^?} else {^/TickEvent.ServerTickEvent.Post/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.END) apply.accept(e.getServer());
         });
-        *///?} elif forge {
+        *///?} elif forge && <1.21.9 {
         /*TickEvent.ServerTickEvent.Post.BUS.addListener(e-> apply.accept(e.getServer()));
+         *///?} elif forge {
+        /*TickEvent.ServerTickEvent.Post.BUS.addListener(e-> apply.accept(e.server()));
         *///?} elif neoforge {
         /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
             /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
@@ -233,10 +237,17 @@ public class FactoryEvent<T> {
                 return reloadListener.getName();
             }
 
+            //? if >=1.21.9 {
+            /*@Override
+            public CompletableFuture<Void> reload(SharedState sharedState, Executor executor, PreparationBarrier preparationBarrier, Executor executor2) {
+                return reloadListener.reload(sharedState, executor, preparationBarrier, executor2);
+            }
+            *///?} else {
             @Override
             public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /*? if <1.21.2 {*/ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,/*?}*/ Executor executor, Executor executor2) {
                 return reloadListener.reload(preparationBarrier,resourceManager,/*? if <1.21.2 {*/profilerFiller, profilerFiller2,/*?}*/executor,executor2);
             }
+            //?}
         });
         //?} elif forge && <1.21.6 {
         /*if (type == PackType.CLIENT_RESOURCES) FactoryAPIClient.registerReloadListener(reloadListener);
@@ -291,8 +302,17 @@ public class FactoryEvent<T> {
     public static void registerBuiltInPacks(Consumer<PackRegistry> registry){
         //? if fabric {
         registry.accept(((path, name, component, position, enabledByDefault) -> ResourceManagerHelper.registerBuiltinResourcePack(name, FabricLoader.getInstance().getModContainer(name.getNamespace()).orElseThrow(), component, enabledByDefault ? ResourcePackActivationType.DEFAULT_ENABLED : ResourcePackActivationType.NORMAL)));
-         //?} elif (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
+         //?} elif (forge && <1.21.6) || (neoforge && <1.21.9) {
+       /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
+            Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
+            for (PackType type : PackType.values()) {
+                if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
+            }
+        }));
+        *///?} elif forge && <1.21.9 {
+        /*AddPackFindersEvent.getBus(FactoryAPIPlatform.getModEventBus()).addListener(event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
             Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
@@ -301,8 +321,17 @@ public class FactoryEvent<T> {
             }
         }));
         *///?} elif forge {
-        /*AddPackFindersEvent.getBus(FactoryAPIPlatform.getModEventBus()).addListener(event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
+        /*AddPackFindersEvent.BUS.addListener(event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
             Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
+            for (PackType type : PackType.values()) {
+                if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
+            }
+        }));
+        *///?} elif neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
+            Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().getFilePath().resolve(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
                 Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);

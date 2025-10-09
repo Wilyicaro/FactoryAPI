@@ -1,24 +1,21 @@
-//? if forge || (neoforge && <1.21.9) {
-/*package wily.factoryapi.base.forge;
+//? if neoforge && >=1.21.9 {
+/*package wily.factoryapi.base.neoforge;
 
 
 import net.minecraft.nbt.CompoundTag;
-//? if forge {
-/^import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-^///?} elif neoforge {
-/^import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-^///?}
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPIPlatform;
-import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.IPlatformFluidHandler;
+import wily.factoryapi.base.IPlatformHandlerApi;
 import wily.factoryapi.base.SlotsIdentifier;
 import wily.factoryapi.base.TransportState;
 import wily.factoryapi.util.FluidInstance;
 
-public interface ForgeFluidHandlerPlatform extends IPlatformFluidHandler, IPlatformHandlerApi<IFluidHandler> {
+public interface NeoForgeFluidHandlerPlatform extends IPlatformFluidHandler, IPlatformHandlerApi<ResourceHandler<FluidResource>> {
 
     @Override
     default SlotsIdentifier identifier() {
@@ -27,27 +24,37 @@ public interface ForgeFluidHandlerPlatform extends IPlatformFluidHandler, IPlatf
 
     @Override
     default @NotNull FluidInstance getFluidInstance() {
-        return FactoryAPIPlatform.fluidStackToInstance(getHandler().getFluidInTank(0));
+        return FactoryAPIPlatform.fluidStackToInstance(getHandler().getResource(0).toStack(getHandler().getAmountAsInt(0)));
     }
 
     @Override
     default int getMaxFluid() {
-        return getHandler().getTankCapacity(0);
+        return getHandler().getCapacityAsInt(0, getHandler().getResource(0));
     }
 
     @Override
     default boolean isFluidValid(@NotNull FluidInstance instance) {
-        return getHandler().isFluidValid(0,new FluidStack(instance.getFluid(),instance.getAmount()));
+        return getHandler().isValid(0, FluidResource.of(instance.toStack()));
     }
 
     @Override
     default int fill(FluidInstance resource, boolean simulate) {
-        return getHandler().fill(new FluidStack(resource.getFluid(),resource.getAmount()), FactoryAPIPlatform.fluidActionOf(simulate));
+        try (Transaction transaction = Transaction.open(null))
+        {
+            int amount = getHandler().insert(FluidResource.of(resource.toStack()), resource.getAmount(), transaction);
+            if (!simulate) transaction.commit();
+            return amount;
+        }
     }
 
     @Override
     default @NotNull FluidInstance drain(FluidInstance resource, boolean simulate) {
-        return FactoryAPIPlatform.fluidStackToInstance(getHandler().drain(new FluidStack(resource.getFluid(),resource.getAmount()), FactoryAPIPlatform.fluidActionOf(simulate)));
+        try (Transaction transaction = Transaction.open(null))
+        {
+            int amount = getHandler().extract(FluidResource.of(resource.toStack()), resource.getAmount(), transaction);
+            if (!simulate) transaction.commit();
+            return resource.copyWithAmount(amount);
+        }
     }
 
     @Override

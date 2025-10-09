@@ -29,6 +29,9 @@
     //? if >=1.21.5 {
     /*"RenderPipelinesAccessor",
     *///?}
+    //? if >=1.21.9 {
+    /*"BakedSheetGlyphAccessor",
+    *///?}
     "SpriteLoaderMixin",
     "AbstractContainerScreenMixin",
     "AbstractWidgetMixin",

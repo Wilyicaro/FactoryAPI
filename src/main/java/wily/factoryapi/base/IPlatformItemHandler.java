@@ -9,18 +9,26 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 //?} else if forge {
 /*import net.minecraftforge.items.IItemHandlerModifiable;
-*///?} else if neoforge {
+*///?} else if neoforge && <1.21.9 {
 /*import net.neoforged.neoforge.items.IItemHandlerModifiable;
+*///?} else if neoforge {
+/*import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 *///?}
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 import wily.factoryapi.FactoryAPIPlatform;
+import wily.factoryapi.util.FluidInstance;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public interface IPlatformItemHandler extends Container, ITagSerializable<CompoundTag>, IPlatformHandler /*? if forge || neoforge {*//*, IItemHandlerModifiable*//*?} else if fabric {*/,IPlatformHandlerApi<Storage<ItemVariant>>/*?}*/ {
+public interface IPlatformItemHandler extends Container, ITagSerializable<CompoundTag>, IPlatformHandler /*? if forge || (neoforge && <1.21.9) {*//*, IItemHandlerModifiable*//*?} else if fabric {*/,IPlatformHandlerApi<Storage<ItemVariant>>/*?} else if neoforge {*//*, ResourceHandler<ItemResource>*//*?}*/{
 
     @Override
     default ItemStack removeItemNoUpdate(int i){
@@ -96,7 +104,7 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
     ItemStack extractItem(int slot, int amount, boolean simulate);
 
 
-    //? if forge || neoforge {
+    //? if forge || (neoforge && <1.21.9) {
     /*@Override
     default int getSlots() {
         return getContainerSize();
@@ -120,6 +128,71 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
     @Override
     default boolean isItemValid(int i, @NotNull ItemStack arg) {
         return canPlaceItem(i,arg);
+    }
+    *///?} else if neoforge {
+    /*default int size() {
+        return getContainerSize();
+    }
+
+    default ItemResource getResource(int i) {
+        return ItemResource.of(getItem(i));
+    }
+
+    default long getAmountAsLong(int i) {
+        return getItem(i).getCount();
+    }
+
+    default long getCapacityAsLong(int i, ItemResource resource) {
+        return getMaxStackSize(resource.toStack());
+    }
+
+    default boolean isValid(int i, ItemResource resource) {
+        return canPlaceItem(i, resource.toStack());
+    }
+
+    default int insert(int i, ItemResource resource, int j, TransactionContext transactionContext) {
+        ItemStack item = resource.toStack();
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    insertItem(i, item, false);
+                }
+            });
+
+        return insertItem(i, item, true).getCount();
+    }
+
+    default int extract(int i, ItemResource resource, int j, TransactionContext transactionContext) {
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    extractItem(i, j, false);
+                }
+            });
+
+        return extractItem(i, j, true).getCount();
     }
     *///?}
 

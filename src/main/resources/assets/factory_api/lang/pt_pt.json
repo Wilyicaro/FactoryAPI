@@ -4,6 +4,7 @@
   "options.factory_api.uiDefinitionLogging": "Depuração do UI Definition",
   "options.factory_api.nearestMipmapScaling": "Escalonamento de Mipmap Aproximado",
   "options.factory_api.manualMipmapPath": "Caminho do Mipmap Manual",
+  "options.factory_api.manualMipmap": "Mipmap Manual",
   "options.factory_api.randomBlockRotations": "Rotações Randômicas de Blocos",
   "options.factory_api.expressionFailLogging": "Depuração da Falha de Expressões",
 

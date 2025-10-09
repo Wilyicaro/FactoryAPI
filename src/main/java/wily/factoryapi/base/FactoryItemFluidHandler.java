@@ -7,12 +7,17 @@ import net.minecraft.world.item.component.CustomData;
 *///?}
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.ItemContainerPlatform;
 import wily.factoryapi.init.FactoryRegistries;
 import wily.factoryapi.util.CompoundTagUtil;
 import wily.factoryapi.util.FluidInstance;
+
+//? if >=1.21.9 {
+/*import net.minecraft.world.item.component.TypedEntityData;
+*///?}
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -61,11 +66,20 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
         //?} else {
         /*if (b) {
             int capacity = getMaxFluid();
+            //? if >=1.21.9 {
+            /^CompoundTag beTag = container.has(DataComponents.BLOCK_ENTITY_DATA) ? container.get(DataComponents.BLOCK_ENTITY_DATA).copyTagWithoutId() : new CompoundTag();
+            ^///?} else {
             CompoundTag beTag = container.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+            //?}
             CompoundTag tag = FluidInstance.toTag(fluid);
             tag.putInt("capacity", capacity);
             beTag.put(getStorageKey(), tag);
+            //? if >=1.21.9 {
+            /^//TODO Check if this will cause problems when placing the block
+            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(BlockEntityType.CHEST, beTag));
+            ^///?} else {
             container.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
+            //?}
         } else {
             container.set(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), fluid);
         }
@@ -74,7 +88,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
 
     @Override
     public @NotNull FluidInstance getFluidInstance() {
-        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> FluidInstance.fromTag(CompoundTagUtil.getCompoundTagOrEmpty(c, getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
+        return /*? if <1.20.5 {*/FluidInstance.fromTag(getFluidCompound(container))/*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, /^? if >=1.21.9 {^//^TypedEntityData::copyTagWithoutId^//^?} else {^/CustomData::copyTag/^?}^/, c-> FluidInstance.fromTag(CompoundTagUtil.getCompoundTagOrEmpty(c, getStorageKey())),c-> c.contains(getStorageKey()), FluidInstance.empty()) : container.getOrDefault(FactoryRegistries.FLUID_INSTANCE_COMPONENT.get(), FluidInstance.empty())*//*?}*/;
     }
 
     //? if <1.20.5 {
@@ -174,21 +188,30 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
         tag.put(getStorageKey(), newTag);
         if (b) container.getTag().put(BLOCK_ENTITY_TAG, tag);
         //?} else {
-        /*if (b){
+        /*if (b) {
+            //? if >=1.21.9 {
+            /^CompoundTag beTag = container.has(DataComponents.BLOCK_ENTITY_DATA) ? container.get(DataComponents.BLOCK_ENTITY_DATA).copyTagWithoutId() : new CompoundTag();
+            ^///?} else {
             CompoundTag beTag = container.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
+             //?}
             CompoundTag tag = CompoundTagUtil.getCompoundTagOrEmpty(beTag, getStorageKey());
             tag.putInt("capacity",capacity);
             beTag.put(getStorageKey(),tag);
+            //? if >=1.21.9 {
+            /^//TODO Check if this will cause problems when placing the block
+            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(BlockEntityType.CHEST, beTag));
+            ^///?} else {
             container.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
+             //?}
         } else {
-            container.set(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),capacity);
+            container.set(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(), capacity);
         }
         *///?}
     }
 
     @Override
     public int getMaxFluid() {
-        return /*? if <1.20.5 {*/ getFluidCompound(container).contains("capacity") ? getFluidCompound(container).getInt("capacity") : super.getMaxFluid() /*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, CustomData::copyTag, c-> CompoundTagUtil.getInt(c, getStorageKey()).orElse(0),c-> c.contains(getStorageKey()), super.getMaxFluid()) : container.getOrDefault(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),super.getMaxFluid()) *//*?}*/;
+        return /*? if <1.20.5 {*/ getFluidCompound(container).contains("capacity") ? getFluidCompound(container).getInt("capacity") : super.getMaxFluid() /*?} else {*/ /*isBlockItem() ? getFromComponentOrDefault(container,DataComponents.BLOCK_ENTITY_DATA, /^? if >=1.21.9 {^//^TypedEntityData::copyTagWithoutId^//^?} else {^/CustomData::copyTag/^?}^/, c-> CompoundTagUtil.getInt(c, getStorageKey()).orElse(0),c-> c.contains(getStorageKey()), super.getMaxFluid()) : container.getOrDefault(FactoryRegistries.FLUID_CAPACITY_COMPONENT.get(),super.getMaxFluid()) *//*?}*/;
     }
 
     @Override

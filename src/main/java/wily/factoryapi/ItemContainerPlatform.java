@@ -25,10 +25,18 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 *///?} else if neoforge {
 /*import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.SoundActions;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
+//? if <1.21.9 {
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+//?} else {
+/^import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+^///?}
 *///?}
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -47,17 +55,17 @@ import net.minecraft.world.level.material.Fluid;
 public interface ItemContainerPlatform {
 
     record ItemFluidContext(FluidInstance fluidInstance, ItemStack container) {
-        public ItemFluidContext(ItemStack container){
+        public ItemFluidContext(ItemStack container) {
             this(FluidInstance.empty(),container);
         }
     }
     record ItemEnergyContext(int contextEnergy, ItemStack container) {
-        public ItemEnergyContext(ItemStack container){
+        public ItemEnergyContext(ItemStack container) {
             this(0,container);
         }
     }
 
-    static boolean isBlockItem(ItemStack s){return s.getItem() instanceof BlockItem;}
+    static boolean isBlockItem(ItemStack s) {return s.getItem() instanceof BlockItem;}
 
   
     static Fluid getBucketFluid(BucketItem item) {
@@ -71,7 +79,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static boolean isFluidContainer(ItemStack stack){
+    static boolean isFluidContainer(ItemStack stack) {
         //? if fabric {
         return FluidStorage.ITEM.find(stack, modifiableStackContext(stack)) != null;
         //?} elif forge || neoforge {
@@ -80,7 +88,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static boolean isEnergyContainer(ItemStack stack){
+    static boolean isEnergyContainer(ItemStack stack) {
         //? if fabric {
         return EnergyStorage.ITEM.find(stack,modifiableStackContext(stack)) != null;
         //?} elif forge || neoforge {
@@ -89,16 +97,19 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static FluidInstance getFluid(ItemStack stack){
+    static FluidInstance getFluid(ItemStack stack) {
         //? if fabric {
         return getFluid(stack, modifiableStackContext(stack));
-        //?} elif forge || neoforge {
+        //?} elif forge || (neoforge && <1.21.9) {
         /*return isFluidContainer(stack) ? FactoryAPIPlatform.fluidStackToInstance(getItemFluidHandler(stack).getFluidInTank(0)) : FluidInstance.empty();
+        *///?} elif neoforge {
+        /*ResourceHandler<FluidResource> fluidHandler = getItemFluidHandler(stack);
+        return fluidHandler != null ? FluidInstance.create(fluidHandler.getResource(0).getFluid(), fluidHandler.getAmountAsInt(0)) : FluidInstance.empty();
         *///?} else
         /*throw new AssertionError();*/
     }
 
-    static FluidInstance getFluid(Player player, InteractionHand hand){
+    static FluidInstance getFluid(Player player, InteractionHand hand) {
         //? if fabric {
         return getFluid(player.getItemInHand(hand), ContainerItemContext.ofPlayerHand(player, hand));
         //?} elif forge || neoforge {
@@ -107,7 +118,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static int fillItem(FluidInstance fluidInstance, Player player, InteractionHand hand){
+    static int fillItem(FluidInstance fluidInstance, Player player, InteractionHand hand) {
         //? if fabric {
         return fillItem(fluidInstance, player.getItemInHand(hand), ContainerItemContext.ofPlayerHand(player, hand), player).fluidInstance().getAmount();
          //?} elif forge || neoforge {
@@ -116,7 +127,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static ItemFluidContext fillItem(ItemStack stack, FluidInstance fluidInstance){
+    static ItemFluidContext fillItem(ItemStack stack, FluidInstance fluidInstance) {
         //? if fabric {
         return fillItem(fluidInstance, stack, modifiableStackContext(stack), null);
          //?} elif forge || neoforge {
@@ -125,7 +136,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static FluidInstance drainItem(int maxDrain, Player player, InteractionHand hand){
+    static FluidInstance drainItem(int maxDrain, Player player, InteractionHand hand) {
         //? if fabric {
         return drainItem(maxDrain,player.getItemInHand(hand), ContainerItemContext.ofPlayerHand(player, hand), player).fluidInstance();
          //?} elif forge || neoforge {
@@ -134,7 +145,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static ItemFluidContext drainItem(int maxDrain, ItemStack stack){
+    static ItemFluidContext drainItem(int maxDrain, ItemStack stack) {
         //? if fabric {
         return drainItem(maxDrain, stack, modifiableStackContext(stack),null);
          //?} elif forge || neoforge {
@@ -143,7 +154,7 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static int insertEnergy(int energy, Player player, InteractionHand hand){
+    static int insertEnergy(int energy, Player player, InteractionHand hand) {
         //? if fabric {
         return insertEnergy(energy,ContainerItemContext.ofPlayerHand(player,hand),player).contextEnergy();
          //?} elif forge || neoforge {
@@ -152,16 +163,23 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static ItemEnergyContext insertEnergy(int energy, ItemStack stack){
+    static ItemEnergyContext insertEnergy(int energy, ItemStack stack) {
         //? if fabric {
         return insertEnergy(energy, modifiableStackContext(stack),null);
-         //?} elif forge || neoforge {
+         //?} elif forge || (neoforge && <1.21.9) {
         /*return new ItemEnergyContext(getItemEnergyStorage(stack).receiveEnergy(energy,false),stack);
+        *///?} elif neoforge {
+        /*try (Transaction transaction = Transaction.open(null))
+        {
+            int insert = getItemEnergyStorage(stack).insert(energy, transaction);
+            transaction.commit();
+            return new ItemEnergyContext(insert, stack);
+        }
         *///?} else
         /*throw new AssertionError();*/
     }
 
-    static int extractEnergy(int energy, Player player, InteractionHand hand){
+    static int extractEnergy(int energy, Player player, InteractionHand hand) {
         //? if fabric {
         return extractEnergy(energy,ContainerItemContext.ofPlayerHand(player,hand),player).contextEnergy();
          //?} elif forge || neoforge {
@@ -170,23 +188,32 @@ public interface ItemContainerPlatform {
         /*throw new AssertionError();*/
     }
 
-    static ItemEnergyContext extractEnergy(int energy, ItemStack stack){
+    static ItemEnergyContext extractEnergy(int energy, ItemStack stack) {
         //? if fabric {
         return extractEnergy(energy, modifiableStackContext(stack),null);
-         //?} elif forge || neoforge {
+         //?} elif forge || (neoforge && <1.21.9) {
         /*return new ItemEnergyContext(getItemEnergyStorage(stack).extractEnergy(energy,false),stack);
+        *///?} elif neoforge {
+        /*try (Transaction transaction = Transaction.open(null))
+        {
+            int insert = getItemEnergyStorage(stack).extract(energy, transaction);
+            transaction.commit();
+            return new ItemEnergyContext(insert, stack);
+        }
         *///?} else
         /*throw new AssertionError();*/
     }
 
-    static int getEnergy(ItemStack stack){
+    static int getEnergy(ItemStack stack) {
         //? if fabric {
         EnergyStorage handStorage = modifiableStackContext(stack).find(EnergyStorage.ITEM);
         if (handStorage != null)
             return (int) handStorage.getAmount();
         return 0;
-         //?} elif forge || neoforge {
+         //?} elif forge || (neoforge && <1.21.9) {
         /*return isEnergyContainer(stack) ? 0 : getItemEnergyStorage(stack).getEnergyStored();
+        *///?} elif neoforge {
+        /*return isEnergyContainer(stack) ? 0 : getItemEnergyStorage(stack).getAmountAsInt();
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -234,7 +261,7 @@ public interface ItemContainerPlatform {
         });
     }
 
-    static FluidInstance getFluid(ItemStack stack, ContainerItemContext context){
+    static FluidInstance getFluid(ItemStack stack, ContainerItemContext context) {
         Storage<FluidVariant> handStorage = FluidStorage.ITEM.find(stack, context);
         if (handStorage != null) {
             for (StorageView<FluidVariant> view : handStorage )
@@ -243,7 +270,7 @@ public interface ItemContainerPlatform {
         return FluidInstance.empty();
     }
 
-    static ItemFluidContext fillItem(FluidInstance fluidInstance, ItemStack stack, ContainerItemContext context, @Nullable Player player){
+    static ItemFluidContext fillItem(FluidInstance fluidInstance, ItemStack stack, ContainerItemContext context, @Nullable Player player) {
         long amount = fluidInstance.getPlatformAmount();
         StoragePreconditions.notBlankNotNegative(FluidVariant.of(fluidInstance.getFluid()), amount);
         Storage<FluidVariant> handStorage = FluidStorage.ITEM.find(stack,context);
@@ -263,10 +290,10 @@ public interface ItemContainerPlatform {
         return new ItemFluidContext( context.getItemVariant().toStack((int) context.getAmount()));
     }
 
-    static ItemFluidContext drainItem(int maxDrain, ItemStack stack, ContainerItemContext context, @Nullable Player player){
+    static ItemFluidContext drainItem(int maxDrain, ItemStack stack, ContainerItemContext context, @Nullable Player player) {
         Storage<FluidVariant> handStorage = FluidStorage.ITEM.find(stack,context);
 
-       if (handStorage != null){
+       if (handStorage != null) {
             for (StorageView<FluidVariant> view : handStorage) {
                 if (view.isResourceBlank()) continue;
                 FluidVariant storedResource = view.getResource();
@@ -318,22 +345,29 @@ public interface ItemContainerPlatform {
         return new ItemEnergyContext(0,context.getItemVariant().toStack((int) context.getAmount()));
     }
     //?} elif forge {
-    /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
+    /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack) {
         return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
     }
-    static IEnergyStorage getItemEnergyStorage(ItemStack stack){
+    static IEnergyStorage getItemEnergyStorage(ItemStack stack) {
         return stack.getCapability(ForgeCapabilities.ENERGY).orElse(null);
     }
-    *///?} elif neoforge {
-    /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack){
+    *///?} elif neoforge && <1.21.9 {
+    /*static IFluidHandlerItem getItemFluidHandler(ItemStack stack) {
         return stack.getCapability(Capabilities.FluidHandler.ITEM);
     }
-    static IEnergyStorage getItemEnergyStorage(ItemStack stack){
+    static IEnergyStorage getItemEnergyStorage(ItemStack stack) {
         return stack.getCapability(Capabilities.EnergyStorage.ITEM);
     }
+    *///?} elif neoforge {
+    /*static ResourceHandler<FluidResource> getItemFluidHandler(ItemStack stack) {
+        return stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(stack));
+    }
+    static EnergyHandler getItemEnergyStorage(ItemStack stack) {
+        return stack.getCapability(Capabilities.Energy.ITEM, ItemAccess.forStack(stack));
+    }
     *///?}
-    //? if forge || neoforge {
-    /*static ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidInstance fluidInstance){
+    //? if forge || (neoforge && <1.21.9) {
+    /*static ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidInstance fluidInstance) {
         if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemFluidContext(stack);
         IFluidHandler.FluidAction action = FactoryAPIPlatform.fluidActionOf((player !=null && player.isCreative()));
         ItemStack toFill = action.execute() ? stack.copyWithCount(1) : stack.copy();
@@ -351,7 +385,7 @@ public interface ItemContainerPlatform {
         }
         return new ItemFluidContext(FluidInstance.create(fluidInstance.getFluid(),amount),tank.getContainer());
     }
-    static ItemFluidContext drainItem(int maxDrain, ItemStack stack, Player player, InteractionHand hand){
+    static ItemFluidContext drainItem(int maxDrain, ItemStack stack, Player player, InteractionHand hand) {
         if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemFluidContext(stack);
         IFluidHandler.FluidAction action = FactoryAPIPlatform.fluidActionOf((player !=null && player.isCreative()));
         ItemStack toDrain = action.execute() ? stack.copyWithCount(1) : stack.copy();
@@ -370,5 +404,45 @@ public interface ItemContainerPlatform {
 
         return new ItemFluidContext(FluidInstance.create(fluidStack.getFluid(),fluidStack.getAmount()),tank.getContainer());
     }
+    *///?} else if neoforge {
+    /*static ItemFluidContext fillItem(ItemStack stack, Player player, InteractionHand hand, FluidInstance fluidInstance) {
+        if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemFluidContext(stack);
+
+        boolean simulate = (player != null && player.isCreative());
+        ResourceHandler<FluidResource> tank = stack.getCapability(Capabilities.Fluid.ITEM, player == null ? ItemAccess.forStack(stack) : ItemAccess.forPlayerInteraction(player, hand));
+        
+        try (Transaction transaction = Transaction.open(null)) {
+            int amount = tank.insert(FluidResource.of(fluidInstance.toStack()), fluidInstance.getAmount(), transaction);
+            if (!simulate) transaction.commit();
+            if(player != null && amount > 0) {
+                SoundEvent sound = fluidInstance.getFluid().getFluidType().getSound(fluidInstance.toStack(), SoundActions.BUCKET_FILL);
+                if (sound != null) player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(),sound , SoundSource.PLAYERS, 0.6F, 0.8F);
+            }
+            return new ItemFluidContext(FluidInstance.create(fluidInstance.getFluid(),amount), player == null ? stack : player.getItemInHand(hand));
+        }
+    }
+
+    static ItemFluidContext drainItem(int maxDrain, ItemStack stack, Player player, InteractionHand hand) {
+        if (!isFluidContainer(stack) || (player == null && stack.getCount() != 1)) return new ItemFluidContext(stack);
+
+        boolean simulate = (player != null && player.isCreative());
+        ResourceHandler<FluidResource> tank = stack.getCapability(Capabilities.Fluid.ITEM, player == null ? ItemAccess.forStack(stack) : ItemAccess.forPlayerInteraction(player, hand));
+
+        try (Transaction transaction = Transaction.open(null)) {
+            FluidResource resource = tank.getResource(0);
+            int amount = tank.extract(resource, maxDrain, transaction);
+            if (!simulate) transaction.commit();
+            if (player != null && amount > 0) {
+                SoundEvent sound = resource.getFluid().getFluidType().getSound(resource.toStack(amount), SoundActions.BUCKET_EMPTY);
+                if (sound != null)
+                    player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), sound, SoundSource.PLAYERS, 0.6F, 0.8F);
+            }
+
+            return new ItemFluidContext(FluidInstance.create(resource.getFluid(), amount),  player == null ? stack : player.getItemInHand(hand));
+
+        }
+    }
     *///?}
+
+
 }

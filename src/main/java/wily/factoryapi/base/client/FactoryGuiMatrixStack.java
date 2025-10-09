@@ -5,7 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import org.joml.Matrix3x2fStack;
 
 public interface FactoryGuiMatrixStack {
-	public static FactoryGuiMatrixStack of(PoseStack stack) {
+	static FactoryGuiMatrixStack of(PoseStack stack) {
 		return new FactoryGuiMatrixStack() {
 			@Override
 			public void push() {

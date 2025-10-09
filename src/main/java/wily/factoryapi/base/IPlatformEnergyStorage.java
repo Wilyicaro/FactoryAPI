@@ -7,13 +7,18 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import team.reborn.energy.api.EnergyStorage;
 //?} elif forge {
 /*import net.minecraftforge.energy.IEnergyStorage;
-*///?} elif neoforge {
+*///?} elif (neoforge && <1.21.9) {
 /*import net.neoforged.neoforge.energy.IEnergyStorage;
+*///?} elif neoforge {
+/*import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 *///?}
 
 import wily.factoryapi.FactoryAPIPlatform;
 
-public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, IPlatformHandler/*? if forge || neoforge {*//*, IEnergyStorage*//*?} else if fabric {*/,EnergyStorage/*?}*/ {
+public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, IPlatformHandler/*? if forge || (neoforge && <1.21.9) {*//*, IEnergyStorage*//*?} else if fabric {*/,EnergyStorage/*?} else if neoforge {*//*, EnergyHandler*//*?}*/ {
 
 
 
@@ -105,7 +110,7 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
     default long getCapacity() {
         return getEnergyStored();
     }
-    //?} else if forge || neoforge {
+    //?} else if forge || (neoforge && <1.21.9) {
     /*@Override
     default int extractEnergy(int i, boolean bl) {
         return consumeEnergy(i,bl);
@@ -120,5 +125,63 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
     default boolean canReceive() {
         return getTransport().canInsert();
     }
+    *///?} else if neoforge {
+
+    /*@Override
+    default long getAmountAsLong() {
+        return getEnergyStored();
+    }
+
+    @Override
+    default long getCapacityAsLong() {
+        return getMaxEnergyStored();
+    }
+
+    @Override
+    default int insert(int i, TransactionContext transactionContext) {
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    receiveEnergy(i, false);
+                }
+            });
+
+        return receiveEnergy(i, true);
+    }
+
+    @Override
+    default int extract(int i, TransactionContext transactionContext) {
+        if (transactionContext instanceof Transaction transaction)
+            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+                @Override
+                protected Integer createSnapshot() {
+                    return 0;
+                }
+
+                @Override
+                protected void revertToSnapshot(Integer object) {
+
+                }
+
+                @Override
+                protected void releaseSnapshot(Integer snapshot) {
+                    consumeEnergy(i, false);
+                }
+            });
+
+        return consumeEnergy(i, true);
+    }
+
     *///?}
 }

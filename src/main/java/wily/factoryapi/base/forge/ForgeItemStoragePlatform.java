@@ -1,4 +1,4 @@
-//? if forge || neoforge {
+//? if forge || (neoforge && <1.21.9) {
 /*package wily.factoryapi.base.forge;
 
 import net.minecraft.nbt.CompoundTag;
@@ -32,9 +32,11 @@ public interface ForgeItemStoragePlatform extends IPlatformItemHandler, IPlatfor
             if (!getHandler().getStackInSlot(i).isEmpty()) return false;
         return true;
     }
+
     default ArbitrarySupplier<IItemHandlerModifiable> getModifiableHandler(){
         return ()-> getHandler() instanceof IItemHandlerModifiable h ?h : null;
     }
+
     @Override
     default @NotNull ItemStack getItem(int slot) {
         return getHandler().getStackInSlot(slot);

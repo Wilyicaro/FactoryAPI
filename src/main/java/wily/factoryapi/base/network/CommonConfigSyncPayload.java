@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.config.FactoryConfig;
 
 import java.util.Map;
@@ -40,7 +41,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
         FactoryConfig.COMMON_STORAGES.get(commonConfigStorage).decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, configTag));
         if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp.hasPermissions(2)){
             FactoryConfig.StorageHandler handler = FactoryConfig.COMMON_STORAGES.get(commonConfigStorage);
-            CommonNetwork.sendToPlayers(sp/*? if <1.21.6 {*/.server/*?} else {*//*.getServer()*//*?}*/.getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
+            CommonNetwork.sendToPlayers(FactoryAPIPlatform.getEntityServer(sp).getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
             handler.save();
         }
     }

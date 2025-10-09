@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceMetadata;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryAPI;
+import wily.factoryapi.base.client.FactoryOptions;
 import wily.factoryapi.base.client.MipmapMetadataSection;
 
 import java.io.IOException;
@@ -35,17 +37,26 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
     public void setMetadata(ResourceMetadata metadata) {
         this.metadata = metadata;
     }
-    *///?} else {
+    *///?} else if <1.21.9 {
     @Shadow public abstract ResourceMetadata metadata();
-    //?}
+    //?} else {
+    /*@Shadow public abstract <T> Optional<T> getAdditionalMetadata(MetadataSectionType<T> par1);
+    *///?}
 
     @Shadow NativeImage[] byMipLevel;
 
     @Shadow public abstract ResourceLocation name();
 
+
     @Inject(method = "increaseMipLevel", at = @At("RETURN"))
     public void increaseMipLevel(int i, CallbackInfo ci) {
+        if (!FactoryOptions.MANUAL_MIPMAP.get()) return;
+
+        //? if >=1.21.9 {
+        /*MipmapMetadataSection manualMipmap = getAdditionalMetadata(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
+        *///?} else {
         MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
+        //?}
         NativeImage original = byMipLevel[0];
         for (Map.Entry<Integer, MipmapMetadataSection.Level> entry : manualMipmap.levels().entrySet()) {
             if (entry.getKey() > i) break;

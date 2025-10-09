@@ -8,7 +8,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 *///?} else {
 //?}
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -76,7 +75,7 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
     }
 
     @Inject(method = "onClick", at = @At("HEAD"))
-    public void onClick(double d, double e, CallbackInfo ci) {
+    public void onClick(CallbackInfo ci) {
         onPress();
     }
 
