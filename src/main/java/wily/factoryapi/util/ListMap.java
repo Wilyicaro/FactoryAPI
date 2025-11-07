@@ -14,17 +14,24 @@ import java.util.stream.Collectors;
  * The values and keys are obtained by iterations, so <b>don't</b> use this implementation if you only need a way to get a key by a value.
 **/
 public class ListMap<K,V> implements DualMap<K,V> {
-
+    final Map<K, V> backendMap;
     final List<K> keys;
     final List<V> values;
 
-    public ListMap(Builder<K,V> builder){
+    public ListMap(Builder<K,V> builder) {
+        backendMap = new HashMap<>();
         keys = builder.keys;
         values = builder.values;
-        if (keys.size() != values.size()) throw new UnsupportedOperationException("Invalid ListMap Builder: It should have the same amount of keys and values!");
+        if (keys.size() != values.size()) 
+            throw new UnsupportedOperationException("Invalid ListMap Builder: It should have the same amount of keys and values!");
+        else {
+            for (int i = 0; i < keys.size(); i++) {
+                backendMap.put(keys.get(i), values.get(i));
+            }
+        }
     }
 
-    public ListMap(){
+    public ListMap() {
         this(new Builder<>());
     }
 
@@ -51,7 +58,7 @@ public class ListMap<K,V> implements DualMap<K,V> {
                         throw new NoSuchElementException("No more elements.");
                     }
                     canRemove = true;
-                    Entry<K,V> entry = new AbstractMap.SimpleEntry<>(keys.get(actual), values.get(actual)){
+                    Entry<K,V> entry = new AbstractMap.SimpleEntry<>(keys.get(actual), values.get(actual)) {
                         @Override
                         public V setValue(V value) {
                             return put(getKey(), value);
@@ -78,32 +85,35 @@ public class ListMap<K,V> implements DualMap<K,V> {
         }
     };
 
-    public record Builder<K,V>(List<K> keys, List<V> values){
-        public Builder(){
+    public record Builder<K,V>(List<K> keys, List<V> values) {
+        public Builder() {
             this(new ArrayList<>(),new ArrayList<>());
         }
 
-        public Builder<K,V> put(K key, V value){
+        public Builder<K,V> put(K key, V value) {
             keys.add(key);
             values.add(value);
             return this;
         }
-        public <OK,OV> Builder<OK,OV> mapEntries(Function<K,OK> keyMapper, Function<V,OV> valueMapper){
+
+        public <OK,OV> Builder<OK,OV> mapEntries(Function<K,OK> keyMapper, Function<V,OV> valueMapper) {
             return new Builder<>(keys.stream().map(keyMapper).collect(Collectors.toList()),values.stream().map(valueMapper).collect(Collectors.toList()));
         }
-        public <OK> Builder<OK,V> mapKeys(Function<K,OK> keyMapper){
+
+        public <OK> Builder<OK,V> mapKeys(Function<K,OK> keyMapper) {
             return new Builder<>(keys.stream().map(keyMapper).collect(Collectors.toList()),values);
         }
-        public <OV> Builder<K,OV> mapValues(Function<V,OV> valueMapper){
+
+        public <OV> Builder<K,OV> mapValues(Function<V,OV> valueMapper) {
             return new Builder<>(keys,values.stream().map(valueMapper).collect(Collectors.toList()));
         }
 
-        public ListMap<K,V> build(){
+        public ListMap<K,V> build() {
             return new ListMap<>(this);
         }
     }
 
-    public static <K,V> Builder<K,V> builder(){
+    public static <K,V> Builder<K,V> builder() {
         return new Builder<>();
     }
 
@@ -129,7 +139,7 @@ public class ListMap<K,V> implements DualMap<K,V> {
 
     @Override
     public V get(Object o) {
-        return containsKey(o) ? values.get(keys.indexOf(o)) : null;
+        return backendMap.get(o);
     }
 
     public V getByIndex(int i) {
@@ -137,7 +147,7 @@ public class ListMap<K,V> implements DualMap<K,V> {
     }
 
     @Override
-    public K getKey(V value){
+    public K getKey(V value) {
         return getKeyOrDefault(value,null);
     }
 
@@ -145,15 +155,15 @@ public class ListMap<K,V> implements DualMap<K,V> {
         return keys.get(i);
     }
 
-    public K getKeyOrDefault(V value, K defaultKey){
+    public K getKeyOrDefault(V value, K defaultKey) {
         return containsValue(value) ? keys.get(values.indexOf(value)) : defaultKey;
     }
 
-    public int indexOf(V value){
+    public int indexOf(V value) {
         return values.indexOf(value);
     }
 
-    public int indexOfKey(K key){
+    public int indexOfKey(K key) {
         return keys.indexOf(key);
     }
 
@@ -163,6 +173,7 @@ public class ListMap<K,V> implements DualMap<K,V> {
         if (!containsKey(k)) {
             keys.add(k);
             values.add(v);
+            backendMap.put(k, v);
         }else oldValue = values.set(keys.indexOf(k),v);
         return oldValue;
     }
@@ -170,8 +181,9 @@ public class ListMap<K,V> implements DualMap<K,V> {
     @Override
     public V remove(Object o) {
         int index = keys.indexOf(o);
-        if (index >= 0){
+        if (index >= 0) {
             keys.remove(index);
+            backendMap.remove(o);
             return values.remove(index);
         }
         return null;
@@ -186,6 +198,7 @@ public class ListMap<K,V> implements DualMap<K,V> {
     public void clear() {
         keys.clear();
         values.clear();
+        backendMap.clear();
     }
 
     @Override

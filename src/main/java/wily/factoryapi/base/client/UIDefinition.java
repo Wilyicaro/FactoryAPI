@@ -7,90 +7,131 @@ import java.util.function.*;
 
 public interface UIDefinition extends Predicate<UIAccessor> {
 
-    UIDefinition EMPTY = new UIDefinition(){};
+    UIDefinition EMPTY = new UIDefinition() {};
 
-    default void beforeInit(UIAccessor accessor){
-        getDefinitions().forEach(d->d.beforeInit(accessor));
+    default void beforeInit(UIAccessor accessor) {
+        getDefinitions().removeIf(d -> {
+            if (d.test(accessor)) {
+                d.beforeInit(accessor);
+                return false;
+            }
+           return true;
+        });
     }
 
-    default void afterInit(UIAccessor accessor){
-        getDefinitions().forEach(d->d.afterInit(accessor));
+    default void afterInit(UIAccessor accessor) {
+        getDefinitions().forEach(d -> d.afterInit(accessor));
     }
 
-    default void beforeTick(UIAccessor accessor){
-        getDefinitions().forEach(d->d.beforeTick(accessor));
+    default void beforeTick(UIAccessor accessor) {
+        getDefinitions().forEach(d -> d.beforeTick(accessor));
     }
 
-    default void afterTick(UIAccessor accessor){
-        getDefinitions().forEach(d->d.afterTick(accessor));
+    default void afterTick(UIAccessor accessor) {
+        getDefinitions().forEach(d -> d.afterTick(accessor));
     }
 
-    default List<UIDefinition> getDefinitions(){
+    default List<UIDefinition> getDefinitions() {
         return Collections.emptyList();
     }
 
+    default List<UIDefinition> getStaticDefinitions() {
+        return Collections.emptyList();
+    }
+    
+    default void addStatic(UIDefinition uiDefinition) {
+        getStaticDefinitions().add(uiDefinition);
+    }
 
-
-    static UIDefinition createBeforeInit(Consumer<UIAccessor> beforeInit){
+    static UIDefinition createBeforeInit(Consumer<UIAccessor> beforeInit) {
         return new UIDefinition() {
             @Override
             public void beforeInit(UIAccessor accessor) {
-                UIDefinition.super.beforeInit(accessor);
                 beforeInit.accept(accessor);
             }
         };
     }
-    static UIDefinition createBeforeInit(String name, Consumer<UIAccessor> beforeInit){
-        return createBeforeInit(a->{
-            if (a.getBoolean(name+".applyCondition",true)) beforeInit.accept(a);
-        });
+
+    @Deprecated
+    static UIDefinition createBeforeInit(String name, Consumer<UIAccessor> beforeInit) {
+        return createBeforeInit(beforeInit);
     }
-    static UIDefinition createAfterInit(Consumer<UIAccessor> afterInit){
+
+    static UIDefinition createAfterInit(Consumer<UIAccessor> afterInit) {
         return new UIDefinition() {
             @Override
             public void afterInit(UIAccessor accessor) {
-                UIDefinition.super.afterInit(accessor);
                 afterInit.accept(accessor);
             }
         };
     }
-    static UIDefinition createAfterInit(String name, Consumer<UIAccessor> afterInit){
-        return createAfterInit(a->{
-            if (a.getBoolean(name+".applyCondition",true)) afterInit.accept(a);
-        });
+
+    @Deprecated
+    static UIDefinition createAfterInit(String name, Consumer<UIAccessor> afterInit) {
+        return createAfterInit(afterInit);
     }
 
-    static UIDefinition createAfterInitWithAmount(String name, Consumer<UIAccessor> afterInit){
-        return createAfterInit(a->{
+    static UIDefinition createAfterInitWithAmount(String name, Consumer<UIAccessor> afterInit) {
+        return createAfterInit(a -> {
             Bearer<Integer> bearer = Bearer.of(0);
             a.putBearer(name+".index", bearer);
             afterInit.accept(a);
         });
     }
 
-    static UIDefinition createBeforeTick(Consumer<UIAccessor> beforeTick){
+    static UIDefinition createBeforeTick(Consumer<UIAccessor> beforeTick) {
         return new UIDefinition() {
             @Override
             public void beforeTick(UIAccessor accessor) {
-                UIDefinition.super.beforeTick(accessor);
                 beforeTick.accept(accessor);
             }
         };
     }
 
-    static UIDefinition createAfterTick(Consumer<UIAccessor> afterTick){
+    static UIDefinition createAfterTick(Consumer<UIAccessor> afterTick) {
         return new UIDefinition() {
             @Override
             public void afterTick(UIAccessor accessor) {
-                UIDefinition.super.afterTick(accessor);
                 afterTick.accept(accessor);
             }
         };
     }
 
     @Override
-    default boolean test(UIAccessor accessor){
+    default boolean test(UIAccessor accessor) {
         return true;
     }
 
+
+    class Instance implements UIDefinition {
+        private final Predicate<UIAccessor> applyCondition;
+        protected List<UIDefinition> definitions = new ArrayList<>();
+        protected List<UIDefinition> staticDefinitions = new ArrayList<>();
+
+        public Instance(Predicate<UIAccessor> applyCondition) {
+            this.applyCondition = applyCondition;
+        }
+
+        @Override
+        public void beforeInit(UIAccessor accessor) {
+            getDefinitions().clear();
+            getDefinitions().addAll(getStaticDefinitions());
+            UIDefinition.super.beforeInit(accessor);
+        }
+
+        @Override
+        public boolean test(UIAccessor accessor) {
+            return applyCondition.test(accessor);
+        }
+
+        @Override
+        public List<UIDefinition> getStaticDefinitions() {
+            return staticDefinitions;
+        }
+
+        @Override
+        public List<UIDefinition> getDefinitions() {
+            return definitions;
+        }
+    }
 }

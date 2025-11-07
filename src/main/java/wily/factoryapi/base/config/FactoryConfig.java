@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
-import wily.factoryapi.base.ArbitrarySupplier;
+import wily.factoryapi.FactoryEvent;
 import wily.factoryapi.base.Bearer;
 import wily.factoryapi.base.MinecraftServerAccessor;
 import wily.factoryapi.base.network.CommonConfigSyncPayload;
@@ -121,6 +121,13 @@ public interface FactoryConfig<T> extends Bearer<T> {
         protected final boolean allowSync;
         protected boolean serverOnly;
 
+        public final FactoryEvent<Consumer<StorageHandler>> preLoad = new FactoryEvent<>(e-> m-> e.invokeAll(l->l.accept(m)));
+        public final FactoryEvent<Consumer<StorageHandler>> afterLoad = new FactoryEvent<>(e-> m-> e.invokeAll(l->l.accept(m)));
+
+        public final FactoryEvent<Consumer<StorageHandler>> preSave = new FactoryEvent<>(e-> m-> e.invokeAll(l->l.accept(m)));
+        public final FactoryEvent<Consumer<StorageHandler>> afterSave = new FactoryEvent<>(e-> m-> e.invokeAll(l->l.accept(m)));
+
+
         public StorageHandler(Map<String, FactoryConfig<?>> configMap, boolean allowSync) {
             this.configMap = configMap;
             this.allowSync = allowSync;
@@ -222,7 +229,9 @@ public interface FactoryConfig<T> extends Bearer<T> {
                 return;
             }
             if (isServerManaged() && FactoryAPI.currentServer == null && FactoryAPI.isClient() && FactoryAPIClient.hasLevel()) return;
-            FactoryConfig.save(file, configMap, false);
+            preSave.invoker.accept(this);
+            if (FactoryConfig.save(file, configMap, false))
+                afterSave.invoker.accept(this);
         }
 
         public void load() {
@@ -231,10 +240,13 @@ public interface FactoryConfig<T> extends Bearer<T> {
                 return;
             }
 
+            preLoad.invoker.accept(this);
             if (defaultFile != null)
                 FactoryConfig.load(defaultFile, configMap, true);
 
-            if (!FactoryConfig.load(file, configMap, false)) {
+            if (FactoryConfig.load(file, configMap, false))
+                afterLoad.invoker.accept(this);
+            else {
                 reset();
                 save();
             }

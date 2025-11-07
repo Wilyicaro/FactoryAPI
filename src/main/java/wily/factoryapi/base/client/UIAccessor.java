@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.FactoryAPI;
@@ -46,7 +47,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
     @Nullable
     Screen getScreen();
 
-    default void reloadUI(){
+    default void reloadUI() {
         beforeInit();
         getChildrenRenderables().clear();
         afterInit();
@@ -89,7 +90,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*//*inventory.getItem(Inventory.SLOT_OFFHAND)*//*?} else {*/inventory.offhand.get(0)/*?}*/);
         }
         putSupplierComponent("username", () -> Component.literal(Minecraft.getInstance().getUser().getName()));
-        if (getScreen() instanceof MenuAccess<?> access){
+        if (getScreen() instanceof MenuAccess<?> access) {
             getElements().put("slotsCount", access.getMenu().slots::size);
             for (Slot slot : access.getMenu().slots) {
                 getElements().put("menu.slot." + slot.getContainerSlot(), slot::getItem);
@@ -97,13 +98,10 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         }
         getDefinitions().clear();
         FactoryAPIClient.uiDefinitionManager.applyStatic(accessor);
-        getStaticDefinitions().stream().filter(d -> d.test(this)).forEach(getDefinitions()::add);
+        getDefinitions().addAll(getStaticDefinitions());
         FactoryAPIClient.uiDefinitionManager.apply(accessor);
         UIDefinition.super.beforeInit(accessor);
     }
-
-    List<UIDefinition> getStaticDefinitions();
-
 
     default void beforeInit() {
         beforeInit(this);
@@ -111,7 +109,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
 
     default void afterInit() {
         afterInit(this);
-        if (FactoryOptions.UI_DEFINITION_LOGGING.get()){
+        if (FactoryOptions.UI_DEFINITION_LOGGING.get()) {
             FactoryAPI.LOGGER.warn(getElements());
         }
     }
@@ -195,11 +193,18 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         getElements().put(name+".width", component.map(c->Minecraft.getInstance().font.width(c)));
     }
 
-    default Vec3 putVec3(String name, Vec3 offset) {
+    default Vec3 putVec3(String name, Vec3 vec3) {
+        putStaticElement(name, vec3);
+        putStaticElement(name + ".x", vec3.x());
+        putStaticElement(name + ".y", vec3.y());
+        putStaticElement(name + ".z", vec3.z());
+        return vec3;
+    }
+
+    default Vec2 putVec2(String name, Vec2 offset) {
         putStaticElement(name, offset);
-        putStaticElement(name + ".x", offset.x());
-        putStaticElement(name + ".y", offset.y());
-        putStaticElement(name + ".z", offset.z());
+        putStaticElement(name + ".x", offset.x);
+        putStaticElement(name + ".y", offset.y);
         return offset;
     }
 
@@ -301,6 +306,14 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return getResourceLocation(name, null);
     }
 
+    default ItemStack getItemStack(String name) {
+        return getElementValue(name, ItemStack.EMPTY, ItemStack.class);
+    }
+
+    default ItemStack getItemStack(String name, ItemStack defaultValue) {
+        return getElementValue(name, defaultValue, ItemStack.class);
+    }
+
     default Component getComponent(String name, Component defaultValue) {
         return getElementValue(name, defaultValue, Component.class);
     }
@@ -322,7 +335,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return getElementValue(name, defaultValue, Number.class);
     }
 
-    static UIAccessor createRenderablesWrapper(UIAccessor accessor, List<Renderable> renderables){
+    static UIAccessor createRenderablesWrapper(UIAccessor accessor, List<Renderable> renderables) {
         return new UIAccessor() {
             @Override
             public @Nullable Screen getScreen() {
