@@ -48,7 +48,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec2;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -90,7 +89,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
 
-    public record ElementValue<T>(String parent, String name, Function<UIAccessor, T> value) implements UIDefinition {
+    public record ElementValue<T>(String name, Function<UIAccessor, T> value) implements UIDefinition {
         @Override
         public void beforeInit(UIAccessor accessor) {
             accessor.getElements().put(name, () -> value.apply(accessor));
@@ -223,14 +222,14 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         ElementType ADD_CHECKBOX = registerConditional("add_checkbox", (definition, accessorFunction, name, e) -> {
             List<WidgetAction.PressSupplier<AbstractWidget>> actions = parseActionsElement(definition, name, e);
             parseWidgetElements(definition, name, e);
-            parseElement(definition, name, e, "selected", (s, d) -> parseBooleanElement(s, d));
+            parseElement(definition, name, e, "selected", ElementType::parseBoolean);
             definition.addStatic(UIDefinition.createAfterInit(a -> a.putWidget(name, accessorFunction.apply(a).addChild(name, createCheckbox(a.getBoolean(name + ".selected"), (c, b) -> {
                 actions.forEach(c1 -> c1.press(a, c, c.selected() ? WidgetAction.Type.ENABLE : WidgetAction.Type.DISABLE));
             })))));
         });
         ElementType ADD_SLIDER = registerConditional("add_slider", (definition, accessorFunction, name, e) -> {
             List<WidgetAction.CycleEntry> entries = e.get("entries").asList(d-> new WidgetAction.CycleEntry(d.get("message").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(Component.empty()), parseActionsElement(definition, name, d)));
-            parseElement(definition, name, e, "initialIndex", (s, d) -> parseNumberElement(name, s, d));
+            parseElement(definition, name, e, "initialIndex", ElementType::parseNumber);
             parseWidgetElements(definition, name, e);
             definition.addStatic(UIDefinition.createAfterInit(a -> {
                 a.putWidget(name, accessorFunction.apply(a).addChild(name, new AbstractSliderButton(0, 0, 200, 20, Component.empty(), Math.min(entries.size() - 1, a.getInteger(name + "initialIndex", 0) / (entries.size() - 1d))) {
@@ -278,10 +277,10 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                 if (a.getChildren().size() > index)
                     accessorFunction.apply(a).removeChild(a.getChildren().get(index));
         }))));
-        ElementType PUT_NUMBER = registerConditional("put_number", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseNumberElement(name, d)));
+        ElementType PUT_NUMBER = registerConditional("put_number", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseNumber(name, d)));
         ElementType PUT_COMPONENT = registerConditional("put_component", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseComponentElement(name, d)));
         ElementType PUT_STRING = registerCodec("put_string", Codec.STRING);
-        ElementType PUT_BOOLEAN = registerConditional("put_boolean", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseBooleanElement(name, d)));
+        ElementType PUT_BOOLEAN = registerConditional("put_boolean", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseBoolean(name, d)));
         ElementType PUT_RESOURCE_LOCATION = registerCodec("put_resource_location", ResourceLocation.CODEC);
         ElementType PUT_VEC3 = registerCodec("put_vec3", DynamicUtil.VEC3_OBJECT_CODEC);
         ElementType PUT_VEC2 = registerCodec("put_vec2", DynamicUtil.VEC2_CODEC);
@@ -294,58 +293,58 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         ElementType RENDER_ITEM = registerConditional("render_item", ElementType::parseRenderItemElements);
         ElementType RENDER_ITEMS = registerConditional("render_items", ElementType::parseRenderItemsElements);
         ElementType COMPARE_ITEMS = registerConditional("compare_items", ((uiDefinition, accessorFunction, elementName, element) -> {
-            parseElements(uiDefinition, elementName, element, (s,d) -> parseItemStackElement(elementName, s, d), "firstItem", "secondItem");
-            parseElements(uiDefinition, elementName, element, (s,d) -> parseBooleanElement(elementName, s, d), "checkCount", "strict");
+            parseElements(uiDefinition, elementName, element, ElementType::parseItemStackElement, "firstItem", "secondItem");
+            parseElements(uiDefinition, elementName, element, ElementType::parseBoolean, "checkCount", "strict");
             uiDefinition.addStatic(UIDefinition.createBeforeInit(a -> a.getElements().put(elementName, () -> FactoryItemUtil.compareItems(a.getItemStack(elementName+".firstItem"), a.getItemStack(elementName+".secondItem"), a.getBoolean(elementName+".checkCount",true), a.getBoolean(elementName+".strict",true)))));
         }));
         ElementType CHANCE = registerConditional("chance", ((uiDefinition, accessorFunction, elementName, element) -> {
             RandomSource rand = RandomSource.create();
-            parseElements(uiDefinition, elementName, element, (s,d) -> parseNumberElement(elementName, s, d), "min", "max");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "min", "max");
             uiDefinition.addStatic(UIDefinition.createBeforeInit(a -> a.getElements().put(elementName, () -> rand.nextInt(a.getInteger(elementName+".min", 0), a.getInteger(elementName+".max", 0)))));
         }));
 
         static void parseWidgetElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "width", "height", "order");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "order");
             parseElements(uiDefinition, elementName, element, (s, d) -> parseComponentElement(elementName, s, d), "message", "tooltip");
             parseElement(uiDefinition, elementName, element, "spriteOverride", ResourceLocation.CODEC);
             parseElement(uiDefinition, elementName, element, "highlightedSpriteOverride", ResourceLocation.CODEC);
-            parseElement(uiDefinition, elementName, element, "isVisible", (s,d) -> parseBooleanElement(elementName, s, d));
+            parseElement(uiDefinition, elementName, element, "isVisible", ElementType::parseBoolean);
         }
 
         static void parseFillElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "width", "height", "color", "order");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "color", "order");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fill(a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".x", 0) + a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".y", 0) + a.getInteger(elementName + ".height", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF)))))));
         }
 
         static void parseFillGradientElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "width", "height", "color", "secondColor", "order");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "color", "secondColor", "order");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> guiGraphics.fillGradient(a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".x", 0) + a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".y", 0) + a.getInteger(elementName + ".height", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getInteger(elementName + ".secondColor", 0xFFFFFFFF)))))));
         }
 
         static void parseBlitElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseElement(uiDefinition, elementName, element, "texture", ResourceLocation.CODEC);
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "uvX", "uvY", "width", "height", "imageWidth", "imageHeight", "renderColor", "order", "amount");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "uvX", "uvY", "width", "height", "imageWidth", "imageHeight", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".texture", ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blit(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0), a.getInteger(elementName + ".imageWidth", 256), a.getInteger(elementName + ".imageHeight", 256))))))));
         }
 
         static void parseTranslationElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d),"translateX", "translateY", "translateZ", "scaleX", "scaleY", "scaleZ");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber,"translateX", "translateY", "translateZ", "scaleX", "scaleY", "scaleZ");
         }
 
         static void parseBlitSpriteElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseElement(uiDefinition, elementName, element, "sprite", ResourceLocation.CODEC);
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "width", "height", "renderColor", "order", "amount");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
         }
 
         static void parseTextElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
             parseElement(uiDefinition, elementName, element, "component", (s, d) -> parseComponentElement(elementName, s, d));
-            parseElement(uiDefinition, elementName, element, "shadow", (s, d) -> parseBooleanElement(elementName, s, d));
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "color", "order");
+            parseElement(uiDefinition, elementName, element, "shadow", ElementType::parseBoolean);
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "color", "order");
         }
 
         static void parseDrawStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
@@ -356,8 +355,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
 
         static void parseDrawMultilineStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseTextElements(uiDefinition, elementName, element);
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "lineSpacing", "width");
-            parseElement(uiDefinition, elementName, element, "centered", (s, d) -> parseBooleanElement(elementName, s, d));
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "lineSpacing", "width");
+            parseElement(uiDefinition, elementName, element, "centered", ElementType::parseBoolean);
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> {
                 a.getElement(elementName+".component", Component.class).ifPresent(c-> {
                     int lineSpacing = a.getInteger(elementName+".lineSpacing", 12);
@@ -369,9 +368,9 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static void parseRenderItemsElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseBooleanElement(elementName, s, d),"isFake","allowDecorations");
+            parseElements(uiDefinition, elementName, element, ElementType::parseBoolean,"isFake","allowDecorations");
             parseElement(uiDefinition, elementName, element, "items", (s, d) ->d.asListOpt(d1->DynamicUtil.getItemFromDynamic(d1, true)).result().map(l-> UIDefinition.createBeforeInit((a) -> a.putStaticElement(s,l.stream().map(ArbitrarySupplier::get).toArray(ItemStack[]::new)))).orElse(null));
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "order");
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "order");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> {
                 UIAccessor accessor = accessorFunction.apply(a);
@@ -395,9 +394,9 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static void parseRenderItemElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseBooleanElement(elementName, s, d),"isFake","allowDecorations");
-            parseElement(uiDefinition, elementName, element, "item", (s,d) -> parseItemStackElement(elementName, s, d));
-            parseElements(uiDefinition, elementName, element, (s, d) -> parseNumberElement(elementName, s, d), "x", "y", "order", "amount");
+            parseElements(uiDefinition, elementName, element, ElementType::parseBoolean,"isFake","allowDecorations");
+            parseElement(uiDefinition, elementName, element, "item", (s,d) -> parseItemStackElement(s, d));
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".item", ItemStack.class).ifPresent(s-> {
                 int x = a.getInteger(elementName + ".x", 0);
@@ -412,42 +411,45 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static List<WidgetAction.PressSupplier<AbstractWidget>> parseActionsElement(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
             return element.get("actions").asMapOpt().result().map(m -> m.map(p -> {
                 String actionName = elementName + ".actions." + p.getFirst().asString("");
-                parseElement(uiDefinition, actionName, p.getSecond(), "applyCondition", (s, d) -> parseBooleanElement(elementName, s, d));
+                parseElement(uiDefinition, actionName, p.getSecond(), "applyCondition", ElementType::parseBoolean);
                 return WidgetAction.CODEC.parse(p.getFirst()).result().flatMap(c -> c.press(a -> a.getBoolean(actionName + ".applyCondition", true), p.getSecond()));
             }).filter(Optional::isPresent).map(Optional::get).toList()).orElse(Collections.emptyList());
         }
 
-        static ElementValue<ItemStack> parseItemStackElement(String elementName, Dynamic<?> element) {
-            return parseItemStackElement(elementName, elementName, element);
-        }
-
-        static ElementValue<ItemStack> parseItemStackElement(String elementName, String field, Dynamic<?> element) {
+        static ElementValue<ItemStack> parseItemStackElement(String field, Dynamic<?> element) {
             ArbitrarySupplier<ItemStack> stackSupplier = DynamicUtil.getItemFromDynamic(element, true);
-            return new ElementValue<>(elementName, field, a -> stackSupplier.get());
+            return new ElementValue<>(field, a -> stackSupplier.get());
         }
 
-        static ElementValue<Number> parseNumberElement(String elementName, Dynamic<?> element) {
-            return parseNumberElement(elementName, elementName, element);
+        @Deprecated
+        static UIDefinition parseItemStackElement(String elementName, String field, Dynamic<?> element) {
+            return parseItemStackElement(field, element);
         }
 
-        static ElementValue<Number> parseNumberElement(String elementName, String field, Dynamic<?> element) {
+        static ElementValue<Number> parseNumber(String field, Dynamic<?> element) {
             Optional<Number> numberResult = element.asNumber().result();
-            if (numberResult.isPresent()) return numberResult.map(n-> new ElementValue<>(elementName, field, a -> n)).orElse(null);
-            else return element.asString().map(ExpressionEvaluator::of).map(e-> new ElementValue<>(elementName, field, e::evaluate)).result().orElse(null);
+            if (numberResult.isPresent()) return numberResult.map(n-> new ElementValue<>(field, a -> n)).orElse(null);
+            else return element.asString().map(ExpressionEvaluator::of).map(e -> new ElementValue<>(field, e::evaluate)).result().orElse(null);
         }
 
-        static ElementValue<Boolean> parseBooleanElement(String elementName, Dynamic<?> element) {
-            return parseBooleanElement(elementName, elementName, element);
+        @Deprecated
+        static UIDefinition parseNumberElement(String elementName, String field, Dynamic<?> element) {
+            return parseNumber(field, element);
         }
 
         static ElementValue<Boolean> parseBooleanElementOrReference(String elementName, Dynamic<?> element) {
-            return UIDefinitionManager.ElementType.<Boolean>parseElementReference(elementName, elementName, element).orElseGet(() -> parseBooleanElement(elementName, elementName, element));
+            return UIDefinitionManager.ElementType.<Boolean>parseElementReference(elementName, element).orElseGet(() -> parseBoolean(elementName, element));
         }
 
-        static <T> ElementValue<Boolean> parseBooleanElement(String elementName, String field, Dynamic<T> element) {
+        static <T> ElementValue<Boolean> parseBoolean(String field, Dynamic<T> element) {
             Optional<Boolean> booleanResult = element.getOps().getBooleanValue(element.getValue()).result();
-            if (booleanResult.isPresent()) return booleanResult.map(n -> new ElementValue<>(elementName, field, a -> n)).orElse(null);
-            else return element.asString().map(BooleanExpressionEvaluator::of).map(e -> new ElementValue<>(elementName, field, e::evaluate)).result().orElse(null);
+            if (booleanResult.isPresent()) return booleanResult.map(n -> new ElementValue<>(field, a -> n)).orElse(null);
+            else return element.asString().map(BooleanExpressionEvaluator::of).map(e -> new ElementValue<>(field, e::evaluate)).result().orElse(null);
+        }
+
+        @Deprecated
+        static <T> UIDefinition parseBooleanElement(String elementName, String field, Dynamic<T> element) {
+            return parseBoolean(field, element);
         }
 
         static UIDefinition parseExternalComponentElement(String elementName, String field, Dynamic<?> element) {
@@ -498,11 +500,11 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static void parseElement(UIDefinition uiDefinition, String elementName, Dynamic<?> element, String field, BiFunction<String, Dynamic<?>, UIDefinition> dynamicToDefinition) {
-            element.get(field).result().map(d -> parseElementReference(elementName, elementName + "." + field, d).map(value -> (UIDefinition) value).orElseGet(() -> dynamicToDefinition.apply(elementName + "." + field, d))).ifPresent(uiDefinition::addStatic);
+            element.get(field).result().map(d -> parseElementReference(elementName + "." + field, d).map(value -> (UIDefinition) value).orElseGet(() -> dynamicToDefinition.apply(elementName + "." + field, d))).ifPresent(uiDefinition::addStatic);
         }
 
-        static <T> Optional<ElementValue<T>> parseElementReference(String elementName, String field, Dynamic<?> element) {
-            return element.get("reference").asString().result().map(s -> new ElementValue<>(elementName, field, a -> (T) a.getElement(s).get()));
+        static <T> Optional<ElementValue<T>> parseElementReference(String field, Dynamic<?> element) {
+            return element.get("reference").asString().result().map(s -> new ElementValue<>(field, a -> (T) a.getElement(s).get()));
         }
 
         static ElementType get(String id) {
@@ -530,8 +532,9 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static ElementType createConditional(ElementType type) {
             return ((uiDefinition, accessorFunction, elementName, element) -> {
                 Optional<ElementValue<Boolean>> applyCondition = element.get("applyCondition").map(e -> UIDefinitionManager.ElementType.parseBooleanElementOrReference(elementName+".applyCondition", e)).result();
-                UIDefinition.Instance condDefinition = new UIDefinition.Instance(a -> applyCondition.isEmpty() || applyCondition.get().value().apply(a));
+                UIDefinition.Instance condDefinition = new UIDefinition.Instance(elementName, a -> applyCondition.isEmpty() || applyCondition.get().value().apply(a));
                 type.parse(condDefinition, accessorFunction, elementName, element);
+                handleDeprecatedDefinitionsAddition(condDefinition);
                 uiDefinition.addStatic(condDefinition);
             });
         }
@@ -591,7 +594,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
 
     public static <T> UIDefinition.Instance fromDynamic(String name, Dynamic<T> dynamic, Predicate<UIAccessor> extraCondition) {
         Optional<ElementValue<Boolean>> applyConditionDefinition = dynamic.get("applyCondition").map(d -> ElementType.parseBooleanElementOrReference("applyCondition", d)).result();
-        UIDefinition.Instance uiDefinition = new UIDefinition.Instance(accessor -> {
+        UIDefinition.Instance uiDefinition = new UIDefinition.Instance(name, accessor -> {
             if (!extraCondition.test(accessor)) return false;
             return applyConditionDefinition.isEmpty() || applyConditionDefinition.get().value().apply(accessor);
         });
@@ -614,11 +617,19 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public static void parseAllElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, Dynamic<?> dynamic, Function<String, String> nameModifier) {
-        dynamic.get("elements").asMapOpt(Dynamic::asString, d -> d).result().ifPresentOrElse(m->m.forEach((s,d) -> tryParseElement(uiDefinition, accessorFunction, s, d, nameModifier)), () -> dynamic.get("elements").asStream().forEach(d -> tryParseElement(uiDefinition, accessorFunction, d.get("name").asString(), d, nameModifier)));
+        dynamic.get("elements").asMapOpt(Dynamic::asString, d -> d).result().ifPresentOrElse(m -> m.forEach((s,d) -> tryParseElement(uiDefinition, accessorFunction, s, d, nameModifier)), () -> dynamic.get("elements").asStream().forEach(d -> tryParseElement(uiDefinition, accessorFunction, d.get("name").asString(), d, nameModifier)));
+        handleDeprecatedDefinitionsAddition(uiDefinition);
     }
 
     public static void tryParseElement(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, DataResult<String> name, Dynamic<?> dynamic, Function<String, String> nameModifier) {
-        name.result().ifPresent(s -> dynamic.get("type").asString().map(ElementType::get).result().ifPresentOrElse(p -> p.parse(uiDefinition, accessorFunction, nameModifier.apply(s), dynamic), () -> ArbitrarySupplier.of(ElementType.parseNumberElement(nameModifier.apply(s), dynamic)).ifPresent(uiDefinition::addStatic)));
+        name.result().ifPresent(s -> dynamic.get("type").asString().map(ElementType::get).result().ifPresentOrElse(p -> p.parse(uiDefinition, accessorFunction, nameModifier.apply(s), dynamic), () -> ArbitrarySupplier.of(ElementType.parseNumber(nameModifier.apply(s), dynamic)).ifPresent(uiDefinition::addStatic)));
+    }
+
+    @Deprecated
+    private static void handleDeprecatedDefinitionsAddition(UIDefinition uiDefinition) {
+        if (uiDefinition.getDefinitions().isEmpty()) return;
+        uiDefinition.getStaticDefinitions().addAll(uiDefinition.getDefinitions());
+        uiDefinition.getDefinitions().clear();
     }
 
     public void openDefaultScreenAndAddDefinition(Optional<ResourceLocation> defaultScreen, UIDefinition uiDefinition) {

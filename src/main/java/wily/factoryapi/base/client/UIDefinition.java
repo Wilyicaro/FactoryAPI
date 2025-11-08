@@ -104,12 +104,18 @@ public interface UIDefinition extends Predicate<UIAccessor> {
 
 
     class Instance implements UIDefinition {
+        private final String name;
         private final Predicate<UIAccessor> applyCondition;
         protected List<UIDefinition> definitions = new ArrayList<>();
         protected List<UIDefinition> staticDefinitions = new ArrayList<>();
 
-        public Instance(Predicate<UIAccessor> applyCondition) {
+        public Instance(String name, Predicate<UIAccessor> applyCondition) {
+            this.name = name;
             this.applyCondition = applyCondition;
+        }
+
+        public String getName() {
+            return name;
         }
 
         @Override
