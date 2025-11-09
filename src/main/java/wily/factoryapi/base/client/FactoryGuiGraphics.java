@@ -143,9 +143,15 @@ public interface FactoryGuiGraphics {
         BufferUploader.drawWithShader(bufferBuilder./*? if <1.20.5 {*/end/*?} else {*//*buildOrThrow*//*?}*/());
     }
 
+    //? if <=1.20.1 {
     private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+        addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i * 16), textureAtlasSprite.getU((float)(k + p) / (float)i * 16), textureAtlasSprite.getV((float)l / (float)j * 16), textureAtlasSprite.getV((float)(l + q) / (float)j * 16));
+    }
+    //?} else {
+    /*private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
         addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i), textureAtlasSprite.getU((float)(k + p) / (float)i), textureAtlasSprite.getV((float)l / (float)j), textureAtlasSprite.getV((float)(l + q) / (float)j));
     }
+    *///?}
 
     private void addBlitQuad(BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, float f, float g, float h, float n) {
         //? if <1.20.5 {
