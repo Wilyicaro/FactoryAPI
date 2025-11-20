@@ -39,8 +39,13 @@ import net.minecraftforge.network.event.EventNetworkChannel;
 import net.minecraftforge.network.payload.PayloadProtocol;
 ^///?}
 *///?} elif neoforge {
-/*import net.neoforged.fml.ModList;
+/*import net.minecraft.server.packs.repository.BuiltInPackSource;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+//? if >=1.21.9 {
+import net.neoforged.fml.jarcontents.JarContents;
+import net.neoforged.neoforge.resource.JarContentsPackResources;
+//?}
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
@@ -307,7 +312,7 @@ public class FactoryEvent<T> {
             Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled, type, position, resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
@@ -316,7 +321,7 @@ public class FactoryEvent<T> {
             Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled, type, position, resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
@@ -325,16 +330,19 @@ public class FactoryEvent<T> {
             Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                Pack pack = createBuiltInPack(name, displayName, defaultEnabled, type, position, resourcePath);
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));
         *///?} elif neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddPackFindersEvent.class, event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
-            Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().getFilePath().resolve(path);
+            var modInfo = ModList.get().getModFileById(name.getNamespace());
             for (PackType type : PackType.values()) {
-                if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
-                Pack pack = createBuiltInPack(name, displayName, defaultEnabled,type,position,resourcePath);
+                if (event.getPackType() != type) continue;
+                Pack pack = Pack.readMetaAndCreate(new PackLocationInfo(name.toString(), displayName, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled), Optional.of(new KnownPack(name.getNamespace(), name.toString(), SharedConstants.getCurrentVersion().id()))), BuiltInPackSource.fromName((locationInfo) -> {
+                    JarContents contents = modInfo.getFile().getContents();
+                    return new JarContentsPackResources(locationInfo, contents, path);
+                }), type, new PackSelectionConfig(false, position, false));
                 event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
             }
         }));

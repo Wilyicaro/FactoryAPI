@@ -134,6 +134,9 @@ import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ListMap;
 import wily.factoryapi.util.ModInfo;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -624,70 +627,83 @@ public interface FactoryAPIPlatform {
             };
             //?} else if forge || neoforge {
             /*return new ModInfo() {
-            IModFileInfo info = ModList.get().getModFileById(modId);
-            Optional<? extends ModContainer> opt = ModList.get().getModContainerById(modId);
-            @Override
-            public Collection<String> getAuthors() {
-                return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("authors").map(s-> Collections.singleton(String.valueOf(s)))).orElse(Collections.emptySet());
-            }
+                IModFileInfo info = ModList.get().getModFileById(modId);
+                Optional<? extends ModContainer> opt = ModList.get().getModContainerById(modId);
+                @Override
+                public Collection<String> getAuthors() {
+                    return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("authors").map(s-> Collections.singleton(String.valueOf(s)))).orElse(Collections.emptySet());
+                }
 
-            @Override
-            public Optional<String> getHomepage() {
-                return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("displayURL").map(String::valueOf));
-            }
+                @Override
+                public Optional<String> getHomepage() {
+                    return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("displayURL").map(String::valueOf));
+                }
 
-            @Override
-            public Optional<String> getIssues() {
-                return Optional.ofNullable(info instanceof ModFileInfo i ? i.getIssueURL() : null).map(URL::toString);
-            }
+                @Override
+                public Optional<String> getIssues() {
+                    return Optional.ofNullable(info instanceof ModFileInfo i ? i.getIssueURL() : null).map(URL::toString);
+                }
 
-            @Override
-            public Optional<String> getSources() {
-                return Optional.empty();
-            }
+                @Override
+                public Optional<String> getSources() {
+                    return Optional.empty();
+                }
 
-            @Override
-            public Collection<String> getCredits() {
-                return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("credits").map(o-> Set.of(String.valueOf(o)))).orElse(Collections.emptySet());
-            }
+                @Override
+                public Collection<String> getCredits() {
+                    return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("credits").map(o-> Set.of(String.valueOf(o)))).orElse(Collections.emptySet());
+                }
 
-            @Override
-            public Collection<String> getLicense() {
-                return Collections.singleton(info.getLicense());
-            }
+                @Override
+                public Collection<String> getLicense() {
+                    return Collections.singleton(info.getLicense());
+                }
 
-            @Override
-            public String getDescription() {
-                return opt.map(c->c.getModInfo().getDescription()).orElse("");
-            }
+                @Override
+                public String getDescription() {
+                    return opt.map(c->c.getModInfo().getDescription()).orElse("");
+                }
 
-            @Override
-            public Optional<String> getLogoFile(int i) {
-                return this.info.getMods().stream().filter(m->m.getModId().equals(modId)).findFirst().flatMap(IModInfo::getLogoFile);
-            }
-            @Override
-            public Optional<Path> findResource(String s) {
-                //? if forge || (neoforge && <1.21.9) {
-                /^return Optional.of(this.info.getFile().findResource(s)).filter(Files::exists);
-                ^///?} else if neoforge {
-                /^return Optional.of(this.info.getFile().getFilePath().resolve(s));
+                @Override
+                public Optional<String> getLogoFile(int i) {
+                    return this.info.getMods().stream().filter(m->m.getModId().equals(modId)).findFirst().flatMap(IModInfo::getLogoFile);
+                }
+
+                @Override
+                public Optional<Path> findResource(String s) {
+                    //? if forge || (neoforge && <1.21.9) {
+                    /^return Optional.of(this.info.getFile().findResource(s)).filter(Files::exists);
+                     ^///?} else if neoforge {
+                    /^return Optional.of(this.info.getFile().getFilePath().resolve(s));
+                    ^///?}
+                }
+
+                //? if neoforge && >=1.21.9 {
+                /^@Override
+                public boolean containsResource(String s) {
+                    return this.info.getFile().getContents().containsFile(s);
+                }
+
+                @Override
+                public InputStream openResource(String s) throws IOException {
+                    return this.info.getFile().getContents().openFile(s);
+                }
                 ^///?}
-            }
 
-            @Override
-            public String getId() {
-                return modId;
-            }
+                @Override
+                public String getId() {
+                    return modId;
+                }
 
-            @Override
-            public String getVersion() {
-                return opt.map(c->c.getModInfo().getVersion().toString()).orElse("");
-            }
+                @Override
+                public String getVersion() {
+                    return opt.map(c->c.getModInfo().getVersion().toString()).orElse("");
+                }
 
-            @Override
-            public String getName() {
-                return opt.map(c->c.getModInfo().getDisplayName()).orElse("");
-            }
+                @Override
+                public String getName() {
+                    return opt.map(c->c.getModInfo().getDisplayName()).orElse("");
+                }
 
             };
             *///?} else

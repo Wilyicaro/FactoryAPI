@@ -408,10 +408,14 @@ public interface FactoryConfig<T> extends Bearer<T> {
         public FactoryConfig<T> buildAndRegister(StorageHandler handler) {
             return handler.register(build(handler));
         }
+    }
 
-        public static Builder<Boolean> createToggle() {
-            return new Builder<Boolean>().control(FactoryConfigControl.TOGGLE);
-        }
+    static <T> Builder<T> builder() {
+        return new Builder<>();
+    }
+
+    static Builder<Boolean> toggleBuilder() {
+        return new Builder<Boolean>().control(FactoryConfigControl.TOGGLE);
     }
 
     static FactoryConfig<Boolean> createBoolean(String key, FactoryConfigDisplay<Boolean> display, boolean defaultValue, Consumer<Boolean> consumer, StorageAccess access) {

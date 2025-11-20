@@ -79,6 +79,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
     @Unique
     private final FactoryGuiGraphics factoryGuiGraphics = new FactoryGuiGraphics() {
+        final FactoryGuiMatrixStack pose = FactoryGuiMatrixStack.of(context().pose());
 
         @Override
         public GuiGraphics context() {
@@ -329,6 +330,11 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             //? if <1.21.6 {
             if (lastBufferSource != null) bufferSource = lastBufferSource;
             //?}
+        }
+
+        @Override
+        public FactoryGuiMatrixStack pose() {
+            return pose;
         }
     };
     @Override

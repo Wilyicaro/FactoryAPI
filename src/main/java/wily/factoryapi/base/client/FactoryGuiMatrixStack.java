@@ -83,6 +83,7 @@ public interface FactoryGuiMatrixStack {
 			}
 		};
 	}
+
 	static FactoryGuiMatrixStack of(Matrix3x2fStack stack) {
 		return new FactoryGuiMatrixStack() {
 			@Override
@@ -121,21 +122,30 @@ public interface FactoryGuiMatrixStack {
 			}
 		};
 	}
+
+	void push();
+
+	void pop();
+
 	@Deprecated
 	default void pushPose() {
 		push();
 	}
+
 	@Deprecated
 	default void popPose() {
 		pop();
 	}
 
-
-	void push();
-	void pop();
+	@Deprecated
 	void translate(double x, double y, double z);
+
 	void translate(double x, double y);
+
+	@Deprecated
 	void scale(double x, double y, double z);
+
 	void scale(double x, double y);
+
 	<T> T getNative();
 }

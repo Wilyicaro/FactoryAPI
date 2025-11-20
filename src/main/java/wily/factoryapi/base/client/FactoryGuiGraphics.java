@@ -1,6 +1,5 @@
 package wily.factoryapi.base.client;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
@@ -17,19 +16,13 @@ import net.minecraft.client.gui.GuiSpriteManager;
 
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
-import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public interface FactoryGuiGraphics {
     GuiGraphics context();
@@ -37,6 +30,8 @@ public interface FactoryGuiGraphics {
     MultiBufferSource.BufferSource getBufferSource();
     void pushBufferSource(MultiBufferSource.BufferSource bufferSource);
     void popBufferSource();
+
+    FactoryGuiMatrixStack pose();
 
     static FactoryGuiGraphics of(GuiGraphics guiGraphics) {
         return ((Accessor) guiGraphics).getFactoryGuiGraphics();
@@ -144,14 +139,14 @@ public interface FactoryGuiGraphics {
     }
 
     //? if <=1.20.1 {
-    private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+    /*private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
         addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i * 16), textureAtlasSprite.getU((float)(k + p) / (float)i * 16), textureAtlasSprite.getV((float)l / (float)j * 16), textureAtlasSprite.getV((float)(l + q) / (float)j * 16));
     }
-    //?} else {
-    /*private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+    *///?} else {
+    private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
         addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i), textureAtlasSprite.getU((float)(k + p) / (float)i), textureAtlasSprite.getV((float)l / (float)j), textureAtlasSprite.getV((float)(l + q) / (float)j));
     }
-    *///?}
+    //?}
 
     private void addBlitQuad(BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, float f, float g, float h, float n) {
         //? if <1.20.5 {
