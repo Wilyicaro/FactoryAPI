@@ -25,7 +25,7 @@ public interface IFactoryItem {
     *///?}
 
     default @Nullable Identifier getArmorLocation(ItemStack stack, /*? if <1.21.2 {*//*Entity entity, *//*?}*/ EquipmentSlot slot) {
-        return /*? if <1.21.2 {*//*null *//*?} else if <1.21.4 {*/ /*stack.get(DataComponents.EQUIPPABLE).model().orElse(null)*//*?} else {*/stack.get(DataComponents.EQUIPPABLE).assetId().map(ResourceKey::location).orElse(null)/*?}*/;
+        return /*? if <1.21.2 {*//*null *//*?} else if <1.21.4 {*/ /*stack.get(DataComponents.EQUIPPABLE).model().orElse(null)*//*?} else {*/stack.get(DataComponents.EQUIPPABLE).assetId().map(ResourceKey::/*? if <1.21.11 {*//*location*//*?} else {*/identifier/*?}*/).orElse(null)/*?}*/;
     }
 
     default void clientExtension(Consumer<IFactoryItemClientExtension> clientExtensionConsumer){
