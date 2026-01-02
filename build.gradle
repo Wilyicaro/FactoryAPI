@@ -115,7 +115,6 @@ java {
 remapJar {
     if (loader == "neoforge") atAccessWideners.add aw
 }
-
 ext {
     releaseChangelog = {
         def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
