@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.chat.ComponentSerialization;
 //?}
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -178,7 +179,7 @@ public interface CommonNetwork {
             encode(buf);
         }
 
-        default CommonNetwork.Identifier id(){
+        default Identifier id(){
             return identifier().location();
         }
         *///?}

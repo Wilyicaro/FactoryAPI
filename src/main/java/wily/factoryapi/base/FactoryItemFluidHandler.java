@@ -22,7 +22,7 @@ import net.minecraft.world.item.component.TypedEntityData;
 import java.util.function.Function;
 import java.util.function.Predicate;
 //? if <1.20.5
-/*import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;*/
+//import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
 public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPlatformItemFluidHandler {
     private final ItemStack container;

@@ -104,7 +104,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
         }
 
         default boolean allowClientSync(Player player) {
-            return allowSync() && (player != null && (player/*? if >=1.21.11 {*/.permissions()/*?}*/.hasPermission(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/) || FactoryAPIPlatform.getEntityServer(player).isSingleplayerOwner(/*? if >=1.21.9 {*/player.nameAndId()/*?} else {*//*player.getGameProfile()*//*?}*/)));
+            return allowSync() && (player != null && (player/*? if >=1.21.11 {*/.permissions().hasPermission/*?} else {*//*.hasPermissions*//*?}*/(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/) || FactoryAPIPlatform.getEntityServer(player).isSingleplayerOwner(/*? if >=1.21.9 {*/player.nameAndId()/*?} else {*//*player.getGameProfile()*//*?}*/)));
         }
     }
 

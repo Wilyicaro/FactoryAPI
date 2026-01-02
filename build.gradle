@@ -61,6 +61,15 @@ stonecutter {
             replace("CommonNetwork.Identifier", "CommonNetwork.Identifier")
         }
         string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("SlotsIdentifier", "SlotsIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("IHasIdentifier", "IHasIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("Identifier<T extends Payload>", "Identifier<T extends Payload>")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
             replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
         }
     }

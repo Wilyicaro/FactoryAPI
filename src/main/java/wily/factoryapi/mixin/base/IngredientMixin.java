@@ -28,7 +28,7 @@ public abstract class IngredientMixin implements FactoryIngredient {
     @Unique
     private ItemStack[] stacks;
     //?} else
-    /*@Shadow public abstract ItemStack[] getItems();*/
+    //@Shadow public abstract ItemStack[] getItems();
 
     @Override
     public CommonNetwork.Identifier<? extends CommonNetwork.Payload> identifier() {
@@ -45,7 +45,7 @@ public abstract class IngredientMixin implements FactoryIngredient {
         //? if >=1.21.2 {
         return stacks == null ? stacks = self().items()/*? if <1.21.4 {*//*.stream()*//*?}*/.map(ItemStack::new).toArray(ItemStack[]::new) : stacks;
         //?} else
-        /*return getItems();*/
+        //return getItems();
     }
 
     @Override
@@ -53,7 +53,7 @@ public abstract class IngredientMixin implements FactoryIngredient {
         //? if >=1.20.5 {
         Ingredient.CONTENTS_STREAM_CODEC.encode(buf.get(),(Ingredient) (Object) this);
         //?} else
-        /*((Ingredient)(Object) this).toNetwork(buf.get());*/
+        //((Ingredient)(Object) this).toNetwork(buf.get());
     }
 
     @Override

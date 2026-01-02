@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import wily.factoryapi.init.FactoryRegistries;
 
 //? if <1.20.5
-/*import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;*/
+//import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
 public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
     private static final String KEY = "energy";
@@ -143,7 +143,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
     @Override
     public void deserializeTag(CompoundTag nbt) {
         //? if <1.20.5
-        /*this.container.setTag(nbt);*/
+        //this.container.setTag(nbt);
     }
 
 

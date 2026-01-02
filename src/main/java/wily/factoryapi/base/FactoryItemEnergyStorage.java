@@ -10,7 +10,7 @@ public class FactoryItemEnergyStorage extends FactoryEnergyStorage{
         super(capacity,null,transportState);
         this.container = stack;
         //? if <1.20.5
-        /*if (!stack.getOrCreateTag().contains(KEY)) setEnergyStored(initialEnergy);*/
+        //if (!stack.getOrCreateTag().contains(KEY)) setEnergyStored(initialEnergy);
         this.maxOutput = maxOutput;
         this.maxInput = maxInput;
     }

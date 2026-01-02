@@ -5,7 +5,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mojang.brigadier.arguments.ArgumentType;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.mixin.command.ArgumentTypeInfosAccessor;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
@@ -69,6 +68,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 //? if <1.21.11 {
 /*import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
 *///?} else {
+import net.fabricmc.fabric.mixin.command.ArgumentTypeInfosAccessor;
 //?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;

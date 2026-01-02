@@ -84,7 +84,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
             //? if >=1.20.5 {
             stack.applyComponents(components.asPatch());
             //?} else
-            /*stack.setTag(tag);*/
+            //stack.setTag(tag);
             return stack;
         }).filter(i -> !i.isEmpty()).toArray(ItemStack[]::new);
         this.count = count;
