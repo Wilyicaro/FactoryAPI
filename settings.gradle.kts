@@ -10,14 +10,14 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7.6"
+    id("dev.kikugie.stonecutter") version "0.8.1"
 }
 
 stonecutter {
     create(rootProject) {
 //        vers("1.20.1-fabric", "1.20.1")
 //        vers("1.20.1-forge", "1.20.1")
-        vers("1.20.4-fabric", "1.20.4")
+        version("1.20.4-fabric", "1.20.4")
 //        vers("1.20.4-forge", "1.20.4")
 //        vers("1.20.4-neoforge", "1.20.4")
 //        vers("1.21.1-fabric", "1.21.1")
@@ -35,10 +35,10 @@ stonecutter {
 //        vers("1.21.8-fabric", "1.21.8")
 //        vers("1.21.8-forge", "1.21.8")
 //        vers("1.21.8-neoforge", "1.21.8")
-        vers("1.21.10-fabric", "1.21.10")
+        version("1.21.10-fabric", "1.21.10")
 //        vers("1.21.10-forge", "1.21.10")
-        vers("1.21.10-neoforge", "1.21.10")
-        vers("1.21.11-fabric", "1.21.11")
+        version("1.21.10-neoforge", "1.21.10")
+        version("1.21.11-fabric", "1.21.11")
         vcsVersion = "1.20.4-fabric"
     }
 }
