@@ -80,7 +80,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
@@ -230,10 +230,10 @@ public class FactoryEvent<T> {
 
     public static void registerReloadListener(PackType type, PreparableReloadListener reloadListener){
         //? if fabric {
-        ResourceLocation location = FactoryAPI.createLocation(reloadListener.getName());
+        Identifier location = FactoryAPI.createLocation(reloadListener.getName());
         ResourceManagerHelper.get(type).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
-            public ResourceLocation getFabricId() {
+            public Identifier getFabricId() {
                 return location;
             }
 
@@ -282,11 +282,11 @@ public class FactoryEvent<T> {
 
     @FunctionalInterface
     public interface PackRegistry {
-        void register(String path, ResourceLocation name, Component component, Pack.Position position, boolean enabledByDefault);
-        default void register(String path, ResourceLocation name, boolean enabledByDefault){
+        void register(String path, Identifier name, Component component, Pack.Position position, boolean enabledByDefault);
+        default void register(String path, Identifier name, boolean enabledByDefault){
             register(path, name, Component.translatable(name.getNamespace() + ".builtin." + name.getPath()), Pack.Position.TOP, enabledByDefault);
         }
-        default void registerResourcePack(ResourceLocation location, boolean enabledByDefault){
+        default void registerResourcePack(Identifier location, boolean enabledByDefault){
             register("resourcepacks/"+location.getPath(), location, enabledByDefault);
         }
         default void registerResourcePack(String pathName, boolean enabledByDefault){
@@ -294,7 +294,7 @@ public class FactoryEvent<T> {
         }
     }
 
-    public static Pack createBuiltInPack(ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
+    public static Pack createBuiltInPack(Identifier name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
         //? if <=1.20.1 {
         /*return Pack.readMetaAndCreate(name.toString(), displayName,false, s-> new PathPackResources(s, resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
         *///?} else if <1.20.5 {

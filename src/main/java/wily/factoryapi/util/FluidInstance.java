@@ -17,7 +17,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -243,7 +243,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*/implements DataComponent
     public static void encode( /*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/RegistryFriendlyByteBuf /*?}*/ buf, FluidInstance instance){
         buf.writeInt(instance.getAmount());
         if (instance.isEmpty()) return;
-        buf.writeResourceLocation(BuiltInRegistries.FLUID.getKey(instance.getFluid()));
+        buf.writeIdentifier(BuiltInRegistries.FLUID.getKey(instance.getFluid()));
         //? if <1.20.5 || forge {
         /*buf.writeNbt(instance.getNonNullTag());
         *///?} else
@@ -252,6 +252,6 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*/implements DataComponent
     public static FluidInstance decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/RegistryFriendlyByteBuf /*?}*/ buf){
         int amount = buf.readInt();
         if (amount <= 0) return EMPTY;
-        return new FluidInstance(FactoryAPIPlatform.getRegistryValue(buf.readResourceLocation(),BuiltInRegistries.FLUID), amount, /*? if <1.20.5 || forge {*//*buf.readNbt()*//*?} else {*/DataComponentPatch.STREAM_CODEC.decode(buf)/*?}*/);
+        return new FluidInstance(FactoryAPIPlatform.getRegistryValue(buf.readIdentifier(),BuiltInRegistries.FLUID), amount, /*? if <1.20.5 || forge {*//*buf.readNbt()*//*?} else {*/DataComponentPatch.STREAM_CODEC.decode(buf)/*?}*/);
     }
 }

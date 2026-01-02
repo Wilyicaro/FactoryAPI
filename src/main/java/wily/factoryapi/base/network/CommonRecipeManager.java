@@ -10,7 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.mixin.base.RecipeManagerAccessor;
 *///?}
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class CommonRecipeManager {
 
-    public static <R extends Recipe<?>> /*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/ byId(ResourceLocation id, RecipeType<R> type) {
+    public static <R extends Recipe<?>> /*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/ byId(Identifier id, RecipeType<R> type) {
         return (/*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/)/*? if <1.21.2 {*//*getRecipeManager().byKey(id).orElse(null)*//*?} else {*/recipesByType.getOrDefault(type, Collections.emptyMap()).get(id)/*?}*/;
     }
 
@@ -57,7 +57,7 @@ public class CommonRecipeManager {
 
     //? if >=1.21.2 {
     private static final Set<RecipeType<?>> recipeTypesToSync = new HashSet<>();
-    private static Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
+    private static Map<RecipeType<?>,Map<Identifier,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
 
     public static void updateRecipes(RecipeManager manager){
         recipesByType = manager.getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id().location(), Function.identity())));
@@ -79,7 +79,7 @@ public class CommonRecipeManager {
         recipeTypesToSync.add(recipeType);
     }
 
-    public record ClientPayload(Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
+    public record ClientPayload(Map<RecipeType<?>,Map<Identifier,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("send_client_recipes"), ClientPayload::new);
         private static final ClientPayload instance = new ClientPayload(new HashMap<>());
 
@@ -88,7 +88,7 @@ public class CommonRecipeManager {
         }
 
         public ClientPayload(CommonNetwork.PlayBuf buf){
-            this(buf.get().readMap(b->b.readById(BuiltInRegistries.RECIPE_TYPE::byId), b->b.readMap(FriendlyByteBuf::readResourceLocation, b1->RecipeHolder.STREAM_CODEC.decode(buf.get()))));
+            this(buf.get().readMap(b->b.readById(BuiltInRegistries.RECIPE_TYPE::byId), b->b.readMap(FriendlyByteBuf::readIdentifier, b1->RecipeHolder.STREAM_CODEC.decode(buf.get()))));
         }
 
         @Override
@@ -103,7 +103,7 @@ public class CommonRecipeManager {
 
         @Override
         public void encode(CommonNetwork.PlayBuf buf) {
-            buf.get().writeMap(syncRecipeTypes, (b,t)-> b.writeById(BuiltInRegistries.RECIPE_TYPE::getId,t),(b,t)-> b.writeMap(t,FriendlyByteBuf::writeResourceLocation,(b1,h)->RecipeHolder.STREAM_CODEC.encode(buf.get(),h)));
+            buf.get().writeMap(syncRecipeTypes, (b,t)-> b.writeById(BuiltInRegistries.RECIPE_TYPE::getId,t),(b,t)-> b.writeMap(t,FriendlyByteBuf::writeIdentifier,(b1,h)->RecipeHolder.STREAM_CODEC.encode(buf.get(),h)));
         }
     }
     //?}

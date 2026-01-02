@@ -9,7 +9,7 @@ import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.client.gui.Gui;

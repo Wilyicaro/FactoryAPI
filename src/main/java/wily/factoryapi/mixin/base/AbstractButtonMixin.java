@@ -11,7 +11,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 //?}
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -64,7 +64,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
 
     @Inject(method = "renderString", at = @At("HEAD"))
     public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
-        ResourceLocation sprite = getSpriteOverride();
+        Identifier sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {

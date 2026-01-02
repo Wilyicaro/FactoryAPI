@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import wily.factoryapi.FactoryAPIClient;
 
@@ -47,23 +47,23 @@ public interface FactoryGuiGraphics {
     }
     *///?}
 
-    void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
+    void blit(Identifier texture, int x, int y, int uvX, int uvY, int width, int height);
 
-    void blit(ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(Identifier texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blit(ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(Identifier texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blit(ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(Identifier texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blitSprite(ResourceLocation resourceLocation, int x, int y, int width, int height);
+    void blitSprite(Identifier resourceLocation, int x, int y, int width, int height);
 
-    void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height);
+    void blitSprite(Identifier resourceLocation, int x, int y, int z, int width, int height);
 
-    void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height);
+    void blitSprite(Identifier resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height);
 
     void blit(int x, int y, int z, int width, int height, TextureAtlasSprite textureAtlasSprite);
 
-    default void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
+    default void blitSprite(Identifier resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
         this.blitSprite(resourceLocation, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
     }
 
@@ -212,7 +212,7 @@ public interface FactoryGuiGraphics {
         static AtlasAccessor of(TextureAtlas atlas) {
             return (AtlasAccessor) atlas;
         }
-        Map<ResourceLocation,TextureAtlasSprite> getTexturesByName();
+        Map<Identifier,TextureAtlasSprite> getTexturesByName();
     }
 
     interface Accessor {

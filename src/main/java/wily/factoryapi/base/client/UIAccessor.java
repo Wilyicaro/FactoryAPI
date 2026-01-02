@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -298,12 +298,12 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return getBoolean(name, false);
     }
 
-    default ResourceLocation getResourceLocation(String name, ResourceLocation defaultValue) {
-        return getElementValue(name, defaultValue, ResourceLocation.class);
+    default Identifier getIdentifier(String name, Identifier defaultValue) {
+        return getElementValue(name, defaultValue, Identifier.class);
     }
 
-    default ResourceLocation getResourceLocation(String name) {
-        return getResourceLocation(name, null);
+    default Identifier getIdentifier(String name) {
+        return getIdentifier(name, null);
     }
 
     default ItemStack getItemStack(String name) {

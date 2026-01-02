@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 //? if forge {
 /*import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -175,7 +175,7 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
-    static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry) {
+    static <T> T getRegistryValue(Identifier location, Registry<T> registry) {
         return registry./*? if <1.21.2 {*//*get*//*?} else {*/getValue/*?}*/(location);
     }
 
@@ -187,7 +187,7 @@ public interface FactoryAPIPlatform {
         return setupBlockProperties(properties, blockHolder.getId());
     }
 
-    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id) {
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, Identifier id) {
         return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.BLOCK, id))/*?}*/;
     }
 
@@ -195,7 +195,7 @@ public interface FactoryAPIPlatform {
         return setupItemProperties(properties, itemHolder.getId());
     }
 
-    static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id) {
+    static Item.Properties setupItemProperties(Item.Properties properties, Identifier id) {
         return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()/*?}*/;
     }
 
@@ -203,7 +203,7 @@ public interface FactoryAPIPlatform {
         return setupBlockItemProperties(properties, blockHolder.getId());
     }
 
-    static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id) {
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, Identifier id) {
         return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()/*?}*/;
     }
 
@@ -288,7 +288,7 @@ public interface FactoryAPIPlatform {
     /*static <T> RegisterListing.Holder<T> deferredToRegisterHolder(RegistryObject<T> holder) {
         return new RegisterListing.Holder<>() {
             @Override
-            public ResourceLocation getId() {
+            public Identifier getId() {
                 return holder.getId();
             }
             @Override
@@ -319,7 +319,7 @@ public interface FactoryAPIPlatform {
     /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder) {
         return new RegisterListing.Holder<>() {
             @Override
-            public ResourceLocation getId() {
+            public Identifier getId() {
                 return holder.getId();
             }
             @Override
@@ -465,12 +465,12 @@ public interface FactoryAPIPlatform {
                 forEach(o-> Registry.register(registry,o.getId(),o.get()));
             }
             @Override
-            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
-                ResourceLocation id = FactoryAPI.createLocation(getNamespace(), name);
+            public <V extends T> Holder<V> add(String name, Function<Identifier, V> supplier) {
+                Identifier id = FactoryAPI.createLocation(getNamespace(), name);
                 Holder<V> h = new Holder<>() {
                     V obj;
                     @Override
-                    public ResourceLocation getId() {
+                    public Identifier getId() {
                         return id;
                     }
 
@@ -514,7 +514,7 @@ public interface FactoryAPIPlatform {
                 REGISTER.register(getModEventBus());
             }
             @Override
-            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
+            public <V extends T> Holder<V> add(String name, Function<Identifier, V> supplier) {
                 return deferredToRegisterHolder(REGISTER.register(name,()-> supplier.apply(FactoryAPI.createLocation(getNamespace(), name))));
             }
             @NotNull

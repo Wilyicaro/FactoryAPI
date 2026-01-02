@@ -16,7 +16,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.TypedDataComponent;
 //?}
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -30,7 +30,7 @@ import java.util.*;
 
 public class FactoryItemUtil {
     //? if >=1.20.5 {
-    public static final Codec<List<Item>> ITEM_COMPONENTS_CODEC = ResourceLocation.CODEC.xmap(r-> FactoryAPIPlatform.getRegistryValue(r,BuiltInRegistries.ITEM), BuiltInRegistries.ITEM::getKey).listOf();
+    public static final Codec<List<Item>> ITEM_COMPONENTS_CODEC = Identifier.CODEC.xmap(r-> FactoryAPIPlatform.getRegistryValue(r,BuiltInRegistries.ITEM), BuiltInRegistries.ITEM::getKey).listOf();
     public static final StreamCodec<RegistryFriendlyByteBuf,List<Item>> ITEM_COMPONENTS_STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(ITEM_COMPONENTS_CODEC);
     //?}
 
@@ -42,7 +42,7 @@ public class FactoryItemUtil {
         //? if <1.20.5 {
         /*List<Item> list = new ArrayList<>();
         if (itemStack.hasTag() && !itemStack.getTag().getList("Components",8).isEmpty())
-            itemStack.getTag().getList("Components",8).forEach(t->list.add(BuiltInRegistries.ITEM.get(new ResourceLocation(t.getAsString()))));
+            itemStack.getTag().getList("Components",8).forEach(t->list.add(BuiltInRegistries.ITEM.get(new Identifier(t.getAsString()))));
         return list;
         *///?} else {
         return itemStack.getOrDefault(FactoryRegistries.ITEM_COMPONENTS_COMPONENT.get(),new ArrayList<>());

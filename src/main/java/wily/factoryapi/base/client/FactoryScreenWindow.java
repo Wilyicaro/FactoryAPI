@@ -14,7 +14,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -32,7 +32,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     public boolean dragging = false;
 
-    public ResourceLocation backgroundSprite;
+    public Identifier backgroundSprite;
     protected final ItemRenderer itemRenderer;
 
     protected final Font font = Minecraft.getInstance().font;

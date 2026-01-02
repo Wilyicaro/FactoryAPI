@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.block.model.BlockStateModel;
 //?} else {
 /*import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelIdentifier;
 *///?}
 //? if <1.21.4 {
 /*import net.minecraft.client.color.item.ItemColor;
@@ -47,7 +47,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -148,8 +148,8 @@ import java.util.function.Supplier;
 
 
 public class FactoryAPIClient {
-    public static final ResourceLocation BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
-    public static final ResourceLocation BLOCK_ATLAS_ID = FactoryAPI.createVanillaLocation("blocks");
+    public static final Identifier BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
+    public static final Identifier BLOCK_ATLAS_ID = FactoryAPI.createVanillaLocation("blocks");
     public static final SecureExecutor SECURE_EXECUTOR = new SecureExecutor() {
         @Override
         public boolean isSecure() {
@@ -160,7 +160,7 @@ public class FactoryAPIClient {
 
     public static UIDefinitionManager uiDefinitionManager;
 
-    public static final Map<ResourceLocation, ExtraModelId> extraModels = new HashMap<>();
+    public static final Map<Identifier, ExtraModelId> extraModels = new HashMap<>();
 
     private static final Set<String> playerMods = new HashSet<>();
 
@@ -179,11 +179,11 @@ public class FactoryAPIClient {
     }
     //?}
     //? if <1.21.5 {
-    /*public static BakedModel getExtraModel(ResourceLocation resourceLocation) {
+    /*public static BakedModel getExtraModel(Identifier resourceLocation) {
         return Minecraft.getInstance().getModelManager().getModel(extraModels.get(resourceLocation).modelId());
     }
     *///?} else {
-    public static BlockStateModel getExtraModel(ResourceLocation resourceLocation) {
+    public static BlockStateModel getExtraModel(Identifier resourceLocation) {
         return Minecraft.getInstance().getBlockRenderer().getBlockModel(extraModels.get(resourceLocation).blockState());
     }
     //?}
@@ -506,14 +506,14 @@ public class FactoryAPIClient {
         /*throw new AssertionError();*/
     }
 
-    public record ExtraModelId(StateDefinition<Block,BlockState> stateDefinition, BlockState blockState, ResourceLocation id/*? if <1.21.5 {*//*, ModelResourceLocation modelId*//*?}*/) {
-        public static ExtraModelId create(ResourceLocation id) {
+    public record ExtraModelId(StateDefinition<Block,BlockState> stateDefinition, BlockState blockState, Identifier id/*? if <1.21.5 {*//*, ModelIdentifier modelId*//*?}*/) {
+        public static ExtraModelId create(Identifier id) {
             StateDefinition<Block,BlockState> stateDefinition = new StateDefinition.Builder<Block, BlockState>(Blocks.AIR).create(Block::defaultBlockState, BlockState::new);
             return new ExtraModelId(stateDefinition, stateDefinition.any(), id/*? if <1.21.5 {*//*, BlockModelShaper.stateToModelLocation(id, stateDefinition.any())*//*?}*/);
         }
     }
 
-    public static void registerExtraModels(Consumer<Consumer<ResourceLocation>> registry) {
+    public static void registerExtraModels(Consumer<Consumer<Identifier>> registry) {
         registry.accept(id-> extraModels.put(id, ExtraModelId.create(id)));
     }
 

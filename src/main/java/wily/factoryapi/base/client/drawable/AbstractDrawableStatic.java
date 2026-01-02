@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.base.client.FactoryGuiMatrixStack;
 import wily.factoryapi.util.FluidInstance;
 
@@ -76,7 +76,7 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         return drawable.inMouseLimit(mouseX,mouseY,getX(),getY());
     }
 
-    public ResourceLocation texture() {return drawable.texture();}
+    public Identifier texture() {return drawable.texture();}
     public int width() {return getWidth();}
     public int height() {return getHeight();}
     public int uvX() {return drawable.uvX();}

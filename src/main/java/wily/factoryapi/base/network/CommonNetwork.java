@@ -12,7 +12,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.chat.ComponentSerialization;
 //?}
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -51,23 +51,23 @@ public interface CommonNetwork {
     Multimap<UUID, String> ENABLED_PLAYERS = HashMultimap.create();
 
     interface Identifier<T extends Payload>{
-        ResourceLocation location();
+        Identifier location();
         T decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf);
         //? >=1.20.5 {
         CustomPacketPayload.Type<T> type();
         StreamCodec<RegistryFriendlyByteBuf,T> codec();
         //?}
-        static <T extends Payload> Identifier<T> create(ResourceLocation location, Supplier<T> decoder){
+        static <T extends Payload> Identifier<T> create(Identifier location, Supplier<T> decoder){
             return create(location,b->decoder.get());
         }
-        static <T extends Payload> Identifier<T> create(ResourceLocation location, Function<PlayBuf,T> decoder){
+        static <T extends Payload> Identifier<T> create(Identifier location, Function<PlayBuf,T> decoder){
             //? >=1.20.5 {
             CustomPacketPayload.Type<T> type = new CustomPacketPayload.Type<>(location);
             StreamCodec<RegistryFriendlyByteBuf,T> codec = StreamCodec.of((b,p)->p.encode(b),b->decoder.apply(()->b));
             //?}
             return new Identifier<>() {
                 @Override
-                public ResourceLocation location() {
+                public Identifier location() {
                     return location;
                 }
 
@@ -179,7 +179,7 @@ public interface CommonNetwork {
             encode(buf);
         }
 
-        default ResourceLocation id(){
+        default Identifier id(){
             return identifier().location();
         }
         *///?}

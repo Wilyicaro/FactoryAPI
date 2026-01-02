@@ -3,7 +3,7 @@ package wily.factoryapi;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -181,23 +181,23 @@ public class FactoryAPI {
         //?}
     }
 
-    public static ResourceLocation createLocation(String namespace, String path){
-        return ResourceLocation.tryBuild(namespace,path);
+    public static Identifier createLocation(String namespace, String path){
+        return Identifier.tryBuild(namespace,path);
     }
 
-    public static ResourceLocation createLocation(String location){
-        return ResourceLocation.tryParse(location);
+    public static Identifier createLocation(String location){
+        return Identifier.tryParse(location);
     }
 
-    public static ResourceLocation createModLocation(String path){
+    public static Identifier createModLocation(String path){
         return createLocation(MOD_ID,path);
     }
 
-    public static ResourceLocation createVanillaLocation(String path){
+    public static Identifier createVanillaLocation(String path){
         //? if <1.20.5 {
-        /*return new ResourceLocation(path);
+        /*return new Identifier(path);
         *///?} else
-        return ResourceLocation.withDefaultNamespace(path);
+        return Identifier.withDefaultNamespace(path);
     }
 
     public static Loader getLoader() {

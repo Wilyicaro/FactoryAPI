@@ -13,11 +13,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
@@ -76,8 +76,8 @@ public class FactoryAPICommand {
         command.then(Commands.literal("display").then(Commands.literal("ui_definition").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("ui_definition", CompoundTagArgument.compoundTag()).executes(context -> {
             CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.empty(), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
             return 0;
-        }).then(Commands.argument("default_screen", ResourceLocationArgument.id()).executes(context -> {
-            CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.of(ResourceLocationArgument.getId(context, "default_screen")), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
+        }).then(Commands.argument("default_screen", IdentifierArgument.id()).executes(context -> {
+            CommonNetwork.sendToPlayers(EntityArgument.getPlayers(context, "targets"), new UIDefinitionPayload(Optional.of(IdentifierArgument.getId(context, "default_screen")), CompoundTagArgument.getCompoundTag(context, "ui_definition")));
             return 0;
         }))))));
 
@@ -102,7 +102,7 @@ public class FactoryAPICommand {
         commandDispatcher.register(command);
     }
 
-    public record UIDefinitionPayload(Optional<ResourceLocation> defaultScreen, CompoundTag uiDefinitionNbt) implements CommonNetwork.Payload {
+    public record UIDefinitionPayload(Optional<Identifier> defaultScreen, CompoundTag uiDefinitionNbt) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<UIDefinitionPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("ui_definition_s2c"),UIDefinitionPayload::decode);
 
         @Override
@@ -110,11 +110,11 @@ public class FactoryAPICommand {
             context.executor().execute(()-> FactoryAPIClient.uiDefinitionManager.openDefaultScreenAndAddDefinition(defaultScreen, UIDefinitionManager.fromDynamic(ID.toString(), new Dynamic<>(NbtOps.INSTANCE, uiDefinitionNbt))));
         }
         public static UIDefinitionPayload decode(CommonNetwork.PlayBuf buf) {
-            return new UIDefinitionPayload(buf.get().readOptional(FriendlyByteBuf::readResourceLocation), buf.get().readNbt());
+            return new UIDefinitionPayload(buf.get().readOptional(FriendlyByteBuf::readIdentifier), buf.get().readNbt());
         }
         @Override
         public void encode(CommonNetwork.PlayBuf buf) {
-            buf.get().writeOptional(defaultScreen, FriendlyByteBuf::writeResourceLocation);
+            buf.get().writeOptional(defaultScreen, FriendlyByteBuf::writeIdentifier);
             buf.get().writeNbt(uiDefinitionNbt);
         }
 

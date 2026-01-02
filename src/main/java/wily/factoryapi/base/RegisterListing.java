@@ -1,7 +1,7 @@
 package wily.factoryapi.base;
 
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.FactoryAPI;
 
 import java.util.Collection;
@@ -16,7 +16,7 @@ public interface RegisterListing<T> extends Iterable<RegisterListing.Holder<T>> 
         return add(name, id-> supplier.get());
     }
 
-    <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier);
+    <V extends T> Holder<V> add(String name, Function<Identifier, V> supplier);
 
     Stream<Holder<T>> stream();
 
@@ -27,6 +27,6 @@ public interface RegisterListing<T> extends Iterable<RegisterListing.Holder<T>> 
     String getNamespace();
 
     interface Holder<T> extends Supplier<T> {
-        ResourceLocation getId();
+        Identifier getId();
     }
 }

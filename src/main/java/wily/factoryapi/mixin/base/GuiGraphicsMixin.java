@@ -20,7 +20,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
@@ -48,7 +48,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
     //? if <1.21.6 {
     
-    /*@Unique private Function<ResourceLocation,RenderType> renderingOverride = RenderType::guiTextured;
+    /*@Unique private Function<Identifier,RenderType> renderingOverride = RenderType::guiTextured;
     *///?} else {
     @Unique
     private RenderPipeline renderingOverride = RenderPipelines.GUI_TEXTURED;
@@ -75,7 +75,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     private MultiBufferSource.BufferSource lastBufferSource;
 
     //? if <=1.20.1
-    /*@Shadow abstract void innerBlit(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);*/
+    /*@Shadow abstract void innerBlit(Identifier resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);*/
 
     @Unique
     private final FactoryGuiGraphics factoryGuiGraphics = new FactoryGuiGraphics() {
@@ -102,7 +102,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height) {
+        public void blit(Identifier texture, int x, int y, int uvX, int uvY, int width, int height) {
             //? if <1.21.2 {
             /*context().blit(texture, x, y, uvX, uvY, width, height);
              *///?} else {
@@ -111,7 +111,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(Identifier texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             /*context().blit(texture, x, y, z, uvX, uvY, width, height, textureWidth, textureHeight);
             *///?} else {
@@ -120,7 +120,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(Identifier texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             /*context().blit(texture, x, xd, y, yd, uvX, uvY, width, height, textureWidth, textureHeight);
             *///?} else {
@@ -129,7 +129,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(Identifier texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             /*context().blit(texture, x, y, uvX, uvY, width, height, textureWidth, textureHeight);
             *///?} else
@@ -137,7 +137,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
 
-        public void blitSprite(ResourceLocation resourceLocation, int x, int y, int width, int height) {
+        public void blitSprite(Identifier resourceLocation, int x, int y, int width, int height) {
             //? if <1.20.2 {
             /*this.blitSprite(resourceLocation, x, y, 0, width, height);
              *///?} else if <1.21.2 {
@@ -146,7 +146,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             context().blitSprite(renderingOverride, resourceLocation, x, y, width, height,blitColor);
         }
 
-        public void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height) {
+        public void blitSprite(Identifier resourceLocation, int x, int y, int z, int width, int height) {
         //? if <1.20.2 {
         /*TextureAtlasSprite textureAtlasSprite = FactoryGuiGraphics.getSprites().getSprite(resourceLocation);
         GuiSpriteScaling guiSpriteScaling = FactoryGuiGraphics.getSprites().getSpriteScaling(textureAtlasSprite);
@@ -170,7 +170,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height) {
+        public void blitSprite(Identifier resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height) {
             //? if <=1.20.1 {
             /*TextureAtlasSprite textureAtlasSprite = FactoryGuiGraphics.getSprites().getSprite(resourceLocation);
             GuiSpriteScaling guiSpriteScaling = FactoryGuiGraphics.getSprites().getSpriteScaling(textureAtlasSprite);
@@ -279,7 +279,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
         //? if >=1.21.2 {
         //? if <1.21.6 {
-        /*private void innerBlit(Function<ResourceLocation, RenderType> function, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
+        /*private void innerBlit(Function<Identifier, RenderType> function, Identifier resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             RenderType renderType = function.apply(resourceLocation);
             Matrix4f matrix4f = FactoryGuiMatrixStack.of(context().pose()).<PoseStack>getNative().last().pose();
             VertexConsumer vertexConsumer = getBufferSource().getBuffer(renderType);
@@ -290,7 +290,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             getBufferSource().endBatch(renderType);
         }
         *///?} else {
-        private void innerBlit(RenderPipeline pipeline, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
+        private void innerBlit(RenderPipeline pipeline, Identifier resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             GpuTextureView gpuTextureView = minecraft.getTextureManager().getTexture(resourceLocation).getTextureView();
             submitBlit(pipeline, gpuTextureView, i, k, j, l, f, g, h, m, n);
         }
@@ -345,11 +345,11 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
     //? if >=1.21.2 {
     //? if <1.21.6 {
-    /*@ModifyArg(method = "blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V"), index = 10)
+    /*@ModifyArg(method = "blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/Identifier;IIIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V"), index = 10)
     public int blitBlitCustom(int par3){
         return blitColor;
     }
-    @ModifyArg(method = "blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIIII)V"), index = 6)
+    @ModifyArg(method = "blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/Identifier;IIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/Identifier;IIIII)V"), index = 6)
     public int blitSprite(int par3){
         return blitColor;
     }
@@ -357,16 +357,16 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     public int blitSpriteAtlas(int par3){
         return blitColor;
     }
-    @ModifyArg(method = "blit(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V"), index = 12)
+    @ModifyArg(method = "blit(Ljava/util/function/Function;Lnet/minecraft/resources/Identifier;IIFFIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Ljava/util/function/Function;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"), index = 12)
     public int blit(int par3){
         return blitColor;
     }
     *///?} else {
-    @ModifyArg(method = "blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIIIIIIII)V"), index = 10)
+    @ModifyArg(method = "blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIIIIII)V"), index = 10)
     public int blitBlitCustom(int par3){
         return blitColor;
     }
-    @ModifyArg(method = "blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIIII)V"), index = 6)
+    @ModifyArg(method = "blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIII)V"), index = 6)
     public int blitSprite(int par3){
         return blitColor;
     }
@@ -374,7 +374,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     public int blitSpriteAtlas(int par3){
         return blitColor;
     }
-    @ModifyArg(method = "blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V"), index = 12)
+    @ModifyArg(method = "blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIII)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V"), index = 12)
     public int blit(int par3){
         return blitColor;
     }

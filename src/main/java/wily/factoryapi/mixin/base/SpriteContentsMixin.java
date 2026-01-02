@@ -3,7 +3,7 @@ package wily.factoryapi.mixin.base;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SpriteContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -45,7 +45,7 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
 
     @Shadow NativeImage[] byMipLevel;
 
-    @Shadow public abstract ResourceLocation name();
+    @Shadow public abstract Identifier name();
 
 
     @Inject(method = "increaseMipLevel", at = @At("RETURN"))
