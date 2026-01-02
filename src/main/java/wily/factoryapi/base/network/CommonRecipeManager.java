@@ -60,7 +60,7 @@ public class CommonRecipeManager {
     private static Map<RecipeType<?>,Map<Identifier,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
 
     public static void updateRecipes(RecipeManager manager){
-        recipesByType = manager.getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id().location(), Function.identity())));
+        recipesByType = manager.getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id()./*? if <1.21.11 {*//*location*//*?} else {*/identifier/*?}*/(), Function.identity())));
         for (RecipeType<?> recipeType : recipeTypesToSync) {
             ClientPayload.getInstance().syncRecipeTypes.put(recipeType, recipesByType.get(recipeType));
         }
