@@ -117,7 +117,7 @@ public class StorageStringUtil {
         if (keyCode != InputConstants.UNKNOWN.getValue()) {
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
-                    return InputConstants.isKeyDown(Minecraft.getInstance().getWindow()/*? if <1.21.9 {*//*.getWindow()*//*?}*/, keyCode);
+                    return InputConstants.isKeyDown(Minecraft.getInstance().getWindow()/*? if <1.21.9 {*/.getWindow()/*?}*/, keyCode);
                 }
             } catch (Exception ignored) {
             }

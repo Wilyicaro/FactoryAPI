@@ -4,8 +4,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if >=1.21.9 {
-import net.minecraft.client.input.MouseButtonEvent;
-//?}
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import org.jetbrains.annotations.Nullable;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -67,7 +67,7 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     }
 
     //? if >=1.21.9 {
-    @Override
+    /*@Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         return handleClick(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button());
     }
@@ -82,8 +82,8 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
         return handleDragging(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button(), d, e);
     }
 
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public boolean mouseClicked(double d, double e, int i) {
         return handleClick(d, e, i);
     }
@@ -97,7 +97,7 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     public boolean mouseDragged(double mouseX, double mouseY, int i, double f, double g) {
         return handleDragging(mouseX, mouseY, i, f, g);
     }
-    *///?}
+    //?}
 
     public boolean handleClick(double d, double e, int i) {
         if (inMouseLimit(d,e) && visible.get()) {
@@ -130,15 +130,15 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     public void draw(GuiGraphics graphics, int x, int y) {
         if (color != null)
             //? if <1.21.6 {
-            /*FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
-            *///?} else
-            FactoryGuiGraphics.of(graphics).setBlitColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
+            FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
+            //?} else
+            //FactoryGuiGraphics.of(graphics).setBlitColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
         super.draw(graphics, x, y);
         if (color != null)
             //? if <1.21.6 {
-            /*FactoryGuiGraphics.of(graphics).clearColor();
-            *///?} else
-            FactoryGuiGraphics.of(graphics).clearBlitColor();
+            FactoryGuiGraphics.of(graphics).clearColor();
+            //?} else
+            //FactoryGuiGraphics.of(graphics).clearBlitColor();
         if (isSelected() || hovered && hoverSelection) {
             if (selection != null) selection.draw(graphics, x, y);
             else {

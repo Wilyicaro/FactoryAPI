@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import java.util.Set;
 
@@ -15,11 +15,11 @@ public class GuiSpriteManager extends TextureAtlasHolder {
     public static final Set<MetadataSectionSerializer<?>> DEFAULT_METADATA_SECTIONS = Set.of(AnimationMetadataSection.SERIALIZER);
 
     public GuiSpriteManager(TextureManager arg) {
-        super(arg, new Identifier("textures/atlas/gui.png"), new Identifier("gui"));
+        super(arg, new ResourceLocation("textures/atlas/gui.png"), new ResourceLocation("gui"));
     }
 
     @Override
-    public TextureAtlasSprite getSprite(Identifier resourceLocation) {
+    public TextureAtlasSprite getSprite(ResourceLocation resourceLocation) {
         return super.getSprite(resourceLocation);
     }
 

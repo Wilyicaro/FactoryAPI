@@ -5,13 +5,13 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 //? if >1.21.2 {
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+/*import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 //? if <1.21.4 {
-/*import net.minecraft.world.item.equipment.EquipmentModel;
-*///?} else {
-import net.minecraft.client.resources.model.EquipmentClientInfo;
-//?}
-//?}
+import net.minecraft.world.item.equipment.EquipmentModel;
+//?} else {
+/^import net.minecraft.client.resources.model.EquipmentClientInfo;
+^///?}
+*///?}
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -31,7 +31,7 @@ public interface IFactoryItemClientExtension {
     default IFactoryBlockEntityWLRenderer getCustomRenderer() {
         return null;
     }
-    default <T extends Model> T getHumanoidArmorModel(/*? if >=1.21.2 && !neoforge {*/LivingEntityRenderState livingEntityRenderState,/*?} else if <1.21.2 {*//*LivingEntity livingEntity,*//*?}*/ ItemStack itemStack, EquipmentSlot equipmentSlot, T original){
+    default <T extends Model> T getHumanoidArmorModel(/*? if >=1.21.2 && !neoforge {*//*LivingEntityRenderState livingEntityRenderState,*//*?} else if <1.21.2 {*/LivingEntity livingEntity,/*?}*/ ItemStack itemStack, EquipmentSlot equipmentSlot, T original){
         return original;
     }
     //? if >=1.21.2 && neoforge {

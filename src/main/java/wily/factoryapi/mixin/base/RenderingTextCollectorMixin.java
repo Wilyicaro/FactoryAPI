@@ -1,5 +1,5 @@
 //? if >=1.21.11 {
-package wily.factoryapi.mixin.base;
+/*package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,4 +15,4 @@ public class RenderingTextCollectorMixin implements FactoryRenderingTextCollecto
 		return field_63856;
 	}
 }
-//?}
+*///?}

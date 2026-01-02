@@ -3,7 +3,7 @@ plugins {
     id("dev.architectury.loom") version "1.13.+" apply false
 }
 
-stonecutter active "1.21.11-fabric" /* [SC] DO NOT EDIT */
+stonecutter active "1.20.4-fabric" /* [SC] DO NOT EDIT */
 
 stonecutter parameters {
     val loader = node.project.property("loom.platform").toString()

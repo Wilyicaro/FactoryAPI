@@ -2,10 +2,10 @@ package wily.factoryapi.base.client;
 
 import net.minecraft.client.Minecraft;
 //? if >=1.21.11 {
-import net.minecraft.client.gui.ActiveTextCollector;
+/*import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.network.chat.Style;
 import wily.factoryapi.mixin.base.ScreenAccessor;
-//?}
+*///?}
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
@@ -13,9 +13,9 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if >=1.21.9 {
-import net.minecraft.client.input.MouseButtonEvent;
+/*import net.minecraft.client.input.MouseButtonEvent;
 import wily.factoryapi.mixin.base.BakedSheetGlyphAccessor;
-//?}
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -70,18 +70,18 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         sequence.accept((n, style, pos)->{
             FontAccessor fontAccessor = (FontAccessor) Minecraft.getInstance().font;
             //? if >=1.21.9 {
-            BakedGlyph glyph = fontAccessor.getBakedGlyph(pos, style);
+            /*BakedGlyph glyph = fontAccessor.getBakedGlyph(pos, style);
             if (glyph instanceof BakedSheetGlyphAccessor sheetGlyph) {
                 int height = Math.round(sheetGlyph.getBottom() - sheetGlyph.getTop());
                 if (height > bearer.get()) bearer.set(height);
             } else if (glyph.info().getAdvance() > bearer.get()) bearer.set(Math.round(glyph.info().getAdvance()));
-            //?} else {
-            /*fontAccessor.getDefaultFontSet(style.getFont()).getGlyphInfo(pos, fontAccessor.getFilterFishyGlyphs()).bake(sheetGlyphInfo-> {
+            *///?} else {
+            fontAccessor.getDefaultFontSet(style.getFont()).getGlyphInfo(pos, fontAccessor.getFilterFishyGlyphs()).bake(sheetGlyphInfo-> {
                 int height = Math.round(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample());
                 if (height > bearer.get()) bearer.set(height);
                 return null;
             });
-            *///?}
+            //?}
             return true;
         });
         return bearer.get();
@@ -138,20 +138,20 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
     }
 
     //? if >=1.21.9 {
-    @Override
+    /*@Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         if (handleComponentsClicked(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button()))
             return true;
         return GuiEventListener.super.mouseClicked(mouseButtonEvent, bl);
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public boolean mouseClicked(double d, double e, int i) {
         if (handleComponentsClicked(d, e, i))
             return true;
         return GuiEventListener.super.mouseClicked(d, e, i);
     }
-    *///?}
+    //?}
 
     public boolean handleComponentsClicked(double d, double e, int i) {
         if (accessor.getScreen() != null && isMouseOver(d,e)){
@@ -161,13 +161,13 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
                     int lineHeight = heightPerLine[i1];
                     if (e >= actualHeight && e < actualHeight + lineHeight){
                         //? if >=1.21.11 {
-                        ActiveTextCollector.ClickableStyleFinder clickableStyleFinder = new ActiveTextCollector.ClickableStyleFinder(Minecraft.getInstance().font, (int) d, (int) e);
+                        /*ActiveTextCollector.ClickableStyleFinder clickableStyleFinder = new ActiveTextCollector.ClickableStyleFinder(Minecraft.getInstance().font, (int) d, (int) e);
                         clickableStyleFinder.accept(0, Mth.floor(d - getX()), lines.get(i1)); // TODO WHAT WHAT WHAT WHAT WHAT
                         Style style = clickableStyleFinder.result();
                         if (style != null) ScreenAccessor.callDefaultHandleGameClickEvent(style.getClickEvent(), Minecraft.getInstance(), accessor.getScreen());
-                        //?} else {
-                        /*accessor.getScreen().handleComponentClicked(Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX())));
-                        *///?}
+                        *///?} else {
+                        accessor.getScreen().handleComponentClicked(Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX())));
+                        //?}
                         return true;
                     }
                     actualHeight += lineHeight;

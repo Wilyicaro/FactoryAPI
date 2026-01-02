@@ -4,12 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 //? if >=1.20.5 {
-import net.minecraft.client.gui.components.WidgetTooltipHolder;
-//?} else {
+/*import net.minecraft.client.gui.components.WidgetTooltipHolder;
+*///?} else {
 //?}
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,23 +30,23 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
 
     @Shadow public boolean visible;
 
-    @Unique Identifier overrideSprite = null;
-    @Unique Identifier highlightedOverrideSprite = null;
+    @Unique ResourceLocation overrideSprite = null;
+    @Unique ResourceLocation highlightedOverrideSprite = null;
     @Unique Consumer<AbstractWidget> onPressOverride = null;
     @Unique ArbitrarySupplier<Boolean> visibility = ArbitrarySupplier.empty();
 
     @Override
-    public void setSpriteOverride(Identifier sprite) {
+    public void setSpriteOverride(ResourceLocation sprite) {
         this.overrideSprite = sprite;
     }
 
     @Override
-    public void setHighlightedSpriteOverride(Identifier sprite) {
+    public void setHighlightedSpriteOverride(ResourceLocation sprite) {
         this.highlightedOverrideSprite = sprite;
     }
 
     @Override
-    public Identifier getSpriteOverride() {
+    public ResourceLocation getSpriteOverride() {
         return isHoveredOrFocused() ? highlightedOverrideSprite : overrideSprite;
     }
     @Override

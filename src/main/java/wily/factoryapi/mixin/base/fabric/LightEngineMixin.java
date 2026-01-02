@@ -16,12 +16,12 @@ import wily.factoryapi.base.IFactoryBlock;
 @Mixin(LightEngine.class)
 public class LightEngineMixin {
     //? if <1.21.2 {
-    /*@Inject(method = ("hasDifferentLightProperties"), at = @At("RETURN"), cancellable = true)
+    @Inject(method = ("hasDifferentLightProperties"), at = @At("RETURN"), cancellable = true)
     private static void injectLuminance(BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, BlockState blockState2, CallbackInfoReturnable<Boolean> info){
         if (blockState.getBlock() instanceof IFactoryBlock || blockState2.getBlock() instanceof IFactoryBlock){
             info.setReturnValue(info.getReturnValue() || IFactoryBlock.getBlockLuminance(blockState2,blockGetter,blockPos) != IFactoryBlock.getBlockLuminance(blockState,blockGetter,blockPos));
         }
     }
-    *///?}
+    //?}
 }
 //?}

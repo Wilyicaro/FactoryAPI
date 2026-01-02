@@ -15,11 +15,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 //? if >=1.21.6 {
-import net.minecraft.world.level.storage.TagValueInput;
+/*import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.util.ProblemReporter;
-//?}
+*///?}
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
@@ -153,7 +153,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     @Override
     public CompoundTag serializeTag() {
         //? if <1.20.5 {
-        /*ListTag nbtTagList = new ListTag();
+        ListTag nbtTagList = new ListTag();
 
         for(int i = 0; i < getContainerSize(); ++i) {
             if (!getItem(i).isEmpty()) {
@@ -167,15 +167,15 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", nbtTagList);
         return nbt;
-        *///?} else {
-        //? if <1.21.6 {
-        /*return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());
-        *///?} else {
-        TagValueOutput withoutContext = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
+        //?} else {
+        /*//? if <1.21.6 {
+        return ContainerHelper.saveAllItems(new CompoundTag(),getItems(), FactoryAPIPlatform.getRegistryAccess());
+        //?} else {
+        /^TagValueOutput withoutContext = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
         ContainerHelper.saveAllItems(withoutContext,getItems(), true);
         return withoutContext.buildResult();
-        //?}
-        //?}
+        ^///?}
+        *///?}
     }
 
     @Override
@@ -186,7 +186,7 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     @Override
     public void deserializeTag(CompoundTag tag) {
         //? if <1.20.5 {
-        /*ListTag tagList = tag.getList("Items", 10);
+        ListTag tagList = tag.getList("Items", 10);
 
         for(int i = 0; i < tagList.size(); ++i) {
             CompoundTag itemTags = tagList.getCompound(i);
@@ -195,13 +195,13 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
                 setItem(slot, ItemStack.of(itemTags));
             }
         }
-        *///?} else {
-        //? if <1.21.6 {
-        /*ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());
-        *///?} else {
-        ContainerHelper.loadAllItems(TagValueInput.create(ProblemReporter.DISCARDING, FactoryAPIPlatform.getRegistryAccess(), tag), getItems());
-        //?}
-        //?}
+        //?} else {
+        /*//? if <1.21.6 {
+        ContainerHelper.loadAllItems(tag,getItems(), FactoryAPIPlatform.getRegistryAccess());
+        //?} else {
+        /^ContainerHelper.loadAllItems(TagValueInput.create(ProblemReporter.DISCARDING, FactoryAPIPlatform.getRegistryAccess(), tag), getItems());
+        ^///?}
+        *///?}
     }
 
     @Override

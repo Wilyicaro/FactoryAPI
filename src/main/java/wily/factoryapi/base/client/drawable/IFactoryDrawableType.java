@@ -2,7 +2,7 @@ package wily.factoryapi.base.client.drawable;
 
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -14,7 +14,7 @@ public interface IFactoryDrawableType {
         public void draw(GuiGraphics graphics, int x, int y) {
         }
 
-        public Identifier texture() {
+        public ResourceLocation texture() {
             return null;
         }
 
@@ -43,10 +43,10 @@ public interface IFactoryDrawableType {
         return EMPTY;
     }
 
-    Identifier texture();
+    ResourceLocation texture();
 
-    record DrawableImage(Identifier texture, int uvX, int uvY, int width, int height, boolean isSprite) implements IFactoryDrawableType {
-        public DrawableImage(Identifier texture, int uvX, int uvY, int width, int height){
+    record DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height, boolean isSprite) implements IFactoryDrawableType {
+        public DrawableImage(ResourceLocation texture, int uvX, int uvY, int width, int height){
             this(texture,uvX,uvY,width,height,false);
         }
 
@@ -59,15 +59,15 @@ public interface IFactoryDrawableType {
         }
     }
 
-    static DrawableImage create(Identifier texture, int uvX, int uvY, int width, int height){
+    static DrawableImage create(ResourceLocation texture, int uvX, int uvY, int width, int height){
         return new DrawableImage(texture, uvX, uvY, width, height);
     }
 
-    static DrawableImage create(Identifier texture,  int width, int height){
+    static DrawableImage create(ResourceLocation texture,  int width, int height){
         return new DrawableImage(texture, 0, 0, width, height);
     }
 
-    static DrawableImage create(Identifier texture,  int width, int height, boolean isSprite){
+    static DrawableImage create(ResourceLocation texture,  int width, int height, boolean isSprite){
         return new DrawableImage(texture, 0, 0, width, height, isSprite);
     }
 
@@ -117,7 +117,7 @@ public interface IFactoryDrawableType {
     interface Wrapper extends IFactoryDrawableType {
         IFactoryDrawableType drawable();
         @Override
-        default Identifier texture() {
+        default ResourceLocation texture() {
             return drawable().texture();
         }
 

@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import wily.factoryapi.init.FactoryRegistries;
 
 //? if <1.20.5
-//import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
+import static net.minecraft.world.item.BlockItem.BLOCK_ENTITY_TAG;
 
 public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
     private static final String KEY = "energy";
@@ -29,7 +29,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
         this.capacity = capacity;
         this.container = stack;
         //? if <1.20.5 {
-        /*CompoundTag tag = stack.getOrCreateTag();
+        CompoundTag tag = stack.getOrCreateTag();
         if (isBlockItem) tag = tag.getCompound(BLOCK_ENTITY_TAG);
         if (tag.getCompound("CYEnergy").isEmpty()){
             CompoundTag storage = new CompoundTag();
@@ -39,7 +39,7 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
             tag.put("CYEnergy", storage);
             if (isBlockItem) stack.getOrCreateTag().put(BLOCK_ENTITY_TAG, tag);
         }
-        *///?}
+        //?}
         this.transportState = transportState;
         this.maxOutput = maxOutput;
         this.maxInput = maxInput;
@@ -48,12 +48,12 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
         this(stack,0,capacity,capacity,capacity, transportState,supportableTier,stack.getItem() instanceof BlockItem);
     }
     //? if <1.20.5 {
-    /*private CompoundTag getEnergyCompound(){
+    private CompoundTag getEnergyCompound(){
         CompoundTag tag = container.getOrCreateTag();
         if (isBlockItem) tag = tag.getCompound(BLOCK_ENTITY_TAG);
         return tag.getCompound("CYEnergy");
     }
-    *///?}
+    //?}
     @Override
     public CraftyTransaction receiveEnergy(CraftyTransaction transaction, boolean simulate) {
         if (transaction.isEmpty()) return  CraftyTransaction.EMPTY;
@@ -88,45 +88,45 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
 
     @Override
     public FactoryCapacityTier getSupportedTier() {
-        return /*? if <1.20.5 {*/ /*FactoryCapacityTier.values()[getEnergyCompound().getInt("tier")]*//*?} else {*/ container.getOrDefault(FactoryRegistries.ENERGY_TIER_COMPONENT.get(), supportableTier)/*?}*/;
+        return /*? if <1.20.5 {*/ FactoryCapacityTier.values()[getEnergyCompound().getInt("tier")]/*?} else {*/ /*container.getOrDefault(FactoryRegistries.ENERGY_TIER_COMPONENT.get(), supportableTier)*//*?}*/;
     }
 
     @Override
     public FactoryCapacityTier getStoredTier() {
-        return /*? if <1.20.5 {*/ /*FactoryCapacityTier.values()[getEnergyCompound().getInt("tier")]*//*?} else {*/ container.getOrDefault(FactoryRegistries.STORED_ENERGY_TIER_COMPONENT.get(), FactoryCapacityTier.BASIC)/*?}*/;
+        return /*? if <1.20.5 {*/ FactoryCapacityTier.values()[getEnergyCompound().getInt("tier")]/*?} else {*/ /*container.getOrDefault(FactoryRegistries.STORED_ENERGY_TIER_COMPONENT.get(), FactoryCapacityTier.BASIC)*//*?}*/;
     }
 
     @Override
     public int getEnergyStored() {
-        return /*? if <1.20.5 {*/ /*getEnergyCompound().getInt(KEY)*//*?} else {*/ container.getOrDefault(FactoryRegistries.ENERGY_COMPONENT.get(), 0)/*?}*/;
+        return /*? if <1.20.5 {*/ getEnergyCompound().getInt(KEY)/*?} else {*/ /*container.getOrDefault(FactoryRegistries.ENERGY_COMPONENT.get(), 0)*//*?}*/;
     }
 
     public void setEnergyStored(int energy) {
         //? if <1.20.5 {
-        /*CompoundTag tag = getEnergyCompound();
+        CompoundTag tag = getEnergyCompound();
         tag.putInt(KEY,energy);
-        *///?} else {
-        container.set(FactoryRegistries.ENERGY_COMPONENT.get(),energy);
-        //?}
+        //?} else {
+        /*container.set(FactoryRegistries.ENERGY_COMPONENT.get(),energy);
+        *///?}
     }
 
     public void setStoredTier(FactoryCapacityTier tier){
         //? if <1.20.5 {
-        /*CompoundTag tag = getEnergyCompound();
+        CompoundTag tag = getEnergyCompound();
         tag.putInt("tier",tier.ordinal());
-        *///?} else {
-        container.set(FactoryRegistries.STORED_ENERGY_TIER_COMPONENT.get(),tier);
-        //?}
+        //?} else {
+        /*container.set(FactoryRegistries.STORED_ENERGY_TIER_COMPONENT.get(),tier);
+        *///?}
     }
 
     @Override
     public void setSupportedTier(FactoryCapacityTier tier) {
         //? if <1.20.5 {
-        /*CompoundTag tag = getEnergyCompound();
+        CompoundTag tag = getEnergyCompound();
         tag.putInt("supportedTier",tier.ordinal());
-        *///?} else {
-        container.set(FactoryRegistries.ENERGY_TIER_COMPONENT.get(),tier);
-        //?}
+        //?} else {
+        /*container.set(FactoryRegistries.ENERGY_TIER_COMPONENT.get(),tier);
+        *///?}
     }
 
     @Override
@@ -137,13 +137,13 @@ public class SimpleItemCraftyStorage implements ICraftyEnergyStorage {
 
     @Override
     public CompoundTag serializeTag() {
-        return /*? if <1.20.5 {*/ /*getEnergyCompound()*//*?} else {*/ new CompoundTag()/*?}*/;
+        return /*? if <1.20.5 {*/ getEnergyCompound()/*?} else {*/ /*new CompoundTag()*//*?}*/;
     }
 
     @Override
     public void deserializeTag(CompoundTag nbt) {
         //? if <1.20.5
-        //this.container.setTag(nbt);
+        this.container.setTag(nbt);
     }
 
 

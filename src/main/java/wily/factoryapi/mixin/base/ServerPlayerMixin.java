@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public abstract class ServerPlayerMixin extends Player implements FactoryExtraMenuSupplier.PrepareMenu {
 
     public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, /*? if <1.21.6 {*/ /*blockPos, f,*//*?}*/ gameProfile);
+        super(level, /*? if <1.21.6 {*/ blockPos, f,/*?}*/ gameProfile);
     }
 
     @Shadow protected abstract void nextContainerCounter();

@@ -3,9 +3,9 @@ package wily.factoryapi.mixin.base;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 //? if >=1.21.2 {
-import net.minecraft.network.RegistryFriendlyByteBuf;
+/*import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-//?}
+*///?}
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -23,12 +23,12 @@ import java.util.stream.Stream;
 public abstract class IngredientMixin implements FactoryIngredient {
     //? if >=1.21.2 {
 
-    @Mutable
+    /*@Mutable
     @Shadow @Final public static StreamCodec<RegistryFriendlyByteBuf, Optional<Ingredient>> OPTIONAL_CONTENTS_STREAM_CODEC;
     @Unique
     private ItemStack[] stacks;
-    //?} else
-    //@Shadow public abstract ItemStack[] getItems();
+    *///?} else
+    @Shadow public abstract ItemStack[] getItems();
 
     @Override
     public CommonNetwork.Identifier<? extends CommonNetwork.Payload> identifier() {
@@ -43,17 +43,17 @@ public abstract class IngredientMixin implements FactoryIngredient {
     @Override
     public ItemStack[] getStacks() {
         //? if >=1.21.2 {
-        return stacks == null ? stacks = self().items()/*? if <1.21.4 {*//*.stream()*//*?}*/.map(ItemStack::new).toArray(ItemStack[]::new) : stacks;
-        //?} else
-        //return getItems();
+        /*return stacks == null ? stacks = self().items()/^? if <1.21.4 {^/.stream()/^?}^/.map(ItemStack::new).toArray(ItemStack[]::new) : stacks;
+        *///?} else
+        return getItems();
     }
 
     @Override
     public void encode(CommonNetwork.PlayBuf buf) {
         //? if >=1.20.5 {
-        Ingredient.CONTENTS_STREAM_CODEC.encode(buf.get(),(Ingredient) (Object) this);
-        //?} else
-        //((Ingredient)(Object) this).toNetwork(buf.get());
+        /*Ingredient.CONTENTS_STREAM_CODEC.encode(buf.get(),(Ingredient) (Object) this);
+        *///?} else
+        ((Ingredient)(Object) this).toNetwork(buf.get());
     }
 
     @Override

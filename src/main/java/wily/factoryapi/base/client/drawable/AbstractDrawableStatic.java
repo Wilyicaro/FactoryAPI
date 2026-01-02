@@ -6,7 +6,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.FactoryGuiMatrixStack;
 import wily.factoryapi.util.FluidInstance;
 
@@ -76,7 +76,7 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         return drawable.inMouseLimit(mouseX,mouseY,getX(),getY());
     }
 
-    public Identifier texture() {return drawable.texture();}
+    public ResourceLocation texture() {return drawable.texture();}
     public int width() {return getWidth();}
     public int height() {return getHeight();}
     public int uvX() {return drawable.uvX();}
@@ -88,9 +88,9 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         hovered = inMouseLimit(i,j);
         draw(guiGraphics);
         //? if >=1.21.6 {
-        if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
-        //?} else {
-        /*if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
-        *///?}
+        /*if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
+        *///?} else {
+        if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
+        //?}
     }
 }

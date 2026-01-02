@@ -3,7 +3,7 @@ package wily.factoryapi;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -147,8 +147,8 @@ public class FactoryAPI {
             r.register( true, CommonConfigSyncPayload.ID_C2S);
             r.register(false, OpenExtraMenuPayload.ID);
             //? if >=1.21.2 {
-            r.register(false, CommonRecipeManager.ClientPayload.ID);
-            //?}
+            /*r.register(false, CommonRecipeManager.ClientPayload.ID);
+            *///?}
         });
         FactoryEvent.preServerTick(s-> SECURE_EXECUTOR.executeAll());
         FactoryEvent.registerCommands(((commandSourceStackCommandDispatcher, commandBuildContext, commandSelection) -> FactoryAPICommand.register(commandSourceStackCommandDispatcher,commandBuildContext)));
@@ -160,20 +160,20 @@ public class FactoryAPI {
         });
         FactoryEvent.PlayerEvent.JOIN_EVENT.register(HelloPayload::sendInitialPayloads);
         //? if >=1.21.2 {
-        Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
+        /*Consumer<MinecraftServer> updateRecipes = server -> CommonRecipeManager.updateRecipes(server.getRecipeManager());
         FactoryEvent.PlayerEvent.RELOAD_RESOURCES_EVENT.register(playerList-> {
             updateRecipes.accept(playerList.getServer());
             CommonNetwork.sendToPlayers(playerList.getPlayers(), CommonRecipeManager.ClientPayload.getInstance());
         });
         FactoryEvent.serverStarted(updateRecipes);
-        //?}
+        *///?}
         FactoryEvent.PlayerEvent.REMOVED_EVENT.register(sp->CommonNetwork.ENABLED_PLAYERS.removeAll(sp.getUUID()));
         FactoryEvent.serverStopped(s-> {
             SECURE_EXECUTOR.clear();
             CommonNetwork.ENABLED_PLAYERS.clear();
             //? if >=1.21.2 {
-            CommonRecipeManager.clearRecipes();
-            //?}
+            /*CommonRecipeManager.clearRecipes();
+            *///?}
             currentServer = null;
         });
         //? if fabric {
@@ -181,23 +181,23 @@ public class FactoryAPI {
         //?}
     }
 
-    public static Identifier createLocation(String namespace, String path){
-        return Identifier.tryBuild(namespace,path);
+    public static ResourceLocation createLocation(String namespace, String path){
+        return ResourceLocation.tryBuild(namespace,path);
     }
 
-    public static Identifier createLocation(String location){
-        return Identifier.tryParse(location);
+    public static ResourceLocation createLocation(String location){
+        return ResourceLocation.tryParse(location);
     }
 
-    public static Identifier createModLocation(String path){
+    public static ResourceLocation createModLocation(String path){
         return createLocation(MOD_ID,path);
     }
 
-    public static Identifier createVanillaLocation(String path){
+    public static ResourceLocation createVanillaLocation(String path){
         //? if <1.20.5 {
-        /*return new Identifier(path);
-        *///?} else
-        return Identifier.withDefaultNamespace(path);
+        return new ResourceLocation(path);
+        //?} else
+        //return ResourceLocation.withDefaultNamespace(path);
     }
 
     public static Loader getLoader() {

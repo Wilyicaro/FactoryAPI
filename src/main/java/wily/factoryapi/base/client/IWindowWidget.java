@@ -6,8 +6,8 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if >=1.21.9 {
-import net.minecraft.client.input.MouseButtonEvent;
-//?}
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.client.renderer.Rect2i;
 import wily.factoryapi.base.ArbitrarySupplier;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
@@ -18,7 +18,7 @@ import java.util.List;
 public interface IWindowWidget extends GuiEventListener, Renderable {
 
     //? if >=1.21.9 {
-    @Override
+    /*@Override
     default boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         for (Renderable nestedRenderable : getNestedRenderables())
             if (nestedRenderable instanceof GuiEventListener listener && listener.mouseClicked(mouseButtonEvent, bl)) return true;
@@ -36,8 +36,8 @@ public interface IWindowWidget extends GuiEventListener, Renderable {
             if (nestedRenderable instanceof GuiEventListener listener && listener.mouseDragged(mouseButtonEvent, f, g)) return true;
         return false;
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     default boolean mouseClicked(double d, double e, int i) {
         for (Renderable nestedRenderable : getNestedRenderables())
             if (nestedRenderable instanceof GuiEventListener listener && listener.mouseClicked(d,e,i)) return true;
@@ -55,7 +55,7 @@ public interface IWindowWidget extends GuiEventListener, Renderable {
             if (nestedRenderable instanceof GuiEventListener listener && listener.mouseDragged(d,e,i,f,g)) return true;
         return false;
     }
-    *///?}
+    //?}
 
     default void render(GuiGraphics guiGraphics, int i, int j, float f) {
         for (Renderable nestedRenderable : getNestedRenderables()) {

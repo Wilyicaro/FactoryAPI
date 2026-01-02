@@ -66,7 +66,7 @@ public class TransportSide implements IHasIdentifier,IModifiableTransportHandler
     public void setTransport(TransportState state) {
         transportState = state;
     }
-    public TransportSide withSlotIdentifier(SlotsIdentifier identifier) {
+    public TransportSide withSlotResourceLocation(SlotsIdentifier identifier) {
         this.identifier = identifier;
         return this;
     }
