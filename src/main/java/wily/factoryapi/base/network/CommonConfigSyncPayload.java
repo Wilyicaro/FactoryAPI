@@ -5,6 +5,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+//? if >=1.21.11 {
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+//?}
 import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -39,7 +43,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
     @Override
     public void apply(Context context) {
         FactoryConfig.COMMON_STORAGES.get(commonConfigStorage).decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, configTag));
-        if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp.hasPermissions(2)){
+        if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp/*? if >=1.21.11 {*/.permissions()/*?}*/.hasPermission(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/)){
             FactoryConfig.StorageHandler handler = FactoryConfig.COMMON_STORAGES.get(commonConfigStorage);
             CommonNetwork.sendToPlayers(FactoryAPIPlatform.getEntityServer(sp).getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
             handler.save();
