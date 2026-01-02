@@ -18,6 +18,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
+//? if >=1.21.11 {
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
+//?}
 import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
@@ -70,7 +74,7 @@ public class FactoryAPICommand {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> commandDispatcher, CommandBuildContext commandBuildContext) {
-        var command = Commands.literal("factoryapi").requires(commandSourceStack -> commandSourceStack.hasPermission(2));
+        var command = Commands.literal("factoryapi").requires(commandSourceStack -> commandSourceStack/*? if >=1.21.11 {*/.permissions()/*?}*/.hasPermission(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/));
 
 
         command.then(Commands.literal("display").then(Commands.literal("ui_definition").then(Commands.argument("targets", EntityArgument.players()).then(Commands.argument("ui_definition", CompoundTagArgument.compoundTag()).executes(context -> {
