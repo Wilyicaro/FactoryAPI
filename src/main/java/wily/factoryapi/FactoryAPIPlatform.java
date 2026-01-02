@@ -176,7 +176,7 @@ public interface FactoryAPIPlatform {
     }
 
     static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry) {
-        return registry./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(location);
+        return registry./*? if <1.21.2 {*//*get*//*?} else {*/getValue/*?}*/(location);
     }
 
     static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey) {
@@ -188,7 +188,7 @@ public interface FactoryAPIPlatform {
     }
 
     static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, id))*//*?}*/;
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.BLOCK, id))/*?}*/;
     }
 
     static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder) {
@@ -196,7 +196,7 @@ public interface FactoryAPIPlatform {
     }
 
     static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()*//*?}*/;
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()/*?}*/;
     }
 
     static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder) {
@@ -204,7 +204,7 @@ public interface FactoryAPIPlatform {
     }
 
     static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()*//*?}*/;
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()/*?}*/;
     }
 
     @FunctionalInterface
@@ -213,7 +213,7 @@ public interface FactoryAPIPlatform {
     }
 
     static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntitySupplier<T> supplier, Block... blocks) {
-        return /*? if <1.21.2 {*/BlockEntityType.Builder.of(supplier::create, blocks).build(null)/*?} else {*/ /*new BlockEntityType<>(supplier::create, Set.of(blocks))*//*?}*/;
+        return /*? if <1.21.2 {*//*BlockEntityType.Builder.of(supplier::create, blocks).build(null)*//*?} else {*/ new BlockEntityType<>(supplier::create, Set.of(blocks))/*?}*/;
     }
 
     static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {

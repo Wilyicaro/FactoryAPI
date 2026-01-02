@@ -88,9 +88,9 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         hovered = inMouseLimit(i,j);
         draw(guiGraphics);
         //? if >=1.21.6 {
-        /*if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
-        *///?} else {
-        if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
-        //?}
+        if (hovered && !tooltips.isEmpty()) guiGraphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), i, j);
+        //?} else {
+        /*if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
+        *///?}
     }
 }

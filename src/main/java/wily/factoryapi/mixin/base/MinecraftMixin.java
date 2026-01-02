@@ -58,11 +58,11 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     //?}
 
     //? if <1.21.9 {
-    @Shadow @Final private YggdrasilAuthenticationService authenticationService;
-    //?} else {
-    /*@Shadow @Final private Proxy proxy;
+    /*@Shadow @Final private YggdrasilAuthenticationService authenticationService;
+    *///?} else {
+    @Shadow @Final private Proxy proxy;
     @Shadow @Final private boolean offlineDeveloperMode;
-    *///?}
+    //?}
 
     @Mutable
     @Shadow @Final private ClientTelemetryManager telemetryManager;
@@ -95,9 +95,9 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     }
 
     //? if <1.20.5 {
-    @Accessor
+    /*@Accessor
     public abstract float getPausePartialTick();
-    //?}
+    *///?}
 
     //? if <=1.20.1 {
     /*@Unique boolean gameLoaded = false;
@@ -113,7 +113,7 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     }
 
     //? if <1.21.2 {
-    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V"))
+    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;wrapScreenError(Ljava/lang/Runnable;Ljava/lang/String;Ljava/lang/String;)V"))
     public void beforeScreenTick(CallbackInfo ci) {
         if (Minecraft.getInstance().screen == null) return;
         UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
@@ -126,8 +126,8 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
         Screen.wrapScreenError(accessor::afterTick, "Ticking screen after tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
     }
-    //?} else {
-    /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V"))
+    *///?} else {
+    @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V"))
     public void beforeScreenTick(CallbackInfo ci) {
         if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).beforeTick();
     }
@@ -136,7 +136,7 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     public void afterScreenTick(CallbackInfo ci) {
         if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).afterTick();
     }
-    *///?}
+    //?}
 
     @Override
     public boolean setUser(User user) {
@@ -146,14 +146,14 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         }
         this.user = splashManager.user = user;
         //? if >=1.21.9 {
-        /*MinecraftSessionService session = Minecraft.getInstance().services().sessionService();
+        MinecraftSessionService session = Minecraft.getInstance().services().sessionService();
         YggdrasilAuthenticationService authenticationService = this.offlineDeveloperMode
                 ? YggdrasilAuthenticationService.createOffline(this.proxy)
                 : new YggdrasilAuthenticationService(this.proxy);
-        *///?} else {
-        MinecraftSessionService session = Minecraft.getInstance().getMinecraftSessionService();
+        //?} else {
+        /*MinecraftSessionService session = Minecraft.getInstance().getMinecraftSessionService();
         boolean offlineDeveloperMode = user.getType() != User.Type.MSA;
-        //?}
+        *///?}
         //? if >=1.20.3 {
         this.profileFuture = CompletableFuture.supplyAsync(() -> session.fetchProfile(user.getProfileId(), true), Util.nonCriticalIoPool());
         this.userApiService = offlineDeveloperMode ? UserApiService.OFFLINE : authenticationService.createUserApiService(user.getAccessToken());
@@ -177,7 +177,7 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         this.profileKeyPairManager = ProfileKeyPairManager.create(userApiService, user, Minecraft.getInstance().gameDirectory.toPath());
         this.telemetryManager = new ClientTelemetryManager(Minecraft.getInstance(), userApiService, user);
         this.reportingContext = ReportingContext.create(ReportEnvironment.local(), userApiService);
-        this.realmsDataFetcher = new RealmsDataFetcher(/*? if >1.21.4 {*//*RealmsClient.getOrCreate()*//*?} else {*/RealmsClient.create(Minecraft.getInstance())/*?}*/);
+        this.realmsDataFetcher = new RealmsDataFetcher(/*? if >1.21.4 {*/RealmsClient.getOrCreate()/*?} else {*//*RealmsClient.create(Minecraft.getInstance())*//*?}*/);
         //? if >=1.20.3
         RealmsAvailabilityAccessor.setFuture(null);
         return true;

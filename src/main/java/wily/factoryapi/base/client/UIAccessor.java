@@ -71,23 +71,23 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             putStaticElement("serverIp."+serverData.ip,true);
         Inventory inventory = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.getInventory();
         if (inventory != null) {
-            List<ItemStack> items = inventory./*? if >1.21.4 {*//*getNonEquipmentItems()*//*?} else {*/items/*?}*/;
+            List<ItemStack> items = inventory./*? if >1.21.4 {*/getNonEquipmentItems()/*?} else {*//*items*//*?}*/;
             for (int i = 0; i < items.size(); i++) {
                 int index = i;
                 getElements().put("inventory." + index, () -> items.get(index));
             }
             //? if >1.21.4 {
-            /*Inventory.EQUIPMENT_SLOT_MAPPING.forEach((i, equipmentSlot)->{
+            Inventory.EQUIPMENT_SLOT_MAPPING.forEach((i, equipmentSlot)->{
                 if (equipmentSlot == EquipmentSlot.OFFHAND) return;
                 getElements().put("inventory.armor." + equipmentSlot.getIndex(), () -> inventory.getItem(i));
             });
-            *///?} else {
-            for (int i = 0; i < inventory.armor.size(); i++) {
+            //?} else {
+            /*for (int i = 0; i < inventory.armor.size(); i++) {
                 int index = i;
                 getElements().put("inventory.armor." + index, () -> inventory.armor.get(index));
             }
-            //?}
-            getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*//*inventory.getItem(Inventory.SLOT_OFFHAND)*//*?} else {*/inventory.offhand.get(0)/*?}*/);
+            *///?}
+            getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*/inventory.getItem(Inventory.SLOT_OFFHAND)/*?} else {*//*inventory.offhand.get(0)*//*?}*/);
         }
         putSupplierComponent("username", () -> Component.literal(Minecraft.getInstance().getUser().getName()));
         if (getScreen() instanceof MenuAccess<?> access) {
@@ -216,19 +216,19 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
                 //? if <1.21.6 {
-                FactoryScreenUtil.enableBlend();
+                /*FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
-                //?} else
-                /*FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);*/
+                *///?} else
+                FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).popPose();
                 FactoryScreenUtil.disableBlend();
                 //? if <1.21.6 {
-                FactoryGuiGraphics.of(guiGraphics).clearColor();
-                //?} else
-                /*FactoryGuiGraphics.of(guiGraphics).clearBlitColor();*/
+                /*FactoryGuiGraphics.of(guiGraphics).clearColor();
+                *///?} else
+                FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
 
             }
         };

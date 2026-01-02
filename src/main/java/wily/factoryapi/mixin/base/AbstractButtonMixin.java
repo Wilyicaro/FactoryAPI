@@ -7,9 +7,9 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
 //? if >=1.21.9 {
-/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-*///?}
+//?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +29,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     }
 
     //? if >=1.21.9 {
-    /*@Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     public void onClick(MouseButtonEvent mouseButtonEvent, boolean bl, CallbackInfo ci) {
         if (getOnPressOverride() != null) {
             super.onClick(mouseButtonEvent, bl);
@@ -44,8 +44,8 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             cir.setReturnValue(true);
         }
     }
-    *///?} else {
-    @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
+    //?} else {
+    /*@Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     public void onClick(double d, double e, CallbackInfo ci) {
         if (getOnPressOverride() != null) {
             super.onClick(d,e);
@@ -60,7 +60,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             cir.setReturnValue(true);
         }
     }
-    //?}
+    *///?}
 
     @Inject(method = "renderString", at = @At("HEAD"))
     public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
@@ -68,14 +68,14 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {
-            FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
-            //?} else
-            /*FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);*/
+            /*FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
+            *///?} else
+            FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
             FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
             //? if <1.21.6 {
-            FactoryGuiGraphics.of(guiGraphics).clearColor();
-            //?} else
-            /*FactoryGuiGraphics.of(guiGraphics).clearBlitColor();*/
+            /*FactoryGuiGraphics.of(guiGraphics).clearColor();
+            *///?} else
+            FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
             FactoryScreenUtil.disableBlend();
         }
     }

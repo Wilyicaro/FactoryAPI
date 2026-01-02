@@ -8,9 +8,9 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if >=1.21.9 {
-/*import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import wily.factoryapi.mixin.base.BakedSheetGlyphAccessor;
-*///?}
+//?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -65,18 +65,18 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         sequence.accept((n, style, pos)->{
             FontAccessor fontAccessor = (FontAccessor) Minecraft.getInstance().font;
             //? if >=1.21.9 {
-            /*BakedGlyph glyph = fontAccessor.getBakedGlyph(pos, style);
+            BakedGlyph glyph = fontAccessor.getBakedGlyph(pos, style);
             if (glyph instanceof BakedSheetGlyphAccessor sheetGlyph) {
                 int height = Math.round(sheetGlyph.getBottom() - sheetGlyph.getTop());
                 if (height > bearer.get()) bearer.set(height);
             } else if (glyph.info().getAdvance() > bearer.get()) bearer.set(Math.round(glyph.info().getAdvance()));
-            *///?} else {
-            fontAccessor.getDefaultFontSet(style.getFont()).getGlyphInfo(pos, fontAccessor.getFilterFishyGlyphs()).bake(sheetGlyphInfo-> {
+            //?} else {
+            /*fontAccessor.getDefaultFontSet(style.getFont()).getGlyphInfo(pos, fontAccessor.getFilterFishyGlyphs()).bake(sheetGlyphInfo-> {
                 int height = Math.round(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample());
                 if (height > bearer.get()) bearer.set(height);
                 return null;
             });
-            //?}
+            *///?}
             return true;
         });
         return bearer.get();
@@ -133,20 +133,20 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
     }
 
     //? if >=1.21.9 {
-    /*@Override
+    @Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         if (handleComponentsClicked(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button()))
             return true;
         return GuiEventListener.super.mouseClicked(mouseButtonEvent, bl);
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public boolean mouseClicked(double d, double e, int i) {
         if (handleComponentsClicked(d, e, i))
             return true;
         return GuiEventListener.super.mouseClicked(d, e, i);
     }
-    //?}
+    *///?}
 
     public boolean handleComponentsClicked(double d, double e, int i) {
         if (accessor.getScreen() != null && isMouseOver(d,e)){

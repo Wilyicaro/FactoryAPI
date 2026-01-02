@@ -60,17 +60,17 @@ public class SpriteLoaderMixin {
         }
     }
     *///?} else if <1.21.9 {
-    @Inject(method = "loadAndStitch(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/resources/ResourceLocation;ILjava/util/concurrent/Executor;Ljava/util/Collection;)Ljava/util/concurrent/CompletableFuture;", at = @At(value = "HEAD"))
+    /*@Inject(method = "loadAndStitch(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/resources/ResourceLocation;ILjava/util/concurrent/Executor;Ljava/util/Collection;)Ljava/util/concurrent/CompletableFuture;", at = @At(value = "HEAD"))
     public void loadAndStitch(CallbackInfoReturnable<CompletableFuture<SpriteLoader.Preparations>> cir, @Local(argsOnly = true) LocalRef<Collection<MetadataSectionType<?>>> types) {
         if (location.equals(FactoryAPIClient.BLOCK_ATLAS_ID))
             types.set(ImmutableSet.<MetadataSectionType<?>>builder().addAll(types.get()).add(MipmapMetadataSection.TYPE).build());
     }
-    //?} else {
-    /*@Inject(method = "loadAndStitch", at = @At(value = "HEAD"))
+    *///?} else {
+    @Inject(method = "loadAndStitch", at = @At(value = "HEAD"))
     public void loadAndStitch(CallbackInfoReturnable<CompletableFuture<SpriteLoader.Preparations>> cir, @Local(argsOnly = true) LocalRef<Set<MetadataSectionType<?>>> types) {
         if (location.equals(FactoryAPIClient.BLOCK_ATLAS_ID))
             types.set(ImmutableSet.<MetadataSectionType<?>>builder().addAll(types.get()).add(MipmapMetadataSection.TYPE).build());
     }
-    *///?}
+    //?}
 }
 

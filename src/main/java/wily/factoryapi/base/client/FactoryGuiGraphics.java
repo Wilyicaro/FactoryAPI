@@ -5,14 +5,14 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 //? if >1.20.1 && <1.21.9 {
-import net.minecraft.client.gui.GuiSpriteManager;
-//?}
+/*import net.minecraft.client.gui.GuiSpriteManager;
+*///?}
 //? if >=1.21.9 {
-/*import net.minecraft.data.AtlasIds;
-*///?}
+import net.minecraft.data.AtlasIds;
+//?}
 //? if >=1.21.6 {
-/*import com.mojang.blaze3d.pipeline.RenderPipeline;
-*///?}
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+//?}
 
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -38,14 +38,14 @@ public interface FactoryGuiGraphics {
     }
 
     //? if >=1.21.9 {
-    /*static TextureAtlas getSprites() {
+    static TextureAtlas getSprites() {
         return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI);
     }
-    *///?} else {
-    static GuiSpriteManager getSprites() {
-        return /*? if >1.20.1 {*/ Minecraft.getInstance().getGuiSprites()/*?} else {*//*FactoryAPIClient.sprites*//*?}*/;
+    //?} else {
+    /*static GuiSpriteManager getSprites() {
+        return /^? if >1.20.1 {^/ Minecraft.getInstance().getGuiSprites()/^?} else {^//^FactoryAPIClient.sprites^//^?}^/;
     }
-    //?}
+    *///?}
 
     void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
 
@@ -109,7 +109,7 @@ public interface FactoryGuiGraphics {
     *///?}
 
     //? if <1.21.2 {
-    default void blitTiledSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
+    /*default void blitTiledSprite(TextureAtlasSprite textureAtlasSprite, int i, int j, int k, int l, int m, int n, int o, int p, int q, int r, int s) {
         if (l <= 0 || m <= 0 ) {
             return;
         }
@@ -121,11 +121,11 @@ public interface FactoryGuiGraphics {
         Matrix4f matrix4f = context().pose().last().pose();
 
         //? if >=1.20.5 {
-        /*BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        *///?} else {
-        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        //?} else {
+        /^BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        //?}
+        ^///?}
 
         for(int t = 0; t < l; t += p) {
             int u = Math.min(p, l - t);
@@ -135,14 +135,14 @@ public interface FactoryGuiGraphics {
                 addBlitSpriteQuad(textureAtlasSprite, bufferBuilder, matrix4f, r, s, n, o, i + t, j + v, k, u, w);
             }
         }
-        BufferUploader.drawWithShader(bufferBuilder./*? if <1.20.5 {*/end/*?} else {*//*buildOrThrow*//*?}*/());
+        BufferUploader.drawWithShader(bufferBuilder./^? if <1.20.5 {^//^end^//^?} else {^/buildOrThrow/^?}^/());
     }
 
     //? if <=1.20.1 {
-    /*private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
+    /^private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
         addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i * 16), textureAtlasSprite.getU((float)(k + p) / (float)i * 16), textureAtlasSprite.getV((float)l / (float)j * 16), textureAtlasSprite.getV((float)(l + q) / (float)j * 16));
     }
-    *///?} else {
+    ^///?} else {
     private void addBlitSpriteQuad(TextureAtlasSprite textureAtlasSprite, BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, int n, int o, int p, int q) {
         addBlitQuad(bufferBuilder, matrix4f, m, m + p, n, n + q, o, textureAtlasSprite.getU((float)k / (float)i), textureAtlasSprite.getU((float)(k + p) / (float)i), textureAtlasSprite.getV((float)l / (float)j), textureAtlasSprite.getV((float)(l + q) / (float)j));
     }
@@ -150,22 +150,22 @@ public interface FactoryGuiGraphics {
 
     private void addBlitQuad(BufferBuilder bufferBuilder, Matrix4f matrix4f, int i, int j, int k, int l, int m, float f, float g, float h, float n) {
         //? if <1.20.5 {
-        bufferBuilder.vertex(matrix4f, (float)i, (float)k, (float)m).uv(f, h).endVertex();
+        /^bufferBuilder.vertex(matrix4f, (float)i, (float)k, (float)m).uv(f, h).endVertex();
         bufferBuilder.vertex(matrix4f, (float)i, (float)l, (float)m).uv(f, n).endVertex();
         bufferBuilder.vertex(matrix4f, (float)j, (float)l, (float)m).uv(g, n).endVertex();
         bufferBuilder.vertex(matrix4f, (float)j, (float)k, (float)m).uv(g, h).endVertex();
-        //?} else {
-        /*bufferBuilder.addVertex(matrix4f, (float)i, (float)k, (float)m).setUv(f, h);
+        ^///?} else {
+        bufferBuilder.addVertex(matrix4f, (float)i, (float)k, (float)m).setUv(f, h);
         bufferBuilder.addVertex(matrix4f, (float)i, (float)l, (float)m).setUv(f, n);
         bufferBuilder.addVertex(matrix4f, (float)j, (float)l, (float)m).setUv(g, n);
         bufferBuilder.addVertex(matrix4f, (float)j, (float)k, (float)m).setUv(g, h);
-        *///?}
+        //?}
     }
-    //?}
+    *///?}
 
     //? if <1.21.6 {
 
-    void setColor(int color, boolean changeBlend);
+    /*void setColor(int color, boolean changeBlend);
 
     void setColor(float r, float g, float b, float a, boolean changeBlend);
 
@@ -188,10 +188,10 @@ public interface FactoryGuiGraphics {
         clearColor(false);
     }
 
-    //?}
+    *///?}
 
     //? if >=1.21.2 {
-    /*void setBlitColor(int color);
+    void setBlitColor(int color);
 
     void setBlitColor(float r, float g, float b, float a);
 
@@ -200,7 +200,7 @@ public interface FactoryGuiGraphics {
     default void clearBlitColor() {
         setBlitColor(1.0f,1.0f,1.0f,1.0f);
     }
-    *///?}
+    //?}
 
     @Deprecated
     void disableDepthTest();

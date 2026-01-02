@@ -1,9 +1,9 @@
 package wily.factoryapi.base.network;
 
 //? >=1.20.5 {
-/*import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-*///?}
+//?}
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,19 +52,19 @@ public interface CommonNetwork {
 
     interface Identifier<T extends Payload>{
         ResourceLocation location();
-        T decode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/ buf);
+        T decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf);
         //? >=1.20.5 {
-        /*CustomPacketPayload.Type<T> type();
+        CustomPacketPayload.Type<T> type();
         StreamCodec<RegistryFriendlyByteBuf,T> codec();
-        *///?}
+        //?}
         static <T extends Payload> Identifier<T> create(ResourceLocation location, Supplier<T> decoder){
             return create(location,b->decoder.get());
         }
         static <T extends Payload> Identifier<T> create(ResourceLocation location, Function<PlayBuf,T> decoder){
             //? >=1.20.5 {
-            /*CustomPacketPayload.Type<T> type = new CustomPacketPayload.Type<>(location);
+            CustomPacketPayload.Type<T> type = new CustomPacketPayload.Type<>(location);
             StreamCodec<RegistryFriendlyByteBuf,T> codec = StreamCodec.of((b,p)->p.encode(b),b->decoder.apply(()->b));
-            *///?}
+            //?}
             return new Identifier<>() {
                 @Override
                 public ResourceLocation location() {
@@ -72,12 +72,12 @@ public interface CommonNetwork {
                 }
 
                 @Override
-                public T decode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/ buf) {
+                public T decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf) {
                     return decoder.apply(()->buf);
                 }
 
                 //? >=1.20.5 {
-                /*@Override
+                @Override
                 public CustomPacketPayload.Type<T> type() {
                     return type;
                 }
@@ -86,22 +86,22 @@ public interface CommonNetwork {
                 public StreamCodec<RegistryFriendlyByteBuf, T> codec() {
                     return codec;
                 }
-                *///?}
+                //?}
             };
         }
     }
 
-    interface PlayBuf extends Supplier</*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/>{
+    interface PlayBuf extends Supplier</*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/>{
         static PlayBuf create() {
             return fromBuf(new FriendlyByteBuf(Unpooled.buffer()));
         }
 
-        static PlayBuf of(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/buf) {
+        static PlayBuf of(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/buf) {
             return ()-> buf;
         }
 
         static PlayBuf fromBuf(FriendlyByteBuf buf) {
-            return of(/*? if <1.20.5 {*/buf/*?} else {*//*new RegistryFriendlyByteBuf(buf, FactoryAPIPlatform.getRegistryAccess())*//*?}*/);
+            return of(/*? if <1.20.5 {*//*buf*//*?} else {*/new RegistryFriendlyByteBuf(buf, FactoryAPIPlatform.getRegistryAccess())/*?}*/);
         }
     }
 
@@ -162,27 +162,27 @@ public interface CommonNetwork {
 
         Identifier<? extends Payload> identifier();
 
-        default void encode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*/ /*RegistryFriendlyByteBuf *//*?}*/ buf){
+        default void encode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf){
             encode(()->buf);
         }
 
         void encode(PlayBuf buf);
 
         //? >=1.20.5 {
-        /*@Override
+        @Override
         default Type<? extends CustomPacketPayload> type(){
             return identifier().type();
         }
-        *///?} else if >1.20.1 {
+        //?} else if >1.20.1 {
 
-        default void write(FriendlyByteBuf buf){
+        /*default void write(FriendlyByteBuf buf){
             encode(buf);
         }
 
         default ResourceLocation id(){
             return identifier().location();
         }
-        //?}
+        *///?}
     }
 
     abstract class EmptyPayload implements Payload{
@@ -210,11 +210,11 @@ public interface CommonNetwork {
         if (!bypassCheck && !ENABLED_PLAYERS.get(serverPlayer.getUUID()).contains(payload.identifier().location().getNamespace())) return;
         //? if fabric {
         //? if <1.20.5 {
-        FriendlyByteBuf buf = PacketByteBufs.create();
+        /*FriendlyByteBuf buf = PacketByteBufs.create();
         payload.encode(buf);
         ServerPlayNetworking.send(serverPlayer,payload.identifier().location(), buf);
-        //?} else
-        /*ServerPlayNetworking.send(serverPlayer,payload);*/
+        *///?} else
+        ServerPlayNetworking.send(serverPlayer,payload);
         //?} elif forge {
         /*//? if <1.20.5 {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -248,11 +248,11 @@ public interface CommonNetwork {
         if (!FactoryAPI.isClient() || !bypassCheck && !FactoryAPIClient.hasModOnServer(payload.identifier().location().getNamespace())) return;
         //? if fabric {
         //? if <1.20.5 {
-        FriendlyByteBuf buf = PacketByteBufs.create();
+        /*FriendlyByteBuf buf = PacketByteBufs.create();
         payload.encode(buf);
         ClientPlayNetworking.send(payload.identifier().location(),buf);
-        //?} else
-        /*ClientPlayNetworking.send(payload);*/
+        *///?} else
+        ClientPlayNetworking.send(payload);
         //?} elif forge {
         /*//? if <1.20.5 {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
@@ -274,19 +274,19 @@ public interface CommonNetwork {
     }
 
     static void encodeComponent(PlayBuf buf, Component component){
-        /*? if >=1.20.5 {*/ /*ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) *//*?} else {*/ buf.get().writeComponent(component)/*?}*/;
+        /*? if >=1.20.5 {*/ ComponentSerialization.STREAM_CODEC.encode(buf.get(),component) /*?} else {*/ /*buf.get().writeComponent(component)*//*?}*/;
     }
 
     static Component decodeComponent(PlayBuf buf){
-        return /*? if >=1.20.5 {*/ /*ComponentSerialization.STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readComponent()/*?}*/;
+        return /*? if >=1.20.5 {*/ ComponentSerialization.STREAM_CODEC.decode(buf.get()) /*?} else {*/ /*buf.get().readComponent()*//*?}*/;
     }
 
     static void encodeItemStack(PlayBuf buf, ItemStack stack){
-        /*? if >=1.20.5 {*/ /*ItemStack.OPTIONAL_STREAM_CODEC.encode(buf.get(),stack) *//*?} else {*/ buf.get().writeItem(stack)/*?}*/;
+        /*? if >=1.20.5 {*/ ItemStack.OPTIONAL_STREAM_CODEC.encode(buf.get(),stack) /*?} else {*/ /*buf.get().writeItem(stack)*//*?}*/;
     }
 
     static ItemStack decodeItemStack(PlayBuf buf){
-        return /*? if >=1.20.5 {*/ /*ItemStack.OPTIONAL_STREAM_CODEC.decode(buf.get()) *//*?} else {*/ buf.get().readItem()/*?}*/;
+        return /*? if >=1.20.5 {*/ ItemStack.OPTIONAL_STREAM_CODEC.decode(buf.get()) /*?} else {*/ /*buf.get().readItem()*//*?}*/;
     }
 
     static void encodeBuf(PlayBuf buf, PlayBuf toEncode){

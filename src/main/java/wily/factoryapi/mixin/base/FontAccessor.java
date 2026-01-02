@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Font.class)
 public interface FontAccessor {
     //? if <1.21.9 {
-    @Invoker("getFontSet")
+    /*@Invoker("getFontSet")
     FontSet getDefaultFontSet(ResourceLocation arg);
     @Accessor
     boolean getFilterFishyGlyphs();
-    //?} else {
-    /*@Invoker("getGlyph")
+    *///?} else {
+    @Invoker("getGlyph")
     BakedGlyph getBakedGlyph(int i, Style style);
-    *///?}
+    //?}
 }

@@ -38,10 +38,10 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
         this.metadata = metadata;
     }
     *///?} else if <1.21.9 {
-    @Shadow public abstract ResourceMetadata metadata();
-    //?} else {
-    /*@Shadow public abstract <T> Optional<T> getAdditionalMetadata(MetadataSectionType<T> par1);
-    *///?}
+    /*@Shadow public abstract ResourceMetadata metadata();
+    *///?} else {
+    @Shadow public abstract <T> Optional<T> getAdditionalMetadata(MetadataSectionType<T> par1);
+    //?}
 
     @Shadow NativeImage[] byMipLevel;
 
@@ -53,10 +53,10 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
         if (!FactoryOptions.MANUAL_MIPMAP.get()) return;
 
         //? if >=1.21.9 {
-        /*MipmapMetadataSection manualMipmap = getAdditionalMetadata(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
-        *///?} else {
-        MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
-        //?}
+        MipmapMetadataSection manualMipmap = getAdditionalMetadata(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
+        //?} else {
+        /*MipmapMetadataSection manualMipmap = metadata().getSection(MipmapMetadataSection.TYPE).orElseGet(()->MipmapMetadataSection.createFallback((SpriteContents) (Object) this, i));
+        *///?}
         NativeImage original = byMipLevel[0];
         for (Map.Entry<Integer, MipmapMetadataSection.Level> entry : manualMipmap.levels().entrySet()) {
             if (entry.getKey() > i) break;

@@ -7,7 +7,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 //? >1.20.5
-/*import net.minecraft.core.component.DataComponentPatch;*/
+import net.minecraft.core.component.DataComponentPatch;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 //? if >1.20.1 {
 import net.minecraft.network.chat.ComponentSerialization;
@@ -34,12 +34,12 @@ import java.util.Optional;
 
 public class DynamicUtil {
     public static final ListMap<ResourceLocation, ArbitrarySupplier<ItemStack>> COMMON_ITEMS = new ListMap<>();
-    public static final LoadingCache<Pair<Dynamic<?>,Boolean>,ItemStack> DYNAMIC_ITEMS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(pair-> pair.getFirst().get("item").asString().result().or(()->pair.getFirst().asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
+    public static final LoadingCache<Pair<Dynamic<?>,Boolean>,ItemStack> DYNAMIC_ITEMS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(pair-> pair.getFirst().get("item").asString().result().or(()->pair.getFirst().asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*//*get*//*?} else {*/getValue/*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
         pair.getFirst().get("count").result().flatMap(d1-> Codec.INT.parse(d1).result()).ifPresent(i::setCount);
         //? if <1.20.5 {
-        if (pair.getSecond()) pair.getFirst().get("nbt").result().flatMap(d1-> CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
-        //?} else
-        /*if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
+        /*if (pair.getSecond()) pair.getFirst().get("nbt").result().flatMap(d1-> CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
+        *///?} else
+        if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);
         return i;
     }).orElse(ItemStack.EMPTY)));
     public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, FactoryAPIPlatform.getRegistryAccess())));
@@ -49,7 +49,7 @@ public class DynamicUtil {
     public static final Codec<Vec2> VEC2_OPTIONAL_CODEC = RecordCodecBuilder.create(i -> i.group(Codec.FLOAT.fieldOf("x").orElse(0f).forGetter(vec2 -> vec2.x), Codec.FLOAT.fieldOf("y").orElse(0f).forGetter(vec2 -> vec2.y)).apply(i, Vec2::new));
     public static final Codec<Vec2> VEC2_CODEC = Codec.either(VEC2_OPTIONAL_CODEC, Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.get(0), listx.get(1))), (vec3) -> List.of(vec3.x, vec3.y))).xmap(e -> e.map(v->v,v->v), Either::right);
 
-    public static final Codec<ItemStack> COMPLETE_ITEM_CODEC = RecordCodecBuilder.create(i -> i.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder), Codec.INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount), /*? if <1.20.5 {*/CompoundTag.CODEC.optionalFieldOf("nbt").forGetter((itemStack) -> Optional.ofNullable(itemStack.getTag()))/*?} else {*//*DataComponentPatch.CODEC.fieldOf("components").orElse(DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)*//*?}*/).apply(i, /*? if >1.20.1 {*/ItemStack::new/*?} else {*//*(item,count,nbt)->{ItemStack stack = new ItemStack(item,count); stack.setTag(nbt.orElse(null)); return stack;}*//*?}*/));
+    public static final Codec<ItemStack> COMPLETE_ITEM_CODEC = RecordCodecBuilder.create(i -> i.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder), Codec.INT.fieldOf("count").orElse(1).forGetter(ItemStack::getCount), /*? if <1.20.5 {*//*CompoundTag.CODEC.optionalFieldOf("nbt").forGetter((itemStack) -> Optional.ofNullable(itemStack.getTag()))*//*?} else {*/DataComponentPatch.CODEC.fieldOf("components").orElse(DataComponentPatch.EMPTY).forGetter(ItemStack::getComponentsPatch)/*?}*/).apply(i, /*? if >1.20.1 {*/ItemStack::new/*?} else {*//*(item,count,nbt)->{ItemStack stack = new ItemStack(item,count); stack.setTag(nbt.orElse(null)); return stack;}*//*?}*/));
     public static final Codec<ItemStack> ITEM_CODEC = Codec.either(BuiltInRegistries.ITEM.holderByNameCodec().xmap(ItemStack::new,ItemStack::getItemHolder), COMPLETE_ITEM_CODEC).xmap(e->e.right().orElseGet(e.left()::get), Either::right);
     public static Codec<ArbitrarySupplier<ItemStack>> ITEM_WITHOUT_DATA_SUPPLIER_CODEC = Codec.of(ITEM_CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemWithoutDataFromDynamic);
     public static Codec<ArbitrarySupplier<ItemStack>> ITEM_SUPPLIER_CODEC = Codec.of(ITEM_CODEC.xmap(ArbitrarySupplier::of,ArbitrarySupplier::get),DynamicUtil::getItemFromDynamic);
