@@ -1,6 +1,11 @@
 package wily.factoryapi.base.client;
 
 import net.minecraft.client.Minecraft;
+//? if >=1.21.11 {
+import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.network.chat.Style;
+import wily.factoryapi.mixin.base.ScreenAccessor;
+//?}
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
@@ -155,7 +160,14 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
                 for (int i1 = 0; i1 < lines.size(); i1++) {
                     int lineHeight = heightPerLine[i1];
                     if (e >= actualHeight && e < actualHeight + lineHeight){
-                        accessor.getScreen().handleComponentClicked(Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX())));
+                        //? if >=1.21.11 {
+                        ActiveTextCollector.ClickableStyleFinder clickableStyleFinder = new ActiveTextCollector.ClickableStyleFinder(Minecraft.getInstance().font, (int) d, (int) e);
+                        clickableStyleFinder.accept(0, Mth.floor(d - getX()), lines.get(i1)); // TODO WHAT WHAT WHAT WHAT WHAT
+                        Style style = clickableStyleFinder.result();
+                        if (style != null) ScreenAccessor.callDefaultHandleGameClickEvent(style.getClickEvent(), Minecraft.getInstance(), accessor.getScreen());
+                        //?} else {
+                        /*accessor.getScreen().handleComponentClicked(Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX())));
+                        *///?}
                         return true;
                     }
                     actualHeight += lineHeight;

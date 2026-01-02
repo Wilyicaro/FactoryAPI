@@ -32,6 +32,9 @@
     //? if >=1.21.9 {
     "BakedSheetGlyphAccessor",
     //?}
+    //? if >=1.21.11 {
+    "ScreenAccessor",
+    //?}
     "SpriteLoaderMixin",
     "AbstractContainerScreenMixin",
     "AbstractWidgetMixin",
