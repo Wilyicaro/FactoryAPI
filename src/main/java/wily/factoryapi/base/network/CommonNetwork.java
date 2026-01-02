@@ -12,7 +12,6 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.chat.ComponentSerialization;
 //?}
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -51,23 +50,23 @@ public interface CommonNetwork {
     Multimap<UUID, String> ENABLED_PLAYERS = HashMultimap.create();
 
     interface Identifier<T extends Payload>{
-        Identifier location();
+        net.minecraft.resources.Identifier location();
         T decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf);
         //? >=1.20.5 {
         CustomPacketPayload.Type<T> type();
         StreamCodec<RegistryFriendlyByteBuf,T> codec();
         //?}
-        static <T extends Payload> Identifier<T> create(Identifier location, Supplier<T> decoder){
+        static <T extends Payload> CommonNetwork.Identifier<T> create(net.minecraft.resources.Identifier location, Supplier<T> decoder){
             return create(location,b->decoder.get());
         }
-        static <T extends Payload> Identifier<T> create(Identifier location, Function<PlayBuf,T> decoder){
+        static <T extends Payload> CommonNetwork.Identifier<T> create(net.minecraft.resources.Identifier location, Function<PlayBuf,T> decoder){
             //? >=1.20.5 {
             CustomPacketPayload.Type<T> type = new CustomPacketPayload.Type<>(location);
             StreamCodec<RegistryFriendlyByteBuf,T> codec = StreamCodec.of((b,p)->p.encode(b),b->decoder.apply(()->b));
             //?}
-            return new Identifier<>() {
+            return new CommonNetwork.Identifier<>() {
                 @Override
-                public Identifier location() {
+                public net.minecraft.resources.Identifier location() {
                     return location;
                 }
 
@@ -160,7 +159,7 @@ public interface CommonNetwork {
             else applyServer(player);
         }
 
-        Identifier<? extends Payload> identifier();
+        CommonNetwork.Identifier<? extends Payload> identifier();
 
         default void encode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/ RegistryFriendlyByteBuf /*?}*/ buf){
             encode(()->buf);
@@ -179,16 +178,16 @@ public interface CommonNetwork {
             encode(buf);
         }
 
-        default Identifier id(){
+        default CommonNetwork.Identifier id(){
             return identifier().location();
         }
         *///?}
     }
 
     abstract class EmptyPayload implements Payload{
-        private final Identifier<? extends Payload> identifier;
+        private final CommonNetwork.Identifier<? extends Payload> identifier;
 
-        public EmptyPayload(Identifier<? extends Payload> identifier){
+        public EmptyPayload(CommonNetwork.Identifier<? extends Payload> identifier){
             this.identifier = identifier;
         }
 
@@ -197,7 +196,7 @@ public interface CommonNetwork {
         }
 
         @Override
-        public Identifier<? extends Payload> identifier() {
+        public CommonNetwork.Identifier<? extends Payload> identifier() {
             return identifier;
         }
     }

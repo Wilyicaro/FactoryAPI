@@ -58,6 +58,9 @@ stonecutter {
             replace("ResourceLocation", "Identifier")
         }
         string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("CommonNetwork.Identifier", "CommonNetwork.Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
             replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
         }
     }
