@@ -62,21 +62,24 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     }
     *///?}
 
-    @Inject(method = "renderString", at = @At("HEAD"))
+    // TODO 1.21.11
+    //? if <1.21.11 {
+    /*@Inject(method = "renderString", at = @At("HEAD"))
     public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
         Identifier sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {
-            /*FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
-            *///?} else
+            /^FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
+            ^///?} else
             FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
             FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
             //? if <1.21.6 {
-            /*FactoryGuiGraphics.of(guiGraphics).clearColor();
-            *///?} else
+            /^FactoryGuiGraphics.of(guiGraphics).clearColor();
+            ^///?} else
             FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
             FactoryScreenUtil.disableBlend();
         }
     }
+    *///?}
 }

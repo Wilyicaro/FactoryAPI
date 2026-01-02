@@ -9,8 +9,11 @@ import wily.factoryapi.base.client.FactoryOptions;
 
 @Mixin(MipmapGenerator.class)
 public class MipmapGeneratorMixin {
-    @Inject(method = "alphaBlend", at = @At("HEAD"), cancellable = true)
+    // TODO 1.21.11
+    //? if <1.21.11 {
+    /*@Inject(method = "alphaBlend", at = @At("HEAD"), cancellable = true)
     private static void alphaBlend(int i, int j, int k, int l, boolean bl, CallbackInfoReturnable<Integer> cir) {
         if (FactoryOptions.NEAREST_MIPMAP_SCALING.get()) cir.setReturnValue(l);
     }
+    *///?}
 }
