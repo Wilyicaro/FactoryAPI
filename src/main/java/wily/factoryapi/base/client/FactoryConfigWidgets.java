@@ -47,9 +47,9 @@ public class FactoryConfigWidgets {
         AbstractWidget override = getOverride(config, tooltipFunction, x, y, width, afterSet);
         if (override != null) return override;
         if (config.control().equals(FactoryConfigControl.TOGGLE)) {
-            return CycleButton.<Boolean>builder(b -> display.valueToComponent().apply((T) b)).withValues(OptionInstance.BOOLEAN_VALUES.valueListSupplier()).withTooltip(((Function<Boolean, Tooltip>) tooltipFunction)::apply).withInitialValue((Boolean) config.get()).create(x, y, width, 20, display.name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, (T)object, afterSet));
+            return CycleButton.<Boolean>builder(b -> display.valueToComponent().apply((T) b)/*? if >=1.21.11 {*/, () -> (Boolean) config.get()/*?}*/).withValues(OptionInstance.BOOLEAN_VALUES.valueListSupplier()).withTooltip(((Function<Boolean, Tooltip>) tooltipFunction)::apply)/*? if <1.21.11 {*//*.withInitialValue((Boolean) config.get())*//*?}*/.create(x, y, width, 20, display.name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, (T)object, afterSet));
         } else if (config.control() instanceof FactoryConfigControl.FromInt<T> c) {
-            return CycleButton.builder(display.valueToComponent()).withValues(listSupplier(c.valueGetter(), c.valuesSize())).withTooltip(tooltipFunction::apply).withInitialValue(config.get()).create(x, y, width, 20, display.name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, object,afterSet));
+            return CycleButton.builder(display.valueToComponent()/*? if >=1.21.11 {*/, config/*?}*/).withValues(listSupplier(c.valueGetter(), c.valuesSize())).withTooltip(tooltipFunction::apply)/*? if <1.21.11 {*//*.withInitialValue(config.get())*//*?}*/.create(x, y, width, 20, display.name(), (cycleButton, object) -> FactoryConfig.saveOptionAndConsume(config, object,afterSet));
         } else if (config.control() instanceof FactoryConfigControl.FromDouble<T> c) {
             return createSlider(config, x, y, width, afterSet, c.valueGetter(), c.valueSetter(), tooltipFunction);
         } else if (config.control() instanceof FactoryConfigControl.Int c) {
