@@ -1,22 +1,22 @@
 package wily.factoryapi.mixin.base;
 
 //? if >=1.21.11 {
-/*import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.gui.ActiveTextCollector;
 import wily.factoryapi.base.FactoryRenderingTextCollector;
-*///?} else {
-import net.minecraft.client.gui.Font;
-//?}
+//?} else {
+/*import net.minecraft.client.gui.Font;
+*///?}
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
 //? if >=1.21.9 {
-/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-*///?}
+//?}
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,7 +34,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     }
 
     //? if >=1.21.9 {
-    /*@Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     public void onClick(MouseButtonEvent mouseButtonEvent, boolean bl, CallbackInfo ci) {
         if (getOnPressOverride() != null) {
             super.onClick(mouseButtonEvent, bl);
@@ -49,8 +49,8 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             cir.setReturnValue(true);
         }
     }
-    *///?} else {
-    @Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
+    //?} else {
+    /*@Inject(method = "onClick", at = @At("HEAD"), cancellable = true)
     public void onClick(double d, double e, CallbackInfo ci) {
         if (getOnPressOverride() != null) {
             super.onClick(d,e);
@@ -65,27 +65,27 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             cir.setReturnValue(true);
         }
     }
-    //?}
+    *///?}
 
     // TODO 1.21.11
-    @Inject(method = /*? if <1.21.11 {*/"renderString"/*?} else {*//*"renderDefaultLabel"*//*?}*/, at = @At("HEAD"))
-    public void renderString(/*? if <1.21.11 {*/GuiGraphics guiGraphics, Font font, int i, /*?} else {*//*ActiveTextCollector activeTextCollector, *//*?}*/ CallbackInfo ci) {
+    @Inject(method = /*? if <1.21.11 {*//*"renderString"*//*?} else {*/"renderDefaultLabel"/*?}*/, at = @At("HEAD"))
+    public void renderString(/*? if <1.21.11 {*//*GuiGraphics guiGraphics, Font font, int i, *//*?} else {*/ActiveTextCollector activeTextCollector, /*?}*/ CallbackInfo ci) {
         //? if >=1.21.11 {
-        /*GuiGraphics guiGraphics;
+        GuiGraphics guiGraphics;
         if (activeTextCollector instanceof FactoryRenderingTextCollector collector) guiGraphics = collector.getGuiGraphics(); else return;
-        *///?}
-        ResourceLocation sprite = getSpriteOverride();
+        //?}
+        Identifier sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {
-            FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
-            //?} else
-            //FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
+            /*FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
+            *///?} else
+            FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
             FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
             //? if <1.21.6 {
-            FactoryGuiGraphics.of(guiGraphics).clearColor();
-            //?} else
-            //FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
+            /*FactoryGuiGraphics.of(guiGraphics).clearColor();
+            *///?} else
+            FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
             FactoryScreenUtil.disableBlend();
         }
     }

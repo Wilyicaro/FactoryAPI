@@ -70,7 +70,7 @@ public interface ItemContainerPlatform {
   
     static Fluid getBucketFluid(BucketItem item) {
         //? if fabric {
-        return ((BucketItemAccessor)item).fabric_getFluid();
+        return ((BucketItemAccessor)item).fabric_getContent();
         //?} elif forge || neoforge && <1.21 {
         /*return item.getFluid();
          *///?} else if neoforge {

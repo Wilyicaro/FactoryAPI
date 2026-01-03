@@ -8,8 +8,8 @@ public interface MinecraftAccessor {
         return (MinecraftAccessor) Minecraft.getInstance();
     }
     //? if <1.20.5 {
-    float getPausePartialTick();
-    //?}
+    /*float getPausePartialTick();
+    *///?}
     boolean setUser(User user);
 
     boolean hasGameLoaded();

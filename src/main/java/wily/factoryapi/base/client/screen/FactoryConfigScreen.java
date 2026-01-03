@@ -102,16 +102,16 @@ public class FactoryConfigScreen extends Screen {
             }
 
             //? if >=1.21.9 {
-            /*@Override
+            @Override
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
                 renderContent(guiGraphics, i, j, bl, f, getContentY());
             }
-            *///?} else {
-            @Override
+            //?} else {
+            /*@Override
             public void render(GuiGraphics arg, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
                 renderContent(arg, n, o, bl, f, j);
             }
-            //?}
+            *///?}
 
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f, int contentY) {
                 int p = 0;

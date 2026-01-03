@@ -1,27 +1,19 @@
 package wily.factoryapi;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.mojang.brigadier.arguments.ArgumentType;
-import io.netty.buffer.Unpooled;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 //? if forge {
 /*import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,23 +45,18 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 *///?} elif fabric {
-import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 //? if <1.21.11 {
-import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
-//?} else {
-/*import net.fabricmc.fabric.mixin.command.ArgumentTypeInfosAccessor;
-*///?}
+/*import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
+*///?} else {
+import net.fabricmc.fabric.mixin.command.ArgumentTypeInfosAccessor;
+//?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.Person;
@@ -126,26 +113,16 @@ import wily.factoryapi.base.neoforge.NeoForgeItemStoragePlatform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import wily.factoryapi.base.*;
-import wily.factoryapi.base.network.CommonNetwork;
-import wily.factoryapi.util.FluidInstance;
 import wily.factoryapi.util.ListMap;
 import wily.factoryapi.util.ModInfo;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface FactoryAPIPlatform {
@@ -176,8 +153,8 @@ public interface FactoryAPIPlatform {
         /*throw new AssertionError();*/
     }
 
-    static <T> T getRegistryValue(ResourceLocation location, Registry<T> registry) {
-        return registry./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(location);
+    static <T> T getRegistryValue(Identifier location, Registry<T> registry) {
+        return registry./*? if <1.21.2 {*//*get*//*?} else {*/getValue/*?}*/(location);
     }
 
     static <T> Optional<Holder.Reference<T>> getRegistryValue(RegistryAccess access, ResourceKey<T> resourceKey) {
@@ -188,24 +165,24 @@ public interface FactoryAPIPlatform {
         return setupBlockProperties(properties, blockHolder.getId());
     }
 
-    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.BLOCK, id))*//*?}*/;
+    static BlockBehaviour.Properties setupBlockProperties(BlockBehaviour.Properties properties, Identifier id) {
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.BLOCK, id))/*?}*/;
     }
 
     static Item.Properties setupItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Item> itemHolder) {
         return setupItemProperties(properties, itemHolder.getId());
     }
 
-    static Item.Properties setupItemProperties(Item.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()*//*?}*/;
+    static Item.Properties setupItemProperties(Item.Properties properties, Identifier id) {
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useItemDescriptionPrefix()/*?}*/;
     }
 
     static Item.Properties setupBlockItemProperties(Item.Properties properties, RegisterListing.Holder<? extends Block> blockHolder) {
         return setupBlockItemProperties(properties, blockHolder.getId());
     }
 
-    static Item.Properties setupBlockItemProperties(Item.Properties properties, ResourceLocation id) {
-        return properties/*? if >=1.21.2 {*//*.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()*//*?}*/;
+    static Item.Properties setupBlockItemProperties(Item.Properties properties, Identifier id) {
+        return properties/*? if >=1.21.2 {*/.setId(ResourceKey.create(Registries.ITEM, id)).useBlockDescriptionPrefix()/*?}*/;
     }
 
     @FunctionalInterface
@@ -214,7 +191,7 @@ public interface FactoryAPIPlatform {
     }
 
     static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntitySupplier<T> supplier, Block... blocks) {
-        return /*? if <1.21.2 {*/BlockEntityType.Builder.of(supplier::create, blocks).build(null)/*?} else {*/ /*new BlockEntityType<>(supplier::create, Set.of(blocks))*//*?}*/;
+        return /*? if <1.21.2 {*//*BlockEntityType.Builder.of(supplier::create, blocks).build(null)*//*?} else {*/ new BlockEntityType<>(supplier::create, Set.of(blocks))/*?}*/;
     }
 
     static IPlatformFluidHandler getItemFluidHandler(ItemStack container) {
@@ -289,7 +266,7 @@ public interface FactoryAPIPlatform {
     /*static <T> RegisterListing.Holder<T> deferredToRegisterHolder(RegistryObject<T> holder) {
         return new RegisterListing.Holder<>() {
             @Override
-            public ResourceLocation getId() {
+            public Identifier getId() {
                 return holder.getId();
             }
             @Override
@@ -320,7 +297,7 @@ public interface FactoryAPIPlatform {
     /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder) {
         return new RegisterListing.Holder<>() {
             @Override
-            public ResourceLocation getId() {
+            public Identifier getId() {
                 return holder.getId();
             }
             @Override
@@ -437,7 +414,7 @@ public interface FactoryAPIPlatform {
 
     static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> void registerByClassArgumentType(Class<A> infoClass, I argumentTypeInfo) {
         //? if fabric {
-        /*? if <1.21.11 {*/ArgumentTypesAccessor/*?} else {*//*ArgumentTypeInfosAccessor*//*?}*/.fabric_getClassMap().put(infoClass,argumentTypeInfo);
+        /*? if <1.21.11 {*//*ArgumentTypesAccessor*//*?} else {*/ArgumentTypeInfosAccessor/*?}*/.fabric_getClassMap().put(infoClass,argumentTypeInfo);
         //?} else if forge || neoforge {
         /*ArgumentTypeInfos.registerByClass(infoClass,argumentTypeInfo);
          *///?} else
@@ -466,12 +443,12 @@ public interface FactoryAPIPlatform {
                 forEach(o-> Registry.register(registry,o.getId(),o.get()));
             }
             @Override
-            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
-                ResourceLocation id = FactoryAPI.createLocation(getNamespace(), name);
+            public <V extends T> Holder<V> add(String name, Function<Identifier, V> supplier) {
+                Identifier id = FactoryAPI.createLocation(getNamespace(), name);
                 Holder<V> h = new Holder<>() {
                     V obj;
                     @Override
-                    public ResourceLocation getId() {
+                    public Identifier getId() {
                         return id;
                     }
 
@@ -515,7 +492,7 @@ public interface FactoryAPIPlatform {
                 REGISTER.register(getModEventBus());
             }
             @Override
-            public <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier) {
+            public <V extends T> Holder<V> add(String name, Function<Identifier, V> supplier) {
                 return deferredToRegisterHolder(REGISTER.register(name,()-> supplier.apply(FactoryAPI.createLocation(getNamespace(), name))));
             }
             @NotNull
@@ -713,6 +690,6 @@ public interface FactoryAPIPlatform {
     }
 
     static boolean isPackHidden(Pack pack) {
-        return /*? if fabric && >=1.20.4 && <1.21.11 {*/ ((net.fabricmc.fabric.impl.resource.loader.FabricResourcePackProfile)pack).fabric_isHidden() /*?} else {*/ /*false*//*?}*/;
+        return /*? if fabric && >=1.20.4 && <1.21.11 {*/ /*((net.fabricmc.fabric.impl.resource.loader.FabricResourcePackProfile)pack).fabric_isHidden() *//*?} else {*/ false/*?}*/;
     }
 }

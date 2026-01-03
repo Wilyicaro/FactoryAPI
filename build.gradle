@@ -4,9 +4,25 @@ import groovy.json.JsonParserType
 import groovy.json.JsonOutput
 
 plugins {
-    id "dev.architectury.loom"
+
     id "me.modmuss50.mod-publish-plugin" version "0.7.4"
     id 'maven-publish'
+}
+
+def unobfuscated = project.name.startsWith("26")
+System.out.println("unobfuscated minecraft? " + unobfuscated)
+apply plugin: unobfuscated
+        ? 'net.fabricmc.fabric-loom'
+        : 'net.fabricmc.fabric-loom-remap'
+System.out.println(net.fabricmc.loom.LoomGradlePlugin.LOOM_VERSION)
+
+if (unobfuscated) {
+    configurations {
+        implementation.extendsFrom(modImplementation)
+        api.extendsFrom(modApi)
+        compileOnly.extendsFrom(modCompileOnly)
+        runtimeOnly.extendsFrom(modRuntimeOnly)
+    }
 }
 
 base.archivesName = project.archives_base_name
@@ -23,18 +39,22 @@ repositories {
     }
 
 }
+
+
+
 configurations.configureEach {
     resolutionStrategy {
         force("net.fabricmc:fabric-loader:${fabric_loader_version}")
     }
 }
+
 dependencies {
     minecraft "com.mojang:minecraft:${stonecutter.current.version}"
-    mappings loom.officialMojangMappings()
+    if (!unobfuscated) mappings loom.officialMojangMappings()
     if (loader == "fabric") {
         modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
         modApi "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-        modImplementation("com.terraformersmc:modmenu:${modmenu_version}")
+        modCompileOnly("com.terraformersmc:modmenu:${modmenu_version}")
         modCompileOnly("me.lucko:fabric-permissions-api:${fpapi_version}")
 
         include modApi("teamreborn:energy:${team_reborn_energy_version}") {
@@ -84,7 +104,7 @@ stonecutter {
     }
 }
 
-def aw = "${mod_id}-${stonecutter.eval(stonecutter.current.version, ">=1.21.2") ? 1212 : 120}.accesswidener"
+def aw = "${mod_id}-${stonecutter.eval(stonecutter.current.version, ">=26.0") ? 261 : stonecutter.eval(stonecutter.current.version, ">=1.21.2") ? 1212 : 120}.accesswidener"
 
 loom {
     accessWidenerPath.set(getRootProject().file("src/main/resources/${aw}"))
@@ -94,20 +114,30 @@ loom {
         mixinConfigs("${mod_id}.mixins.json")
     }
     mixin {
-        useLegacyMixinAp = true
+        useLegacyMixinAp = !unobfuscated
         defaultRefmapName = "${mod_id}.refmap.json"
     }
 }
 
 def isJava21 = stonecutter.eval(stonecutter.current.version, ">=1.20.5")
+def isJava25 = stonecutter.eval(stonecutter.current.version, ">=26.0") // todo figure out >=26.1 snap 1
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-    options.release = isJava21 ? 21 : 17
+    options.release = isJava25 ? 25 : isJava21 ? 21 : 17
 }
 
 def buildJar = tasks.create("buildJar", Copy.class) {
     into("${rootProject.layout.getBuildDirectory().get()}/libs/$mod_version")
+}
+
+tasks.register('renameJarForPublication', Zip) {
+    dependsOn unobfuscated? jar : remapJar
+    from (unobfuscated? jar : remapJar).archiveFile.map { zipTree(it) }
+    archiveExtension = "jar"
+    metadataCharset "UTF-8"
+    destinationDirectory = base.libsDirectory
+    archiveClassifier = loader
 }
 
 afterEvaluate {
@@ -118,11 +148,13 @@ afterEvaluate {
 
 java {
     withSourcesJar()
-    sourceCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
-    targetCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
+    sourceCompatibility = isJava25 ? JavaVersion.VERSION_25 : isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
+    targetCompatibility = isJava25 ? JavaVersion.VERSION_25 : isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
 }
-remapJar {
-    if (loader == "neoforge") atAccessWideners.add aw
+if (!unobfuscated) {
+    remapJar {
+        if (loader == "neoforge") atAccessWideners.add aw
+    }
 }
 ext {
     releaseChangelog = {
@@ -208,14 +240,7 @@ processResources {
     }
 }
 
-tasks.register('renameJarForPublication', Zip) {
-    dependsOn remapJar
-    from remapJar.archiveFile.map { zipTree(it) }
-    archiveExtension = "jar"
-    metadataCharset "UTF-8"
-    destinationDirectory = base.libsDirectory
-    archiveClassifier = loader
-}
+
 
 assemble.dependsOn renameJarForPublication
 
@@ -292,7 +317,8 @@ publishMods {
 
     curseforge {
         minecraftVersions.addAll versions
-        if (isJava21) javaVersions.add(JavaVersion.VERSION_21)
+        if (isJava25) javaVersions.add(JavaVersion.VERSION_25)
+        else if (isJava21) javaVersions.add(JavaVersion.VERSION_21)
         else javaVersions.addAll(JavaVersion.VERSION_17,JavaVersion.VERSION_18)
         clientRequired = true
         serverRequired = true

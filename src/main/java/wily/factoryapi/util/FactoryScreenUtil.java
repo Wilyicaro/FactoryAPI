@@ -1,10 +1,10 @@
 package wily.factoryapi.util;
 
 //? if >1.21.4 {
-/*import com.mojang.blaze3d.opengl.GlStateManager;
- *///?} else {
-import com.mojang.blaze3d.platform.GlStateManager;
-//?}
+import com.mojang.blaze3d.opengl.GlStateManager;
+ //?} else {
+/*import com.mojang.blaze3d.platform.GlStateManager;
+*///?}
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -45,24 +45,24 @@ public class FactoryScreenUtil {
     public static void drawString(FactoryGuiMatrixStack stack, String text, int x, int y, int color, boolean shadow) {
         Font font = mc.font;
         //? if >=1.21.6 {
-        /*switch (stack) {
+        switch (stack) {
             case GuiGraphics graphics -> graphics.drawString(font, text, x, y, color, shadow);
             case PoseStack poseStack -> {
                 MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-				font.drawInBatch(/^? if >=1.21.2 {^//^Component.literal(text)^//^?} else {^/ text/^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
+				font.drawInBatch(/*? if >=1.21.2 {*/Component.literal(text)/*?} else {*/ /*text*//*?}*/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/*? if <1.21.6 {*//*, font.isBidirectional()*//*?}*/);
                 disableDepthTest();
                 source.endBatch();
                 enableDepthTest();
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + stack);
 		}
-        *///?} else {
-        MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-        font.drawInBatch(/*? if >=1.21.2 {*//*Component.literal(text)*//*?} else {*/ text/*?}*/, (float) x, (float) y, color, shadow, stack.<PoseStack>getNative().last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/*? if <1.21.6 {*/, font.isBidirectional()/*?}*/);
+        //?} else {
+        /*MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
+        font.drawInBatch(/^? if >=1.21.2 {^/Component.literal(text)/^?} else {^/ /^text^//^?}^/, (float) x, (float) y, color, shadow, stack.<PoseStack>getNative().last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^//^, font.isBidirectional()^//^?}^/);
         disableDepthTest();
         source.endBatch();
         enableDepthTest();
-        //?}
+        *///?}
     }
 
     public static void disableDepthTest(){
@@ -100,7 +100,7 @@ public class FactoryScreenUtil {
     }
 
     //? if <1.21.6 {
-    public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
+    /*public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
         Item item = state.getBlock().asItem();
         graphics.pose().pushPose();
         graphics.pose().translate(i + 8F, j + 8F, 250F);
@@ -120,16 +120,16 @@ public class FactoryScreenUtil {
                 mc.getBlockRenderer().renderSingleBlock(state, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
             }
         } else {
-            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY /*? if >1.21.4 {*//*, Vec3.ZERO*//*?}*/);
+            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY /^? if >1.21.4 {^/, Vec3.ZERO/^?}^/);
         }
         graphics.flush();
         graphics.pose().popPose();
     }
-    //?} else {
-    /*public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
+    *///?} else {
+    public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
         throw new IllegalStateException("Not implemented in 1.21.6+!");
     }
-    *///?}
+    //?}
 
     public static void playButtonDownSound(float grave) {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, grave));
@@ -149,9 +149,9 @@ public class FactoryScreenUtil {
 
     public static void applyColor(GuiGraphics graphics, int color) {
         //? if >=1.21.6 {
-        /*if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
-        *///?} else
-        if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
+        if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
+        //?} else
+        //if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
     }
 
     public static UIAccessor getScreenAccessor(){

@@ -1,5 +1,5 @@
 //? if >=1.21.11 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,4 +15,4 @@ public interface ScreenAccessor {
 		throw new UnsupportedOperationException();
 	}
 }
-*///?}
+//?}

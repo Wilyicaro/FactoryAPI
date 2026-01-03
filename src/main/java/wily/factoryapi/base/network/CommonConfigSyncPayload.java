@@ -3,12 +3,12 @@ package wily.factoryapi.base.network;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 //? if >=1.21.11 {
-/*import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
-*///?}
+//?}
 import net.minecraft.world.entity.player.Player;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -17,7 +17,7 @@ import wily.factoryapi.base.config.FactoryConfig;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncPayload> identifier, ResourceLocation commonConfigStorage, CompoundTag configTag) implements CommonNetwork.Payload {
+public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncPayload> identifier, Identifier commonConfigStorage, CompoundTag configTag) implements CommonNetwork.Payload {
     public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_S2C = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("common_config_sync_s2c"),CommonConfigSyncPayload::createS2C);
     public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_C2S = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("common_config_sync_c2s"),CommonConfigSyncPayload::createC2S);
 
@@ -29,7 +29,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
     }
 
     public CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncPayload> identifier, CommonNetwork.PlayBuf playBuf){
-        this(identifier, playBuf.get().readResourceLocation(), playBuf.get().readNbt());
+        this(identifier, playBuf.get().readIdentifier(), playBuf.get().readNbt());
     }
 
     public static CommonConfigSyncPayload createS2C(CommonNetwork.PlayBuf playBuf){
@@ -43,7 +43,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
     @Override
     public void apply(Context context) {
         FactoryConfig.COMMON_STORAGES.get(commonConfigStorage).decodeConfigs(new Dynamic<>(NbtOps.INSTANCE, configTag));
-        if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp/*? if >=1.21.11 {*//*.permissions().hasPermission*//*?} else {*/.hasPermissions/*?}*/(/*? if >=1.21.11 {*//*new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)*//*?} else {*/2/*?}*/)){
+        if (!context.isClient() && context.player() instanceof ServerPlayer sp && sp/*? if >=1.21.11 {*/.permissions().hasPermission/*?} else {*//*.hasPermissions*//*?}*/(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/)){
             FactoryConfig.StorageHandler handler = FactoryConfig.COMMON_STORAGES.get(commonConfigStorage);
             CommonNetwork.sendToPlayers(FactoryAPIPlatform.getEntityServer(sp).getPlayerList().getPlayers(), new CommonConfigSyncPayload(ID_S2C, commonConfigStorage, configTag));
             handler.save();
@@ -52,7 +52,7 @@ public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncP
 
     @Override
     public void encode(CommonNetwork.PlayBuf playBuf) {
-        playBuf.get().writeResourceLocation(commonConfigStorage);
+        playBuf.get().writeIdentifier(commonConfigStorage);
         playBuf.get().writeNbt(configTag);
     }
 
