@@ -40,12 +40,12 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     //? if <1.20.5 || forge {
     private CompoundTag tag;
     //?} else
-    /*private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);*/
+    //private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);
 
 
     public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 || forge {*/ CompoundTag/*?} else {*/ /*DataComponentPatch*//*?}*/.CODEC.fieldOf(/*? if <1.20.5 || forge {*/ "nbt"/*?} else {*/ /*"components"*//*?}*/).forGetter(FluidInstance::/*? if <1.20.5 || forge {*/ getNonNullTag/*?} else {*//*getComponentsPatch*//*?}*/)).apply(i,FluidInstance::new));
     //? if >=1.20.5
-    /*public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);*/
+    //public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);
     public static final FluidInstance EMPTY = new FluidInstance(Fluids.EMPTY,0);
 
 
@@ -58,7 +58,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         //? if <1.20.5 || forge {
         this.tag = tag.copy();
         //?} else
-        /*this.components = PatchedDataComponentMap.fromPatch(DataComponentMap.builder().build(),components);*/
+        //this.components = PatchedDataComponentMap.fromPatch(DataComponentMap.builder().build(),components);
     }
 
     public static FluidInstance empty() {
@@ -247,7 +247,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         //? if <1.20.5 || forge {
         buf.writeNbt(instance.getNonNullTag());
         //?} else
-        /*DataComponentPatch.STREAM_CODEC.encode(buf,instance.getComponentsPatch());*/
+        //DataComponentPatch.STREAM_CODEC.encode(buf,instance.getComponentsPatch());
     }
     public static FluidInstance decode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf){
         int amount = buf.readInt();

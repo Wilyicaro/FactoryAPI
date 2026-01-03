@@ -219,7 +219,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
                 //?} else
-                /*FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);*/
+                //FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 renderable.render(guiGraphics, i, j, f);
@@ -228,7 +228,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 //? if <1.21.6 {
                 FactoryGuiGraphics.of(guiGraphics).clearColor();
                 //?} else
-                /*FactoryGuiGraphics.of(guiGraphics).clearBlitColor();*/
+                //FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
 
             }
         };

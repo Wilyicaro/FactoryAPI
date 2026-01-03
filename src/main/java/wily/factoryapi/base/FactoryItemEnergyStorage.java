@@ -49,7 +49,7 @@ public class FactoryItemEnergyStorage extends FactoryEnergyStorage{
         //? if <1.20.5 {
         container.getOrCreateTag().putInt(KEY,energy);
         //?} else
-        /*container.set(FactoryRegistries.ENERGY_COMPONENT.get(),energy);*/
+        //container.set(FactoryRegistries.ENERGY_COMPONENT.get(),energy);
     }
     //? if <1.20.5 {
     @Override

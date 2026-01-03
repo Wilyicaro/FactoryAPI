@@ -37,7 +37,11 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+//? if <1.21.11 {
 import net.minecraft.client.renderer.RenderType;
+//?} else {
+/*import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?}
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -261,7 +265,7 @@ public class FactoryAPIClient {
         });
         //? if fabric {
         //? if >=1.21.9 {
-        /*IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> vertexConsumers.submitModel(c.getHumanoidArmorModel(entity,stack,slot,contextModel), entity, matrices, RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack, slot)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFF, null), i));
+        /*IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> vertexConsumers.submitModel(c.getHumanoidArmorModel(entity,stack,slot,contextModel), entity, matrices, /^?if <1.21.11 {^/RenderType/^?} else {^//^RenderTypes^//^?}^/.entityCutout(((IFactoryItem) i).getArmorLocation(stack, slot)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFF, null), i));
         *///?} else {
         IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,/*? if <1.21.2 {*/ entity, /*?}*/slot))), light, OverlayTexture.NO_OVERLAY/*? if <=1.20.6 {*/, 1.0F,1.0F,1.0F, 1.0F/*?}*/),i));
         //?}

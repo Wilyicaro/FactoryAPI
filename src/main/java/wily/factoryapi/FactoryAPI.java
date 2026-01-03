@@ -197,7 +197,7 @@ public class FactoryAPI {
         //? if <1.20.5 {
         return new ResourceLocation(path);
         //?} else
-        /*return ResourceLocation.withDefaultNamespace(path);*/
+        //return ResourceLocation.withDefaultNamespace(path);
     }
 
     public static Loader getLoader() {

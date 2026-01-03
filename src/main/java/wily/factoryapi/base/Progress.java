@@ -10,20 +10,20 @@ import java.util.function.Consumer;
 
 public class Progress implements ITagSerializable<CompoundTag> {
 
-    public Identifier identifier;
+    public Progress.Identifier identifier;
     private final List<ProgressEntry> entries;
 
-    public Progress(Identifier identifier, List<ProgressEntry> entries){
+    public Progress(Progress.Identifier identifier, List<ProgressEntry> entries){
         this.identifier = identifier;
         this.entries = entries;
     }
-    public Progress(Identifier identifier) {
+    public Progress(Progress.Identifier identifier) {
         this(identifier, new ArrayList<>());
     }
-    public Progress(Identifier identifier, int x, int y, int initialMaxProgress){
+    public Progress(Progress.Identifier identifier, int x, int y, int initialMaxProgress){
         this(identifier, List.of(new ProgressEntry(x,y,initialMaxProgress)));
     }
-    public Progress(Identifier identifier, int entries, int defaultMaxProgress){
+    public Progress(Progress.Identifier identifier, int entries, int defaultMaxProgress){
         this(identifier);
         for (int i = 0; i < entries; i++)
             add(0,0,defaultMaxProgress);
@@ -109,12 +109,12 @@ public class Progress implements ITagSerializable<CompoundTag> {
         }
     }
     public record Identifier(String name) {
-        public static Identifier DEFAULT = new Identifier("progress");
-        public static Identifier ENERGY_STORAGE = new Identifier("energyStorage");
-        public static Identifier TANK = new Identifier("tank");
-        public static Identifier BURN_TIME = new Identifier("burnTime");
-        public static Identifier GENERATING = new Identifier("gen");
-        public static Identifier MATTER = new Identifier("matter");
+        public static Progress.Identifier DEFAULT = new Progress.Identifier("progress");
+        public static Progress.Identifier ENERGY_STORAGE = new Progress.Identifier("energyStorage");
+        public static Progress.Identifier TANK = new Progress.Identifier("tank");
+        public static Progress.Identifier BURN_TIME = new Progress.Identifier("burnTime");
+        public static Progress.Identifier GENERATING = new Progress.Identifier("gen");
+        public static Progress.Identifier MATTER = new Progress.Identifier("matter");
 
     }
 }

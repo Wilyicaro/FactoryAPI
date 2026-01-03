@@ -1,7 +1,12 @@
 package wily.factoryapi.mixin.base;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+//? if >=1.21.11 {
+/*import net.minecraft.client.gui.ActiveTextCollector;
+import wily.factoryapi.base.FactoryRenderingTextCollector;
+*///?} else {
 import net.minecraft.client.gui.Font;
+//?}
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -62,20 +67,25 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     }
     //?}
 
-    @Inject(method = "renderString", at = @At("HEAD"))
-    public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
+    // TODO 1.21.11
+    @Inject(method = /*? if <1.21.11 {*/"renderString"/*?} else {*//*"renderDefaultLabel"*//*?}*/, at = @At("HEAD"))
+    public void renderString(/*? if <1.21.11 {*/GuiGraphics guiGraphics, Font font, int i, /*?} else {*//*ActiveTextCollector activeTextCollector, *//*?}*/ CallbackInfo ci) {
+        //? if >=1.21.11 {
+        /*GuiGraphics guiGraphics;
+        if (activeTextCollector instanceof FactoryRenderingTextCollector collector) guiGraphics = collector.getGuiGraphics(); else return;
+        *///?}
         ResourceLocation sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {
             FactoryGuiGraphics.of(guiGraphics).setColor(1.0f, 1.0f, 1.0f, alpha);
             //?} else
-            /*FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);*/
+            //FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
             FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
             //? if <1.21.6 {
             FactoryGuiGraphics.of(guiGraphics).clearColor();
             //?} else
-            /*FactoryGuiGraphics.of(guiGraphics).clearBlitColor();*/
+            //FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
             FactoryScreenUtil.disableBlend();
         }
     }

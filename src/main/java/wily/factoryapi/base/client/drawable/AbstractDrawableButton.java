@@ -132,17 +132,17 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
             //? if <1.21.6 {
             FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
             //?} else
-            /*FactoryGuiGraphics.of(graphics).setBlitColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);*/
+            //FactoryGuiGraphics.of(graphics).setBlitColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1F);
         super.draw(graphics, x, y);
         if (color != null)
             //? if <1.21.6 {
             FactoryGuiGraphics.of(graphics).clearColor();
             //?} else
-            /*FactoryGuiGraphics.of(graphics).clearBlitColor();*/
+            //FactoryGuiGraphics.of(graphics).clearBlitColor();
         if (isSelected() || hovered && hoverSelection) {
             if (selection != null) selection.draw(graphics, x, y);
             else {
-                //? if >=1.21.9 {
+                //? if >=1.21.9 && <1.21.11 {
                 /*graphics.submitOutline(x, y, width(), height(), -1);
                 *///?} else {
                 graphics.renderOutline(x, y, width(), height(), -1);

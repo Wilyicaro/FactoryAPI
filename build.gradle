@@ -50,6 +50,40 @@ dependencies {
     }
 
 }
+
+
+stonecutter {
+    replacements {
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("ResourceLocation", "Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("CommonNetwork.Identifier", "CommonNetwork.Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("Progress.Identifier", "Progress.Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("withSlotIdentifier", "withSlotIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("record Identifier", "record Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("SlotsIdentifier", "SlotsIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("IHasIdentifier", "IHasIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("Identifier<T extends Payload>", "Identifier<T extends Payload>")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
+        }
+    }
+}
+
 def aw = "${mod_id}-${stonecutter.eval(stonecutter.current.version, ">=1.21.2") ? 1212 : 120}.accesswidener"
 
 loom {

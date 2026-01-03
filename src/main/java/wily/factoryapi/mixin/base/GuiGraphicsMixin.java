@@ -3,7 +3,10 @@ package wily.factoryapi.mixin.base;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=1.21.6 {
-/*import com.mojang.blaze3d.textures.GpuTextureView;
+/*//? if >=1.21.11 {
+/^import com.mojang.blaze3d.textures.GpuSampler;
+^///?}
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.GuiRenderState;
@@ -18,7 +21,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
+//? if <1.21.6 {
 import net.minecraft.client.renderer.RenderType;
+//?}
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -66,7 +72,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     @Shadow @Final private Minecraft minecraft;
 
     //? if >=1.21.6 {
-    /*@Shadow protected abstract void submitBlit(RenderPipeline par1, GpuTextureView par2, int par3, int par4, int par5, int par6, float par7, float par8, float par9, float par10, int par11);
+    /*@Shadow protected abstract void submitBlit(RenderPipeline par1, GpuTextureView par2, /^?if >=1.21.11 {^//^GpuSampler gpuSampler, ^//^?}^/ int par3, int par4, int par5, int par6, float par7, float par8, float par9, float par10, int par11);
     @Shadow @Final public GuiRenderState guiRenderState;
     @Shadow public abstract Matrix3x2fStack pose();
     *///?}
@@ -133,7 +139,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             //? if <1.21.2 {
             context().blit(texture, x, y, uvX, uvY, width, height, textureWidth, textureHeight);
             //?} else
-            /*context().blit(renderingOverride, texture, x, y, uvX, uvY, width, height, textureWidth, textureHeight);*/
+            //context().blit(renderingOverride, texture, x, y, uvX, uvY, width, height, textureWidth, textureHeight);
         }
 
 
@@ -143,7 +149,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
              *///?} else if <1.21.2 {
             context().blitSprite(resourceLocation, x, y, width, height);
              //?} else
-            /*context().blitSprite(renderingOverride, resourceLocation, x, y, width, height,blitColor);*/
+            //context().blitSprite(renderingOverride, resourceLocation, x, y, width, height,blitColor);
         }
 
         public void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height) {
@@ -291,8 +297,9 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
         //?} else {
         /^private void innerBlit(RenderPipeline pipeline, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
-            GpuTextureView gpuTextureView = minecraft.getTextureManager().getTexture(resourceLocation).getTextureView();
-            submitBlit(pipeline, gpuTextureView, i, k, j, l, f, g, h, m, n);
+            AbstractTexture texture = minecraft.getTextureManager().getTexture(resourceLocation);
+            GpuTextureView gpuTextureView = texture.getTextureView();
+            submitBlit(pipeline, gpuTextureView, /^¹?if >=1.21.11 {¹^//^¹texture.getSampler(),¹^//^¹?}¹^/ i, k, j, l, f, g, h, m, n);
         }
         ^///?}
         *///?}

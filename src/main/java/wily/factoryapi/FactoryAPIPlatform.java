@@ -65,7 +65,11 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+//? if <1.21.11 {
 import net.fabricmc.fabric.mixin.command.ArgumentTypesAccessor;
+//?} else {
+/*import net.fabricmc.fabric.mixin.command.ArgumentTypeInfosAccessor;
+*///?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.Person;
@@ -75,9 +79,6 @@ import wily.factoryapi.base.fabric.CraftyEnergyStorage;
 import wily.factoryapi.base.fabric.FabricEnergyStoragePlatform;
 import wily.factoryapi.base.fabric.FabricFluidStoragePlatform;
 import wily.factoryapi.base.fabric.FabricItemStoragePlatform;
-//? if >=1.20.4 {
-import net.fabricmc.fabric.impl.resource.loader.FabricResourcePackProfile;
-//?}
 //?} elif neoforge {
 /*import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
@@ -436,7 +437,7 @@ public interface FactoryAPIPlatform {
 
     static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>> void registerByClassArgumentType(Class<A> infoClass, I argumentTypeInfo) {
         //? if fabric {
-        ArgumentTypesAccessor.fabric_getClassMap().put(infoClass,argumentTypeInfo);
+        /*? if <1.21.11 {*/ArgumentTypesAccessor/*?} else {*//*ArgumentTypeInfosAccessor*//*?}*/.fabric_getClassMap().put(infoClass,argumentTypeInfo);
         //?} else if forge || neoforge {
         /*ArgumentTypeInfos.registerByClass(infoClass,argumentTypeInfo);
          *///?} else
@@ -712,6 +713,6 @@ public interface FactoryAPIPlatform {
     }
 
     static boolean isPackHidden(Pack pack) {
-        return /*? if fabric && >=1.20.4 {*/ ((FabricResourcePackProfile)pack).fabric_isHidden() /*?} else {*/ /*false*//*?}*/;
+        return /*? if fabric && >=1.20.4 && <1.21.11 {*/ ((net.fabricmc.fabric.impl.resource.loader.FabricResourcePackProfile)pack).fabric_isHidden() /*?} else {*/ /*false*//*?}*/;
     }
 }

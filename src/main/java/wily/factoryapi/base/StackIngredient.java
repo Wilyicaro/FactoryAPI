@@ -230,12 +230,12 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
         buf.get().writeBoolean(isStrict());
         buf.get().writeByte(getCount());
         //?} else
-        /*STREAM_CODEC.encode(buf.get(),this);*/
+        //STREAM_CODEC.encode(buf.get(),this);
     }
     public static StackIngredient decode(CommonNetwork.PlayBuf buf){
         //? if <1.20.5 {
         return new StackIngredient(HolderSet.direct((List<Holder<Item>>) buf.get().readCollection(ArrayList::new,(b)->b.readById(BuiltInRegistries.ITEM.asHolderIdMap()))), buf.get().readNbt(), buf.get().readBoolean(), buf.get().readByte());
         //?} else
-        /*return STREAM_CODEC.decode(buf.get());*/
+        //return STREAM_CODEC.decode(buf.get());
     }
 }

@@ -1,7 +1,7 @@
 package wily.factoryapi.mixin.base;
 
 //? if >=1.21.2
-/*import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;*/
+//import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.EquipmentSlot;

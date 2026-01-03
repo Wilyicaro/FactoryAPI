@@ -53,7 +53,7 @@ public class FactoryItemUtil {
         //? if <1.20.5 {
         return ItemStack.isSameItemSameTags(itemStack,itemStack1);
         //?} else
-        /*return ItemStack.isSameItemSameComponents(itemStack,itemStack1);*/
+        //return ItemStack.isSameItemSameComponents(itemStack,itemStack1);
     }
 
     public static boolean compareItems(ItemStack itemStack, ItemStack itemStack1, boolean checkCount) {

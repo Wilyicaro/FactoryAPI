@@ -7,7 +7,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 //? >1.20.5
-/*import net.minecraft.core.component.DataComponentPatch;*/
+//import net.minecraft.core.component.DataComponentPatch;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 //? if >1.20.1 {
 import net.minecraft.network.chat.ComponentSerialization;
@@ -39,7 +39,7 @@ public class DynamicUtil {
         //? if <1.20.5 {
         if (pair.getSecond()) pair.getFirst().get("nbt").result().flatMap(d1-> CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
         //?} else
-        /*if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);*/
+        //if (pair.getSecond()) convertToRegistryIfPossible(pair.getFirst()).get("components").result().flatMap(d1->DataComponentPatch.CODEC.parse(d1).result()).ifPresent(i::applyComponents);
         return i;
     }).orElse(ItemStack.EMPTY)));
     public static final LoadingCache<DynamicOps<?>,RegistryOps<?>> REGISTRY_OPS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(o->RegistryOps.create(o, FactoryAPIPlatform.getRegistryAccess())));
