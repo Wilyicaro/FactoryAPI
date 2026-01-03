@@ -6,12 +6,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 //? if >=1.21.11 {
-/*import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
-*///?}
+//?}
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -45,9 +45,9 @@ import java.util.stream.Collectors;
  * @param <T> Type stored in the config instance
  */
 public interface FactoryConfig<T> extends Bearer<T> {
-    ListMap<ResourceLocation, StorageHandler> COMMON_STORAGES = new ListMap<>();
+    ListMap<Identifier, StorageHandler> COMMON_STORAGES = new ListMap<>();
 
-    static StorageHandler registerCommonStorage(ResourceLocation location, StorageHandler handler) {
+    static StorageHandler registerCommonStorage(Identifier location, StorageHandler handler) {
         COMMON_STORAGES.put(location, handler);
         return handler;
     }
@@ -104,7 +104,7 @@ public interface FactoryConfig<T> extends Bearer<T> {
         }
 
         default boolean allowClientSync(Player player) {
-            return allowSync() && (player != null && (player/*? if >=1.21.11 {*//*.permissions().hasPermission*//*?} else {*/.hasPermissions/*?}*/(/*? if >=1.21.11 {*//*new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)*//*?} else {*/2/*?}*/) || FactoryAPIPlatform.getEntityServer(player).isSingleplayerOwner(/*? if >=1.21.9 {*//*player.nameAndId()*//*?} else {*/player.getGameProfile()/*?}*/)));
+            return allowSync() && (player != null && (player/*? if >=1.21.11 {*/.permissions().hasPermission/*?} else {*//*.hasPermissions*//*?}*/(/*? if >=1.21.11 {*/new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)/*?} else {*//*2*//*?}*/) || FactoryAPIPlatform.getEntityServer(player).isSingleplayerOwner(/*? if >=1.21.9 {*/player.nameAndId()/*?} else {*//*player.getGameProfile()*//*?}*/)));
         }
     }
 

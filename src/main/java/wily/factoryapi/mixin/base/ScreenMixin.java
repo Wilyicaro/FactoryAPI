@@ -48,7 +48,7 @@ public abstract class ScreenMixin implements UIAccessor {
         return elements;
     }
 
-    private static final @Unique String INIT_METHOD = /*? >=1.21.11 {*//*"init(II)V"*//*?} else {*/"init(Lnet/minecraft/client/Minecraft;II)V"/*?}*/;
+    private static final @Unique String INIT_METHOD = /*? >=1.21.11 {*/"init(II)V"/*?} else {*//*"init(Lnet/minecraft/client/Minecraft;II)V"*//*?}*/;
 
     @Inject(method = INIT_METHOD, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init()V"))
     public void beforeInit(CallbackInfo ci) {

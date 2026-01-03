@@ -4,7 +4,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Font.class)
 public interface FontAccessor {
     //? if <1.21.9 {
-    @Invoker("getFontSet")
-    FontSet getDefaultFontSet(ResourceLocation arg);
+    /*@Invoker("getFontSet")
+    FontSet getDefaultFontSet(Identifier arg);
     @Accessor
     boolean getFilterFishyGlyphs();
-    //?} else {
-    /*@Invoker("getGlyph")
+    *///?} else {
+    @Invoker("getGlyph")
     BakedGlyph getBakedGlyph(int i, Style style);
-    *///?}
+    //?}
 }

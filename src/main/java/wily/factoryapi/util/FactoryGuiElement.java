@@ -18,8 +18,8 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
     public static final FactoryGuiElement VEHICLE_HEALTH = new FactoryGuiElement("vehicle_health");
     public static final FactoryGuiElement EXPERIENCE_BAR = new FactoryGuiElement("experience_bar");
     //? if >=1.21.6 {
-    /*public static final FactoryGuiElement LOCATOR_BAR = new FactoryGuiElement("locator_bar");
-    *///?}
+    public static final FactoryGuiElement LOCATOR_BAR = new FactoryGuiElement("locator_bar");
+    //?}
     public static final FactoryGuiElement JUMP_METER = new FactoryGuiElement("jump_meter");
     public static final FactoryGuiElement SELECTED_ITEM_NAME = new FactoryGuiElement("selected_item_name");
     public static final FactoryGuiElement SPECTATOR_TOOLTIP = new FactoryGuiElement("spectator_tooltip");
@@ -92,9 +92,9 @@ public record FactoryGuiElement(String name, boolean isHud, FactoryEvent<GuiRend
         int color = getColor(accessor);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
         //? if >=1.21.6 {
-        /*if (color != -1) FactoryGuiGraphics.of(graphics).clearBlitColor();
-         *///?} else
-        if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
+        if (color != -1) FactoryGuiGraphics.of(graphics).clearBlitColor();
+         //?} else
+        //if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
         post.invoker.render(graphics);
     }
 
