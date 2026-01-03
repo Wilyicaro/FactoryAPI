@@ -13,7 +13,7 @@ public interface IFactoryProgressiveStorage extends IFactoryExpandedStorage {
     default List<Progress> getProgresses(){
         return Collections.emptyList();
     }
-    default @Nullable Progress getProgressByType(Progress.ResourceLocation identifier){
+    default @Nullable Progress getProgressByType(Progress.Identifier identifier){
         for (Progress p : getProgresses()) {
             if (p.identifier == identifier) return p;
         }

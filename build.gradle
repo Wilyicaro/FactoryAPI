@@ -61,6 +61,15 @@ stonecutter {
             replace("CommonNetwork.Identifier", "CommonNetwork.Identifier")
         }
         string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("Progress.Identifier", "Progress.Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("withSlotIdentifier", "withSlotIdentifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
+            replace("record Identifier", "record Identifier")
+        }
+        string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
             replace("SlotsIdentifier", "SlotsIdentifier")
         }
         string(stonecutter.eval(stonecutter.current.version, ">=1.21.11")) {
