@@ -243,7 +243,7 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
         FluidInstance drained = drain(i,fluidAction.simulate());
         return new FluidStack(drained.getFluid(),drained.getAmount());
     }
-    *///?} else if neoforge {
+    *///?} else if (neoforge && <1.21.11) {
 
     /*default int size() {
         return 1;
@@ -307,6 +307,72 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
                     drain(fluid, false);
                 }
             });
+
+        return drain(fluid, true).getAmount();
+    }
+    *///?} else if neoforge {
+    /*default int size() {
+        return 1;
+    }
+
+    default FluidResource getResource(int i) {
+        return FluidResource.of(getFluidInstance().toStack());
+    }
+
+    default long getAmountAsLong(int i) {
+        return getFluidInstance().getAmount();
+    }
+
+    default long getCapacityAsLong(int i, FluidResource resource) {
+        return getMaxFluid();
+    }
+
+    default boolean isValid(int i, FluidResource resource) {
+        return isFluidValid(FluidInstance.create(resource.getFluid(), 1000));
+    }
+
+    default int insert(int i, FluidResource resource, int j, TransactionContext transactionContext) {
+        FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
+        // if (transactionContext instanceof Transaction transaction)
+        //     transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        //         @Override
+        //         protected Integer createSnapshot() {
+        //             return 0;
+        //         }
+
+        //         @Override
+        //         protected void revertToSnapshot(Integer object) {
+
+        //         }
+
+        //         @Override
+        //         protected void releaseSnapshot(Integer snapshot) {
+        //             fill(fluid, false);
+        //         }
+        //     });
+
+        return fill(fluid, true);
+    }
+
+    default int extract(int i, FluidResource resource, int j, TransactionContext transactionContext) {
+        FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
+        // if (transactionContext instanceof Transaction transaction)
+        //     transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        //         @Override
+        //         protected Integer createSnapshot() {
+        //             return 0;
+        //         }
+
+        //         @Override
+        //         protected void revertToSnapshot(Integer object) {
+
+        //         }
+
+        //         @Override
+        //         protected void releaseSnapshot(Integer snapshot) {
+        //             drain(fluid, false);
+        //         }
+        //     });
 
         return drain(fluid, true).getAmount();
     }

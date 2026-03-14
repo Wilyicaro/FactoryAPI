@@ -125,7 +125,7 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
     default boolean canReceive() {
         return getTransport().canInsert();
     }
-    *///?} else if neoforge {
+    *///?} else if (neoforge && <1.21.11) {
 
     /*@Override
     default long getAmountAsLong() {
@@ -179,6 +179,63 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
                     consumeEnergy(i, false);
                 }
             });
+
+        return consumeEnergy(i, true);
+    }
+
+    *///?} else if neoforge {
+    /*@Override
+    default long getAmountAsLong() {
+        return getEnergyStored();
+    }
+
+    @Override
+    default long getCapacityAsLong() {
+        return getMaxEnergyStored();
+    }
+
+    @Override
+    default int insert(int i, TransactionContext transactionContext) {
+        // if (transactionContext instanceof Transaction transaction)
+        //     transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        //         @Override
+        //         protected Integer createSnapshot() {
+        //             return 0;
+        //         }
+
+        //         @Override
+        //         protected void revertToSnapshot(Integer object) {
+
+        //         }
+
+        //         @Override
+        //         protected void releaseSnapshot(Integer snapshot) {
+        //             receiveEnergy(i, false);
+        //         }
+        //     });
+
+        return receiveEnergy(i, true);
+    }
+
+    @Override
+    default int extract(int i, TransactionContext transactionContext) {
+        // if (transactionContext instanceof Transaction transaction)
+        //     transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        //         @Override
+        //         protected Integer createSnapshot() {
+        //             return 0;
+        //         }
+
+        //         @Override
+        //         protected void revertToSnapshot(Integer object) {
+
+        //         }
+
+        //         @Override
+        //         protected void releaseSnapshot(Integer snapshot) {
+        //             consumeEnergy(i, false);
+        //         }
+        //     });
 
         return consumeEnergy(i, true);
     }
