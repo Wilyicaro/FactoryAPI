@@ -152,8 +152,8 @@ import java.util.function.Supplier;
 
 
 public class FactoryAPIClient {
-    public static final ResourceLocation BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
-    public static final ResourceLocation BLOCK_ATLAS_ID = FactoryAPI.createVanillaLocation("blocks");
+    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
+    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS_ID = FactoryAPI.createVanillaLocation("blocks");
     public static final SecureExecutor SECURE_EXECUTOR = new SecureExecutor() {
         @Override
         public boolean isSecure() {
@@ -164,7 +164,7 @@ public class FactoryAPIClient {
 
     public static UIDefinitionManager uiDefinitionManager;
 
-    public static final Map<ResourceLocation, ExtraModelId> extraModels = new HashMap<>();
+    public static final Map<net.minecraft.resources.ResourceLocation, ExtraModelId> extraModels = new HashMap<>();
 
     private static final Set<String> playerMods = new HashSet<>();
 
@@ -183,11 +183,11 @@ public class FactoryAPIClient {
     }
     *///?}
     //? if <1.21.5 {
-    public static BakedModel getExtraModel(ResourceLocation resourceLocation) {
+    public static BakedModel getExtraModel(net.minecraft.resources.ResourceLocation resourceLocation) {
         return Minecraft.getInstance().getModelManager().getModel(extraModels.get(resourceLocation).modelId());
     }
     //?} else {
-    /*public static BlockStateModel getExtraModel(ResourceLocation resourceLocation) {
+    /*public static BlockStateModel getExtraModel(net.minecraft.resources.ResourceLocation resourceLocation) {
         return Minecraft.getInstance().getBlockRenderer().getBlockModel(extraModels.get(resourceLocation).blockState());
     }
     *///?}
@@ -254,14 +254,18 @@ public class FactoryAPIClient {
         PlayerEvent.DISCONNECTED_EVENT.register(l->{
             DynamicUtil.REGISTRY_OPS_CACHE.invalidateAll();
             DynamicUtil.DYNAMIC_ITEMS_CACHE.asMap().keySet().forEach(DynamicUtil.DYNAMIC_ITEMS_CACHE::refresh);
-            if (hasAPIOnServer()) FactoryConfig.COMMON_STORAGES.values().forEach(c-> {
-                if (c.isServerOnly()) c.reset();
-                else if (c.allowSync()) c.load();
+            if (hasAPIOnServer()) FactoryConfig.COMMON_STORAGES.values().forEach(c -> {
+                if (!c.isServerOnly() && c.allowSync()) c.load();
             });
             playerMods.clear();
             //? if >=1.21.2 {
             /*CommonRecipeManager.clearRecipes();
             *///?}
+        });
+        FactoryEvent.serverStopped(server -> {
+            FactoryConfig.COMMON_STORAGES.values().forEach(c -> {
+                if (c.isServerOnly()) c.resetAndUnload();
+            });
         });
         //? if fabric {
         //? if >=1.21.9 {
@@ -307,7 +311,7 @@ public class FactoryAPIClient {
     //?} else if forge || neoforge {
     /*public static void registerReloadListener(PreparableReloadListener reloadListener) {
         //? if >=1.21.4 && neoforge {
-        /^FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, AddClientReloadListenersEvent.class, e-> e.addListener(FactoryAPI.createLocation(reloadListener.getName()), reloadListener));
+        /^FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, AddClientReloadListenersEvent.class, e-> e.addListener(FactoryAPI.createLocation(reloadListener.getName()), reloadListener));
         ^///?} else {
         ((ReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(reloadListener);
         //?}
@@ -324,7 +328,7 @@ public class FactoryAPIClient {
         //? if fabric {
         ClientLifecycleEvents.CLIENT_STARTED.register(listener::accept);
         //?} elif (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, FMLClientSetupEvent.class, e-> listener.accept(Minecraft.getInstance()));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, e-> listener.accept(Minecraft.getInstance()));
         *///?} else if forge {
         /*FMLClientSetupEvent.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e-> listener.accept(Minecraft.getInstance()));
         *///?} else
@@ -335,7 +339,7 @@ public class FactoryAPIClient {
         //? if fabric {
         ClientTickEvents.START_CLIENT_TICK.register(listener::accept);
         //?} elif forge && <1.21.6 {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Pre/^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Pre/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.START) listener.accept(Minecraft.getInstance());
         });
         *///?} elif forge {
@@ -352,7 +356,7 @@ public class FactoryAPIClient {
         //? if fabric {
         ClientTickEvents.END_CLIENT_TICK.register(listener::accept);
         //?} elif forge && <1.21.6 {
-        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL,false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Post/^?}^/.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, /^? if <1.21 {^//^TickEvent.ClientTickEvent^//^?} else {^/TickEvent.ClientTickEvent.Post/^?}^/.class, e-> {
             if (e.phase == TickEvent.Phase.END)  listener.accept(Minecraft.getInstance());
         });
         *///?} elif forge {
@@ -409,7 +413,7 @@ public class FactoryAPIClient {
         //? if fabric {
         registry.accept(KeyBindingHelper::registerKeyBinding);
         //?} elif (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, RegisterKeyMappingsEvent.class, e->registry.accept(e::register));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, RegisterKeyMappingsEvent.class, e->registry.accept(e::register));
         *///?} elif forge && <1.21.9 {
         /*RegisterKeyMappingsEvent.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e->registry.accept(e::register));
         *///?} elif forge {
@@ -468,7 +472,7 @@ public class FactoryAPIClient {
         //? if fabric {
         registry.accept(ColorProviderRegistry.BLOCK::register);
         //?} elif (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, RegisterColorHandlersEvent.Block.class, e->registry.accept(e::register));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, RegisterColorHandlersEvent.Block.class, e->registry.accept(e::register));
         *///?} elif forge && <1.21.9 {
         /*RegisterColorHandlersEvent.Block.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e-> registry.accept(e::register));
         *///?} elif forge {
@@ -482,7 +486,7 @@ public class FactoryAPIClient {
         //? if fabric {
         registry.accept(ColorProviderRegistry.ITEM::register);
         //?} elif forge || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, RegisterColorHandlersEvent.Item.class, e->registry.accept(e::register));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, RegisterColorHandlersEvent.Item.class, e->registry.accept(e::register));
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -510,14 +514,14 @@ public class FactoryAPIClient {
         /*throw new AssertionError();*/
     }
 
-    public record ExtraModelId(StateDefinition<Block,BlockState> stateDefinition, BlockState blockState, ResourceLocation id/*? if <1.21.5 {*/, ModelResourceLocation modelId/*?}*/) {
-        public static ExtraModelId create(ResourceLocation id) {
+    public record ExtraModelId(StateDefinition<Block,BlockState> stateDefinition, BlockState blockState, net.minecraft.resources.ResourceLocation id/*? if <1.21.5 {*/, ModelResourceLocation modelId/*?}*/) {
+        public static ExtraModelId create(net.minecraft.resources.ResourceLocation id) {
             StateDefinition<Block,BlockState> stateDefinition = new StateDefinition.Builder<Block, BlockState>(Blocks.AIR).create(Block::defaultBlockState, BlockState::new);
             return new ExtraModelId(stateDefinition, stateDefinition.any(), id/*? if <1.21.5 {*/, BlockModelShaper.stateToModelLocation(id, stateDefinition.any())/*?}*/);
         }
     }
 
-    public static void registerExtraModels(Consumer<Consumer<ResourceLocation>> registry) {
+    public static void registerExtraModels(Consumer<Consumer<net.minecraft.resources.ResourceLocation>> registry) {
         registry.accept(id-> extraModels.put(id, ExtraModelId.create(id)));
     }
 
@@ -525,7 +529,7 @@ public class FactoryAPIClient {
         //? if fabric {
         EntityRendererRegistry.register(type.get(),provider);
         //?} else if (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.RegisterRenderers.class, e-> e.registerEntityRenderer(type.get(),provider));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, e-> e.registerEntityRenderer(type.get(),provider));
         *///?} elif forge && <1.21.9 {
         /*EntityRenderersEvent.RegisterRenderers.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e-> e.registerEntityRenderer(type.get(),provider));
         *///?} elif forge {
@@ -538,7 +542,7 @@ public class FactoryAPIClient {
         //? if fabric {
         EntityModelLayerRegistry.registerModelLayer(location,definition::get);
          //?} else if (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.RegisterLayerDefinitions.class, e-> e.registerLayerDefinition(location,definition));
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterLayerDefinitions.class, e-> e.registerLayerDefinition(location,definition));
         *///?} else if forge {
         /*EntityRenderersEvent.RegisterLayerDefinitions.getBus(FactoryAPIPlatform.getModEventBus()).addListener(e-> e.registerLayerDefinition(location,definition));
         *///?} else if forge {
@@ -572,7 +576,7 @@ public class FactoryAPIClient {
 
             }));
          //?} else if (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL,false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(new FactoryRenderLayerRegistry() {
+        /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, EntityRenderersEvent.AddLayers.class, e-> registry.accept(new FactoryRenderLayerRegistry() {
             @Override
             public EntityRenderer<?/^? if >=1.21.2 {^//^, ? ^//^?}^/> getEntityRenderer(EntityType<? extends LivingEntity> entityType) {
                 return e./^? if >=1.20.2 && forge {^//^getEntityRenderer^//^?} else {^/getRenderer/^?}^/(entityType);

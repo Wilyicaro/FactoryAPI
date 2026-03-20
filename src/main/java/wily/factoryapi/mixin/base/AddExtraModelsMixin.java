@@ -45,7 +45,7 @@ public abstract class AddExtraModelsMixin {
     }
     *///?} else {
     /*@Inject(method = "definitionLocationToBlockStateMapper", at = @At("RETURN"))
-    private static void loadBlockStates(CallbackInfoReturnable<Function<ResourceLocation, StateDefinition<Block, BlockState>>> cir, @Local Map<ResourceLocation, StateDefinition<Block, BlockState>> map){
+    private static void loadBlockStates(CallbackInfoReturnable<Function<net.minecraft.resources.ResourceLocation, StateDefinition<Block, BlockState>>> cir, @Local Map<net.minecraft.resources.ResourceLocation, StateDefinition<Block, BlockState>> map){
         FactoryAPIClient.extraModels.forEach((r, id)-> map.put(r, id.stateDefinition()));
     }
     *///?}

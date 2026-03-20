@@ -152,8 +152,8 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
 
     default int insert(int i, ItemResource resource, int j, TransactionContext transactionContext) {
         ItemStack item = resource.toStack();
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -168,14 +168,20 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
                 protected void releaseSnapshot(Integer snapshot) {
                     insertItem(i, item, false);
                 }
-            });
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
 
         return insertItem(i, item, true).getCount();
     }
 
     default int extract(int i, ItemResource resource, int j, TransactionContext transactionContext) {
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -190,7 +196,13 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
                 protected void releaseSnapshot(Integer snapshot) {
                     extractItem(i, j, false);
                 }
-            });
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
 
         return extractItem(i, j, true).getCount();
     }

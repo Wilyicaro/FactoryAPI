@@ -19,6 +19,11 @@ public abstract class MinecraftServerMixin implements MinecraftServerAccessor {
         FactoryEvent.ServerSave.EVENT.invoker.run((MinecraftServer) (Object)this,bl,bl2,bl3);
     }
 
+    @Inject(method = "runServer", at = @At("HEAD"))
+    private void runServer(CallbackInfo ci) {
+        FactoryEvent.STARTING_SERVER_EVENT.invoker.accept((MinecraftServer) (Object) this);
+    }
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void init(CallbackInfo ci){
         FactoryAPI.currentServer = (MinecraftServer) (Object) this;

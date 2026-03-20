@@ -32,7 +32,7 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
         if (context.player() instanceof ServerPlayer sp){
             CommonNetwork.ENABLED_PLAYERS.putAll(sp.getUUID(), modIds);
         } else if (context.isClient()) {
-            context.executor().execute(()->{
+            context.executor().execute(() -> {
                 FactoryAPIClient.handleHelloPayload(this);
                 CommonNetwork.sendToServer(new HelloPayload(modIds.stream().filter(FactoryAPI::isModLoaded).collect(Collectors.toSet()), ID_C2S));
             });
@@ -41,7 +41,7 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
 
     public static void sendInitialPayloads(ServerPlayer serverPlayer){
         CommonNetwork.sendToPlayer(serverPlayer, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
-        FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(serverPlayer, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler)));
+        FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(serverPlayer, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler), true));
         //? if >=1.21.2 {
         /*CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
          *///?}

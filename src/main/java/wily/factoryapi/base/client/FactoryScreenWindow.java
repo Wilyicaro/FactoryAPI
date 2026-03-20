@@ -32,7 +32,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     public boolean dragging = false;
 
-    public ResourceLocation backgroundSprite;
+    public net.minecraft.resources.ResourceLocation backgroundSprite;
     protected final ItemRenderer itemRenderer;
 
     protected final Font font = Minecraft.getInstance().font;

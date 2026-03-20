@@ -28,7 +28,7 @@ public record MipmapMetadataSection(Map<Integer, Level> levels) {
         if (!baseName.isEmpty()) {
             MipmapMetadataSection section = new MipmapMetadataSection(new HashMap<>());
             for (int i = 1; i <= maxLevel; i++) {
-                ResourceLocation resourceLocation = contents.name().withPath("%s/%s/%s.png".formatted(FactoryOptions.MANUAL_MIPMAP_PATH.get(), baseName, i));
+                net.minecraft.resources.ResourceLocation resourceLocation = contents.name().withPath("%s/%s/%s.png".formatted(FactoryOptions.MANUAL_MIPMAP_PATH.get(), baseName, i));
                 Minecraft.getInstance().getResourceManager().getResource(resourceLocation).ifPresent(resource -> {
                     Matcher matcher = MANUAL_MIPMAP_PATTERN.matcher(resourceLocation.getPath());
                     while (matcher.find()) {
@@ -49,12 +49,12 @@ public record MipmapMetadataSection(Map<Integer, Level> levels) {
         return EMPTY;
     }
 
-    public record Level(ResourceLocation texture, NativeImage image){
-        public Level(ResourceLocation texture){
+    public record Level(net.minecraft.resources.ResourceLocation texture, NativeImage image){
+        public Level(net.minecraft.resources.ResourceLocation texture){
             this(texture, readSecure(texture));
         }
 
-        public static NativeImage readSecure(ResourceLocation texture){
+        public static NativeImage readSecure(net.minecraft.resources.ResourceLocation texture){
             try {
                 return NativeImage.read(Minecraft.getInstance().getResourceManager().open(texture));
             } catch (IOException e) {
@@ -62,6 +62,6 @@ public record MipmapMetadataSection(Map<Integer, Level> levels) {
                 return null;
             }
         }
-        public static final Codec<Level> CODEC = ResourceLocation.CODEC.xmap(Level::new, Level::texture);
+        public static final Codec<Level> CODEC = net.minecraft.resources.ResourceLocation.CODEC.xmap(Level::new, Level::texture);
     }
 }

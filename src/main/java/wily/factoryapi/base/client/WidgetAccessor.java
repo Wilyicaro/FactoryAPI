@@ -12,11 +12,11 @@ public interface WidgetAccessor {
         return (WidgetAccessor) widget;
     }
 
-    void setSpriteOverride(ResourceLocation sprite);
+    void setSpriteOverride(net.minecraft.resources.ResourceLocation sprite);
 
-    void setHighlightedSpriteOverride(ResourceLocation sprite);
+    void setHighlightedSpriteOverride(net.minecraft.resources.ResourceLocation sprite);
 
-    ResourceLocation getSpriteOverride();
+    net.minecraft.resources.ResourceLocation getSpriteOverride();
 
     Consumer<AbstractWidget> getOnPressOverride();
 

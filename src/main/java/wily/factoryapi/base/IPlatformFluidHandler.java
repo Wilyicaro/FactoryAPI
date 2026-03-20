@@ -267,8 +267,8 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
 
     default int insert(int i, FluidResource resource, int j, TransactionContext transactionContext) {
         FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<Integer>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -283,15 +283,20 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
                 protected void releaseSnapshot(Integer snapshot) {
                     fill(fluid, false);
                 }
-            });
-
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
         return fill(fluid, true);
     }
 
     default int extract(int i, FluidResource resource, int j, TransactionContext transactionContext) {
         FluidInstance fluid = FluidInstance.create(resource.getFluid(), j);
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<Integer>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -306,7 +311,13 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
                 protected void releaseSnapshot(Integer snapshot) {
                     drain(fluid, false);
                 }
-            });
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
 
         return drain(fluid, true).getAmount();
     }

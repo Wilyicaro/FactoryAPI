@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class DynamicUtil {
-    public static final ListMap<ResourceLocation, ArbitrarySupplier<ItemStack>> COMMON_ITEMS = new ListMap<>();
-    public static final LoadingCache<Pair<Dynamic<?>,Boolean>,ItemStack> DYNAMIC_ITEMS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(pair-> pair.getFirst().get("item").asString().result().or(()->pair.getFirst().asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
+    public static final ListMap<net.minecraft.resources.ResourceLocation, ArbitrarySupplier<ItemStack>> COMMON_ITEMS = new ListMap<>();
+    public static final LoadingCache<Pair<Dynamic<?>,Boolean>,ItemStack> DYNAMIC_ITEMS_CACHE = CacheBuilder.newBuilder().build(CacheLoader.from(pair-> pair.getFirst().get("item").asString().result().or(()->pair.getFirst().asString().result()).map(s->BuiltInRegistries.ITEM./*? if <1.21.2 {*/get/*?} else {*//*getValue*//*?}*/(net.minecraft.resources.ResourceLocation.tryParse(s)).getDefaultInstance()).map(i-> {
         pair.getFirst().get("count").result().flatMap(d1-> Codec.INT.parse(d1).result()).ifPresent(i::setCount);
         //? if <1.20.5 {
         if (pair.getSecond()) pair.getFirst().get("nbt").result().flatMap(d1-> CompoundTag.CODEC.parse(d1).result()).ifPresent(i::setTag);
@@ -65,7 +65,7 @@ public class DynamicUtil {
     }
 
     public static ArbitrarySupplier<ItemStack> getItemFromDynamic(Dynamic<?> element, boolean allowData) {
-        return element.get("common_item").asString().map(s->COMMON_ITEMS.get(ResourceLocation.tryParse(s))).result().orElseGet(()-> {
+        return element.get("common_item").asString().map(s->COMMON_ITEMS.get(net.minecraft.resources.ResourceLocation.tryParse(s))).result().orElseGet(()-> {
             Pair<Dynamic<?>,Boolean> pair = Pair.of(element,allowData);
             DYNAMIC_ITEMS_CACHE.refresh(pair);
             return ()-> DYNAMIC_ITEMS_CACHE.getUnchecked(pair);

@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface FactoryIngredient extends Predicate<ItemStack>,CommonNetwork.Payload {
-    ListMap<ResourceLocation, CommonNetwork.Identifier<? extends FactoryIngredient>> map = new ListMap<>();
+    ListMap<net.minecraft.resources.ResourceLocation, CommonNetwork.Identifier<? extends FactoryIngredient>> map = new ListMap<>();
     //? if >=1.20.5 {
     /*StreamCodec<RegistryFriendlyByteBuf,FactoryIngredient> CODEC = StreamCodec.of((b,i)-> encode(()->b,i), b-> decode(()->b));
     *///?}

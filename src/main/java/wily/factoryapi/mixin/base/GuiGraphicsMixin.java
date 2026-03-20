@@ -108,7 +108,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height) {
+        public void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height) {
             //? if <1.21.2 {
             context().blit(texture, x, y, uvX, uvY, width, height);
              //?} else {
@@ -117,7 +117,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             context().blit(texture, x, y, z, uvX, uvY, width, height, textureWidth, textureHeight);
             //?} else {
@@ -126,7 +126,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(net.minecraft.resources.ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             context().blit(texture, x, xd, y, yd, uvX, uvY, width, height, textureWidth, textureHeight);
             //?} else {
@@ -135,7 +135,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blit(ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
+        public void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight) {
             //? if <1.21.2 {
             context().blit(texture, x, y, uvX, uvY, width, height, textureWidth, textureHeight);
             //?} else
@@ -143,7 +143,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
 
-        public void blitSprite(ResourceLocation resourceLocation, int x, int y, int width, int height) {
+        public void blitSprite(net.minecraft.resources.ResourceLocation resourceLocation, int x, int y, int width, int height) {
             //? if <1.20.2 {
             /*this.blitSprite(resourceLocation, x, y, 0, width, height);
              *///?} else if <1.21.2 {
@@ -152,7 +152,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             //context().blitSprite(renderingOverride, resourceLocation, x, y, width, height,blitColor);
         }
 
-        public void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height) {
+        public void blitSprite(net.minecraft.resources.ResourceLocation resourceLocation, int x, int y, int z, int width, int height) {
         //? if <1.20.2 {
         /*TextureAtlasSprite textureAtlasSprite = FactoryGuiGraphics.getSprites().getSprite(resourceLocation);
         GuiSpriteScaling guiSpriteScaling = FactoryGuiGraphics.getSprites().getSpriteScaling(textureAtlasSprite);
@@ -176,7 +176,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         }
 
         @Override
-        public void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height) {
+        public void blitSprite(net.minecraft.resources.ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height) {
             //? if <=1.20.1 {
             /*TextureAtlasSprite textureAtlasSprite = FactoryGuiGraphics.getSprites().getSprite(resourceLocation);
             GuiSpriteScaling guiSpriteScaling = FactoryGuiGraphics.getSprites().getSpriteScaling(textureAtlasSprite);
@@ -285,7 +285,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
         //? if >=1.21.2 {
         /*//? if <1.21.6 {
-        private void innerBlit(Function<ResourceLocation, RenderType> function, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
+        private void innerBlit(Function<net.minecraft.resources.ResourceLocation, RenderType> function, net.minecraft.resources.ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             RenderType renderType = function.apply(resourceLocation);
             Matrix4f matrix4f = FactoryGuiMatrixStack.of(context().pose()).<PoseStack>getNative().last().pose();
             VertexConsumer vertexConsumer = getBufferSource().getBuffer(renderType);
@@ -296,7 +296,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             getBufferSource().endBatch(renderType);
         }
         //?} else {
-        /^private void innerBlit(RenderPipeline pipeline, ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
+        /^private void innerBlit(RenderPipeline pipeline, net.minecraft.resources.ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             AbstractTexture texture = minecraft.getTextureManager().getTexture(resourceLocation);
             GpuTextureView gpuTextureView = texture.getTextureView();
             submitBlit(pipeline, gpuTextureView, /^¹?if >=1.21.11 {¹^//^¹texture.getSampler(),¹^//^¹?}¹^/ i, k, j, l, f, g, h, m, n);

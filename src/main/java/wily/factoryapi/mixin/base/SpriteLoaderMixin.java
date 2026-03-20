@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Mixin(SpriteLoader.class)
 public class SpriteLoaderMixin {
 
-    @Shadow @Final private ResourceLocation location;
+    @Shadow @Final private net.minecraft.resources.ResourceLocation location;
 
     //? if <=1.20.1 {
     /*@Inject(method = "loadSprite", at = @At("RETURN"))

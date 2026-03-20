@@ -16,7 +16,7 @@ public interface RegisterListing<T> extends Iterable<RegisterListing.Holder<T>> 
         return add(name, id-> supplier.get());
     }
 
-    <V extends T> Holder<V> add(String name, Function<ResourceLocation, V> supplier);
+    <V extends T> Holder<V> add(String name, Function<net.minecraft.resources.ResourceLocation, V> supplier);
 
     Stream<Holder<T>> stream();
 
@@ -27,6 +27,6 @@ public interface RegisterListing<T> extends Iterable<RegisterListing.Holder<T>> 
     String getNamespace();
 
     interface Holder<T> extends Supplier<T> {
-        ResourceLocation getId();
+        net.minecraft.resources.ResourceLocation getId();
     }
 }

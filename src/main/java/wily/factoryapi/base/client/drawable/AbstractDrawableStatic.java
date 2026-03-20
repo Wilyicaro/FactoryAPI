@@ -76,7 +76,7 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         return drawable.inMouseLimit(mouseX,mouseY,getX(),getY());
     }
 
-    public ResourceLocation texture() {return drawable.texture();}
+    public net.minecraft.resources.ResourceLocation texture() {return drawable.texture();}
     public int width() {return getWidth();}
     public int height() {return getHeight();}
     public int uvX() {return drawable.uvX();}

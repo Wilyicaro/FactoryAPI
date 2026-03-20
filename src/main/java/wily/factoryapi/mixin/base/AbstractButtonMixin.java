@@ -74,7 +74,7 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
         /*GuiGraphics guiGraphics;
         if (activeTextCollector instanceof FactoryRenderingTextCollector collector) guiGraphics = collector.getGuiGraphics(); else return;
         *///?}
-        ResourceLocation sprite = getSpriteOverride();
+        net.minecraft.resources.ResourceLocation sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
             //? if <1.21.6 {

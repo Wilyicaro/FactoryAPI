@@ -53,7 +53,7 @@ public class FactoryConfigScreen extends Screen {
         //? if <=1.20.1
         /*renderBackground(guiGraphics);*/
         super.render(guiGraphics, i, j, f);
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
 
     @Override

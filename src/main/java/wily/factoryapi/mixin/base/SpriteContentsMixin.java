@@ -45,7 +45,7 @@ public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements Facto
 
     @Shadow NativeImage[] byMipLevel;
 
-    @Shadow public abstract ResourceLocation name();
+    @Shadow public abstract net.minecraft.resources.ResourceLocation name();
 
 
     @Inject(method = "increaseMipLevel", at = @At("RETURN"))

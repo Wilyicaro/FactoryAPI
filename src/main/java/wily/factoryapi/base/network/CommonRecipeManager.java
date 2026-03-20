@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class CommonRecipeManager {
 
-    public static <R extends Recipe<?>> /*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/ byId(ResourceLocation id, RecipeType<R> type) {
+    public static <R extends Recipe<?>> /*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/ byId(net.minecraft.resources.ResourceLocation id, RecipeType<R> type) {
         return (/*? if >1.20.1 {*/RecipeHolder<R>/*?} else {*//*R*//*?}*/)/*? if <1.21.2 {*/getRecipeManager().byKey(id).orElse(null)/*?} else {*//*recipesByType.getOrDefault(type, Collections.emptyMap()).get(id)*//*?}*/;
     }
 
@@ -57,7 +57,7 @@ public class CommonRecipeManager {
 
     //? if >=1.21.2 {
     /*private static final Set<RecipeType<?>> recipeTypesToSync = new HashSet<>();
-    private static Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
+    private static Map<RecipeType<?>,Map<net.minecraft.resources.ResourceLocation,RecipeHolder<?>>> recipesByType = Collections.emptyMap();
 
     public static void updateRecipes(RecipeManager manager){
         recipesByType = manager.getRecipes().stream().collect(Collectors.groupingBy(h->h.value().getType(),Collectors.toMap(h->h.id()./^? if <1.21.11 {^/location/^?} else {^//^identifier^//^?}^/(), Function.identity())));
@@ -79,7 +79,7 @@ public class CommonRecipeManager {
         recipeTypesToSync.add(recipeType);
     }
 
-    public record ClientPayload(Map<RecipeType<?>,Map<ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
+    public record ClientPayload(Map<RecipeType<?>,Map<net.minecraft.resources.ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("send_client_recipes"), ClientPayload::new);
         private static final ClientPayload instance = new ClientPayload(new HashMap<>());
 

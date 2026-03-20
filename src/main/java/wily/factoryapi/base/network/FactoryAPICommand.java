@@ -106,7 +106,7 @@ public class FactoryAPICommand {
         commandDispatcher.register(command);
     }
 
-    public record UIDefinitionPayload(Optional<ResourceLocation> defaultScreen, CompoundTag uiDefinitionNbt) implements CommonNetwork.Payload {
+    public record UIDefinitionPayload(Optional<net.minecraft.resources.ResourceLocation> defaultScreen, CompoundTag uiDefinitionNbt) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<UIDefinitionPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("ui_definition_s2c"),UIDefinitionPayload::decode);
 
         @Override

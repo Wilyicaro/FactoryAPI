@@ -17,15 +17,15 @@ import java.util.function.Supplier;
 public record OpenExtraMenuPayload(int menuId, MenuType<?> menuType, Component component, CommonNetwork.PlayBuf extra) implements CommonNetwork.Payload {
     public static final CommonNetwork.Identifier<OpenExtraMenuPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("open_extra_menu"), OpenExtraMenuPayload::new);
 
-    public OpenExtraMenuPayload(CommonNetwork.PlayBuf buf){
+    public OpenExtraMenuPayload(CommonNetwork.PlayBuf buf) {
         this(buf.get().readVarInt(), BuiltInRegistries.MENU.byId(buf.get().readVarInt()), CommonNetwork.decodeComponent(buf), CommonNetwork.decodeBuf(buf));
     }
 
-    public static void openMenuWithPos(ServerPlayer player, MenuProvider provider, BlockPos pos){
+    public static void openMenuWithPos(ServerPlayer player, MenuProvider provider, BlockPos pos) {
         openMenuWithExtra(player, provider, buf-> buf.get().writeBlockPos(pos));
     }
 
-    public static void openMenuWithExtra(ServerPlayer player, MenuProvider provider, Consumer<CommonNetwork.PlayBuf> extraConsumer){
+    public static void openMenuWithExtra(ServerPlayer player, MenuProvider provider, Consumer<CommonNetwork.PlayBuf> extraConsumer) {
         ((FactoryExtraMenuSupplier.PrepareMenu)player).prepareMenu(provider, menu-> {
             CommonNetwork.PlayBuf playBuf = CommonNetwork.PlayBuf.create();
             extraConsumer.accept(playBuf);

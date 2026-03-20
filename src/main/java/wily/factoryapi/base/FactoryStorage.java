@@ -1,14 +1,13 @@
 package wily.factoryapi.base;
 
-import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.util.ListMap;
 
 public record FactoryStorage<T extends IPlatformHandler>(Class<T> type) {
 
-    public static final ListMap<ResourceLocation, FactoryStorage<?>> STORAGES = new ListMap<>();
+    public static final ListMap<net.minecraft.resources.ResourceLocation, FactoryStorage<?>> STORAGES = new ListMap<>();
 
-    public static <T extends FactoryStorage<?>> T register(ResourceLocation location, T storage){
+    public static <T extends FactoryStorage<?>> T register(net.minecraft.resources.ResourceLocation location, T storage){
         STORAGES.put(location,storage);
         return storage;
     }

@@ -30,23 +30,23 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
 
     @Shadow public boolean visible;
 
-    @Unique ResourceLocation overrideSprite = null;
-    @Unique ResourceLocation highlightedOverrideSprite = null;
+    @Unique net.minecraft.resources.ResourceLocation overrideSprite = null;
+    @Unique net.minecraft.resources.ResourceLocation highlightedOverrideSprite = null;
     @Unique Consumer<AbstractWidget> onPressOverride = null;
     @Unique ArbitrarySupplier<Boolean> visibility = ArbitrarySupplier.empty();
 
     @Override
-    public void setSpriteOverride(ResourceLocation sprite) {
+    public void setSpriteOverride(net.minecraft.resources.ResourceLocation sprite) {
         this.overrideSprite = sprite;
     }
 
     @Override
-    public void setHighlightedSpriteOverride(ResourceLocation sprite) {
+    public void setHighlightedSpriteOverride(net.minecraft.resources.ResourceLocation sprite) {
         this.highlightedOverrideSprite = sprite;
     }
 
     @Override
-    public ResourceLocation getSpriteOverride() {
+    public net.minecraft.resources.ResourceLocation getSpriteOverride() {
         return isHoveredOrFocused() ? highlightedOverrideSprite : overrideSprite;
     }
     @Override

@@ -43,9 +43,9 @@ import net.minecraftforge.network.payload.PayloadProtocol;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 //? if >=1.21.9 {
-import net.neoforged.fml.jarcontents.JarContents;
+/^import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.neoforge.resource.JarContentsPackResources;
-//?}
+^///?}
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
@@ -107,20 +107,30 @@ public class FactoryEvent<T> {
     protected final List<T> listeners = new ArrayList<>();
     public final T invoker;
 
-    public FactoryEvent(Function<FactoryEvent<T>,T> invoker){
+    public FactoryEvent(Function<FactoryEvent<T>, T> invoker){
         this.invoker = invoker.apply(this);
+    }
+
+    public static <T> FactoryEvent<Consumer<T>> createForConsumer() {
+        return new FactoryEvent<>(e -> value -> e.invokeAll(t -> t.accept(value)));
     }
 
     public void invokeAll(Consumer<T> invoker){
         listeners.forEach(invoker);
     }
+
     public void invokeAnyMatch(Predicate<T> invoker){
         for (T listener : listeners) {
             if (invoker.test(listener)) return;
         }
     }
+
     public void register(T listener){
         listeners.add(listener);
+    }
+
+    public void unregister(T listener) {
+        listeners.remove(listener);
     }
 
     public interface ServerSave {
@@ -128,12 +138,13 @@ public class FactoryEvent<T> {
         void run(MinecraftServer server, boolean log, boolean flush, boolean force);
     }
 
-    public interface PlayerEvent extends Consumer<ServerPlayer>{
-        FactoryEvent<Consumer<PlayerList>> RELOAD_RESOURCES_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
-        FactoryEvent<PlayerEvent> JOIN_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
-        FactoryEvent<PlayerEvent> REMOVED_EVENT = new FactoryEvent<>(e-> (s -> e.invokeAll(t-> t.accept(s))));
+    public interface PlayerEvent extends Consumer<ServerPlayer> {
+        FactoryEvent<Consumer<PlayerList>> RELOAD_RESOURCES_EVENT = createForConsumer();
+        FactoryEvent<PlayerEvent> JOIN_EVENT = new FactoryEvent<>(e -> (s -> e.invokeAll(t-> t.accept(s))));
+        FactoryEvent<PlayerEvent> REMOVED_EVENT = new FactoryEvent<>(e -> (s -> e.invokeAll(t-> t.accept(s))));
     }
 
+    public static final FactoryEvent<Consumer<MinecraftServer>> STARTING_SERVER_EVENT = createForConsumer();
 
     public static void setup(Runnable run) {
         //? if fabric {
@@ -155,6 +166,10 @@ public class FactoryEvent<T> {
         /*TagsUpdatedEvent.BUS.addListener(e-> run.run());
         *///?} else
         /*throw new AssertionError();*/
+    }
+
+    public static void serverStarting(Consumer<MinecraftServer> apply) {
+        STARTING_SERVER_EVENT.register(apply);
     }
 
     public static void serverStarted(Consumer<MinecraftServer> apply) {
@@ -230,10 +245,10 @@ public class FactoryEvent<T> {
 
     public static void registerReloadListener(PackType type, PreparableReloadListener reloadListener){
         //? if fabric {
-        ResourceLocation location = FactoryAPI.createLocation(reloadListener.getName());
+        net.minecraft.resources.ResourceLocation location = FactoryAPI.createLocation(reloadListener.getName());
         ResourceManagerHelper.get(type).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
-            public ResourceLocation getFabricId() {
+            public net.minecraft.resources.ResourceLocation getFabricId() {
                 return location;
             }
 
@@ -282,11 +297,11 @@ public class FactoryEvent<T> {
 
     @FunctionalInterface
     public interface PackRegistry {
-        void register(String path, ResourceLocation name, Component component, Pack.Position position, boolean enabledByDefault);
-        default void register(String path, ResourceLocation name, boolean enabledByDefault){
+        void register(String path, net.minecraft.resources.ResourceLocation name, Component component, Pack.Position position, boolean enabledByDefault);
+        default void register(String path, net.minecraft.resources.ResourceLocation name, boolean enabledByDefault){
             register(path, name, Component.translatable(name.getNamespace() + ".builtin." + name.getPath()), Pack.Position.TOP, enabledByDefault);
         }
-        default void registerResourcePack(ResourceLocation location, boolean enabledByDefault){
+        default void registerResourcePack(net.minecraft.resources.ResourceLocation location, boolean enabledByDefault){
             register("resourcepacks/"+location.getPath(), location, enabledByDefault);
         }
         default void registerResourcePack(String pathName, boolean enabledByDefault){
@@ -294,7 +309,7 @@ public class FactoryEvent<T> {
         }
     }
 
-    public static Pack createBuiltInPack(ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
+    public static Pack createBuiltInPack(net.minecraft.resources.ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath){
         //? if <=1.20.1 {
         /*return Pack.readMetaAndCreate(name.toString(), displayName,false, s-> new PathPackResources(s, resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
         *///?} else if <1.20.5 {

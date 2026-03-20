@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.serialization.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 //? if >=1.21.11 {
 /*import net.minecraft.server.permissions.Permission;
@@ -45,9 +44,9 @@ import java.util.stream.Collectors;
  * @param <T> Type stored in the config instance
  */
 public interface FactoryConfig<T> extends Bearer<T> {
-    ListMap<ResourceLocation, StorageHandler> COMMON_STORAGES = new ListMap<>();
+    ListMap<net.minecraft.resources.ResourceLocation, StorageHandler> COMMON_STORAGES = new ListMap<>();
 
-    static StorageHandler registerCommonStorage(ResourceLocation location, StorageHandler handler) {
+    static StorageHandler registerCommonStorage(net.minecraft.resources.ResourceLocation location, StorageHandler handler) {
         COMMON_STORAGES.put(location, handler);
         return handler;
     }
@@ -218,6 +217,12 @@ public interface FactoryConfig<T> extends Bearer<T> {
             load();
         }
 
+        public void resetAndUnload() {
+            reset();
+            file = null;
+            serverOnly = false;
+        }
+
         public boolean isServerManaged() {
             return allowSync || isServerOnly();
         }
@@ -256,12 +261,20 @@ public interface FactoryConfig<T> extends Bearer<T> {
             }
         }
 
-        public <T> void decodeConfigs(Dynamic<T> dynamic) {
+        public <T> void decodeConfigs(Map<String, FactoryConfig<?>> configMap, Dynamic<T> dynamic) {
             FactoryConfig.decodeConfigs(configMap, dynamic);
         }
 
-        public <T> T encodeConfigs(DynamicOps<T> ops) {
+        public <T> void decodeConfigs(Dynamic<T> dynamic) {
+            decodeConfigs(configMap, dynamic);
+        }
+
+        public <T> T encodeConfigs(Map<String, FactoryConfig<?>> configMap, DynamicOps<T> ops) {
             return FactoryConfig.encodeConfigs(configMap, ops);
+        }
+
+        public <T> T encodeConfigs(DynamicOps<T> ops) {
+            return encodeConfigs(configMap, ops);
         }
 
         public <T> FactoryConfig<T> register(String key, FactoryConfig<T> config) {

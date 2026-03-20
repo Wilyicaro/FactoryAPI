@@ -298,11 +298,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return getBoolean(name, false);
     }
 
-    default ResourceLocation getResourceLocation(String name, ResourceLocation defaultValue) {
-        return getElementValue(name, defaultValue, ResourceLocation.class);
+    default net.minecraft.resources.ResourceLocation getResourceLocation(String name, net.minecraft.resources.ResourceLocation defaultValue) {
+        return getElementValue(name, defaultValue, net.minecraft.resources.ResourceLocation.class);
     }
 
-    default ResourceLocation getResourceLocation(String name) {
+    default net.minecraft.resources.ResourceLocation getResourceLocation(String name) {
         return getResourceLocation(name, null);
     }
 

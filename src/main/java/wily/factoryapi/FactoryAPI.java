@@ -56,7 +56,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 //? if forge || neoforge
-/*@Mod(FactoryAPI.MOD_ID)*/
+//@Mod(FactoryAPI.MOD_ID)
 public class FactoryAPI {
     public static final String MOD_ID = "factory_api";
 
@@ -133,7 +133,7 @@ public class FactoryAPI {
         });
         *///?}
         //? if forge || neoforge
-        /*if (isClient()) FactoryAPIClient.init();*/
+        //if (isClient()) FactoryAPIClient.init();
     }
 
     public static void init() {
@@ -181,23 +181,23 @@ public class FactoryAPI {
         //?}
     }
 
-    public static ResourceLocation createLocation(String namespace, String path){
-        return ResourceLocation.tryBuild(namespace,path);
+    public static net.minecraft.resources.ResourceLocation createLocation(String namespace, String path){
+        return net.minecraft.resources.ResourceLocation.tryBuild(namespace,path);
     }
 
-    public static ResourceLocation createLocation(String location){
-        return ResourceLocation.tryParse(location);
+    public static net.minecraft.resources.ResourceLocation createLocation(String location){
+        return net.minecraft.resources.ResourceLocation.tryParse(location);
     }
 
-    public static ResourceLocation createModLocation(String path){
+    public static net.minecraft.resources.ResourceLocation createModLocation(String path){
         return createLocation(MOD_ID,path);
     }
 
-    public static ResourceLocation createVanillaLocation(String path){
+    public static net.minecraft.resources.ResourceLocation createVanillaLocation(String path){
         //? if <1.20.5 {
-        return new ResourceLocation(path);
+        return new net.minecraft.resources.ResourceLocation(path);
         //?} else
-        //return ResourceLocation.withDefaultNamespace(path);
+        //return net.minecraft.resources.ResourceLocation.withDefaultNamespace(path);
     }
 
     public static Loader getLoader() {

@@ -47,24 +47,24 @@ public interface FactoryGuiGraphics {
     }
     //?}
 
-    void blit(ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
+    void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, int uvX, int uvY, int width, int height);
 
-    void blit(ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, int z, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blit(ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(net.minecraft.resources.ResourceLocation texture, int x, int xd, int y, int yd, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blit(ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
+    void blit(net.minecraft.resources.ResourceLocation texture, int x, int y, float uvX, float uvY, int width, int height, int textureWidth, int textureHeight);
 
-    void blitSprite(ResourceLocation resourceLocation, int x, int y, int width, int height);
+    void blitSprite(net.minecraft.resources.ResourceLocation id, int x, int y, int width, int height);
 
-    void blitSprite(ResourceLocation resourceLocation, int x, int y, int z, int width, int height);
+    void blitSprite(net.minecraft.resources.ResourceLocation id, int x, int y, int z, int width, int height);
 
-    void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height);
+    void blitSprite(net.minecraft.resources.ResourceLocation id, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int z, int width, int height);
 
     void blit(int x, int y, int z, int width, int height, TextureAtlasSprite textureAtlasSprite);
 
-    default void blitSprite(ResourceLocation resourceLocation, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
-        this.blitSprite(resourceLocation, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
+    default void blitSprite(net.minecraft.resources.ResourceLocation id, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
+        this.blitSprite(id, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
     }
 
     void enableScissor(int x, int y, int xd, int yd, boolean matrixAffects);
@@ -212,7 +212,7 @@ public interface FactoryGuiGraphics {
         static AtlasAccessor of(TextureAtlas atlas) {
             return (AtlasAccessor) atlas;
         }
-        Map<ResourceLocation,TextureAtlasSprite> getTexturesByName();
+        Map<net.minecraft.resources.ResourceLocation, TextureAtlasSprite> getTexturesByName();
     }
 
     interface Accessor {

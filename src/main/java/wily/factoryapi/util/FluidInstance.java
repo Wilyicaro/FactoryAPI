@@ -161,7 +161,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         //? if <1.20.5 || forge {
         stack.setTag(getTag());
         //?} else
-        /^stack.applyComponents(getComponents());^/
+        //stack.applyComponents(getComponents());
         return stack;
     }
     *///?}

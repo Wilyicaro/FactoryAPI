@@ -179,7 +179,7 @@ public interface CommonNetwork {
             encode(buf);
         }
 
-        default ResourceLocation id(){
+        default net.minecraft.resources.ResourceLocation id(){
             return identifier().location();
         }
         //?}
@@ -226,7 +226,7 @@ public interface CommonNetwork {
         /*//? if <1.20.5 {
         PacketDistributor.PLAYER.with(serverPlayer).send(payload);
          //?} else
-        /^PacketDistributor.sendToPlayer(serverPlayer, payload);^/
+        //PacketDistributor.sendToPlayer(serverPlayer, payload);
         *///?} else {
         /*throw new AssertionError();
          *///?}

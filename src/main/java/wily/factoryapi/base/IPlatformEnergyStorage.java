@@ -139,8 +139,8 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
 
     @Override
     default int insert(int i, TransactionContext transactionContext) {
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -155,15 +155,21 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
                 protected void releaseSnapshot(Integer snapshot) {
                     receiveEnergy(i, false);
                 }
-            });
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
 
         return receiveEnergy(i, true);
     }
 
     @Override
     default int extract(int i, TransactionContext transactionContext) {
-        if (transactionContext instanceof Transaction transaction)
-            transaction.addCommittingJournal(new SnapshotJournal<Integer>() {
+        if (transactionContext instanceof Transaction transaction) {
+            SnapshotJournal<Integer> snapshotJournal = new SnapshotJournal<>() {
                 @Override
                 protected Integer createSnapshot() {
                     return 0;
@@ -178,7 +184,13 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
                 protected void releaseSnapshot(Integer snapshot) {
                     consumeEnergy(i, false);
                 }
-            });
+            };
+            //? if <=1.21.10 {
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
+        }
 
         return consumeEnergy(i, true);
     }
