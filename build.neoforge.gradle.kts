@@ -58,6 +58,10 @@ dependencies {
 	jarJar(libs.moulberry.mixinconstraints)
 }
 
+tasks.withType<Javadoc> {
+	enabled = false
+}
+
 tasks.named("createMinecraftArtifacts") {
 	dependsOn(tasks.named("stonecutterGenerate"))
 }

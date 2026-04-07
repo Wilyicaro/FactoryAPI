@@ -306,7 +306,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
 
     //? if >=1.21.6 {
     /*//? if !neoforge {
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
     public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         elementLocalRef.set(switch (instance) {
@@ -320,7 +320,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
     public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = elementLocalRef.get();
@@ -332,7 +332,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     final ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
     @Unique
     final ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
-    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
     public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         fge.set(switch (instance) {
@@ -346,7 +346,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
     public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = fge.get();

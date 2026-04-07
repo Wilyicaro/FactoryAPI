@@ -7,8 +7,8 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.MultiVariant;
 //?} else if <26.1 {
 /*import net.minecraft.util.random.WeightedList;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.resources.model.WeightedVariants;
 *///?} else {
 /*import net.minecraft.util.random.WeightedList;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;

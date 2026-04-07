@@ -108,8 +108,7 @@ public class FactoryConfigScreen extends Screen {
             public static Entry small(AbstractWidget arg, @Nullable AbstractWidget arg2, Screen arg3) {
                 return arg2 == null ? new Entry(ImmutableList.of(arg), arg3) : new Entry(ImmutableList.of(arg, arg2), arg3);
             }
-            //? if >=1.21.9 {
-
+            //? if >=26.1 {
             /*@Override
             public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
                 extractContent(graphics, mouseX, mouseY, hovered, a, getContentY());

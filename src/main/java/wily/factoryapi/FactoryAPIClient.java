@@ -120,8 +120,8 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 //? if <1.21.6 {
-/^import net.minecraftforge.eventbus.api.EventPriority;
-^///?}
+import net.minecraftforge.eventbus.api.EventPriority;
+//?}
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.ModList;

@@ -116,6 +116,9 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			project.tasks.matching { it.name == "stonecutterPrepare" || it.name == "processResources" }.configureEach {
 				dependsOn(task)
 			}
+			project.tasks.matching { it.name == "sourcesJar" }.configureEach {
+				mustRunAfter(task)
+			}
 		}
 
 		configureFletchingTable()
@@ -322,10 +325,10 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 					replace("renderHotbarAndDecorations", "extractHotbarAndDecorations")
 				}
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
-					replace("net/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V", "net/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
+					replace("net/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", "net/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
 				}
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
-					replace("net/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V", "net/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
+					replace("net/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", "net/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
 				}
 			}
 		}

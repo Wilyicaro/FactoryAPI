@@ -46,10 +46,10 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 //? if <1.21.6 {
-/^import net.minecraftforge.eventbus.api.IEventBus;
-^///?} else {
-import net.minecraftforge.eventbus.api.bus.BusGroup;
-//?}
+import net.minecraftforge.eventbus.api.IEventBus;
+//?} else {
+/^import net.minecraftforge.eventbus.api.bus.BusGroup;
+^///?}
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 *///?} elif fabric {
@@ -301,20 +301,20 @@ public interface FactoryAPIPlatform {
         return capability == null ? null : entity.getCapability(capability,direction).orElse(null);
     }
     //? if <1.21.6 {
-    /^static IEventBus getModEventBus() {
+    static IEventBus getModEventBus() {
         return FMLJavaModLoadingContext.get().getModEventBus();
     }
     static IEventBus getForgeEventBus() {
         return MinecraftForge.EVENT_BUS;
     }
-    ^///?} else {
-    static BusGroup getModEventBus() {
+    //?} else {
+    /^static BusGroup getModEventBus() {
         return FMLJavaModLoadingContext.get().getModBusGroup();
     }
     static BusGroup getForgeEventBus() {
         return BusGroup.DEFAULT;
     }
-    //?}
+    ^///?}
     *///?} else if neoforge {
     /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder) {
         return new RegisterListing.Holder<>() {
@@ -341,10 +341,10 @@ public interface FactoryAPIPlatform {
 
     //? if forge || neoforge {
     /*//? if forge || <1.21.9 {
-    /^static IFluidHandler.FluidAction fluidActionOf(boolean simulate) {
+    static IFluidHandler.FluidAction fluidActionOf(boolean simulate) {
         return(simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
     }
-    ^///?}
+    //?}
     static FluidInstance fluidStackToInstance(FluidStack stack) {
         return new FluidInstance(stack.getFluid(),stack.getAmount());
     }
