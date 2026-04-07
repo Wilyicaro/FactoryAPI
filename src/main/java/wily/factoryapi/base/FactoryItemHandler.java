@@ -1,7 +1,11 @@
 package wily.factoryapi.base;
 
 //? if fabric {
+//? if >=26.1 {
+/*import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
+*///?} else {
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+//?}
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 //?}
@@ -220,7 +224,11 @@ public class FactoryItemHandler extends SimpleContainer implements IPlatformItem
     }
 
     //? if fabric {
+    //? if >=26.1 {
+    /*protected final ContainerStorage inventoryStorage = ContainerStorage.of(this, null);
+    *///?} else {
     protected final InventoryStorage inventoryStorage = InventoryStorage.of(this, null);
+    //?}
 
     @Override
     public Storage<ItemVariant> getHandler() {

@@ -49,12 +49,20 @@ public class FactoryConfigScreen extends Screen {
         super.init();
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractRenderState(graphics, mouseX, mouseY, a);
+        graphics.text(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
+    }
+    *///?} else {
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         //? if <=1.20.1
         /*renderBackground(guiGraphics);*/
         super.render(guiGraphics, i, j, f);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
+    //?}
 
     @Override
     public void onClose() {
@@ -100,8 +108,13 @@ public class FactoryConfigScreen extends Screen {
             public static Entry small(AbstractWidget arg, @Nullable AbstractWidget arg2, Screen arg3) {
                 return arg2 == null ? new Entry(ImmutableList.of(arg), arg3) : new Entry(ImmutableList.of(arg, arg2), arg3);
             }
-
             //? if >=1.21.9 {
+
+            /*@Override
+            public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+                extractContent(graphics, mouseX, mouseY, hovered, a, getContentY());
+            }
+            *///?} else if >=1.21.9 {
             /*@Override
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
                 renderContent(guiGraphics, i, j, bl, f, getContentY());
@@ -113,6 +126,18 @@ public class FactoryConfigScreen extends Screen {
             }
             //?}
 
+            //? if >=26.1 {
+            /*public void extractContent(GuiGraphicsExtractor graphics, int i, int j, boolean bl, float f, int contentY) {
+                int p = 0;
+                int q = this.screen.width / 2 - 155;
+
+                for (AbstractWidget abstractWidget : this.children) {
+                    abstractWidget.setPosition(q + p, contentY);
+                    abstractWidget.extractRenderState(graphics, i, j, f);
+                    p += 160;
+                }
+            }
+            *///?} else {
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f, int contentY) {
                 int p = 0;
                 int q = this.screen.width / 2 - 155;
@@ -123,6 +148,7 @@ public class FactoryConfigScreen extends Screen {
                     p += 160;
                 }
             }
+            //?}
 
             @Override
             public List<? extends GuiEventListener> children() {

@@ -2,21 +2,17 @@ package wily.factoryapi.mixin.base;
 
 //? if >=1.21.11 {
 /*import net.minecraft.client.gui.ActiveTextCollector;
-import wily.factoryapi.base.FactoryRenderingTextCollector;
 *///?} else {
 import net.minecraft.client.gui.Font;
 //?}
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.inventory.LoomScreen;
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 *///?}
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -67,13 +63,9 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
     }
     //?}
 
-    // TODO 1.21.11
-    @Inject(method = /*? if <1.21.11 {*/"renderString"/*?} else {*//*"renderDefaultLabel"*//*?}*/, at = @At("HEAD"))
-    public void renderString(/*? if <1.21.11 {*/GuiGraphics guiGraphics, Font font, int i, /*?} else {*//*ActiveTextCollector activeTextCollector, *//*?}*/ CallbackInfo ci) {
-        //? if >=1.21.11 {
-        /*GuiGraphics guiGraphics;
-        if (activeTextCollector instanceof FactoryRenderingTextCollector collector) guiGraphics = collector.getGuiGraphics(); else return;
-        *///?}
+    //? if <1.21.11 {
+    @Inject(method = "renderString", at = @At("HEAD"))
+    public void renderString(GuiGraphics guiGraphics, Font font, int i, CallbackInfo ci) {
         net.minecraft.resources.ResourceLocation sprite = getSpriteOverride();
         if (sprite != null) {
             FactoryScreenUtil.enableBlend();
@@ -89,4 +81,31 @@ public abstract class AbstractButtonMixin extends AbstractWidget implements Widg
             FactoryScreenUtil.disableBlend();
         }
     }
+    //?} else if >=26.1 {
+    /*@Inject(method = "extractDefaultSprite", at = @At("HEAD"), cancellable = true)
+    public void renderString(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        net.minecraft.resources.ResourceLocation sprite = getSpriteOverride();
+        if (sprite != null) {
+            FactoryScreenUtil.enableBlend();
+            FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
+            FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
+            FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
+            FactoryScreenUtil.disableBlend();
+            ci.cancel();
+        }
+    }
+    *///?} else {
+    /*@Inject(method = "renderDefaultSprite", at = @At("HEAD"), cancellable = true)
+    public void renderString(GuiGraphics guiGraphics, CallbackInfo ci) {
+        net.minecraft.resources.ResourceLocation sprite = getSpriteOverride();
+        if (sprite != null) {
+            FactoryScreenUtil.enableBlend();
+            FactoryGuiGraphics.of(guiGraphics).setBlitColor(1.0f, 1.0f, 1.0f, alpha);
+            FactoryGuiGraphics.of(guiGraphics).blitSprite(sprite, getX(), getY(), getWidth(), getHeight());
+            FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
+            FactoryScreenUtil.disableBlend();
+            ci.cancel();
+        }
+    }
+    *///?}
 }

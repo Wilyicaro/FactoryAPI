@@ -69,10 +69,17 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
         this.visibility = supplier;
     }
 
+    //? if >=26.1 {
+    /*@Inject(method = "extractRenderState", at = @At("HEAD"))
+    public void extractRenderState(GuiGraphicsExtractor arg, int i, int j, float f, CallbackInfo ci) {
+        if (visibility.isPresent()) visible = visibility.get();
+    }
+    *///?} else {
     @Inject(method = "render", at = @At("HEAD"))
     public void render(GuiGraphics arg, int i, int j, float f, CallbackInfo ci) {
         if (visibility.isPresent()) visible = visibility.get();
     }
+    //?}
 
     @Inject(method = "onClick", at = @At("HEAD"))
     public void onClick(CallbackInfo ci) {

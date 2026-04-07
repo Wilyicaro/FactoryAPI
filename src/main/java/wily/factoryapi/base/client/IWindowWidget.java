@@ -57,11 +57,19 @@ public interface IWindowWidget extends GuiEventListener, Renderable {
     }
     //?}
 
+    //? if >=26.1 {
+    /*default void extractRenderState(net.minecraft.client.gui.GuiGraphics guiGraphics, int i, int j, float f) {
+        for (Renderable nestedRenderable : getNestedRenderables()) {
+            nestedRenderable.extractRenderState(guiGraphics,i,j,f);
+        }
+    }
+    *///?} else {
     default void render(GuiGraphics guiGraphics, int i, int j, float f) {
         for (Renderable nestedRenderable : getNestedRenderables()) {
             nestedRenderable.render(guiGraphics,i,j,f);
         }
     }
+    //?}
 
     default void playDownSound(float grave) {
         FactoryScreenUtil.playButtonDownSound(grave);

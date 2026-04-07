@@ -7,8 +7,11 @@ import net.minecraft.client.DeltaTracker;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColor;
-//? if >1.21.4 {
+//? if >=26.1 {
+/*import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+*///?} else if >1.21.4 {
 /*import net.minecraft.client.renderer.block.model.BlockStateModel;
 *///?} else {
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -36,7 +39,6 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 //? if <1.21.11 {
 import net.minecraft.client.renderer.RenderType;
 //?} else {
@@ -70,7 +72,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import wily.factoryapi.base.FactoryExtraMenuSupplier;
 import wily.factoryapi.base.client.screen.FactoryConfigScreen;
 import wily.factoryapi.base.network.*;
@@ -88,19 +89,25 @@ import net.minecraft.client.gui.components.toasts.ToastManager;
 *///?} else {
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 //?}
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.color.block.BlockTintSources;
+*///?} else {
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 //? if fabric {
 import wily.factoryapi.base.compat.client.FactoryAPIModMenuCompat;
 //? if <1.21.6 {
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
-//?} else {
+//?} else if <26.1 {
 /*import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 *///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -113,8 +120,8 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 //? if <1.21.6 {
-import net.minecraftforge.eventbus.api.EventPriority;
-//?}
+/^import net.minecraftforge.eventbus.api.EventPriority;
+^///?}
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.ModList;
@@ -186,9 +193,13 @@ public class FactoryAPIClient {
     public static BakedModel getExtraModel(net.minecraft.resources.ResourceLocation resourceLocation) {
         return Minecraft.getInstance().getModelManager().getModel(extraModels.get(resourceLocation).modelId());
     }
-    //?} else {
+    //?} else if <26.1 {
     /*public static BlockStateModel getExtraModel(net.minecraft.resources.ResourceLocation resourceLocation) {
         return Minecraft.getInstance().getBlockRenderer().getBlockModel(extraModels.get(resourceLocation).blockState());
+    }
+    *///?} else {
+    /*public static BlockStateModel getExtraModel(net.minecraft.resources.ResourceLocation resourceLocation) {
+        return Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(extraModels.get(resourceLocation).blockState());
     }
     *///?}
 
@@ -238,6 +249,10 @@ public class FactoryAPIClient {
         return Minecraft.getInstance().getWindow()./*? if >=1.21.9 {*//*handle()*//*?} else {*/getWindow()/*?}*/;
     }
 
+    public static Screen getScreen() {
+        return Minecraft.getInstance().screen;
+    }
+
     public static void init() {
         registerConfigScreen(FactoryAPIPlatform.getModInfo(FactoryAPI.MOD_ID), FactoryConfigScreen::createFactoryAPIConfigScreen);
 
@@ -246,7 +261,13 @@ public class FactoryAPIClient {
             FactoryOptions.CLIENT_STORAGE.load();
         });
         preTick(m-> SECURE_EXECUTOR.executeAll());
-        FactoryGuiElement.HOTBAR.post().register(graphics -> UIAccessor.of(Minecraft.getInstance().gui).getChildrenRenderables().forEach(r->r.render(graphics,0,0, getPartialTick())));
+        FactoryGuiElement.HOTBAR.post().register(graphics -> UIAccessor.of(Minecraft.getInstance().gui).getChildrenRenderables().forEach(r -> {
+            //? if >=26.1 {
+            /*r.extractRenderState(graphics, 0, 0, getPartialTick());
+            *///?} else {
+            r.render(graphics, 0, 0, getPartialTick());
+            //?}
+        }));
         PlayerEvent.JOIN_EVENT.register(l->{
             DynamicUtil.REGISTRY_OPS_CACHE.invalidateAll();
             DynamicUtil.DYNAMIC_ITEMS_CACHE.asMap().keySet().forEach(DynamicUtil.DYNAMIC_ITEMS_CACHE::refresh);
@@ -370,7 +391,9 @@ public class FactoryAPIClient {
     }
 
     public static TextureAtlasSprite getFluidStillTexture(Fluid fluid) {
-        //? if fabric {
+        //? if >=26.1 {
+        /*return Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState()).stillMaterial().sprite();
+        *///?} else if fabric {
         return FluidVariantRendering.getSprite(FluidVariant.of(fluid));
         //?} elif (forge || neoforge) && <1.21.9 {
         /*return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(IClientFluidTypeExtensions.of(fluid).getStillTexture());
@@ -381,7 +404,9 @@ public class FactoryAPIClient {
     }
 
     public static TextureAtlasSprite getFluidFlowingTexture(Fluid fluid) {
-        //? if fabric {
+        //? if >=26.1 {
+        /*return Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState()).flowingMaterial().sprite();
+        *///?} else if fabric {
         return FluidVariantRendering.getSprites(FluidVariant.of(fluid))[1];
         //?} elif (forge || neoforge) && <1.21.9 {
         /*return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(IClientFluidTypeExtensions.of(fluid).getFlowingTexture());
@@ -410,8 +435,10 @@ public class FactoryAPIClient {
     }
 
     public static void registerKeyMapping(Consumer<Consumer<KeyMapping>> registry) {
-        //? if fabric {
-        registry.accept(KeyBindingHelper::registerKeyBinding);
+        //? if fabric && >=26.1 {
+        /*registry.accept(net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper::registerKeyMapping);
+        *///?} else if fabric {
+        registry.accept(net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper::registerKeyBinding);
         //?} elif (forge && <1.21.6) || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, RegisterKeyMappingsEvent.class, e->registry.accept(e::register));
         *///?} elif forge && <1.21.9 {
@@ -430,12 +457,12 @@ public class FactoryAPIClient {
         if (defaultConfigScreens.containsKey(mod.getId())) return defaultConfigScreens.get(mod.getId()).apply(screen);
         //? if fabric {
         return FactoryAPI.isModLoaded("modmenu") ? FactoryAPIModMenuCompat.getConfigScreen(mod.getId(),screen) : null;
-        //?} else if forge || neoforge && <1.20.5 {
+        //?} else if forge || (neoforge && <1.20.5) {
         /*return ModList.get().getModContainerById(mod.getId()).flatMap(c-> ConfigScreenHandler.getScreenFactoryFor(c.getModInfo())).map(s-> s.apply(Minecraft.getInstance(), screen)).orElse(null);
         *///?} else if neoforge {
         /*return ModList.get().getModContainerById(mod.getId()).flatMap(m-> IConfigScreenFactory.getForMod(m.getModInfo()).map(s -> s.createScreen(m, screen))).orElse(null);
          *///?} else
-        /*throw new AssertionError();*/
+        //throw new AssertionError();
     }
 
     public static void registerDefaultConfigScreen(String modId, Function<Screen,Screen> configScreenFactory) {
@@ -446,7 +473,7 @@ public class FactoryAPIClient {
         registerDefaultConfigScreen(mod.getId(), configScreenFactory);
         //? if fabric {
         if (FactoryAPI.isModLoaded("modmenu")) setup(m-> FactoryAPIModMenuCompat.registerConfigScreen(mod.getId(), configScreenFactory));
-         //?} else if forge || neoforge && <1.20.5 {
+         //?} else if forge || (neoforge && <1.20.5) {
         /*ModList.get().getModContainerById(mod.getId()).ifPresent(c->c.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, ()-> new ConfigScreenHandler.ConfigScreenFactory((m,s)->configScreenFactory.apply(s))));
         *///?} else if neoforge {
         /*ModList.get().getModContainerById(mod.getId()).ifPresent(c->c.registerExtensionPoint(IConfigScreenFactory.class, (m,s)-> configScreenFactory.apply(s)));
@@ -460,16 +487,18 @@ public class FactoryAPIClient {
     public static void registerMenuScreen(Consumer<MenuScreenRegister> registry) {
         //? if fabric {
         registry.accept(MenuScreens::register);
-        //?} elif forge || <1.20.4 && neoforge {
+        //?} elif forge || (<1.20.4 && neoforge) {
         /*setup(m-> registry.accept(MenuScreens::register));
         *///?} elif neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(RegisterMenuScreensEvent.class, e->registry.accept(e::register));
         *///?} else
-        /*throw new AssertionError();*/
+        //throw new AssertionError();
     }
 
-    public static void registerBlockColor(Consumer<BiConsumer<BlockColor, Block>> registry) {
-        //? if fabric {
+    public static void registerBlockColor(Consumer<BiConsumer</*? if >=26.1 {*//*List<BlockTintSource>*//*?} else {*/BlockColor/*?}*/, Block>> registry) {
+        //? if fabric && >=26.1 {
+        /*registry.accept(BlockColorRegistry::register);
+        *///?} else if fabric {
         registry.accept(ColorProviderRegistry.BLOCK::register);
         //?} elif (forge && <1.21.6) || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, RegisterColorHandlersEvent.Block.class, e->registry.accept(e::register));
@@ -492,6 +521,8 @@ public class FactoryAPIClient {
     }
     //?}
 
+    // This is done automatically since 26.1 :)
+    //? if <26.1 {
     public static void registerRenderType(/*? if <1.21.6 {*/RenderType/*?} else {*//*ChunkSectionLayer*//*?}*/ renderType, Block... blocks) {
         //? if fabric {
         BlockRenderLayerMap/*? if <1.21.6 {*/.INSTANCE/*?}*/.putBlocks(renderType,blocks);
@@ -513,6 +544,7 @@ public class FactoryAPIClient {
         *///?} else
         /*throw new AssertionError();*/
     }
+    //?}
 
     public record ExtraModelId(StateDefinition<Block,BlockState> stateDefinition, BlockState blockState, net.minecraft.resources.ResourceLocation id/*? if <1.21.5 {*/, ModelResourceLocation modelId/*?}*/) {
         public static ExtraModelId create(net.minecraft.resources.ResourceLocation id) {
@@ -527,7 +559,7 @@ public class FactoryAPIClient {
 
     public static <T extends Entity> void registerEntityRenderer(Supplier<? extends EntityType<? extends T>> type, EntityRendererProvider<T> provider) {
         //? if fabric {
-        EntityRendererRegistry.register(type.get(),provider);
+        EntityRendererRegistry.register(type.get(), provider);
         //?} else if (forge && <1.21.6) || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, e-> e.registerEntityRenderer(type.get(),provider));
         *///?} elif forge && <1.21.9 {
@@ -539,8 +571,10 @@ public class FactoryAPIClient {
     }
 
     public static void registerLayerDefinition(ModelLayerLocation location, Supplier<LayerDefinition> definition) {
-        //? if fabric {
-        EntityModelLayerRegistry.registerModelLayer(location,definition::get);
+        //? if fabric && >=26.1 {
+        /*ModelLayerRegistry.registerModelLayer(location, definition::get);
+        *///?} else if fabric {
+        EntityModelLayerRegistry.registerModelLayer(location, definition::get);
          //?} else if (forge && <1.21.6) || neoforge {
         /*FactoryAPIPlatform.getModEventBus().addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterLayerDefinitions.class, e-> e.registerLayerDefinition(location,definition));
         *///?} else if forge {
@@ -559,7 +593,7 @@ public class FactoryAPIClient {
 
     public static void registerRenderLayer(Consumer<FactoryRenderLayerRegistry> registry) {
         //? if fabric {
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((a, b, c, d)-> registry.accept(new FactoryRenderLayerRegistry() {
+        /*? if >=26.1 {*//*LivingEntityRenderLayerRegistrationCallback*//*?} else {*/LivingEntityFeatureRendererRegistrationCallback/*?}*/.EVENT.register((a, b, c, d)-> registry.accept(new FactoryRenderLayerRegistry() {
             @Override
             public EntityRenderer<?/*? if >=1.21.2 {*//*, ? *//*?}*/> getEntityRenderer(EntityType<? extends LivingEntity> entityType) {
                 return b;

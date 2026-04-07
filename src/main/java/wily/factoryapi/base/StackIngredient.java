@@ -98,7 +98,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
             }
             return false;
         } else {
-            return this.values.contains(stack.getItemHolder()) && /*? if >=1.20.5 {*/ /*this.components.test(stack) *//*?} else {*/ NbtUtils.compareNbt(tag, stack.getTag(), true) /*?}*/;
+            return this.values.contains(FactoryItemUtil.getItemHolder(stack)) && /*? if >=1.20.5 {*/ /*this.components.test(stack) *//*?} else {*/ NbtUtils.compareNbt(tag, stack.getTag(), true) /*?}*/;
         }
     }
 

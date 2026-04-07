@@ -3,6 +3,7 @@ package wily.factoryapi.util;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -94,6 +95,10 @@ public class FactoryItemUtil {
 
     public static int getEnchantmentLevel(ItemStack stack, /*? if >=1.21 {*/ /*ResourceKey<Enchantment> *//*?} else {*/Enchantment/*?}*/ enchantment, RegistryAccess registryAccess){
         return /*? if <1.21 {*/EnchantmentHelper.getItemEnchantmentLevel(enchantment, stack)/*?} else {*//*FactoryAPIPlatform.getRegistryValue(registryAccess, enchantment).map(e->stack.getEnchantments().getLevel(e)).orElse(0)*//*?}*/;
+    }
+
+    public static Holder<Item> getItemHolder(ItemStack stack) {
+        return stack./*? if >=26.1 {*//*typeHolder*//*?} else {*/getItemHolder/*?}*/();
     }
 
 }

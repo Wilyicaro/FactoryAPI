@@ -3,7 +3,9 @@ package wily.factoryapi.mixin.base;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.color.block.BlockColors;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+//? if <1.21 {
 import net.minecraft.client.renderer.block.BlockModelShaper;
+//?}
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;

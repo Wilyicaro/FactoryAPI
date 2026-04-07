@@ -5,11 +5,14 @@ import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.MultiVariant;
-//?} else {
-/*import net.minecraft.client.resources.model.WeightedVariants;
-import net.minecraft.util.random.WeightedList;
+//?} else if <26.1 {
+/*import net.minecraft.util.random.WeightedList;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+*///?} else {
+/*import net.minecraft.util.random.WeightedList;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.WeightedVariants;
 *///?}
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

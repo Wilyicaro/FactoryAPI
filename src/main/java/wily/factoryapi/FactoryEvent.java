@@ -21,8 +21,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.server.*;
 //? if <1.21.6 {
-import net.minecraftforge.eventbus.api.EventPriority;
-//?}
+/^import net.minecraftforge.eventbus.api.EventPriority;
+^///?}
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -35,9 +35,9 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
 ^///?}
 //? if >=1.20.5 {
-/^import net.minecraftforge.network.payload.PayloadFlow;
+import net.minecraftforge.network.payload.PayloadFlow;
 import net.minecraftforge.network.payload.PayloadProtocol;
-^///?}
+//?}
 *///?} elif neoforge {
 /*import net.minecraft.server.packs.repository.BuiltInPackSource;
 import net.neoforged.fml.ModList;
@@ -379,10 +379,10 @@ public class FactoryEvent<T> {
                 else if (FactoryAPI.isClient()) FactoryAPIClient.registerPayload(id);
                 //?} else {
                 /*if (c2s) {
-                    PayloadTypeRegistry.playC2S().register(id.type(),id.codec());
+                    PayloadTypeRegistry./^? if <26.1 {^/playC2S/^?} else {^//^serverboundPlay^//^?}^/().register(id.type(),id.codec());
                     ServerPlayNetworking.registerGlobalReceiver(id.type(), (payload, context)-> payload.applyServer(context::player));
                 }else {
-                    PayloadTypeRegistry.playS2C().register(id.type(),id.codec());
+                    PayloadTypeRegistry./^? if <26.1 {^/playS2C/^?} else {^//^clientboundPlay^//^?}^/().register(id.type(),id.codec());
                     if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) FactoryAPIClient.registerPayload(id);
                 }
                 *///?}
@@ -393,17 +393,17 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? if <1.20.5 {
-                EventNetworkChannel NETWORK = /^? <=1.20.1 {^//^NetworkRegistry.^//^?}^/ChannelBuilder.named(id.location())./^? if <=1.20.1 {^//^networkProtocolVersion(()->"1").serverAcceptedVersions(s-> true).clientAcceptedVersions(s-> true).^//^?} else {^/optional()./^?}^/eventNetworkChannel();
+                /^EventNetworkChannel NETWORK = /^¹? <=1.20.1 {¹^//^¹NetworkRegistry.¹^//^¹?}¹^/ChannelBuilder.named(id.location())./^¹? if <=1.20.1 {¹^//^¹networkProtocolVersion(()->"1").serverAcceptedVersions(s-> true).clientAcceptedVersions(s-> true).¹^//^¹?} else {¹^/optional()./^¹?}¹^/eventNetworkChannel();
                 if (c2s || FMLEnvironment.dist.isClient()) NETWORK.addListener(p->{
-                    var source = p.getSource()/^? <=1.20.1 {^//^.get()^//^?}^/;
-                    if (/^? >1.20.1 {^/p.getChannel().equals(id.location()) && /^?}^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^? if <=1.20.1 {^//^p.getSource().get().getDirection().getReceptionSide().isClient()^//^?} else {^/ source.isClientSide()/^?}^/, source::getSender);
+                    var source = p.getSource()/^¹? <=1.20.1 {¹^//^¹.get()¹^//^¹?}¹^/;
+                    if (/^¹? >1.20.1 {¹^/p.getChannel().equals(id.location()) && /^¹?}¹^/p.getPayload() != null) id.decode(p.getPayload()).applySided(/^¹? if <=1.20.1 {¹^//^¹p.getSource().get().getDirection().getReceptionSide().isClient()¹^//^¹?} else {¹^/ source.isClientSide()/^¹?}¹^/, source::getSender);
                     source.setPacketHandled(true);
                 });
-                //?} else {
-                /^PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location()).payloadChannel().play();
+                ^///?} else {
+                PayloadProtocol<RegistryFriendlyByteBuf, CustomPacketPayload> protocol = ChannelBuilder.named(id.location()).payloadChannel().play();
                 if (c2s) protocol.serverbound().addMain(id.type(),id.codec(),(m,c)-> m.applyServer(c::getSender)).build();
                 else protocol.clientbound().addMain(id.type(),id.codec(),(m,c)-> m.applyClient()).build();
-                ^///?}
+                //?}
             }
         });
         *///?} elif neoforge {

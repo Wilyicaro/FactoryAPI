@@ -32,7 +32,7 @@ public interface ArbitrarySupplier<T> extends Supplier<T> {
         return or(()-> alternative).get();
     }
 
-    default ArbitrarySupplier<T> or(ArbitrarySupplier<@NotNull T> alternative){
+    default ArbitrarySupplier<T> or(ArbitrarySupplier<T> alternative){
         return isPresent() ? this : alternative;
     }
 

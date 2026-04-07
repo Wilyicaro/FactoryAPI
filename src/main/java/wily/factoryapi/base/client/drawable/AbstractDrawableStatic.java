@@ -27,32 +27,38 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         super(posX,posY,drawable.width(),drawable.height());
         this.drawable = drawable;
     }
+
     public D overlay(IFactoryDrawableType overlay){
         this.overlay = overlay;
         return (D) this;
     }
+
     public D visible(Supplier<Boolean> visible){
         this.visible = visible;
         return (D) this;
     }
+
     public D tooltip(Component component){
         tooltips.add(component);
         return (D) this;
     }
+
     public D tooltips(List<Component> components){
         tooltips.addAll(components);
         return (D) this;
     }
+
     public D clearTooltips(){
         tooltips.clear();
         return (D) this;
     }
-    public void draw(GuiGraphics graphics) {
+
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics) {
         draw(graphics, getX(), getY());
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int y) {
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
         IFactoryDrawableType.super.draw(graphics, x, y);
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryGuiMatrixStack.of(graphics.pose()).translate(0F,0F,1F);
@@ -69,21 +75,46 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         return drawable.isSprite();
     }
 
-    public void drawAsFluidTank(GuiGraphics graphics, FluidInstance instance, int capacity, boolean hasColor) {
+    public void drawAsFluidTank(net.minecraft.client.gui.GuiGraphics graphics, FluidInstance instance, int capacity, boolean hasColor) {
         drawable.drawAsFluidTank(graphics, getX(), getY(), instance, capacity, hasColor);
     }
     public boolean inMouseLimit(double mouseX, double mouseY) {
         return drawable.inMouseLimit(mouseX,mouseY,getX(),getY());
     }
 
-    public net.minecraft.resources.ResourceLocation texture() {return drawable.texture();}
-    public int width() {return getWidth();}
-    public int height() {return getHeight();}
-    public int uvX() {return drawable.uvX();}
-    public int uvY() {return drawable.uvY();}
+    public net.minecraft.resources.ResourceLocation texture() {
+        return drawable.texture();
+    }
 
+    public int width() {
+        return getWidth();
+    }
+
+    public int height() {
+        return getHeight();
+    }
+
+    public int uvX() {
+        return drawable.uvX();
+    }
+
+    public int uvY() {
+        return drawable.uvY();
+    }
+
+    //? if >=26.1 {
+
+    /*@Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        if (!visible.get()) return;
+        hovered = inMouseLimit(mouseX, mouseY);
+        draw(graphics);
+        if (hovered && !tooltips.isEmpty())
+            graphics.setTooltipForNextFrame(mc.font, tooltips.stream().map(Component::getVisualOrderText).toList(), mouseX, mouseY);
+    }
+    *///?} else {
     @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+    public void render(net.minecraft.client.gui.GuiGraphics guiGraphics, int i, int j, float f) {
         if (!visible.get()) return;
         hovered = inMouseLimit(i,j);
         draw(guiGraphics);
@@ -93,4 +124,5 @@ public abstract class AbstractDrawableStatic<D extends AbstractDrawableStatic<D,
         if (hovered && !tooltips.isEmpty()) guiGraphics.renderComponentTooltip(mc.font, tooltips,i,j);
         //?}
     }
+    //?}
 }

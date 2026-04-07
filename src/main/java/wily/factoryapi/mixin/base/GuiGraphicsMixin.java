@@ -9,7 +9,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.render.TextureSetup;
+//? if >=26.1 {
+/^import net.minecraft.client.renderer.state.gui.GuiRenderState;
+^///?} else {
 import net.minecraft.client.gui.render.state.GuiRenderState;
+//?}
 import net.minecraft.client.renderer.RenderPipelines;
 *///?}
 //? if >=1.21.6 && <1.21.9 {
@@ -18,7 +22,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.MultiBufferSource;
 //? if <1.21.6 {
@@ -46,7 +49,7 @@ import wily.factoryapi.util.FactoryScreenUtil;
 *///?}
 import java.util.function.Function;
 
-@Mixin(GuiGraphics.class)
+@Mixin(net.minecraft.client.gui.GuiGraphics.class)
 public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     //? if >=1.21.2 {
     /*@Unique private int blitColor = -1;
@@ -68,11 +71,15 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
 
     //?}
 
-    @Shadow @Final private GuiGraphics.ScissorStack scissorStack;
+    @Shadow @Final private net.minecraft.client.gui.GuiGraphics.ScissorStack scissorStack;
     @Shadow @Final private Minecraft minecraft;
 
     //? if >=1.21.6 {
-    /*@Shadow protected abstract void submitBlit(RenderPipeline par1, GpuTextureView par2, /^?if >=1.21.11 {^//^GpuSampler gpuSampler, ^//^?}^/ int par3, int par4, int par5, int par6, float par7, float par8, float par9, float par10, int par11);
+    /*//? if >=26.1 {
+    /^@Shadow protected abstract void innerBlit(RenderPipeline pipeline, GpuTextureView textureView, GpuSampler sampler, int x0, int y0, int x1, int y1, float u0, float u1, float v0, float v1, int color);
+    ^///?} else {
+    @Shadow protected abstract void submitBlit(RenderPipeline pipeline, GpuTextureView textureView, /^?if >=1.21.11 {^//^GpuSampler sampler, ^//^?}^/ int x0, int y0, int x1, int y1, float u0, float u1, float v0, float v1, int color);
+    //?}
     @Shadow @Final public GuiRenderState guiRenderState;
     @Shadow public abstract Matrix3x2fStack pose();
     *///?}
@@ -88,8 +95,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         final FactoryGuiMatrixStack pose = FactoryGuiMatrixStack.of(context().pose());
 
         @Override
-        public GuiGraphics context() {
-            return (GuiGraphics) (Object)GuiGraphicsMixin.this;
+        public net.minecraft.client.gui.GuiGraphics context() {
+            return (net.minecraft.client.gui.GuiGraphics) (Object)GuiGraphicsMixin.this;
         }
 
 
@@ -299,7 +306,11 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
         /^private void innerBlit(RenderPipeline pipeline, net.minecraft.resources.ResourceLocation resourceLocation, int i, int j, int k, int l, int z, float f, float g, float h, float m, int n) {
             AbstractTexture texture = minecraft.getTextureManager().getTexture(resourceLocation);
             GpuTextureView gpuTextureView = texture.getTextureView();
+            //? if >=26.1 {
+            /^¹GuiGraphicsMixin.this.innerBlit(pipeline, gpuTextureView, texture.getSampler(), i, k, j, l, f, g, h, m, n);
+            ¹^///?} else {
             submitBlit(pipeline, gpuTextureView, /^¹?if >=1.21.11 {¹^//^¹texture.getSampler(),¹^//^¹?}¹^/ i, k, j, l, f, g, h, m, n);
+            //?}
         }
         ^///?}
         *///?}

@@ -44,7 +44,7 @@ public interface FactoryGuiMatrixStack {
 		};
 	}
 
-	static FactoryGuiMatrixStack of(GuiGraphics graphics) {
+	static FactoryGuiMatrixStack of(net.minecraft.client.gui.GuiGraphics graphics) {
 		return new FactoryGuiMatrixStack() {
 			private FactoryGuiMatrixStack delegate = of(graphics.pose());
 			@Override

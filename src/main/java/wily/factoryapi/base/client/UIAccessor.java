@@ -58,18 +58,19 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
     @Override
     default void beforeInit(UIAccessor accessor) {
         getElements().clear();
-        putStaticElement("windowWidth", Minecraft.getInstance().getWindow().getWidth());
-        putStaticElement("windowHeight", Minecraft.getInstance().getWindow().getHeight());
-        putStaticElement("width", Minecraft.getInstance().getWindow().getGuiScaledWidth());
-        putStaticElement("height", Minecraft.getInstance().getWindow().getGuiScaledHeight());
-        getElements().put("hasScreen", ()-> Minecraft.getInstance().screen != null);
+        Minecraft minecraft = Minecraft.getInstance();
+        putStaticElement("windowWidth", minecraft.getWindow().getWidth());
+        putStaticElement("windowHeight", minecraft.getWindow().getHeight());
+        putStaticElement("width", minecraft.getWindow().getGuiScaledWidth());
+        putStaticElement("height", minecraft.getWindow().getGuiScaledHeight());
+        getElements().put("hasScreen", ()-> FactoryAPIClient.getScreen() != null);
         if (getChildrenRenderables() != null)
             getElements().put("renderablesCount", getChildrenRenderables()::size);
         FactoryAPIPlatform.getMods().forEach(i -> putStaticElement("loadedMods." + i.getId(), true));
-        ServerData serverData = Minecraft.getInstance().getCurrentServer();
+        ServerData serverData = minecraft.getCurrentServer();
         if (serverData != null)
             putStaticElement("serverIp."+serverData.ip,true);
-        Inventory inventory = Minecraft.getInstance().player == null ? null : Minecraft.getInstance().player.getInventory();
+        Inventory inventory = minecraft.player == null ? null : minecraft.player.getInventory();
         if (inventory != null) {
             List<ItemStack> items = inventory./*? if >1.21.4 {*//*getNonEquipmentItems()*//*?} else {*/items/*?}*/;
             for (int i = 0; i < items.size(); i++) {
@@ -89,7 +90,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             //?}
             getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*//*inventory.getItem(Inventory.SLOT_OFFHAND)*//*?} else {*/inventory.offhand.get(0)/*?}*/);
         }
-        putSupplierComponent("username", () -> Component.literal(Minecraft.getInstance().getUser().getName()));
+        putSupplierComponent("username", () -> Component.literal(minecraft.getUser().getName()));
         if (getScreen() instanceof MenuAccess<?> access) {
             getElements().put("slotsCount", access.getMenu().slots::size);
             for (Slot slot : access.getMenu().slots) {
@@ -222,7 +223,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 //FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
+                //? if >26.1 {
+                /*renderable.extractRenderState(guiGraphics, i, j, f);
+                *///?} else {
                 renderable.render(guiGraphics, i, j, f);
+                //?}
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).popPose();
                 FactoryScreenUtil.disableBlend();
                 //? if <1.21.6 {
@@ -242,7 +247,6 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return putStaticElement(name, e);
     }
 
-
     default String replaceValidElementValues(String s) {
         getElements().updatePattern();
         Matcher matcher = getElements().getPattern().matcher(s);
@@ -254,7 +258,6 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         matcher.appendTail(result);
         return result.toString();
     }
-
 
     default <V> ArbitrarySupplier<V> getElement(String name, Class<V> valueClass) {
         return getElements().getOrDefault(name, ArbitrarySupplier.empty()).secureCast(valueClass);

@@ -119,6 +119,73 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         afterTick();
     }
 
+    //? if >=26.1 {
+    /*@Inject(method = "extractVignette", at = @At("HEAD"), cancellable = true)
+    public void renderVignette(GuiGraphicsExtractor guiGraphics, Entity entity, CallbackInfo ci) {
+        FactoryGuiElement.VIGNETTE.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "extractVignette", at = @At("RETURN"))
+    public void renderVignetteReturn(GuiGraphicsExtractor guiGraphics, Entity entity, CallbackInfo ci) {
+        FactoryGuiElement.VIGNETTE.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "extractCrosshair", at = @At("HEAD"), cancellable = true)
+    public void extractCrosshair(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.CROSSHAIR.prepareMixin(guiGraphics, this, ci);
+    }
+    @Inject(method = "extractCrosshair", at = @At("RETURN"))
+    public void extractCrosshairReturn(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.CROSSHAIR.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "extractEffects", at = @At("HEAD"), cancellable = true)
+    public void extractEffects(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.EFFECTS.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "extractEffects", at = @At("RETURN"))
+    public void extractEffectsReturn(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.EFFECTS.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "extractItemHotbar", at = @At("HEAD"), cancellable = true)
+    public void extractItemHotbar(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.HOTBAR.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "extractItemHotbar", at = @At("RETURN"))
+    public void extractItemHotbarReturn(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.HOTBAR.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "displayScoreboardSidebar", at = @At("HEAD"), cancellable = true)
+    private void displayScoreboardSidebar(GuiGraphicsExtractor guiGraphics, Objective objective, CallbackInfo ci) {
+        FactoryGuiElement.SCOREBOARD.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "displayScoreboardSidebar", at = @At("RETURN"))
+    private void displayScoreboardSidebarReturn(GuiGraphicsExtractor guiGraphics, Objective objective, CallbackInfo ci) {
+        FactoryGuiElement.SCOREBOARD.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "extractPlayerHealth", at = @At("HEAD"), cancellable = true)
+    public void extractHealth(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.prepareMixin(guiGraphics, this, ci);
+    }
+    @Inject(method = "extractPlayerHealth", at = @At("RETURN"))
+    public void extractHealthReturn(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.finalizeMixin(guiGraphics, this);
+    }
+    @Inject(method = "extractVehicleHealth", at = @At("HEAD"), cancellable = true)
+    public void extractVehicleHealth(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.VEHICLE_HEALTH.prepareMixin(guiGraphics, this, ci);
+    }
+    @Inject(method = "extractVehicleHealth", at = @At("RETURN"))
+    public void extractVehicleHealthReturn(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.VEHICLE_HEALTH.finalizeMixin(guiGraphics, this);
+    }
+    *///?} else {
     @Inject(method = "renderVignette", at = @At("HEAD"), cancellable = true)
     public void renderVignette(GuiGraphics guiGraphics, Entity entity, CallbackInfo ci) {
         FactoryGuiElement.VIGNETTE.prepareMixin(guiGraphics, this, ci);
@@ -133,6 +200,7 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     public void renderCrosshair(GuiGraphics guiGraphics/*? if >=1.21 {*//*, DeltaTracker deltaTracker*//*?}*/, CallbackInfo ci) {
         FactoryGuiElement.CROSSHAIR.prepareMixin(guiGraphics, this, ci);
     }
+
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
     public void renderCrosshairReturn(GuiGraphics guiGraphics/*? if >=1.21 {*//*, DeltaTracker deltaTracker*//*?}*/, CallbackInfo ci) {
         FactoryGuiElement.CROSSHAIR.finalizeMixin(guiGraphics, this);
@@ -152,19 +220,53 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     public void renderHotbar(/*? if <1.20.5 {*/float f, /*?}*/GuiGraphics guiGraphics/*? if >=1.20.5 {*//*, DeltaTracker deltaTracker*//*?}*/, CallbackInfo ci) {
         FactoryGuiElement.HOTBAR.prepareMixin(guiGraphics, this, ci);
     }
+
     @Inject(method = /*? if >=1.20.5 {*//*"renderItemHotbar"*//*?} else {*/"renderHotbar"/*?}*/, at = @At("RETURN"))
     public void renderHotbarReturn(/*? if <1.20.5 {*/float f, /*?}*/GuiGraphics guiGraphics/*? if >=1.21 {*//*, DeltaTracker deltaTracker*//*?}*/, CallbackInfo ci) {
         FactoryGuiElement.HOTBAR.finalizeMixin(guiGraphics, this);
     }
+
     @Inject(method = "displayScoreboardSidebar", at = @At("HEAD"), cancellable = true)
     private void displayScoreboardSidebar(GuiGraphics guiGraphics, Objective objective, CallbackInfo ci) {
         FactoryGuiElement.SCOREBOARD.prepareMixin(guiGraphics, this, ci);
     }
+
     @Inject(method = "displayScoreboardSidebar", at = @At("RETURN"))
     private void displayScoreboardSidebarReturn(GuiGraphics guiGraphics, Objective objective, CallbackInfo ci) {
         FactoryGuiElement.SCOREBOARD.finalizeMixin(guiGraphics, this);
     }
-    //? if >=1.20.5 {
+
+    @Inject(method = "renderPlayerHealth", at = @At("HEAD"), cancellable = true)
+    public void renderHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "renderPlayerHealth", at = @At("RETURN"))
+    public void renderHealthReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.finalizeMixin(guiGraphics, this);
+    }
+
+    @Inject(method = "renderVehicleHealth", at = @At("HEAD"), cancellable = true)
+    public void renderVehicleHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.VEHICLE_HEALTH.prepareMixin(guiGraphics, this, ci);
+    }
+
+    @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
+    public void renderVehicleHealthReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.VEHICLE_HEALTH.finalizeMixin(guiGraphics, this);
+    }
+    //?}
+
+    //? if >=26.1 {
+    /*@Inject(method = "extractOverlayMessage", at = @At(value = "HEAD"), cancellable = true)
+    public void renderOverlayMessage(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.OVERLAY_MESSAGE.prepareMixin(guiGraphics, this, ci);
+    }
+    @Inject(method = "extractOverlayMessage", at = @At(value = "RETURN"))
+    public void renderOverlayMessageReturn(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        FactoryGuiElement.OVERLAY_MESSAGE.finalizeMixin(guiGraphics, this);
+    }
+    *///?} else if >=1.20.5 {
     /*@Inject(method = "renderOverlayMessage", at = @At(value = "HEAD"), cancellable = true)
     public void renderOverlayMessage(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         FactoryGuiElement.OVERLAY_MESSAGE.prepareMixin(guiGraphics, this, ci);
@@ -191,22 +293,6 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         FactoryGuiElement.OVERLAY_MESSAGE.finalizeMixin(guiGraphics, this);
     }
     //?}
-    @Inject(method = "renderPlayerHealth", at = @At("HEAD"), cancellable = true)
-    public void renderHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
-        FactoryGuiElement.PLAYER_HEALTH.prepareMixin(guiGraphics, this, ci);
-    }
-    @Inject(method = "renderPlayerHealth", at = @At("RETURN"))
-    public void renderHealthReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
-        FactoryGuiElement.PLAYER_HEALTH.finalizeMixin(guiGraphics, this);
-    }
-    @Inject(method = "renderVehicleHealth", at = @At("HEAD"), cancellable = true)
-    public void renderVehicleHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
-        FactoryGuiElement.VEHICLE_HEALTH.prepareMixin(guiGraphics, this, ci);
-    }
-    @Inject(method = "renderVehicleHealth", at = @At("RETURN"))
-    public void renderVehicleHealthReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
-        FactoryGuiElement.VEHICLE_HEALTH.finalizeMixin(guiGraphics, this);
-    }
     //? if >=1.20.5 && neoforge {
     /*@Inject(method = {"renderHealthLevel","renderArmorLevel","renderFoodLevel","renderAirLevel"}, at = @At("HEAD"), cancellable = true, remap = false)
     public void renderNeoForgeHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
@@ -220,8 +306,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
 
     //? if >=1.21.6 {
     /*//? if !neoforge {
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBar(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         elementLocalRef.set(switch (instance) {
             case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
@@ -234,8 +320,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBarReturn(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = elementLocalRef.get();
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
@@ -246,8 +332,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     final ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
     @Unique
     final ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
-    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBar(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         fge.set(switch (instance) {
             case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
@@ -260,8 +346,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBarReturn(ContextualBarRenderer instance, GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = fge.get();
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
@@ -291,12 +377,12 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     //?}
 
     @Inject(method = /*? if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else {*/"renderSelectedItemName"/*?}*/, at = @At("HEAD"), cancellable = true/*? if forge || neoforge {*//*, remap = false*//*?}*/)
-    public void renderSelectedItemName(GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
+    public void renderSelectedItemName(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
         FactoryGuiElement.SELECTED_ITEM_NAME.prepareMixin(guiGraphics, this, ci);
     }
 
     @Inject(method = /*? if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else {*/"renderSelectedItemName"/*?}*/, at = @At("RETURN")/*? if forge || neoforge {*//*, remap = false*//*?}*/)
-    public void renderSelectedItemNameReturn(GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
+    public void renderSelectedItemNameReturn(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
         FactoryGuiElement.SELECTED_ITEM_NAME.finalizeMixin(guiGraphics, this);
     }
 

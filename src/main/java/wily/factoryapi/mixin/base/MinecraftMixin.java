@@ -76,6 +76,15 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
 
     @Shadow @Final private SplashManager splashManager;
 
+    //? if >=26.1 {
+    /*@Inject(method = "resizeGui",at = @At("RETURN"))
+    public void resizeGui(CallbackInfo ci) {
+        if (this.level != null) {
+            UIAccessor.of(gui).reloadUI();
+            FactoryAPIClient.RESIZE_DISPLAY.invoker.accept(Minecraft.getInstance());
+        }
+    }
+    *///?} else {
     @Inject(method = "resizeDisplay",at = @At("RETURN"))
     public void resizeDisplay(CallbackInfo ci) {
         if (this.level != null) {
@@ -83,6 +92,8 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
             FactoryAPIClient.RESIZE_DISPLAY.invoker.accept(Minecraft.getInstance());
         }
     }
+    //?}
+
     @Inject(method = "setScreen",at = @At("RETURN"))
     public void setScreen(Screen screen, CallbackInfo ci) {
         if (this.level != null) {
@@ -129,12 +140,12 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     //?} else {
     /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V"))
     public void beforeScreenTick(CallbackInfo ci) {
-        if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).beforeTick();
+        if (FactoryAPIClient.getScreen() != null) UIAccessor.of(FactoryAPIClient.getScreen()).beforeTick();
     }
 
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V", shift = At.Shift.AFTER))
     public void afterScreenTick(CallbackInfo ci) {
-        if (Minecraft.getInstance().screen != null) UIAccessor.of(Minecraft.getInstance().screen).afterTick();
+        if (FactoryAPIClient.getScreen() != null) UIAccessor.of(FactoryAPIClient.getScreen()).afterTick();
     }
     *///?}
 

@@ -1,6 +1,5 @@
 package wily.factoryapi.util;
 
-import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryEvent;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
@@ -54,22 +53,22 @@ public final class FactoryGuiElement {
     }
 
     public interface GuiRender {
-        void render(GuiGraphics graphics);
+        void render(net.minecraft.client.gui.GuiGraphics graphics);
 
         static FactoryEvent<GuiRender> createEvent() {
             return new FactoryEvent<>(e -> graphics -> e.invokeAll(guiRender -> guiRender.render(graphics)));
         }
     }
 
-    public void prepareMixin(GuiGraphics graphics, CallbackInfo info) {
+    public void prepareMixin(net.minecraft.client.gui.GuiGraphics graphics, CallbackInfo info) {
         prepareMixin(graphics, FactoryScreenUtil.getGuiAccessor(), info);
     }
 
-    public void finalizeMixin(GuiGraphics graphics) {
+    public void finalizeMixin(net.minecraft.client.gui.GuiGraphics graphics) {
         finalizeMixin(graphics, FactoryScreenUtil.getGuiAccessor());
     }
 
-    public void prepareMixin(GuiGraphics graphics, UIAccessor accessor, CallbackInfo info) {
+    public void prepareMixin(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor, CallbackInfo info) {
         setVisible(isVisible(accessor));
         if (!isVisible()) {
             info.cancel();
@@ -78,7 +77,7 @@ public final class FactoryGuiElement {
         prepareRender(graphics, accessor);
     }
 
-    public void finalizeMixin(GuiGraphics graphics, UIAccessor accessor) {
+    public void finalizeMixin(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
         if (!isVisible()) {
             return;
         }
@@ -97,7 +96,7 @@ public final class FactoryGuiElement {
         return ColorUtil.mergeColors(accessor.getInteger(name + ".renderColor", -1), (isHud() && accessor.getBoolean(name + ".hud.renderColor", true) ? accessor.getInteger("hud.renderColor", -1) : -1));
     }
 
-    public void prepareRender(GuiGraphics graphics, UIAccessor accessor) {
+    public void prepareRender(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
         pre.invoker.render(graphics);
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.applyOffset(graphics, getOffset("translateX", accessor), getOffset("translateY", accessor), getOffset("translateZ", accessor));
@@ -107,7 +106,7 @@ public final class FactoryGuiElement {
         modifiedPre.invoker.render(graphics);
     }
 
-    public void finalizeRender(GuiGraphics graphics, UIAccessor accessor) {
+    public void finalizeRender(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
         modifiedPost.invoker.render(graphics);
         int color = getColor(accessor);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();

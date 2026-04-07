@@ -122,12 +122,12 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
     }
 
     @Override
-    public void draw(GuiGraphics graphics) {
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics) {
         this.draw(graphics,getX(),getY());
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int y) {
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
         if (color != null)
             //? if <1.21.6 {
             FactoryGuiGraphics.of(graphics).setColor(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, 1.0F);
@@ -144,6 +144,8 @@ public abstract class AbstractDrawableButton<D extends AbstractDrawableButton<D>
             else {
                 //? if >=1.21.9 && <1.21.11 {
                 /*graphics.submitOutline(x, y, width(), height(), -1);
+                *///?} else if >=26.1 {
+                /*graphics.outline(x, y, width(), height(), -1);
                 *///?} else {
                 graphics.renderOutline(x, y, width(), height(), -1);
                 //?}

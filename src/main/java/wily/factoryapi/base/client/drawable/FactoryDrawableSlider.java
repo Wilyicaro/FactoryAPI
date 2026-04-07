@@ -80,12 +80,16 @@ public class FactoryDrawableSlider extends AbstractDrawableButton<FactoryDrawabl
     }
 
     @Override
-    public void draw(GuiGraphics graphics) {
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics) {
         if (dragging) selected = true;
         sliderBackground.draw(graphics,getX(),getY());
         Component comp = customText.apply(this);
         if (comp != null && !comp.getString().isEmpty()) {
+            //? if >=26.1 {
+            /*graphics.text(mc.font, comp,  getX() + (sliderBackground.width() - mc.font.width(comp.getString())) / 2, getY() + height() / 2 - 4, -1);
+            *///?} else {
             graphics.drawString(mc.font, comp,  getX() + (sliderBackground.width() - mc.font.width(comp.getString())) / 2, getY() + height() / 2 - 4, -1);
+            //?}
         }
         relativePosX = (int) (getX() + getPercentage() * (sliderBackground.width() - width()));
         draw(graphics, relativePosX, getY());

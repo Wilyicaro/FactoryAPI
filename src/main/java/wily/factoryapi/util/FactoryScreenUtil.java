@@ -46,7 +46,7 @@ public class FactoryScreenUtil {
         Font font = mc.font;
         //? if >=1.21.6 {
         /*switch (stack) {
-            case GuiGraphics graphics -> graphics.drawString(font, text, x, y, color, shadow);
+            case net.minecraft.client.gui.GuiGraphics graphics -> graphics./^? if >=26.1 {^//^text^//^?} else {^/ drawString/^?}^/(font, text, x, y, color, shadow);
             case PoseStack poseStack -> {
                 MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
 				font.drawInBatch(/^? if >=1.21.2 {^//^Component.literal(text)^//^?} else {^/ text/^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
@@ -126,7 +126,7 @@ public class FactoryScreenUtil {
         graphics.pose().popPose();
     }
     //?} else {
-    /*public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
+    /*public static void renderGuiBlock(net.minecraft.client.gui.GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
         throw new IllegalStateException("Not implemented in 1.21.6+!");
     }
     *///?}
@@ -139,15 +139,15 @@ public class FactoryScreenUtil {
         return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
     }
 
-    public static void applyOffset(GuiGraphics graphics, float x, float y, float z) {
+    public static void applyOffset(net.minecraft.client.gui.GuiGraphics graphics, float x, float y, float z) {
         if (x != 0 || y != 0 | z != 0) FactoryGuiMatrixStack.of(graphics.pose()).translate(x, y, z);
     }
 
-    public static void applyScale(GuiGraphics graphics, float x, float y, float z) {
+    public static void applyScale(net.minecraft.client.gui.GuiGraphics graphics, float x, float y, float z) {
         if (x != 1 || y != 1 || z != 1) FactoryGuiMatrixStack.of(graphics.pose()).scale(x, y, z);
     }
 
-    public static void applyColor(GuiGraphics graphics, int color) {
+    public static void applyColor(net.minecraft.client.gui.GuiGraphics graphics, int color) {
         //? if >=1.21.6 {
         /*if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
         *///?} else
@@ -155,7 +155,7 @@ public class FactoryScreenUtil {
     }
 
     public static UIAccessor getScreenAccessor(){
-        return UIAccessor.of(mc.screen);
+        return UIAccessor.of(FactoryAPIClient.getScreen());
     }
 
     public static UIAccessor getGuiAccessor(){

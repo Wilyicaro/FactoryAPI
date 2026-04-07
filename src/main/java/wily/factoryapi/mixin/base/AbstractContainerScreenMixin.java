@@ -39,8 +39,6 @@ public abstract class AbstractContainerScreenMixin extends Screen {
 
     @Shadow protected int titleLabelY;
 
-    @Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
-
     protected AbstractContainerScreenMixin(Component component) {
         super(component);
     }
@@ -65,16 +63,21 @@ public abstract class AbstractContainerScreenMixin extends Screen {
             }
         });
     }
+
+    //? if <26.1 {
     //? if >1.20.1 {
     @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
         if (!UIAccessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
     }
     //?} else {
-    /*@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
+    /*
+    @Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
+
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
     protected void render(AbstractContainerScreen instance, GuiGraphics guiGraphics, float v, int i, int j) {
         if (UIAccessor.of(this).getBoolean("hasContainerBackground",true)) renderBg(guiGraphics,v,i,j);
     }
     *///?}
-
+    //?}
 }

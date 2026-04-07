@@ -1,7 +1,6 @@
 package wily.factoryapi.base.client.drawable;
 
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
@@ -11,7 +10,7 @@ import wily.factoryapi.util.ProgressElementRenderUtil;
 
 public interface IFactoryDrawableType {
     IFactoryDrawableType EMPTY = new IFactoryDrawableType() {
-        public void draw(GuiGraphics graphics, int x, int y) {
+        public void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
         }
 
         public net.minecraft.resources.ResourceLocation texture() {
@@ -72,13 +71,13 @@ public interface IFactoryDrawableType {
     }
 
     record DrawableProgress(IFactoryDrawableType drawable, boolean reverse, Direction plane) implements Wrapper{
-        public void drawProgress(GuiGraphics graphics,int x, int y, float percentage){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics,int x, int y, float percentage){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y,percentage,this);
         }
-        public void drawProgress(GuiGraphics graphics,int x, int y, int progress, int max){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics,int x, int y, int progress, int max){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, Math.max(0, (float) progress / max),this);
         }
-        public void drawProgress(GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
             progress.forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
         }
 
@@ -94,7 +93,7 @@ public interface IFactoryDrawableType {
         return create(texture(),uvX() + (direction.isHorizontal() ? width(): 0),uvY() + (direction.isVertical() ? height(): 0),width(),height());
     }
 
-    default void drawAsFluidTank(GuiGraphics graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
+    default void drawAsFluidTank(net.minecraft.client.gui.GuiGraphics graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
         ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,instance,capacity,hasColor);
     }
 
@@ -102,7 +101,7 @@ public interface IFactoryDrawableType {
         return FactoryScreenUtil.isMouseOver(mouseX,mouseY,posX,posY,width(),height());
     }
 
-    default void draw(GuiGraphics graphics, int x, int y) {
+    default void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
         if (isSprite()) FactoryGuiGraphics.of(graphics).blitSprite(texture(),x,y,width(),height());
         else {
             FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());

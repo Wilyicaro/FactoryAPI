@@ -1,6 +1,5 @@
 package wily.factoryapi.util;
 
-import net.minecraft.client.gui.GuiGraphics;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
@@ -8,7 +7,7 @@ import wily.factoryapi.base.client.drawable.IFactoryDrawableType;
 public class ProgressElementRenderUtil {
 
 
-    public static void renderDefaultProgress(GuiGraphics gui, int x, int y, float percentage, IFactoryDrawableType.DrawableProgress type){
+    public static void renderDefaultProgress(net.minecraft.client.gui.GuiGraphics gui, int x, int y, float percentage, IFactoryDrawableType.DrawableProgress type){
 
         int progress = Math.round(percentage*(type.plane().isVertical() ? type.drawable().height() : type.drawable().width()));
         if (type.reverse()) {
@@ -23,7 +22,7 @@ public class ProgressElementRenderUtil {
         }
     }
 
-    public static void renderFluidTank(GuiGraphics graphics, int x, int y, IFactoryDrawableType type, FluidInstance instance, int capacity, boolean hasColor){
+    public static void renderFluidTank(net.minecraft.client.gui.GuiGraphics graphics, int x, int y, IFactoryDrawableType type, FluidInstance instance, int capacity, boolean hasColor){
         int fluidHeight = capacity <= 0 ? 0 : Math.round(((float)instance.getAmount() / capacity) * type.height());
         if (fluidHeight > 0) {
             int fluidWidth = type.width();

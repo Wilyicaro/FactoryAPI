@@ -49,6 +49,42 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         return this;
     }
 
+    public static int romanToInteger(String roman) {
+        char[] chars = roman.toCharArray();
+        int result = 0;
+        int lastValue = 0;
+        byte lastSignal = 1;
+        for (int i = chars.length - 1; i >= 0; i--) {
+            char c = chars[i];
+
+            int v = switch (c) {
+                case 'I' -> 1;
+                case 'X' -> 10;
+                case 'L' -> 50;
+                case 'C' -> 100;
+                case 'D' -> 500;
+                case 'M' -> 1000;
+                default -> throw new IllegalStateException("Unexpected value: " + c);
+            };
+
+            if (v < lastValue || lastSignal < 0) {
+                result -= v;
+                lastSignal = -1;
+            }
+
+            if (v == lastValue)
+                result += lastSignal * v;
+            else if (v > lastValue) {
+                result += v;
+                lastSignal = 1;
+            }
+
+            lastValue = v;
+        }
+
+        return result;
+    }
+
     public void processLines(){
         height = 0;
         widthPerLine = new int[lines.size()];
@@ -126,7 +162,17 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         return lines;
     }
 
-
+    //? if >=26.1 {
+    /*@Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        int actualHeight = getY();
+        for (int i1 = 0; i1 < lines.size(); i1++) {
+            int lineHeight = heightPerLine[i1];
+            graphics.text(Minecraft.getInstance().font, lines.get(i1), getX() + (centered ? (width - widthPerLine[i1]) / 2 : 0), actualHeight + (lineHeight - lineSpacing) / 2, color, shadow);
+            actualHeight += lineHeight;
+        }
+    }
+    *///?} else {
     @Override
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         int actualHeight = getY();
@@ -136,6 +182,7 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
             actualHeight += lineHeight;
         }
     }
+    //?}
 
     //? if >=1.21.9 {
     /*@Override

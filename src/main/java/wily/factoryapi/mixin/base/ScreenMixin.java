@@ -105,10 +105,17 @@ public abstract class ScreenMixin implements UIAccessor {
         return listener;
     }
 
+    //? if >=26.1 {
+    /*@Inject(method = "extractBackground", at = @At(value = "HEAD"), cancellable = true)
+    protected void extractBackground(CallbackInfo ci) {
+        if (!getBoolean("hasBackground",true)) ci.cancel();
+    }
+    *///?} else {
     @Inject(method = "renderBackground", at = @At(value = "HEAD"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
         if (!getBoolean("hasBackground",true)) ci.cancel();
     }
+    //?}
 
     @Override
     public boolean initialized() {

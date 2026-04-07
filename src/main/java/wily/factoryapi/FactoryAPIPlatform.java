@@ -46,16 +46,15 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 //? if <1.21.6 {
-import net.minecraftforge.eventbus.api.IEventBus;
-//?} else {
-/^import net.minecraftforge.eventbus.api.bus.BusGroup;
-^///?}
+/^import net.minecraftforge.eventbus.api.IEventBus;
+^///?} else {
+import net.minecraftforge.eventbus.api.bus.BusGroup;
+//?}
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 *///?} elif fabric {
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -302,20 +301,20 @@ public interface FactoryAPIPlatform {
         return capability == null ? null : entity.getCapability(capability,direction).orElse(null);
     }
     //? if <1.21.6 {
-    static IEventBus getModEventBus() {
+    /^static IEventBus getModEventBus() {
         return FMLJavaModLoadingContext.get().getModEventBus();
     }
     static IEventBus getForgeEventBus() {
         return MinecraftForge.EVENT_BUS;
     }
-    //?} else {
-    /^static BusGroup getModEventBus() {
+    ^///?} else {
+    static BusGroup getModEventBus() {
         return FMLJavaModLoadingContext.get().getModBusGroup();
     }
     static BusGroup getForgeEventBus() {
         return BusGroup.DEFAULT;
     }
-    ^///?}
+    //?}
     *///?} else if neoforge {
     /*static <T,V extends T> RegisterListing.Holder<V> deferredToRegisterHolder(DeferredHolder<T, V> holder) {
         return new RegisterListing.Holder<>() {
@@ -342,10 +341,10 @@ public interface FactoryAPIPlatform {
 
     //? if forge || neoforge {
     /*//? if forge || <1.21.9 {
-    static IFluidHandler.FluidAction fluidActionOf(boolean simulate) {
+    /^static IFluidHandler.FluidAction fluidActionOf(boolean simulate) {
         return(simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
     }
-    //?}
+    ^///?}
     static FluidInstance fluidStackToInstance(FluidStack stack) {
         return new FluidInstance(stack.getFluid(),stack.getAmount());
     }
@@ -386,18 +385,18 @@ public interface FactoryAPIPlatform {
                 if (variantStorage != null)
                     return ()->((T)(FabricItemStoragePlatform)()-> variantStorage);
                 } else if (storage == FactoryStorage.FLUID) {
-                Storage<FluidVariant> variantStorage = FluidStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
+                Storage<FluidVariant> variantStorage = FluidStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, direction);
                 if (variantStorage instanceof IPlatformFluidHandler) return ()->(T) variantStorage;
                 if (variantStorage!= null)
                     return ()->((T)(FabricFluidStoragePlatform) ()-> variantStorage);
                 }else if (storage == FactoryStorage.ENERGY) {
-                EnergyStorage energyStorage = EnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
+                EnergyStorage energyStorage = EnergyStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, direction);
                       if (energyStorage instanceof IPlatformEnergyStorage) return ()->(T) energyStorage;
                       if (energyStorage!= null)
                             return ()->((T)(FabricEnergyStoragePlatform)()-> energyStorage);
                     }
                     else if (storage == FactoryStorage.CRAFTY_ENERGY) {
-                        ICraftyEnergyStorage energyStorage = CraftyEnergyStorage.SIDED.find(be.getLevel(),be.getBlockPos(),be.getBlockState(),be, direction);
+                        ICraftyEnergyStorage energyStorage = CraftyEnergyStorage.SIDED.find(be.getLevel(), be.getBlockPos(), be.getBlockState(), be, direction);
                         if (energyStorage!= null) return ()->((T)energyStorage);
                     }
                 //?} elif (neoforge && <1.21.9) || forge {

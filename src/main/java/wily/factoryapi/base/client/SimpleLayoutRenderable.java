@@ -17,7 +17,7 @@ public abstract class SimpleLayoutRenderable implements Renderable, LayoutElemen
     public int x;
     public int y;
 
-    public SimpleLayoutRenderable(){
+    public SimpleLayoutRenderable() {
     }
 
     public SimpleLayoutRenderable(int width, int height){
@@ -25,27 +25,41 @@ public abstract class SimpleLayoutRenderable implements Renderable, LayoutElemen
         this.height = height;
     }
 
-    public static SimpleLayoutRenderable create(Function<SimpleLayoutRenderable,Renderable> simpleRender){
+    public static SimpleLayoutRenderable create(Function<SimpleLayoutRenderable, Renderable> simpleRender){
         return new SimpleLayoutRenderable() {
+            //? if >=26.1 {
+            /*@Override
+            public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                simpleRender.apply(this).extractRenderState(graphics, mouseX, mouseY, a);
+            }
+            *///?} else {
+            @Override
             public void render(GuiGraphics guiGraphics, int i, int j, float f) {
                 simpleRender.apply(this).render(guiGraphics,i,j,f);
             }
+            //?}
         };
     }
 
-    public static SimpleLayoutRenderable create(int width, int height,Function<SimpleLayoutRenderable,Renderable> simpleRender){
-        return new SimpleLayoutRenderable(width,height) {
-            public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-                simpleRender.apply(this).render(guiGraphics,i,j,f);
-            }
-        };
+    public static SimpleLayoutRenderable create(int width, int height, Function<SimpleLayoutRenderable, Renderable> simpleRender){
+        SimpleLayoutRenderable renderable = create(simpleRender);
+        renderable.size(width, height);
+        return renderable;
     }
 
     public static SimpleLayoutRenderable createDrawString(Component message, int xOffset, int yOffset, int width, int height, int color, boolean shadow){
-        return new SimpleLayoutRenderable(width,height) {
+        return new SimpleLayoutRenderable(width, height) {
+            //? if >=26.1 {
+            /*@Override
+            public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+                graphics.text(Minecraft.getInstance().font, message, getX() + xOffset, getY() + yOffset, color, shadow);
+            }
+            *///?} else {
+            @Override
             public void render(GuiGraphics guiGraphics, int i, int j, float f) {
                 guiGraphics.drawString(Minecraft.getInstance().font, message, getX() + xOffset, getY() + yOffset, color, shadow);
             }
+            //?}
         };
     }
 

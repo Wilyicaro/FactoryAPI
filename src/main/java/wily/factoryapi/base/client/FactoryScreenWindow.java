@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 *///?}
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
@@ -33,7 +32,6 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     public boolean dragging = false;
 
     public net.minecraft.resources.ResourceLocation backgroundSprite;
-    protected final ItemRenderer itemRenderer;
 
     protected final Font font = Minecraft.getInstance().font;
 
@@ -52,8 +50,6 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         this.lastY = getY();
         this.parent = parent;
         this.drawable = drawable;
-
-        itemRenderer = Minecraft.getInstance().getItemRenderer();
     }
 
     @Override
@@ -100,7 +96,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     }
     //?}
 
-    protected void renderBg(GuiGraphics graphics, int i, int j, float f) {
+    protected void renderBg(net.minecraft.client.gui.GuiGraphics graphics, int i, int j, float f) {
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.enableBlend();
         FactoryScreenUtil.enableDepthTest();
@@ -108,7 +104,11 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         RenderSystem.setShaderColor(1,1,1,alpha);
         if (backgroundSprite != null) FactoryGuiGraphics.of(graphics).blitSprite(backgroundSprite, getX(), getY(), width, height);
         else drawable.draw(graphics,getX(),getY());
-        IWindowWidget.super.render(graphics,i,j,f);
+        //? if >=26.1 {
+        /*IWindowWidget.super.extractRenderState(graphics, i, j, f);
+        *///?} else {
+        IWindowWidget.super.render(graphics, i, j, f);
+        //?}
         //? if <1.21.6
         RenderSystem.setShaderColor(1,1,1,1);
         FactoryScreenUtil.disableBlend();
@@ -127,21 +127,32 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         return drawable;
     }
 
+    //? if >=26.1 {
+
+    /*@Override
+    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        if (!isVisible()) return;
+        renderBg(graphics, mouseX, mouseY, a);
+        renderToolTip(graphics, mouseX, mouseY);
+    }
+
+    *///?} else {
     @Override
-    protected void renderWidget(GuiGraphics graphics, int i, int j, float f) {
+    protected void renderWidget(net.minecraft.client.gui.GuiGraphics graphics, int i, int j, float f) {
         if (!isVisible()) return;
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryGuiMatrixStack.of(graphics.pose()).translate(0D,0D,  getBlitOffset());
         renderBg(graphics,i,j,f);
-        renderToolTip(graphics,i,j);
+        renderToolTip(graphics, i, j);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
     }
+    //?}
 
     public float getBlitOffset(){
         return 450F;
     }
 
-    public void renderToolTip(GuiGraphics graphics, int i, int j) {
+    public void renderToolTip(net.minecraft.client.gui.GuiGraphics graphics, int i, int j) {
 
     }
 

@@ -46,7 +46,7 @@ public class CommonRecipeManager {
         return Optional.empty();
     }
     public static <R extends Recipe<I>, I extends /*? if <1.20.5 {*/Container/*?} else {*//*RecipeInput*//*?}*/> Optional<ItemStack> getResultFor(RecipeType<R> type, I input, Level level) {
-        return getRecipeFor(type,input,level).map(r->r/*? if >1.20.1 {*/.value()/*?}*/.assemble(input,level.registryAccess()));
+        return getRecipeFor(type,input,level).map(r->r/*? if >1.20.1 {*/.value()/*?}*/.assemble(input/*? if <26.1 {*/,level.registryAccess()/*?}*/));
     }
 
     //? if <1.21.2 {

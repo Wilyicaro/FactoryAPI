@@ -1,46 +1,45 @@
 pluginManagement {
     repositories {
-        maven("https://maven.fabricmc.net/")
-        maven("https://maven.architectury.dev/")
-        maven("https://maven.minecraftforge.net/")
-        maven("https://maven.kikugie.dev/snapshots")
-        maven("https://maven.kikugie.dev/releases")
+        mavenLocal()
+        mavenCentral()
         gradlePluginPortal()
+        maven("https://maven.fabricmc.net/") { name = "Fabric" }
+        maven("https://maven.neoforged.net/releases/") { name = "NeoForged" }
+        maven("https://maven.minecraftforge.net/") { name = "MinecraftForge" }
+        maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
+        maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
+        maven("https://maven.parchmentmc.org") { name = "ParchmentMC" }
+        maven("https://maven.terraformersmc.com/") { name = "TerraformersMC" }
+        exclusiveContent {
+            forRepository { maven("https://api.modrinth.com/maven") { name = "Modrinth" } }
+            filter { includeGroup("maven.modrinth") }
+        }
     }
+    includeBuild("build-logic")
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.8.1"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+    id("dev.kikugie.stonecutter") version "0.9"
 }
 
 stonecutter {
     create(rootProject) {
-        version("1.20.1-fabric", "1.20.1")
-        version("1.20.1-forge", "1.20.1")
-        version("1.20.4-fabric", "1.20.4")
-        version("1.20.4-forge", "1.20.4")
-        version("1.20.4-neoforge", "1.20.4")
-        version("1.21.1-fabric", "1.21.1")
-        version("1.21.1-forge", "1.21.1")
-        version("1.21.1-neoforge", "1.21.1")
-        version("1.21.3-fabric", "1.21.3")
-        version("1.21.3-forge", "1.21.3")
-        version("1.21.3-neoforge", "1.21.3")
-        version("1.21.4-fabric", "1.21.4")
-        version("1.21.4-forge", "1.21.4")
-        version("1.21.4-neoforge", "1.21.4")
-        version("1.21.5-fabric", "1.21.5")
-        version("1.21.5-forge", "1.21.5")
-        version("1.21.5-neoforge", "1.21.5")
-        version("1.21.8-fabric", "1.21.8")
-        version("1.21.8-forge", "1.21.8")
-        version("1.21.8-neoforge", "1.21.8")
-        version("1.21.10-fabric", "1.21.10")
-        version("1.21.10-forge", "1.21.10")
-        version("1.21.10-neoforge", "1.21.10")
-        version("1.21.11-fabric", "1.21.11")
-        version("1.21.11-forge", "1.21.11")
-        version("1.21.11-neoforge", "1.21.11")
+        fun match(version: String, vararg loaders: String) =
+            loaders.forEach { version("$version-$it", version).buildscript = "build.${if (it == "fabric" && stonecutter.eval(version, ">=26.1")) "fabricmc" else it}.gradle.kts" }
+
+        // Forge <=1.20.4 isn't recompiling, it might be because it's forcefully using Java 25 from foojay for some reason
+        // This is certainly a problem in my env, hopefully it won't be difficult to fix
+        match("1.20.1", "fabric", /*"forge"*/)
+        match("1.20.4", "fabric", /*"forge",*/ "neoforge")
+        match("1.21.1", "fabric", "forge", "neoforge")
+        match("1.21.3", "fabric", "forge", "neoforge")
+        match("1.21.4", "fabric", "forge", "neoforge")
+        match("1.21.5", "fabric", "forge", "neoforge")
+        match("1.21.8", "fabric", "forge", "neoforge")
+        match("1.21.10", "fabric", "forge", "neoforge")
+        match("1.21.11", "fabric", "forge", "neoforge")
+        match("26.1.1", "fabric"/*, "forge", "neoforge"*/)
         vcsVersion = "1.20.4-fabric"
     }
 }

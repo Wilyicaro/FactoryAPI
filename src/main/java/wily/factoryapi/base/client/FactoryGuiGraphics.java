@@ -3,7 +3,6 @@ package wily.factoryapi.base.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 //? if >1.20.1 && <1.21.9 {
 import net.minecraft.client.gui.GuiSpriteManager;
 //?}
@@ -25,7 +24,7 @@ import wily.factoryapi.FactoryAPIClient;
 import java.util.Map;
 
 public interface FactoryGuiGraphics {
-    GuiGraphics context();
+    net.minecraft.client.gui.GuiGraphics context();
 
     MultiBufferSource.BufferSource getBufferSource();
     void pushBufferSource(MultiBufferSource.BufferSource bufferSource);
@@ -33,7 +32,7 @@ public interface FactoryGuiGraphics {
 
     FactoryGuiMatrixStack pose();
 
-    static FactoryGuiGraphics of(GuiGraphics guiGraphics) {
+    static FactoryGuiGraphics of(net.minecraft.client.gui.GuiGraphics guiGraphics) {
         return ((Accessor) guiGraphics).getFactoryGuiGraphics();
     }
 
@@ -66,6 +65,8 @@ public interface FactoryGuiGraphics {
     default void blitSprite(net.minecraft.resources.ResourceLocation id, int textureWidth, int textureHeight, int uvX, int uvY, int x, int y, int width, int height) {
         this.blitSprite(id, textureWidth, textureHeight, uvX, uvY, x, y,0, width, height);
     }
+
+    //TODO -  Methods for drawing texts?
 
     void enableScissor(int x, int y, int xd, int yd, boolean matrixAffects);
 

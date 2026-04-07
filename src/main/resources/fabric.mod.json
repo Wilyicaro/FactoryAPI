@@ -28,7 +28,7 @@
       "wily.factoryapi.base.compat.client.FactoryAPIModMenuCompat"
     ]
   },
-  "accessWidener": "${aw}",
+  "accessWidener": "${aw}.accesswidener",
   "mixins": [
     "${mod_id}.mixins.json"
   ],

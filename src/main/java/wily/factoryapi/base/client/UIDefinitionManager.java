@@ -65,7 +65,7 @@ import java.util.stream.IntStream;
 public class UIDefinitionManager implements ResourceManagerReloadListener {
     public static final String UI_DEFINITIONS = "ui_definitions";
     public static final ListMap<net.minecraft.resources.ResourceLocation,Class<?>> NAMED_UI_TARGETS = new ListMap.Builder<String,Class<?>>().put("screen", Screen.class).put("accessibility_onboarding_screen", AccessibilityOnboardingScreen.class).put("title_screen",TitleScreen.class).put("options_screen", OptionsScreen.class).put("skin_customization_screen", SkinCustomizationScreen.class).put("video_settings_screen", VideoSettingsScreen.class).put("language_select_screen", LanguageSelectScreen.class).put("pack_selection_screen", PackSelectionScreen.class).put("telemetry_info_screen", TelemetryInfoScreen.class).put("online_options_screen", OnlineOptionsScreen.class).put("sound_options_screen", SoundOptionsScreen.class).put("controls_screen", ControlsScreen.class).put("mouse_settings_screen", MouseSettingsScreen.class).put("key_binds_screen", KeyBindsScreen.class).put("chat_options_screen", ChatOptionsScreen.class).put("accessibility_options_screen", AccessibilityOptionsScreen.class).put("credits_and_attribution_screen", CreditsAndAttributionScreen.class).put("win_screen", WinScreen.class).put("confirm_link_screen", ConfirmLinkScreen.class).put("select_world_screen", SelectWorldScreen.class).put("create_world_screen", CreateWorldScreen.class).put("edit_world_screen", EditWorldScreen.class).put("join_multiplayer_screen", JoinMultiplayerScreen.class)./*? if <1.21.9 {*/put("edit_server_screen", EditServerScreen.class)./*?}*/put("direct_join_server_screen", DirectJoinServerScreen.class).put("realms_main_screen", RealmsMainScreen.class).put("realms_screen", RealmsScreen.class).put("realms_confirm_screen", RealmsConfirmScreen.class).put("realms_backup_screen", RealmsBackupScreen.class).put("realms_invite_screen", RealmsInviteScreen.class).put("share_to_lan_screen", ShareToLanScreen.class).put("advancements_screen", AdvancementsScreen.class).put("stats_screen", StatsScreen.class).put("confirm_screen", ConfirmScreen.class).put("level_loading_screen", LevelLoadingScreen.class).put("progress_screen", ProgressScreen.class).put("generic_message_screen",/*? if <1.20.5 {*/GenericDirtMessageScreen/*?} else {*//*GenericMessageScreen*//*?}*/.class)./*? if <1.21.9 {*/put("receiving_level_screen", ReceivingLevelScreen.class)./*?}*/put("connect_screen", ConnectScreen.class).put("pause_screen", PauseScreen.class).put("inventory_screen", InventoryScreen.class).put("crafting_screen", CraftingScreen.class).put("container_screen", ContainerScreen.class).put("abstract_furnace_screen", AbstractFurnaceScreen.class).put("furnace_screen", FurnaceScreen.class).put("smoker_screen", SmokerScreen.class).put("blast_furnace_screen", BlastFurnaceScreen.class).put("loom_screen", LoomScreen.class).put("stonecutter_screen", StonecutterScreen.class).put("grindstone_screen", GrindstoneScreen.class).put("enchantment_screen", EnchantmentScreen.class).put("hopper_screen", HopperScreen.class).put("dispenser_screen", DispenserScreen.class).put("shulker_box_screen", ShulkerBoxScreen.class).put("anvil_screen", AnvilScreen.class).put("smithing_screen", SmithingScreen.class).put("brewing_stand_screen", BrewingStandScreen.class).put("beacon_screen", BeaconScreen.class).put("chat_screen", ChatScreen.class).put("in_bed_chat_screen", InBedChatScreen.class).put("gui", Gui.class).mapKeys(FactoryAPI::createVanillaLocation).build();
-    public static final ListMap<net.minecraft.resources.ResourceLocation, Function<Screen, Screen>> DEFAULT_SCREENS_MAP = new ListMap.Builder<String, Function<Screen, Screen>>().put("title", s -> new TitleScreen()).put("options", s -> new OptionsScreen(s, Minecraft.getInstance().options)).put("language_select", s -> new LanguageSelectScreen(s, Minecraft.getInstance().options, Minecraft.getInstance().getLanguageManager())).put("video_settings", s -> new VideoSettingsScreen(s,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).put("skin_customization", s -> new SkinCustomizationScreen(s, Minecraft.getInstance().options)).put("online_options", s -> /*? if <1.21 {*/OnlineOptionsScreen.createOnlineOptionsScreen(Minecraft.getInstance(), s, Minecraft.getInstance().options)/*?} else {*//*new OnlineOptionsScreen(s, Minecraft.getInstance().options)*//*?}*/).put("controls", s -> new ControlsScreen(s, Minecraft.getInstance().options)).put("mouse_settings", s -> new MouseSettingsScreen(s, Minecraft.getInstance().options)).put("key_binds", s -> new KeyBindsScreen(s, Minecraft.getInstance().options)).put("chat_options", s -> new ChatOptionsScreen(s, Minecraft.getInstance().options)).put("accessibility_options", s -> new AccessibilityOptionsScreen(s, Minecraft.getInstance().options)).put("credits_and_attribution", CreditsAndAttributionScreen::new).put("select_world", SelectWorldScreen::new).mapKeys(FactoryAPI::createVanillaLocation).build();
+    public static final ListMap<net.minecraft.resources.ResourceLocation, Function<Screen, Screen>> DEFAULT_SCREENS_MAP = new ListMap.Builder<String, Function<Screen, Screen>>().put("title", s -> new TitleScreen()).put("options", s -> new OptionsScreen(s, Minecraft.getInstance().options/*? if >=26.1 {*//*, Minecraft.getInstance().level != null*//*?}*/)).put("language_select", s -> new LanguageSelectScreen(s, Minecraft.getInstance().options, Minecraft.getInstance().getLanguageManager())).put("video_settings", s -> new VideoSettingsScreen(s,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).put("skin_customization", s -> new SkinCustomizationScreen(s, Minecraft.getInstance().options)).put("online_options", s -> /*? if <1.21 {*/OnlineOptionsScreen.createOnlineOptionsScreen(Minecraft.getInstance(), s, Minecraft.getInstance().options)/*?} else {*//*new OnlineOptionsScreen(s, Minecraft.getInstance().options)*//*?}*/).put("controls", s -> new ControlsScreen(s, Minecraft.getInstance().options)).put("mouse_settings", s -> new MouseSettingsScreen(s, Minecraft.getInstance().options)).put("key_binds", s -> new KeyBindsScreen(s, Minecraft.getInstance().options)).put("chat_options", s -> new ChatOptionsScreen(s, Minecraft.getInstance().options)).put("accessibility_options", s -> new AccessibilityOptionsScreen(s, Minecraft.getInstance().options)).put("credits_and_attribution", CreditsAndAttributionScreen::new).put("select_world", SelectWorldScreen::new).mapKeys(FactoryAPI::createVanillaLocation).build();
 
 
     public static void registerNamedUITarget(net.minecraft.resources.ResourceLocation id, Class<?> uiClass) {
@@ -351,7 +351,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static void parseDrawStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseTextElements(uiDefinition, elementName, element);
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics.drawString(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
+            uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics./*? if >=26.1 {*//*text*//*?} else {*/drawString/*?}*/(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
         }
 
         static void parseDrawMultilineStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
@@ -383,11 +383,19 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                                 ItemStack s = stacks[a.getInteger(elementName+".index",0)];
                                 int x = a.getInteger(elementName + ".x", 0);
                                 int y = a.getInteger(elementName + ".y", 0);
+                                //? if >=26.1 {
+                                /*if (a.getBoolean(elementName + ".isFake", false))
+                                    guiGraphics.fakeItem(s, x, y);
+                                else guiGraphics.item(s, x, y);
+                                if (a.getBoolean(elementName + ".allowDecorations", true))
+                                    guiGraphics.itemDecorations(Minecraft.getInstance().font, s, x, y);
+                                *///?} else {
                                 if (a.getBoolean(elementName + ".isFake", false))
                                     guiGraphics.renderFakeItem(s, x, y);
                                 else guiGraphics.renderItem(s, x, y);
                                 if (a.getBoolean(elementName + ".allowDecorations", true))
                                     guiGraphics.renderItemDecorations(Minecraft.getInstance().font, s, x, y);
+                                //?}
                             }
                     )));
                 });
@@ -402,10 +410,19 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
             uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".item", ItemStack.class).ifPresent(s-> {
                 int x = a.getInteger(elementName + ".x", 0);
                 int y = a.getInteger(elementName + ".y", 0);
+                //? if >=26.1 {
+                /*if (a.getBoolean(elementName + ".isFake", false))
+                    guiGraphics.fakeItem(s, x, y);
+                else guiGraphics.item(s, x, y);
+                if (a.getBoolean(elementName + ".allowDecorations", true))
+                    guiGraphics.itemDecorations(Minecraft.getInstance().font, s, x, y);
+                *///?} else {
                 if (a.getBoolean(elementName + ".isFake", false))
-                    guiGraphics.renderFakeItem(s, x, y);
-                else guiGraphics.renderItem(s, x ,y);
-                if (a.getBoolean(elementName+".allowDecorations", true)) guiGraphics.renderItemDecorations(Minecraft.getInstance().font, s, x, y);
+                     guiGraphics.renderFakeItem(s, x, y);
+                else guiGraphics.renderItem(s, x, y);
+                if (a.getBoolean(elementName + ".allowDecorations", true))
+                    guiGraphics.renderItemDecorations(Minecraft.getInstance().font, s, x, y);
+                //?}
             }))))));
         }
 
@@ -646,7 +663,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public void openDefaultScreenAndAddDefinition(Optional<net.minecraft.resources.ResourceLocation> defaultScreen, UIDefinition uiDefinition) {
-        Screen s = defaultScreen.map(DEFAULT_SCREENS_MAP::get).orElse(parent-> new Screen(Component.empty()) {}).apply(Minecraft.getInstance().screen);
+        Screen s = defaultScreen.map(DEFAULT_SCREENS_MAP::get).orElse(parent-> new Screen(Component.empty()) {}).apply(FactoryAPIClient.getScreen());
         UIAccessor.of(s).addStatic(uiDefinition);
         Minecraft.getInstance().setScreen(s);
     }

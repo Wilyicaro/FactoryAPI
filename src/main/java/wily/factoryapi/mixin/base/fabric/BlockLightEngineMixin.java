@@ -36,7 +36,7 @@ public class BlockLightEngineMixin {
     private void injectLightSources(ChunkPos pos, CallbackInfo info){
         BlockLightEngine engine = ((BlockLightEngine)(Object)this);
         engine.setLightEnabled(pos, true);
-        LightChunk lightChunk = engine.chunkSource.getChunkForLighting(pos.x, pos.z);
+        LightChunk lightChunk = engine.chunkSource.getChunkForLighting(pos.x/*? if >=26.1 {*//*()*//*?}*/, pos.z/*? if >=26.1 {*//*()*//*?}*/);
         if (lightChunk != null) {
             lightChunk.findBlockLightSources((blockPos, blockState) -> {
                 int i = getBlockLuminance(blockState,engine.chunkSource.getLevel(),blockPos);

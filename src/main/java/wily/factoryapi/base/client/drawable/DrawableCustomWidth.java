@@ -17,7 +17,7 @@ public class DrawableCustomWidth<D extends DrawableCustomWidth<D>> extends Abstr
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int y) {
+    public void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
         super.draw(graphics, x, y);
         if (customWidth != null && !isSprite()) FactoryGuiGraphics.of(graphics).blit(texture(),x + width() - 2, y, uvX() + drawable.width() - 2, uvY(), 2,height());
     }

@@ -44,7 +44,11 @@ public abstract class ServerPlayerMixin extends Player implements FactoryExtraMe
             AbstractContainerMenu abstractContainerMenu = provider.createMenu(this.containerCounter, this.getInventory(), this);
             if (abstractContainerMenu == null) {
                 if (this.isSpectator()) {
+                    //? if >=26.1 {
+                    /*this.sendOverlayMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED));
+                    *///?} else {
                     this.displayClientMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
+                    //?}
                 }
 
                 return Optional.empty();
