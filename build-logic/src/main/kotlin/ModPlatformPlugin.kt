@@ -57,6 +57,26 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		extension.awFile.convention("${awPath}.accesswidener")
 		extension.atFile.convention("${awPath}.cfg")
 
+		if (!inferredLoaderIsFabric) {
+			val task = project.tasks.register("convertAccessWidener", ConvertAccessWidenerToTransformerTask::class.java) {
+				group = "build setup"
+				description = "Converts a Fabric .accesswidener file to a Forge access transformer .cfg"
+
+				inputFile.set(rootProject.layout.projectDirectory.file(extension.awFile))
+				outputFile.set(project.layout.projectDirectory.file(extension.atFile))
+			}
+
+			project.tasks.matching { it.name == "stonecutterPrepare" || it.name == "processResources" }.configureEach {
+				dependsOn(task)
+			}
+			project.tasks.matching { it.name == "sourcesJar" }.configureEach {
+				mustRunAfter(task)
+			}
+
+			// That isn't correct, but it works lol
+			task.get().convert()
+		}
+
 		listOf(
 			"org.jetbrains.kotlin.jvm",
 			"com.google.devtools.ksp",
@@ -102,23 +122,6 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 		if (isFabric) {
 			extension.dependencies { required("java") { versionRange = ">=${extension.requiredJava.get().majorVersion}" } }
-		}
-
-		if (!isFabric) {
-			val task = project.tasks.register("convertAccessWidener", ConvertAccessWidenerToTransformerTask::class.java) {
-				group = "build setup"
-				description = "Converts a Fabric .accesswidener file to a Forge access transformer .cfg"
-
-				inputFile.set(rootProject.layout.projectDirectory.file(extension.awFile))
-				outputFile.set(project.layout.projectDirectory.file(extension.atFile))
-			}
-
-			project.tasks.matching { it.name == "stonecutterPrepare" || it.name == "processResources" }.configureEach {
-				dependsOn(task)
-			}
-			project.tasks.matching { it.name == "sourcesJar" }.configureEach {
-				mustRunAfter(task)
-			}
 		}
 
 		configureFletchingTable()
