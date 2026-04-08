@@ -88,18 +88,18 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.ItemCapability;
 import net.neoforged.neoforge.fluids.FluidStack;
 //? if <1.21.9 {
-import net.neoforged.neoforge.energy.IEnergyStorage;
+/^import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.IItemHandler;
-//?} else {
-/^import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+^///?} else {
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.fml.loading.FMLLoader;
-^///?}
+//?}
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
@@ -547,7 +547,7 @@ public interface FactoryAPIPlatform {
         //? if fabric {
         FabricLoader.getInstance().getAllMods().forEach(m-> getModInfo(m.getMetadata().getId()));
         //?} else if forge || (neoforge && <1.21.9) {
-        /*LoadingModList.get().getMods().forEach(m-> getModInfo(m.getModId()));
+        /*LoadingModList/^? if <26.1 || neoforge {^/.get()/^?}^/.getMods().forEach(m-> getModInfo(m.getModId()));
         *///?} else if neoforge {
         /*FMLLoader.getCurrent().getLoadingModList().getMods().forEach(m-> getModInfo(m.getModId()));
         *///?}
@@ -627,8 +627,8 @@ public interface FactoryAPIPlatform {
             };
             //?} else if forge || neoforge {
             /*return new ModInfo() {
-                IModFileInfo info = ModList.get().getModFileById(modId);
-                Optional<? extends ModContainer> opt = ModList.get().getModContainerById(modId);
+                IModFileInfo info = ModList/^? if <26.1 || neoforge {^/.get()/^?}^/.getModFileById(modId);
+                Optional<? extends ModContainer> opt = ModList/^? if <26.1 || neoforge {^/.get()/^?}^/.getModContainerById(modId);
                 @Override
                 public Collection<String> getAuthors() {
                     return opt.flatMap(c->c.getModInfo().getConfig().getConfigElement("authors").map(s-> Collections.singleton(String.valueOf(s)))).orElse(Collections.emptySet());

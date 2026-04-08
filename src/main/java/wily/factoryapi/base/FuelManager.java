@@ -63,7 +63,7 @@ public class FuelManager {
         return ForgeEventFactory.getItemBurnTime(stack, ret == -1 ? fuelValues == null ? 0 : fuelValues.burnDuration(stack) : ret, null);
         ^///?}
         *///?} else if neoforge {
-        /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
+        /*return stack.getBurnTime(null/^? if >1.21.2 {^/, getFuelValues()/^?}^/);
         *///?} else {
         //? if <1.21.2 {
         return Objects.requireNonNullElse(net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.get(stack.getItem()), 0);

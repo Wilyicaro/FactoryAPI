@@ -35,8 +35,8 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 //? if >=1.21.9 {
-/^import net.neoforged.fml.loading.FMLLoader;
-^///?}
+import net.neoforged.fml.loading.FMLLoader;
+//?}
 *///?}
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -215,7 +215,7 @@ public class FactoryAPI {
         //? if fabric {
         return isModLoaded(modId);
         //?} else if forge || (neoforge && <1.21.9) {
-        /*return LoadingModList.get().getModFileById(modId) != null;
+        /*return LoadingModList/^? if <26.1 || neoforge {^/.get()/^?}^/.getModFileById(modId) != null;
         *///?} else if neoforge {
         /*return FMLLoader.getCurrent().getLoadingModList().getModFileById(modId) != null;
         *///?} else
@@ -226,7 +226,7 @@ public class FactoryAPI {
         //? if fabric {
         return FabricLoader.getInstance().isModLoaded(modId);
         //?} else if forge || neoforge {
-        /*return ModList.get().isLoaded(modId);
+        /*return ModList/^? if <26.1 || neoforge {^/.get()/^?}^/.isLoaded(modId);
          *///?} else
         /*throw new AssertionError();*/
     }

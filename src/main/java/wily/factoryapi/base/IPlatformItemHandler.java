@@ -170,10 +170,10 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
                 }
             };
             //? if <=1.21.10 {
-            transaction.addCommittingJournal(snapshotJournal);
-            //?} else {
-            /^snapshotJournal.updateSnapshots(transaction);
-            ^///?}
+            /^transaction.addCommittingJournal(snapshotJournal);
+            ^///?} else {
+            snapshotJournal.updateSnapshots(transaction);
+            //?}
         }
 
         return insertItem(i, item, true).getCount();
@@ -198,10 +198,10 @@ public interface IPlatformItemHandler extends Container, ITagSerializable<Compou
                 }
             };
             //? if <=1.21.10 {
-            transaction.addCommittingJournal(snapshotJournal);
-            //?} else {
-            /^snapshotJournal.updateSnapshots(transaction);
-            ^///?}
+            /^transaction.addCommittingJournal(snapshotJournal);
+            ^///?} else {
+            snapshotJournal.updateSnapshots(transaction);
+            //?}
         }
 
         return extractItem(i, j, true).getCount();

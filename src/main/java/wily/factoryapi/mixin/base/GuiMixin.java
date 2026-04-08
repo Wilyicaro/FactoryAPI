@@ -293,13 +293,23 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         FactoryGuiElement.OVERLAY_MESSAGE.finalizeMixin(guiGraphics, this);
     }
     //?}
-    //? if >=1.20.5 && neoforge {
+    //? if >=1.20.5 && neoforge && <26.1 {
     /*@Inject(method = {"renderHealthLevel","renderArmorLevel","renderFoodLevel","renderAirLevel"}, at = @At("HEAD"), cancellable = true, remap = false)
     public void renderNeoForgeHealth(GuiGraphics guiGraphics, CallbackInfo ci) {
        FactoryGuiElement.PLAYER_HEALTH.prepareMixin(guiGraphics, this, ci);
     }
     @Inject(method = {"renderHealthLevel","renderArmorLevel","renderFoodLevel","renderAirLevel"}, at = @At("RETURN"), remap = false)
     public void renderNeoForgeHealthReturn(GuiGraphics guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.finalizeMixin(guiGraphics, this);
+    }
+    *///?}
+    //? if >=26.1 && neoforge {
+    /*@Inject(method = {"extractHealthLevel","extractArmorLevel","extractFoodLevel","extractAirLevel"}, at = @At("HEAD"), cancellable = true, remap = false)
+    public void extractNeoForgeHealth(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+        FactoryGuiElement.PLAYER_HEALTH.prepareMixin(guiGraphics, this, ci);
+    }
+    @Inject(method = {"extractHealthLevel","extractArmorLevel","extractFoodLevel","extractAirLevel"}, at = @At("RETURN"), remap = false)
+    public void extractNeoForgeHealthReturn(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
         FactoryGuiElement.PLAYER_HEALTH.finalizeMixin(guiGraphics, this);
     }
     *///?}
@@ -376,16 +386,15 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     }
     //?}
 
-    @Inject(method = /*? if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else {*/"renderSelectedItemName"/*?}*/, at = @At("HEAD"), cancellable = true/*? if forge || neoforge {*//*, remap = false*//*?}*/)
-    public void renderSelectedItemName(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
+    @Inject(method = /*? if neoforge && >=26.1 {*//*"extractSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V"*//*?} else if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else if >=26.1 {*//*"extractSelectedItemName"*//*?} else  {*/"renderSelectedItemName"/*?}*/, at = @At("HEAD"), cancellable = true/*? if forge || neoforge {*//*, remap = false*//*?}*/)
+    public void extractSelectedItemName(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
         FactoryGuiElement.SELECTED_ITEM_NAME.prepareMixin(guiGraphics, this, ci);
     }
 
-    @Inject(method = /*? if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else {*/"renderSelectedItemName"/*?}*/, at = @At("RETURN")/*? if forge || neoforge {*//*, remap = false*//*?}*/)
-    public void renderSelectedItemNameReturn(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
+    @Inject(method = /*? if neoforge && >=26.1 {*//*"extractSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V"*//*?} else if forge || neoforge {*/ /*"renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V" *//*?} else if >=26.1 {*//*"extractSelectedItemName"*//*?} else  {*/"renderSelectedItemName"/*?}*/, at = @At("RETURN")/*? if forge || neoforge {*//*, remap = false*//*?}*/)
+    public void extractSelectedItemNameReturn(net.minecraft.client.gui.GuiGraphics guiGraphics, /*? if forge || neoforge {*/ /*int shift, *//*?}*/ CallbackInfo ci) {
         FactoryGuiElement.SELECTED_ITEM_NAME.finalizeMixin(guiGraphics, this);
     }
-
 
     @Accessor
     public abstract SpectatorGui getSpectatorGui();

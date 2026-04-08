@@ -322,9 +322,6 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 					replace("net/minecraft/client/gui/GuiGraphics", "net/minecraft/client/gui/GuiGraphicsExtractor")
 				}
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
-					replace("renderSelectedItemName", "extractSelectedItemName")
-				}
-				string(eval(current.version, ">=26.1"), "!renaming_26") {
 					replace("renderHotbarAndDecorations", "extractHotbarAndDecorations")
 				}
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
@@ -332,6 +329,12 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 				}
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
 					replace("net/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", "net/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V")
+				}
+				string(eval(current.version, ">=26.1"), "!renaming_26") {
+					replace("renderContextualInfoBarBackground", "extractContextualInfoBarBackground")
+				}
+				string(eval(current.version, ">=26.1"), "!renaming_26") {
+					replace("renderContextualInfoBar", "extractContextualInfoBar")
 				}
 			}
 		}

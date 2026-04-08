@@ -43,22 +43,22 @@ import net.minecraftforge.network.payload.PayloadProtocol;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 //? if >=1.21.9 {
-/^import net.neoforged.fml.jarcontents.JarContents;
+import net.neoforged.fml.jarcontents.JarContents;
 import net.neoforged.neoforge.resource.JarContentsPackResources;
-^///?}
+//?}
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.*;
 import net.neoforged.neoforge.event.server.*;
 import net.neoforged.bus.api.EventPriority;
 //? if <1.20.5 {
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+/^import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
-//?} else {
-/^import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+^///?} else {
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-^///?}
+//?}
 *///?}
 
 //? if >1.20.1
@@ -217,8 +217,8 @@ public class FactoryEvent<T> {
         *///?} elif forge {
         /*TickEvent.ServerTickEvent.Pre.BUS.addListener(e-> apply.accept(e.server()));
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Pre.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.START)/^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Pre.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.START)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -236,8 +236,8 @@ public class FactoryEvent<T> {
          *///?} elif forge {
         /*TickEvent.ServerTickEvent.Post.BUS.addListener(e-> apply.accept(e.server()));
         *///?} elif neoforge {
-        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ TickEvent.ServerTickEvent.class/^?} else {^//^ServerTickEvent.Post.class^//^?}^/, e-> {
-            /^? if <1.20.5 {^/if (e.phase == TickEvent.Phase.END)/^?}^/ apply.accept(e.getServer());
+        /*NeoForge.EVENT_BUS.addListener(/^? if <1.20.5 {^/ /^TickEvent.ServerTickEvent.class^//^?} else {^/ServerTickEvent.Post.class/^?}^/, e-> {
+            /^? if <1.20.5 {^//^if (e.phase == TickEvent.Phase.END)^//^?}^/ apply.accept(e.getServer());
         });
         *///?} else
         /*throw new AssertionError();*/
@@ -277,7 +277,7 @@ public class FactoryEvent<T> {
         else AddReloadListenerEvent.BUS.addListener(e-> e.addListener(reloadListener));
         *///?} elif neoforge {
         /*if (type == PackType.CLIENT_RESOURCES) FactoryAPIClient.registerReloadListener(reloadListener);
-        else NeoForge.EVENT_BUS.addListener(/^? if <1.21.4 {^/AddReloadListenerEvent/^?} else {^//^AddServerReloadListenersEvent^//^?}^/.class, e-> e.addListener(/^? if >= 1.21.4 {^//^FactoryAPI.createLocation(reloadListener.getName()), ^//^?}^/reloadListener));
+        else NeoForge.EVENT_BUS.addListener(/^? if <1.21.4 {^//^AddReloadListenerEvent^//^?} else {^/AddServerReloadListenersEvent/^?}^/.class, e-> e.addListener(/^? if >= 1.21.4 {^/FactoryAPI.createLocation(reloadListener.getName()), /^?}^/reloadListener));
         *///?} else
         /*throw new AssertionError();*/
     }
@@ -342,7 +342,7 @@ public class FactoryEvent<T> {
         }));
         *///?} elif forge {
         /*AddPackFindersEvent.BUS.addListener(event-> registry.accept((path, name, displayName, position, defaultEnabled) -> {
-            Path resourcePath = ModList.get().getModFileById(name.getNamespace()).getFile().findResource(path);
+            Path resourcePath = ModList/^? if <26.1 {^/.get()/^?}^/.getModFileById(name.getNamespace()).getFile().findResource(path);
             for (PackType type : PackType.values()) {
                 if (event.getPackType() != type || !Files.isDirectory(resourcePath.resolve(type.getDirectory()))) continue;
                 Pack pack = createBuiltInPack(name, displayName, defaultEnabled, type, position, resourcePath);
@@ -407,17 +407,17 @@ public class FactoryEvent<T> {
             }
         });
         *///?} elif neoforge {
-        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^/RegisterPayloadHandlerEvent/^?} else {^/ /^RegisterPayloadHandlersEvent^//^?}^/.class, e-> {
+        /*FactoryAPIPlatform.getModEventBus().addListener(/^? if <1.20.5 {^//^RegisterPayloadHandlerEvent^//^?} else {^/ RegisterPayloadHandlersEvent/^?}^/.class, e-> {
             registry.accept(new PayloadRegistry() {
                 @Override
                 public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
-                    /^? if <1.20.5 {^/IPayloadRegistrar/^?} else {^/ /^PayloadRegistrar^//^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
+                    /^? if <1.20.5 {^//^IPayloadRegistrar^//^?} else {^/ PayloadRegistrar/^?}^/ registrar = e.registrar(id.location().getNamespace()).optional();
                     //? if <1.20.5 {
-                    if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.applySided(arg.flow().isClientbound(), ()-> arg.player().orElse(null)));
-                    //?} else {
-                    /^if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
+                    /^if (c2s || FMLEnvironment.dist.isClient()) registrar.play(id.location(),id::decode,(h, arg)->h.applySided(arg.flow().isClientbound(), ()-> arg.player().orElse(null)));
+                    ^///?} else {
+                    if (c2s) registrar.playToServer(id.type(),id.codec(),(h,arg)->h.applyServer(arg::player));
                     else registrar.playToClient(id.type(),id.codec(),(h,arg)->h.applyClient());
-                    ^///?}
+                    //?}
                 }
             });
         });

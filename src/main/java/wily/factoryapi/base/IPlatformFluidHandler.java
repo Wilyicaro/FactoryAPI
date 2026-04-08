@@ -285,10 +285,10 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
                 }
             };
             //? if <=1.21.10 {
-            transaction.addCommittingJournal(snapshotJournal);
-            //?} else {
-            /^snapshotJournal.updateSnapshots(transaction);
-            ^///?}
+            /^transaction.addCommittingJournal(snapshotJournal);
+            ^///?} else {
+            snapshotJournal.updateSnapshots(transaction);
+            //?}
         }
         return fill(fluid, true);
     }
@@ -313,10 +313,10 @@ public interface IPlatformFluidHandler extends ITagSerializable<CompoundTag>, IP
                 }
             };
             //? if <=1.21.10 {
-            transaction.addCommittingJournal(snapshotJournal);
-            //?} else {
-            /^snapshotJournal.updateSnapshots(transaction);
-            ^///?}
+            /^transaction.addCommittingJournal(snapshotJournal);
+            ^///?} else {
+            snapshotJournal.updateSnapshots(transaction);
+            //?}
         }
 
         return drain(fluid, true).getAmount();

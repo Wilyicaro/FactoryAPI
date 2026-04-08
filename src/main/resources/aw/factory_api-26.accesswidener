@@ -1,4 +1,5 @@
 accessWidener   v2  official
+#~ !renaming_26
 accessible field net/minecraft/world/level/lighting/LightEngine chunkSource Lnet/minecraft/world/level/chunk/LightChunkGetter;
 accessible field net/minecraft/world/level/lighting/LightEngine storage Lnet/minecraft/world/level/lighting/LayerLightSectionStorage;
 accessible method net/minecraft/world/level/lighting/LayerLightSectionStorage lightOnInSection (J)Z
@@ -11,4 +12,4 @@ accessible field net/minecraft/client/resources/SplashManager user Lnet/minecraf
 mutable field net/minecraft/client/resources/SplashManager user Lnet/minecraft/client/User;
 accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible method net/minecraft/world/level/block/entity/BlockEntityType <init> (Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
-accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
+accessible class net/minecraft/client/gui/GuiGraphicsExtractor$ScissorStack
