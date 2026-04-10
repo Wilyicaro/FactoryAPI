@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.devtools.ksp).apply(false)
     alias(libs.plugins.fletching.table).apply(false)
     alias(libs.plugins.legacyforge.moddev).apply(false)
+    alias(libs.plugins.vanniktech.maven.publish).apply(false)
 }
 
 stonecutter active file(".sc_active_version")

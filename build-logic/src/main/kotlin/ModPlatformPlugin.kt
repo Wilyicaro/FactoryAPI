@@ -1,5 +1,6 @@
 @file:Suppress("unused", "DuplicatedCode")
 
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import dev.kikugie.fletching_table.extension.FletchingTableExtension
 import dev.kikugie.stonecutter.build.StonecutterBuildExtension
 import me.modmuss50.mpp.ModPublishExtension
@@ -12,6 +13,7 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.Copy
 import org.gradle.internal.extensions.stdlib.toDefaultLowerCase
 import org.gradle.jvm.tasks.Jar
@@ -22,7 +24,6 @@ import org.gradle.plugins.ide.idea.model.IdeaModel
 import java.io.File
 import java.util.*
 import javax.inject.Inject
-import kotlin.text.substringAfterLast
 
 fun Project.prop(name: String): String = (findProperty(name) ?: "") as String
 
@@ -92,7 +93,8 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		listOf(
 			"org.jetbrains.kotlin.jvm",
 			"com.google.devtools.ksp",
-			"dev.kikugie.fletching-table"
+			"dev.kikugie.fletching-table",
+			"com.vanniktech.maven.publish",
 		).forEach { apply(plugin = it) }
 
 		afterEvaluate {
@@ -131,8 +133,8 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		configureJarTask(modId, prop("archives_base_name"), loader)
 		configureIdea()
 		configureProcessResources(stonecutter, isFabric, isNeoForge, isForge, modId, modVersion, mcVersion, extension, extension.requiredJava.get())
-		registerBuildAndCollectTask(extension, "$modVersion$channelTag")
-		configurePublishing(extension, loader, stonecutter, "$modVersion$channelTag", channelTag, version.toString())
+		registerBuildAndCollectTask(extension, modVersion)
+		configurePublishing(extension, loader, stonecutter, modVersion, channelTag, version.toString())
 	}
 
 	private fun Project.configureJarTask(modId: String, archivesBaseName: String, loader: String) {
@@ -279,7 +281,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 	private fun Project.configureJava(stonecutter: StonecutterBuildExtension, requiredJava: JavaVersion) {
 		extensions.configure<JavaPluginExtension>("java") {
 			withSourcesJar()
-			withJavadocJar()
+			//withJavadocJar()
 			toolchain.languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion)
 			sourceCompatibility = requiredJava
 			targetCompatibility = requiredJava
@@ -388,12 +390,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 				dryRun = true
 			}
 
-			val isForge = false
-			val targetName = if(isForge) {
-				"reobfJar"
-			} else {
-				ext.jarTask.get()
-			}
+			val targetName = ext.jarTask.get()
 
 			val jarTask = tasks.named(targetName).map { it as Jar }
 			val srcJarTask = tasks.named(ext.sourcesJarTask.get()).map { it as Jar }
@@ -411,6 +408,51 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 			modrinth(deps, currentVersion, additionalVersions, mrStaging, modrinthAccessToken)
 			if (!mrStaging) curseforge(deps, currentVersion, additionalVersions, false, curseforgeAccessToken)
+		}
+
+		extensions.configure<MavenPublishBaseExtension>("mavenPublishing") {
+			coordinates(groupId = prop("maven_group"), artifactId = "${prop("mod_id")}-${loader}", version = "${stonecutter.current.version}-${modVersion}")
+
+			pom {
+				name = "${prop("mod_name")} [${loader.replaceFirstChar(Char::titlecase)}]"
+				description = prop("mod_description")
+				url = prop("mod_source")
+				scm {
+					url = prop("mod_source")
+					connection = prop("mod_source").replace("https", "scm:git:git") + ".git"
+					developerConnection = prop("mod_source").replace("https://github.com/", "scm:git:git@github.com:") + ".git"
+				}
+				issueManagement {
+					system = "github"
+					url = prop("mod_issues")
+				}
+				licenses {
+					license {
+						name = "MPL-2"
+						url = "https://www.mozilla.org/en-US/MPL/2.0/"
+					}
+				}
+				developers {
+					developer {
+						id = prop("mod_authors").toDefaultLowerCase()
+						name = prop("mod_authors")
+					}
+				}
+			}
+		}
+		extensions.configure<PublishingExtension>("publishing") {
+			repositories {
+				maven {
+					repositories {
+						maven {
+							name = "ModResources"
+							val modResourcesURL = project.findProperty("MOD_RESOURCES") ?: System.getenv("MOD_RESOURCES")
+							if (modResourcesURL != null)
+								url = uri(modResourcesURL)
+						}
+					}
+				}
+			}
 		}
 	}
 
