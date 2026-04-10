@@ -359,8 +359,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			group = "build"
 			from(
 				tasks.named(extension.jarTask.get()),
-				tasks.named(extension.sourcesJarTask.get()),
-				tasks.named("javadocJar").get()
+				tasks.named(extension.sourcesJarTask.get())
 			)
 			into(rootProject.layout.buildDirectory.file("libs/$modVersion"))
 			dependsOn("build")
