@@ -50,6 +50,18 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 		val stonecutter = extensions.getByType<StonecutterBuildExtension>()
 
+		extension.requiredJava.set(
+			when {
+				stonecutter.eval(stonecutter.current.version, ">=26.1") -> JavaVersion.VERSION_25
+				stonecutter.eval(stonecutter.current.version, ">=1.20.6") -> JavaVersion.VERSION_21
+				stonecutter.eval(stonecutter.current.version, ">=1.18") -> JavaVersion.VERSION_17
+				stonecutter.eval(stonecutter.current.version, ">=1.17") -> JavaVersion.VERSION_16
+				else -> JavaVersion.VERSION_1_8
+			}
+		)
+
+		configureJava(stonecutter, extension.requiredJava.get())
+
 		extension.commonAccessWidener.convention("aw/${prop("mod_id")}-${if (stonecutter.eval(stonecutter.current.version, ">=26.1")) 26 else if (stonecutter.eval(stonecutter.current.version, ">=1.21.2")) 1212 else 120}")
 
 		val awPath = "src/main/resources/${extension.commonAccessWidener.get()}"
@@ -108,17 +120,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 		val mcVersion = stonecutter.current.version
 
-		version = "$modVersion+$mcVersion-$loader"
-
-		extension.requiredJava.set(
-			when {
-				stonecutter.eval(stonecutter.current.version, ">=26.1") -> JavaVersion.VERSION_25
-				stonecutter.eval(stonecutter.current.version, ">=1.20.6") -> JavaVersion.VERSION_21
-				stonecutter.eval(stonecutter.current.version, ">=1.18") -> JavaVersion.VERSION_17
-				stonecutter.eval(stonecutter.current.version, ">=1.17") -> JavaVersion.VERSION_16
-				else -> JavaVersion.VERSION_1_8
-			}
-		)
+		version = "$mcVersion-$modVersion-$loader"
 
 		if (isFabric) {
 			extension.dependencies { required("java") { versionRange = ">=${extension.requiredJava.get().majorVersion}" } }
@@ -126,19 +128,18 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 		configureFletchingTable()
 		configureStonecutter()
-		configureJarTask(modId, loader)
+		configureJarTask(modId, prop("archives_base_name"), loader)
 		configureIdea()
 		configureProcessResources(stonecutter, isFabric, isNeoForge, isForge, modId, modVersion, mcVersion, extension, extension.requiredJava.get())
-		configureJava(stonecutter, extension.requiredJava.get())
 		registerBuildAndCollectTask(extension, "$modVersion$channelTag")
 		configurePublishing(extension, loader, stonecutter, "$modVersion$channelTag", channelTag, version.toString())
 	}
 
-	private fun Project.configureJarTask(modId: String, loader: String) {
+	private fun Project.configureJarTask(modId: String, archivesBaseName: String, loader: String) {
 		val isForge = loader == "forge"
 
 		tasks.withType<Jar>().configureEach {
-			archiveBaseName.set(modId)
+			archiveBaseName.set(archivesBaseName)
 			if (isForge) {
 				manifest.attributes(
 					"MixinConfigs" to "${modId}.mixins.json"

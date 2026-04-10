@@ -28,10 +28,9 @@ stonecutter {
         fun match(version: String, vararg loaders: String) =
             loaders.forEach { version("$version-$it", version).buildscript = "build.${if (it == "fabric" && stonecutter.eval(version, ">=26.1")) "fabricmc" else it}.gradle.kts" }
 
-        // Forge <=1.20.4 isn't recompiling, it might be because it's forcefully using Java 25 from foojay for some reason
-        // This is certainly a problem in my env, hopefully it won't be difficult to fix
-        match("1.20.1", "fabric", /*"forge"*/)
-        match("1.20.4", "fabric", /*"forge",*/ "neoforge")
+        //Some JDK 17 instances don't work with Forge <=1.20.4, you can just exclude these, so it can be downloaded automatically
+        match("1.20.1", "fabric", "forge")
+        match("1.20.4", "fabric", "forge", "neoforge")
         match("1.21.1", "fabric", "forge", "neoforge")
         match("1.21.3", "fabric", "forge", "neoforge")
         match("1.21.4", "fabric", "forge", "neoforge")
