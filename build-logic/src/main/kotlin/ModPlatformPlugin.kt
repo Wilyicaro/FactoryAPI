@@ -383,11 +383,8 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		extensions.configure<ModPublishExtension>("publishMods") {
 			val mrStaging = envTrue("TEST_PUBLISHING_WITH_MR_STAGING")
 
-			val modrinthAccessToken = env("MODRINTH_TOKEN")
-			val curseforgeAccessToken = env("CURSE_API_KEY")
-			if (!envTrue("ENABLE_PUBLISHING")) {
-				dryRun = true
-			}
+			val modrinthAccessToken = prop("MODRINTH_TOKEN")
+			val curseforgeAccessToken = prop("CURSE_API_KEY")
 
 			val targetName = ext.jarTask.get()
 
@@ -403,7 +400,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			changelog.set(rootProject.file("CHANGELOG.md").readText())
 			modLoaders.add(loader)
 
-			displayName = "${prop("mod.name")} $modVersion ${loader.replaceFirstChar(Char::titlecase)} $currentVersion"
+			displayName = "${prop("mod_name")} $modVersion ${loader.replaceFirstChar(Char::titlecase)} $currentVersion"
 
 			modrinth(deps, currentVersion, additionalVersions, mrStaging, modrinthAccessToken)
 			if (!mrStaging) curseforge(deps, currentVersion, additionalVersions, false, curseforgeAccessToken)
@@ -467,7 +464,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		acesssToken: String?
 	) = modrinth {
 		if (staging) apiEndpoint = "https://staging-api.modrinth.com/v2"
-		projectId = project.prop("publish.modrinth")
+		projectId = project.prop("modrinth_id")
 		accessToken = acesssToken
 		minecraftVersions.addAll(listOf(currentVersion) + additionalVersions)
 
@@ -486,7 +483,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		staging: Boolean,
 		acesssToken: String?
 	) = curseforge {
-		projectId = project.prop("publish.curseforge")
+		projectId = project.prop("curseforge_id")
 		accessToken = acesssToken
 		minecraftVersions.addAll(listOf(currentVersion) + additionalVersions)
 
