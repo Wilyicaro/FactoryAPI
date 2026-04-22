@@ -52,7 +52,7 @@ abstract class ConvertAccessWidenerToTransformerTask @Inject constructor() : Con
                 continue
             }
 
-            val access = parts[0]   // accessible | extendable | mutable
+            val access = parts[0].removePrefix("transitive-")   // accessible | extendable | mutable
             val type   = parts[1]   // class | method | field
             val owner  = parts[2].replace('/', '.') // net/minecraft/... → net.minecraft...
 

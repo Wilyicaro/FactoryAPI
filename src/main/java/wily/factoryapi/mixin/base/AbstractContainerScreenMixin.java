@@ -71,8 +71,8 @@ public abstract class AbstractContainerScreenMixin extends Screen {
         if (!UIAccessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
     }
     //?} else {
-    /*
-    @Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
+    
+    /*@Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
 
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
     protected void render(AbstractContainerScreen instance, GuiGraphics guiGraphics, float v, int i, int j) {

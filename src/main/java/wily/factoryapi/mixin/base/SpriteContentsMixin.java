@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 //? if <=1.20.1
-/*import wily.factoryapi.base.client.FactorySpriteContents;*/
+//import wily.factoryapi.base.client.FactorySpriteContents;
 
 @Mixin(SpriteContents.class)
 public abstract class SpriteContentsMixin /*? if <=1.20.1 {*/ /*implements FactorySpriteContents *//*?}*/{

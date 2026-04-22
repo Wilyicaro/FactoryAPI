@@ -287,6 +287,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         ElementType PUT_VEC2 = registerCodec("put_vec2", DynamicUtil.VEC2_CODEC);
         ElementType BLIT = registerConditional("blit", ElementType::parseBlitElements);
         ElementType BLIT_SPRITE = registerConditional("blit_sprite", ElementType::parseBlitSpriteElements);
+        ElementType BLIT_CUSTOM_SPRITE = registerConditional("blit_custom_sprite", ElementType::parseBlitCustomSpriteElements);
         ElementType FILL = registerConditional("fill", ElementType::parseFillElements);
         ElementType FILL_GRADIENT = registerConditional("fill_gradient", ElementType::parseFillGradientElements);
         ElementType DRAW_STRING = registerConditional("draw_string", ElementType::parseDrawStringElements);
@@ -340,6 +341,13 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
             parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
             uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
+        }
+
+        static void parseBlitCustomSpriteElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
+            parseElement(uiDefinition, elementName, element, "sprite", net.minecraft.resources.ResourceLocation.CODEC);
+            parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "textureWidth", "textureHeight", "uvX", "uvY", "renderColor", "order", "amount");
+            parseTranslationElements(uiDefinition, elementName, element);
+            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".textureWidth", 0), a.getInteger(elementName + ".textureHeight", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
         }
 
         static void parseTextElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {

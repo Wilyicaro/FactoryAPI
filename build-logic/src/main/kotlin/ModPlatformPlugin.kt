@@ -70,7 +70,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		extension.awFile.convention("${awPath}.accesswidener")
 		extension.atFile.convention("${awPath}.cfg")
 
-		if (!inferredLoaderIsFabric && inferredLoader != "fabricMC") {
+		if (!inferredLoaderIsFabric && inferredLoader != "fabricmc") {
 			val task = project.tasks.register("convertAccessWidener", ConvertAccessWidenerToTransformerTask::class.java) {
 				group = "build setup"
 				description = "Converts a Fabric .accesswidener file to a Forge access transformer .cfg"
@@ -199,7 +199,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 				"mod_issues" to issuesUrl,
 				"fabric_api_version" to prop("fabric_api_version"),
 				"aw" to extension.commonAccessWidener.get(),
-//				"homepage_url" to prop("mod.homepage_url"),
+//				"homepage_url" to prop("mod_homepage_url"),
 				"mod_source" to prop("mod_source"),
 //				"discord_url" to prop("mod_discord"),
 				"dependencies" to dependencies

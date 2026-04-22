@@ -87,7 +87,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     private MultiBufferSource.BufferSource lastBufferSource;
 
     //? if <=1.20.1
-    /*@Shadow abstract void innerBlit(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);*/
+    //@Shadow abstract void innerBlit(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);
 
     @Unique
     private final FactoryGuiGraphics factoryGuiGraphics = new FactoryGuiGraphics() {

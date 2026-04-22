@@ -3,8 +3,6 @@ package wily.factoryapi.base.client;
 import net.minecraft.client.Minecraft;
 //? if >=1.21.11 {
 /*import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.network.chat.Style;
-import wily.factoryapi.mixin.base.ScreenAccessor;
 *///?}
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -14,13 +12,17 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if >=1.21.9 {
 /*import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Style;
 import wily.factoryapi.mixin.base.BakedSheetGlyphAccessor;
 *///?}
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import wily.factoryapi.base.Bearer;
 import wily.factoryapi.mixin.base.FontAccessor;
+import net.minecraft.network.chat.Style;
+import wily.factoryapi.mixin.base.ScreenAccessor;
 import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.util.Collections;
@@ -37,11 +39,11 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
     private boolean shadow = true;
     private boolean multipleHeights = true;
 
-    public AdvancedTextWidget(UIAccessor accessor){
+    public AdvancedTextWidget(UIAccessor accessor) {
         this.accessor = accessor;
     }
 
-    public AdvancedTextWidget withLines(List<FormattedCharSequence> lines){
+    public AdvancedTextWidget withLines(List<FormattedCharSequence> lines) {
         if (lines != null) {
             this.lines = lines;
             processLines();
@@ -49,43 +51,7 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         return this;
     }
 
-    public static int romanToInteger(String roman) {
-        char[] chars = roman.toCharArray();
-        int result = 0;
-        int lastValue = 0;
-        byte lastSignal = 1;
-        for (int i = chars.length - 1; i >= 0; i--) {
-            char c = chars[i];
-
-            int v = switch (c) {
-                case 'I' -> 1;
-                case 'X' -> 10;
-                case 'L' -> 50;
-                case 'C' -> 100;
-                case 'D' -> 500;
-                case 'M' -> 1000;
-                default -> throw new IllegalStateException("Unexpected value: " + c);
-            };
-
-            if (v < lastValue || lastSignal < 0) {
-                result -= v;
-                lastSignal = -1;
-            }
-
-            if (v == lastValue)
-                result += lastSignal * v;
-            else if (v > lastValue) {
-                result += v;
-                lastSignal = 1;
-            }
-
-            lastValue = v;
-        }
-
-        return result;
-    }
-
-    public void processLines(){
+    public void processLines() {
         height = 0;
         widthPerLine = new int[lines.size()];
         heightPerLine = new int[lines.size()];
@@ -97,11 +63,11 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         }
     }
 
-    public AdvancedTextWidget withLines(Component component, int width){
+    public AdvancedTextWidget withLines(Component component, int width) {
         return withWidth(width).withLines(Minecraft.getInstance().font.split(component, width));
     }
 
-    public static int getLineHeight(FormattedCharSequence sequence){
+    public static int getLineHeight(FormattedCharSequence sequence) {
         Bearer<Integer> bearer = Bearer.of(0);
         sequence.accept((n, style, pos)->{
             FontAccessor fontAccessor = (FontAccessor) Minecraft.getInstance().font;
@@ -123,42 +89,42 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
         return bearer.get();
     }
 
-    public AdvancedTextWidget lineSpacing(int lineSpacing){
+    public AdvancedTextWidget lineSpacing(int lineSpacing) {
         this.lineSpacing = lineSpacing;
         return this;
     }
 
-    public AdvancedTextWidget centered(boolean centered){
+    public AdvancedTextWidget centered(boolean centered) {
         this.centered = centered;
         return this;
     }
 
-    public AdvancedTextWidget multipleHeights(boolean multipleHeights){
+    public AdvancedTextWidget multipleHeights(boolean multipleHeights) {
         this.multipleHeights = multipleHeights;
         return this;
     }
 
-    public AdvancedTextWidget withPos(int x, int y){
+    public AdvancedTextWidget withPos(int x, int y) {
         setPosition(x, y);
         return this;
     }
 
-    public AdvancedTextWidget withWidth(int width){
+    public AdvancedTextWidget withWidth(int width) {
         this.width = width;
         return this;
     }
 
-    public AdvancedTextWidget withColor(int color){
+    public AdvancedTextWidget withColor(int color) {
         this.color = color;
         return this;
     }
 
-    public AdvancedTextWidget withShadow(boolean shadow){
+    public AdvancedTextWidget withShadow(boolean shadow) {
         this.shadow = shadow;
         return this;
     }
 
-    public List<FormattedCharSequence> getLines(){
+    public List<FormattedCharSequence> getLines() {
         return lines;
     }
 
@@ -211,9 +177,13 @@ public class AdvancedTextWidget extends SimpleLayoutRenderable implements GuiEve
                         /*ActiveTextCollector.ClickableStyleFinder clickableStyleFinder = new ActiveTextCollector.ClickableStyleFinder(Minecraft.getInstance().font, (int) d, (int) e);
                         clickableStyleFinder.accept(0, Mth.floor(d - getX()), lines.get(i1)); // TODO WHAT WHAT WHAT WHAT WHAT
                         Style style = clickableStyleFinder.result();
-                        if (style != null) ScreenAccessor.callDefaultHandleGameClickEvent(style.getClickEvent(), Minecraft.getInstance(), accessor.getScreen());
                         *///?} else {
-                        accessor.getScreen().handleComponentClicked(Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX())));
+                        Style style = Minecraft.getInstance().font.getSplitter().componentStyleAtWidth(lines.get(i1), Mth.floor(d - getX()));
+                        //?}
+                        //? if >=1.21.6 {
+                        /*if (style != null && style.getClickEvent() != null) ScreenAccessor.callDefaultHandleClickEvent(style.getClickEvent(), Minecraft.getInstance(), accessor.getScreen());
+                        *///?} else {
+                        if (style != null && style.getClickEvent() != null) accessor.getScreen().handleComponentClicked(style);
                         //?}
                         return true;
                     }
