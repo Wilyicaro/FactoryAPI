@@ -27,16 +27,16 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.fluids.FluidStack;
 //? if <1.21.9 {
-/^import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-^///?} else {
-import net.neoforged.neoforge.transfer.ResourceHandler;
+//?} else {
+/^import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-//?}
+^///?}
 *///?}
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;

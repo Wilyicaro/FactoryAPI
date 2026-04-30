@@ -49,7 +49,7 @@ public class FactoryScreenUtil {
             case net.minecraft.client.gui.GuiGraphics graphics -> graphics./^? if >=26.1 {^//^text^//^?} else {^/ drawString/^?}^/(font, text, x, y, color, shadow);
             case PoseStack poseStack -> {
                 MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-				font.drawInBatch(/^? if >=1.21.2 {^/Component.literal(text)/^?} else {^/ /^text^//^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
+				font.drawInBatch(/^? if >=1.21.2 {^//^Component.literal(text)^//^?} else {^/ text/^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
                 disableDepthTest();
                 source.endBatch();
                 enableDepthTest();

@@ -35,8 +35,8 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 //? if >=1.21.9 {
-import net.neoforged.fml.loading.FMLLoader;
-//?}
+/^import net.neoforged.fml.loading.FMLLoader;
+^///?}
 *///?}
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

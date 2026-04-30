@@ -157,10 +157,10 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
                 }
             };
             //? if <=1.21.10 {
-            /^transaction.addCommittingJournal(snapshotJournal);
-            ^///?} else {
-            snapshotJournal.updateSnapshots(transaction);
-            //?}
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
         }
 
         return receiveEnergy(i, true);
@@ -186,10 +186,10 @@ public interface IPlatformEnergyStorage extends ITagSerializable<CompoundTag>, I
                 }
             };
             //? if <=1.21.10 {
-            /^transaction.addCommittingJournal(snapshotJournal);
-            ^///?} else {
-            snapshotJournal.updateSnapshots(transaction);
-            //?}
+            transaction.addCommittingJournal(snapshotJournal);
+            //?} else {
+            /^snapshotJournal.updateSnapshots(transaction);
+            ^///?}
         }
 
         return consumeEnergy(i, true);
