@@ -53,7 +53,7 @@ public class FactoryConfigScreen extends Screen {
     /*@Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.text(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
+        graphics.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
     *///?} else {
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
