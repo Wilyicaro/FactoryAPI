@@ -30,7 +30,7 @@ public class LevelRendererMixin {
     private static int getLightColors(int original, @Local(argsOnly = true) BlockAndTintGetter level, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
         return state.getBlock() instanceof IFactoryBlock b ? b.getLightEmission(state, level, pos) : original;
     }
-    *///?} else {
+    *///?} else if <26.2 {
     /*@ModifyExpressionValue(method = "getLightCoords(Lnet/minecraft/client/renderer/LevelRenderer$BrightnessGetter;Lnet/minecraft/world/level/BlockAndLightGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"))
     private static int getLightCoords(int original, @Local(argsOnly = true) BlockAndLightGetter level, @Local(argsOnly = true) BlockState state, @Local(argsOnly = true) BlockPos pos) {
         return state.getBlock() instanceof IFactoryBlock b ? b.getLightEmission(state, level, pos) : original;

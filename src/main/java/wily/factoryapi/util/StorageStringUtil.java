@@ -7,7 +7,11 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
+//? if <26.3 {
 import org.lwjgl.glfw.GLFW;
+//?} else {
+/*import org.lwjgl.sdl.SDLKeycode;
+*///?}
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
 import wily.factoryapi.base.ICraftyEnergyStorage;
@@ -108,20 +112,23 @@ public class StorageStringUtil {
     }
 
     public static boolean isShiftKeyDown() {
+        //~ if >=26.3 'isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT)' -> 'isKeyDown(SDLKeycode.SDLK_LSHIFT) || isKeyDown(SDLKeycode.SDLK_RSHIFT)'
         return isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) || isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
     }
 
+    //~ if >=26.3 'KEYSYM' -> 'KEYBOARD' {
     public static boolean isKeyDown(int glfw) {
         InputConstants.Key key = InputConstants.Type.KEYSYM.getOrCreate(glfw);
         int keyCode = key.getValue();
         if (keyCode != InputConstants.UNKNOWN.getValue()) {
             try {
                 if (key.getType() == InputConstants.Type.KEYSYM) {
-                    return InputConstants.isKeyDown(Minecraft.getInstance().getWindow()/*? if <1.21.9 {*/.getWindow()/*?}*/, keyCode);
+                    return InputConstants.isKeyDown(/*? if <26.3 {*/Minecraft.getInstance().getWindow()/*?}*//*? if <1.21.9 {*/.getWindow()/*?}*//*? if <26.3 {*/,/*?}*/ keyCode);
                 }
             } catch (Exception ignored) {
             }
         }
         return false;
     }
+    //~}
 }

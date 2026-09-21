@@ -26,7 +26,11 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component./^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/;
 import net.minecraft.core.component.DataComponentType;
 *///?}
+//? if <26.3 {
 import net.minecraft.resources.HolderSetCodec;
+//?} else {
+/*import net.minecraft.core.registries.codec.HolderSetCodec;
+*///?}
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

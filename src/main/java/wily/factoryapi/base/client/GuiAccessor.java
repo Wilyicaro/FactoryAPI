@@ -2,8 +2,12 @@ package wily.factoryapi.base.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+//? if >=26.2 {
+/*import net.minecraft.client.gui.Hud;
+*///?}
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.world.item.ItemStack;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 public interface GuiAccessor {
     ItemStack getLastToolHighlight();
@@ -12,11 +16,12 @@ public interface GuiAccessor {
 
     SpectatorGui getSpectatorGui();
 
+    //~ if >=26.2 'Gui gui' -> 'Hud gui'
     static GuiAccessor of(Gui gui){
         return (GuiAccessor) gui;
     }
 
     static GuiAccessor getInstance(){
-        return of(Minecraft.getInstance().gui);
+        return of(FactoryScreenUtil.getGuiOrHud(Minecraft.getInstance()));
     }
 }

@@ -443,8 +443,10 @@ public class FactoryEvent<T> {
         /^GatherComponentsEvent.BUS.addListener(e-> {
             if (e.getOwner() == item) e.register(type,value);
         });
+        ^///?} elif neoforge && <26.2 {
+        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, bc -> bc.set(type,value)));
         ^///?} elif neoforge {
-        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, bc-> bc.set(type,value)));
+        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, (bc, ctx, item1) -> bc.set(type,value)));
         ^///?}
     }
     *///?}

@@ -339,6 +339,39 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 				string(eval(current.version, ">=26.1"), "!renaming_26") {
 					replace("renderContextualInfoBar", "extractContextualInfoBar")
 				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.PrimitiveTopology", "com.mojang.renderpearl.api.pipeline.PrimitiveTopology")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.pipeline.", "com.mojang.renderpearl.api.pipeline.")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com/mojang/blaze3d/pipeline/", "com/mojang/renderpearl/api/pipeline/")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.buffers.", "com.mojang.renderpearl.api.buffers.")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.systems.RenderPass", "com.mojang.renderpearl.api.commands.RenderPass")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.platform.CompareOp", "com.mojang.renderpearl.api.pipeline.CompareOp")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.platform.CompareOp", "com.mojang.renderpearl.api.pipeline.CompareOp")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.pipeline.RenderTarget", "com.mojang.blaze3d.pipeline.RenderTarget")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.vertex.VertexFormat", "com.mojang.renderpearl.api.vertex.VertexFormat")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.textures.GpuSampler", "com.mojang.renderpearl.api.textures.GpuSampler")
+				}
+				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
+					replace("com.mojang.blaze3d.textures.GpuTextureView", "com.mojang.renderpearl.api.textures.GpuTextureView")
+				}
 			}
 		}
 	}

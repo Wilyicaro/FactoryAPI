@@ -1,3 +1,4 @@
+//? if <26.3 {
 package wily.factoryapi.base;
 
 import net.minecraft.world.item.Item;
@@ -103,3 +104,4 @@ public class FuelManager {
         /*throw new AssertionError();*/
     }
 }
+//?}

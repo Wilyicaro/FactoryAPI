@@ -16,6 +16,7 @@ import wily.factoryapi.base.client.FactoryOptions;
 import wily.factoryapi.base.client.FactoryConfigWidgets;
 import wily.factoryapi.base.config.FactoryCommonOptions;
 import wily.factoryapi.base.config.FactoryConfig;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class FactoryConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        FactoryScreenUtil.setScreen(parent);
     }
 
     public static class ConfigList extends ContainerObjectSelectionList<ConfigList.Entry>{
