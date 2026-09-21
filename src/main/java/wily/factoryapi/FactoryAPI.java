@@ -70,13 +70,13 @@ public class FactoryAPI {
     public static MinecraftServer currentServer;
 
 
-    public FactoryAPI(){
+    public FactoryAPI() {
         init();
 
         //? if forge && <1.21.6 {
         /*MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<BlockEntity>, BlockEntity>addGenericListener(BlockEntity.class, event->{
-            if (event.getObject() instanceof IFactoryStorage be){
-                event.addCapability(FactoryAPI.createModLocation("fallback_capabilities"), new ICapabilityProvider() {
+            if (event.getObject() instanceof IFactoryStorage be) {
+                event.addCapability(FactoryAPI.modIdentifier("fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.BLOCK_CAPABILITY_MAP.get(capability);
@@ -89,8 +89,8 @@ public class FactoryAPI {
             }
         });
         MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<ItemStack>, ItemStack>addGenericListener(ItemStack.class,event->{
-            if (event.getObject().getItem() instanceof IFactoryItem i){
-                event.addCapability(FactoryAPI.createModLocation("item_fallback_capabilities"), new ICapabilityProvider() {
+            if (event.getObject().getItem() instanceof IFactoryItem i) {
+                event.addCapability(FactoryAPI.modIdentifier("item_fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.ITEM_CAPABILITY_MAP.get(capability);
@@ -104,8 +104,8 @@ public class FactoryAPI {
         });
         *///?} else if forge {
         /*AttachCapabilitiesEvent.BlockEntities.BUS.addListener(event->{
-            if (event.getObject() instanceof IFactoryStorage be){
-                event.addCapability(FactoryAPI.createModLocation("fallback_capabilities"), new ICapabilityProvider() {
+            if (event.getObject() instanceof IFactoryStorage be) {
+                event.addCapability(FactoryAPI.modIdentifier("fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.BLOCK_CAPABILITY_MAP.get(capability);
@@ -118,8 +118,8 @@ public class FactoryAPI {
             }
         });
         AttachCapabilitiesEvent.ItemStacks.BUS.addListener(event->{
-            if (event.getObject().getItem() instanceof IFactoryItem i){
-                event.addCapability(FactoryAPI.createModLocation("item_fallback_capabilities"), new ICapabilityProvider() {
+            if (event.getObject().getItem() instanceof IFactoryItem i) {
+                event.addCapability(FactoryAPI.modIdentifier("item_fallback_capabilities"), new ICapabilityProvider() {
                     @Override
                     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
                         FactoryStorage<?> storage = FactoryAPIPlatform.ITEM_CAPABILITY_MAP.get(capability);
@@ -138,7 +138,7 @@ public class FactoryAPI {
 
     public static void init() {
         LOGGER.info("Initializing FactoryAPI!");
-        FactoryConfig.registerCommonStorage(createModLocation("common"), FactoryCommonOptions.COMMON_STORAGE);
+        FactoryConfig.registerCommonStorage(modIdentifier("common"), FactoryCommonOptions.COMMON_STORAGE);
         FactoryEvent.registerPayload(r->{
             r.register( false, FactoryAPICommand.UIDefinitionPayload.ID);
             r.register( false, HelloPayload.ID_S2C);
@@ -181,23 +181,39 @@ public class FactoryAPI {
         //?}
     }
 
-    public static net.minecraft.resources.ResourceLocation createLocation(String namespace, String path){
-        return net.minecraft.resources.ResourceLocation.tryBuild(namespace,path);
+    public static net.minecraft.resources.ResourceLocation identifier(String namespace, String path) {
+        return net.minecraft.resources.ResourceLocation.tryBuild(namespace, path);
     }
 
-    public static net.minecraft.resources.ResourceLocation createLocation(String location){
-        return net.minecraft.resources.ResourceLocation.tryParse(location);
+    public static net.minecraft.resources.ResourceLocation identifier(String id) {
+        return net.minecraft.resources.ResourceLocation.tryParse(id);
     }
 
-    public static net.minecraft.resources.ResourceLocation createModLocation(String path){
-        return createLocation(MOD_ID,path);
+    public static net.minecraft.resources.ResourceLocation modIdentifier(String path) {
+        return identifier(MOD_ID, path);
     }
 
-    public static net.minecraft.resources.ResourceLocation createVanillaLocation(String path){
+    public static net.minecraft.resources.ResourceLocation vanillaIdentifier(String path) {
         //? if <1.20.5 {
         return new net.minecraft.resources.ResourceLocation(path);
         //?} else
         //return net.minecraft.resources.ResourceLocation.withDefaultNamespace(path);
+    }
+
+    public static net.minecraft.resources.ResourceLocation createLocation(String namespace, String path) {
+        return identifier(namespace, path);
+    }
+
+    public static net.minecraft.resources.ResourceLocation createLocation(String location) {
+        return identifier(location);
+    }
+
+    public static net.minecraft.resources.ResourceLocation createModLocation(String path) {
+        return modIdentifier(path);
+    }
+
+    public static net.minecraft.resources.ResourceLocation createVanillaLocation(String path) {
+        return vanillaIdentifier(path);
     }
 
     public static Loader getLoader() {
@@ -234,11 +250,11 @@ public class FactoryAPI {
     public enum Loader {
         FABRIC,FORGE,NEOFORGE;
 
-        public boolean isForgeLike(){
+        public boolean isForgeLike() {
             return this == FORGE || this == NEOFORGE;
         }
 
-        public boolean isFabric(){
+        public boolean isFabric() {
             return this == FABRIC;
         }
     }
@@ -263,7 +279,7 @@ public class FactoryAPI {
         /*throw new AssertionError();*/
     }
 
-    public static <T> Field getAccessibleField(Class<T> fieldClass, String field){
+    public static <T> Field getAccessibleField(Class<T> fieldClass, String field) {
         try {
             Field f = fieldClass.getDeclaredField(field);
             f.setAccessible(true);
@@ -273,7 +289,7 @@ public class FactoryAPI {
         }
     }
 
-    public static <T> Map<String, Field> getAccessibleFieldsMap(Class<T> fieldsClass, String... fields){
+    public static <T> Map<String, Field> getAccessibleFieldsMap(Class<T> fieldsClass, String... fields) {
         Map<String,Field> map = new HashMap<>();
         for (String s : fields) {
             map.put(s, getAccessibleField(fieldsClass, s));

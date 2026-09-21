@@ -63,7 +63,7 @@ public class StackIngredient extends Ingredient implements FactoryIngredient {
     //? if >=1.20.5 {
     /*public static final StreamCodec<RegistryFriendlyByteBuf, StackIngredient> STREAM_CODEC = ByteBufCodecs.fromCodecWithRegistries(CODEC.codec());
     *///?}
-    public static final CommonNetwork.Identifier<StackIngredient> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("stack_ingredient"),StackIngredient::decode);
+    public static final CommonNetwork.Identifier<StackIngredient> ID = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("stack_ingredient"),StackIngredient::decode);
     private final HolderSet<Item> values;
     //? if >=1.20.5 {
     /*private final /^? if >1.21.4 {^//^DataComponentExactPredicate^//^?} else {^/DataComponentPredicate/^?}^/ components;

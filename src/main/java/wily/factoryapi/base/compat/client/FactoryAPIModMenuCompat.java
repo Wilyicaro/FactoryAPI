@@ -26,7 +26,7 @@ public class FactoryAPIModMenuCompat implements ModMenuApi {
     }
 
     public static void init(){
-        UIDefinitionManager.registerDefaultScreen(FactoryAPI.createLocation(ModMenu.MOD_ID, "mods"), ModsScreen::new);
+        UIDefinitionManager.registerDefaultScreen(FactoryAPI.identifier(ModMenu.MOD_ID, "mods"), ModsScreen::new);
     }
 }
 //?}

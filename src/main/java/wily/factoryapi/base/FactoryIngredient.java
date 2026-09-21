@@ -22,7 +22,7 @@ public interface FactoryIngredient extends Predicate<ItemStack>,CommonNetwork.Pa
     //? if >=1.20.5 {
     /*StreamCodec<RegistryFriendlyByteBuf,FactoryIngredient> CODEC = StreamCodec.of((b,i)-> encode(()->b,i), b-> decode(()->b));
     *///?}
-    CommonNetwork.Identifier<FactoryIngredient> DEFAULT_ID = CommonNetwork.Identifier.create(FactoryAPI.createVanillaLocation("ingredient"),FactoryIngredient::decodeDefaultIngredient);
+    CommonNetwork.Identifier<FactoryIngredient> DEFAULT_ID = CommonNetwork.Identifier.create(FactoryAPI.vanillaIdentifier("ingredient"),FactoryIngredient::decodeDefaultIngredient);
 
     static void init() {
         register(StackIngredient.ID);

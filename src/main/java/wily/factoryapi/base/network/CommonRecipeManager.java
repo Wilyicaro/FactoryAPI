@@ -83,7 +83,7 @@ public class CommonRecipeManager {
     }
 
     public record ClientPayload(Map<RecipeType<?>,Map<net.minecraft.resources.ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
-        public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("send_client_recipes"), ClientPayload::new);
+        public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("send_client_recipes"), ClientPayload::new);
         private static final ClientPayload instance = new ClientPayload(new HashMap<>());
         //? if >=26.3 {
         /^private static final StreamCodec<RegistryFriendlyByteBuf, Map<Identifier, RecipeHolder<?>>> IDENTIFIER_RECIPE_HOLDER_MAP_STREAM_CODEC = ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, RecipeHolder.STREAM_CODEC);

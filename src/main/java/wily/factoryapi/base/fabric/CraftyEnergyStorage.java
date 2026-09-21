@@ -10,9 +10,9 @@ import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.base.ICraftyEnergyStorage;
 
 public final class CraftyEnergyStorage {
-    public static final BlockApiLookup<ICraftyEnergyStorage, Direction> SIDED = BlockApiLookup.get(FactoryAPI.createModLocation("side_crafty_energy"), ICraftyEnergyStorage.class, Direction.class);
+    public static final BlockApiLookup<ICraftyEnergyStorage, Direction> SIDED = BlockApiLookup.get(FactoryAPI.modIdentifier("side_crafty_energy"), ICraftyEnergyStorage.class, Direction.class);
 
-    public static final ItemApiLookup<ICraftyEnergyStorage, ContainerItemContext> ITEM = ItemApiLookup.get(FactoryAPI.createModLocation("item_crafty_energy"), ICraftyEnergyStorage.class, ContainerItemContext.class);
+    public static final ItemApiLookup<ICraftyEnergyStorage, ContainerItemContext> ITEM = ItemApiLookup.get(FactoryAPI.modIdentifier("item_crafty_energy"), ICraftyEnergyStorage.class, ContainerItemContext.class);
 
 }
 //?}

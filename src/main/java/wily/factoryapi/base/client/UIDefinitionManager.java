@@ -131,7 +131,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                     put("book_view_screen", BookViewScreen.class).
                     /*? if >=1.21.6 {*//*put("book_sign_screen", BookSignScreen.class).*//*?}*/
                     put("gui", Gui.class).
-                    mapKeys(FactoryAPI::createVanillaLocation).
+                    mapKeys(FactoryAPI::vanillaIdentifier).
                     build();
     public static final ListMap<net.minecraft.resources.ResourceLocation, Function<Screen, Screen>> DEFAULT_SCREENS_MAP = new ListMap.Builder<String, Function<Screen, Screen>>().put("title", s -> new TitleScreen()).put("options", s -> new OptionsScreen(s, Minecraft.getInstance().options/*? if >=26.1 && <26.3 {*//*, Minecraft.getInstance().level != null*//*?}*/)).put("language_select", s -> new LanguageSelectScreen(s, Minecraft.getInstance().options, Minecraft.getInstance().getLanguageManager())).
             put("video_settings", s -> new VideoSettingsScreen(s,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).
@@ -141,7 +141,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
             put("mouse_settings", s -> new MouseSettingsScreen(s, Minecraft.getInstance().options)).put("key_binds", s -> new KeyBindsScreen(s, Minecraft.getInstance().options)).
             put("chat_options", s -> new ChatOptionsScreen(s, Minecraft.getInstance().options)).put("accessibility_options", s -> new AccessibilityOptionsScreen(s, Minecraft.getInstance().options)).
             put("credits_and_attribution", CreditsAndAttributionScreen::new).put("select_world", SelectWorldScreen::new).
-            mapKeys(FactoryAPI::createVanillaLocation).
+            mapKeys(FactoryAPI::vanillaIdentifier).
             build();
 
 
@@ -150,7 +150,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public static void registerNamedUITarget(String path, Class<?> uiClass) {
-        registerNamedUITarget(FactoryAPI.createVanillaLocation(path), uiClass);
+        registerNamedUITarget(FactoryAPI.vanillaIdentifier(path), uiClass);
     }
 
     public static void registerDefaultScreen(net.minecraft.resources.ResourceLocation id, Function<Screen, Screen> defaultScreen) {
@@ -158,7 +158,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public static void registerDefaultScreen(String path, Function<Screen, Screen> defaultScreen) {
-        registerDefaultScreen(FactoryAPI.createVanillaLocation(path), defaultScreen);
+        registerDefaultScreen(FactoryAPI.vanillaIdentifier(path), defaultScreen);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public interface WidgetAction<P, W extends AbstractWidget> {
-        ListMap<net.minecraft.resources.ResourceLocation, WidgetAction<?, AbstractWidget>> map = new ListMap.Builder<String, WidgetAction<?, AbstractWidget>>().put("open_default_screen", create(net.minecraft.resources.ResourceLocation.CODEC, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(DEFAULT_SCREENS_MAP.getOrDefault(s, s1 -> null).apply(a.getScreen())))).put("open_config_screen", create(Codec.STRING, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(FactoryAPIClient.getConfigScreen(FactoryAPIPlatform.getModInfo(s), a.getScreen())))).put("reload_ui", create(Codec.EMPTY.codec(), (s) -> (a, w, t) -> a.reloadUI())).put("run_command", createRunCommand(s -> true)).put("run_windows_command", createRunCommand(s -> Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command", createRunCommand(s -> Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command", createRunCommand(s -> Util.getPlatform() == Util.OS.OSX)).put("toggle_datapacks", createToggleDatapacks()).mapKeys(FactoryAPI::createVanillaLocation).build();
+        ListMap<net.minecraft.resources.ResourceLocation, WidgetAction<?, AbstractWidget>> map = new ListMap.Builder<String, WidgetAction<?, AbstractWidget>>().put("open_default_screen", create(net.minecraft.resources.ResourceLocation.CODEC, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(DEFAULT_SCREENS_MAP.getOrDefault(s, s1 -> null).apply(a.getScreen())))).put("open_config_screen", create(Codec.STRING, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(FactoryAPIClient.getConfigScreen(FactoryAPIPlatform.getModInfo(s), a.getScreen())))).put("reload_ui", create(Codec.EMPTY.codec(), (s) -> (a, w, t) -> a.reloadUI())).put("run_command", createRunCommand(s -> true)).put("run_windows_command", createRunCommand(s -> Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command", createRunCommand(s -> Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command", createRunCommand(s -> Util.getPlatform() == Util.OS.OSX)).put("toggle_datapacks", createToggleDatapacks()).mapKeys(FactoryAPI::vanillaIdentifier).build();
         Codec<WidgetAction<?, AbstractWidget>> CODEC = map.createCodec(net.minecraft.resources.ResourceLocation.CODEC);
 
         Codec<P> getCodec();
@@ -645,7 +645,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static ElementType registerConditional(String path, ElementType type) {
-            return register(FactoryAPI.createVanillaLocation(path), createConditional(type));
+            return register(FactoryAPI.vanillaIdentifier(path), createConditional(type));
         }
 
         static <T> ElementType registerCodec(String path, Codec<T> codec) {
@@ -653,7 +653,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static ElementType register(String path, ElementType type) {
-            return register(FactoryAPI.createVanillaLocation(path), type);
+            return register(FactoryAPI.vanillaIdentifier(path), type);
         }
 
         static ElementType register(net.minecraft.resources.ResourceLocation id, ElementType type) {

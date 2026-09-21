@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public record CommonConfigSyncPayload(CommonNetwork.Identifier<CommonConfigSyncPayload> identifier, net.minecraft.resources.ResourceLocation commonConfigStorage, CompoundTag configTag) implements CommonNetwork.Payload {
-    public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_S2C = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("common_config_sync_s2c"),CommonConfigSyncPayload::createS2C);
-    public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_C2S = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("common_config_sync_c2s"),CommonConfigSyncPayload::createC2S);
+    public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_S2C = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("common_config_sync_s2c"),CommonConfigSyncPayload::createS2C);
+    public static final CommonNetwork.Identifier<CommonConfigSyncPayload> ID_C2S = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("common_config_sync_c2s"),CommonConfigSyncPayload::createC2S);
 
     public static CommonConfigSyncPayload of(CommonNetwork.Identifier<CommonConfigSyncPayload> identifier, FactoryConfig.StorageHandler handler) {
         return new CommonConfigSyncPayload(identifier, FactoryConfig.COMMON_STORAGES.getKey(handler), (CompoundTag)handler.encodeConfigs(NbtOps.INSTANCE));

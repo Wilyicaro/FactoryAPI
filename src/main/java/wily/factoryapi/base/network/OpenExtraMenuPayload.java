@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public record OpenExtraMenuPayload(int menuId, MenuType<?> menuType, Component component, CommonNetwork.PlayBuf extra) implements CommonNetwork.Payload {
-    public static final CommonNetwork.Identifier<OpenExtraMenuPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("open_extra_menu"), OpenExtraMenuPayload::new);
+    public static final CommonNetwork.Identifier<OpenExtraMenuPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("open_extra_menu"), OpenExtraMenuPayload::new);
 
     public OpenExtraMenuPayload(CommonNetwork.PlayBuf buf) {
         this(buf.get().readVarInt(), BuiltInRegistries.MENU.byId(buf.get().readVarInt()), CommonNetwork.decodeComponent(buf), CommonNetwork.decodeBuf(buf));

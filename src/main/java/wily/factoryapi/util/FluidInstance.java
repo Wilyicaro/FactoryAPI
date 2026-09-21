@@ -177,7 +177,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         return CODEC.parse(NbtOps.INSTANCE,tag).result().orElseGet(()->{
             Optional<String> fluidId = /*? if fabric {*/CompoundTagUtil.getCompoundTag(tag,"fluidVariant").flatMap(c->CompoundTagUtil.getString(c,"fluid"))/*?} else {*//*CompoundTagUtil.getString(tag, "FluidName")*//*?}*/;
             if (fluidId.isPresent()){
-                Fluid fluid = FactoryAPIPlatform.getRegistryValue(FactoryAPI.createLocation(fluidId.get()), BuiltInRegistries.FLUID);
+                Fluid fluid = FactoryAPIPlatform.getRegistryValue(FactoryAPI.identifier(fluidId.get()), BuiltInRegistries.FLUID);
                 if (fluid == Fluids.EMPTY) return FluidInstance.empty();
                 return FluidInstance.create(fluid,getMilliBucketsFluidAmount(CompoundTagUtil.getLong(tag,/*? if fabric {*/"amount"/*?} else {*//*"Amount"*//*?}*/).orElse(0L)));
             }

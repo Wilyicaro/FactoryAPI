@@ -36,11 +36,11 @@ import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.base.ICraftyEnergyStorage;
 
 public class FactoryCapabilities {
-    public static BlockCapability<ICraftyEnergyStorage, Direction> CRAFTY_ENERGY = BlockCapability.createSided(FactoryAPI.createModLocation("crafty_energy"), ICraftyEnergyStorage.class);
+    public static BlockCapability<ICraftyEnergyStorage, Direction> CRAFTY_ENERGY = BlockCapability.createSided(FactoryAPI.modIdentifier("crafty_energy"), ICraftyEnergyStorage.class);
     //? if >=1.21.9 {
-    /^public static ItemCapability<ICraftyEnergyStorage, ItemAccess> CRAFTY_ENERGY_ITEM = ItemCapability.create(FactoryAPI.createModLocation("crafty_energy_item"), ICraftyEnergyStorage.class, ItemAccess.class);
+    /^public static ItemCapability<ICraftyEnergyStorage, ItemAccess> CRAFTY_ENERGY_ITEM = ItemCapability.create(FactoryAPI.modIdentifier("crafty_energy_item"), ICraftyEnergyStorage.class, ItemAccess.class);
     ^///?} else {
-    public static ItemCapability<ICraftyEnergyStorage,Void> CRAFTY_ENERGY_ITEM = ItemCapability.createVoid(FactoryAPI.createModLocation("crafty_energy_item"), ICraftyEnergyStorage.class);
+    public static ItemCapability<ICraftyEnergyStorage,Void> CRAFTY_ENERGY_ITEM = ItemCapability.createVoid(FactoryAPI.modIdentifier("crafty_energy_item"), ICraftyEnergyStorage.class);
     //?}
 
 }

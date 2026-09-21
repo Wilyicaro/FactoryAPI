@@ -12,7 +12,7 @@ public record FactoryStorage<T extends IPlatformHandler>(Class<T> type) {
         return storage;
     }
     public static <T extends FactoryStorage<?>> T registerDefault(String name, T storage){
-        return register(FactoryAPI.createModLocation(name),storage);
+        return register(FactoryAPI.modIdentifier(name),storage);
     }
 
     public static final FactoryStorage<IPlatformFluidHandler> FLUID = registerDefault("fluid_storage", new FactoryStorage<>(IPlatformFluidHandler.class));

@@ -254,7 +254,7 @@ public class FactoryEvent<T> {
 
     public static void registerReloadListener(PackType type, PreparableReloadListener reloadListener) {
         //? if fabric {
-        net.minecraft.resources.ResourceLocation location = FactoryAPI.createLocation(reloadListener.getName());
+        net.minecraft.resources.ResourceLocation location = FactoryAPI.identifier(reloadListener.getName());
         ResourceManagerHelper.get(type).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
             public net.minecraft.resources.ResourceLocation getFabricId() {
@@ -314,7 +314,7 @@ public class FactoryEvent<T> {
             register("resourcepacks/"+location.getPath(), location, enabledByDefault);
         }
         default void registerResourcePack(String pathName, boolean enabledByDefault) {
-            registerResourcePack(FactoryAPI.createVanillaLocation(pathName),enabledByDefault);
+            registerResourcePack(FactoryAPI.vanillaIdentifier(pathName),enabledByDefault);
         }
     }
 

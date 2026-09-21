@@ -466,7 +466,7 @@ public interface FactoryAPIPlatform {
             }
             @Override
             public <V extends T> Holder<V> add(String name, Function<net.minecraft.resources.ResourceLocation, V> supplier) {
-                net.minecraft.resources.ResourceLocation id = FactoryAPI.createLocation(getNamespace(), name);
+                net.minecraft.resources.ResourceLocation id = FactoryAPI.identifier(getNamespace(), name);
                 Holder<V> h = new Holder<>() {
                     V obj;
                     @Override

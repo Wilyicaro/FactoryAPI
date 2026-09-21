@@ -158,8 +158,8 @@ import java.util.function.Supplier;
 
 
 public class FactoryAPIClient {
-    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS = FactoryAPI.createVanillaLocation("textures/atlas/blocks.png");
-    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS_ID = FactoryAPI.createVanillaLocation("blocks");
+    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS = FactoryAPI.vanillaIdentifier("textures/atlas/blocks.png");
+    public static final net.minecraft.resources.ResourceLocation BLOCK_ATLAS_ID = FactoryAPI.vanillaIdentifier("blocks");
     public static final SecureExecutor SECURE_EXECUTOR = new SecureExecutor() {
         @Override
         public boolean isSecure() {
