@@ -3,17 +3,17 @@ package wily.factoryapi.base.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //? if >=1.21.9 {
-/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-*///?}
+//?}
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.base.client.drawable.AbstractDrawableButton;
 import wily.factoryapi.base.client.drawable.DrawableStatic;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -31,7 +31,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     public boolean dragging = false;
 
-    public net.minecraft.resources.ResourceLocation backgroundSprite;
+    public net.minecraft.resources.Identifier backgroundSprite;
 
     protected final Font font = Minecraft.getInstance().font;
 
@@ -75,7 +75,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     }
 
     //? if >=1.21.9 {
-    /*@Override
+    @Override
     public boolean keyPressed(KeyEvent keyEvent) {
         if (keyEvent.isEscape() && isVisible()) {
             onClose();
@@ -84,8 +84,8 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
         return false;
     }
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public boolean keyPressed(int i, int j, int k) {
         if (i == 256 && isVisible()) {
             onClose();
@@ -94,23 +94,23 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
         return false;
     }
-    //?}
+    *///?}
 
-    protected void renderBg(net.minecraft.client.gui.GuiGraphics graphics, int i, int j, float f) {
+    protected void renderBg(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int i, int j, float f) {
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.enableBlend();
         FactoryScreenUtil.enableDepthTest();
         //? if <1.21.6
-        RenderSystem.setShaderColor(1,1,1,alpha);
+        //RenderSystem.setShaderColor(1,1,1,alpha);
         if (backgroundSprite != null) FactoryGuiGraphics.of(graphics).blitSprite(backgroundSprite, getX(), getY(), width, height);
         else drawable.draw(graphics,getX(),getY());
         //? if >=26.1 {
-        /*IWindowWidget.super.extractRenderState(graphics, i, j, f);
-        *///?} else {
-        IWindowWidget.super.render(graphics, i, j, f);
-        //?}
+        IWindowWidget.super.extractRenderState(graphics, i, j, f);
+        //?} else {
+        /*IWindowWidget.super.render(graphics, i, j, f);
+        *///?}
         //? if <1.21.6
-        RenderSystem.setShaderColor(1,1,1,1);
+        //RenderSystem.setShaderColor(1,1,1,1);
         FactoryScreenUtil.disableBlend();
         FactoryScreenUtil.disableDepthTest();
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
@@ -129,16 +129,16 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
 
     //? if >=26.1 {
 
-    /*@Override
+    @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (!isVisible()) return;
         renderBg(graphics, mouseX, mouseY, a);
         renderToolTip(graphics, mouseX, mouseY);
     }
 
-    *///?} else {
-    @Override
-    protected void renderWidget(net.minecraft.client.gui.GuiGraphics graphics, int i, int j, float f) {
+    //?} else {
+    /*@Override
+    protected void renderWidget(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int i, int j, float f) {
         if (!isVisible()) return;
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryGuiMatrixStack.of(graphics.pose()).translate(0D,0D,  getBlitOffset());
@@ -146,13 +146,13 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         renderToolTip(graphics, i, j);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
     }
-    //?}
+    *///?}
 
     public float getBlitOffset(){
         return 450F;
     }
 
-    public void renderToolTip(net.minecraft.client.gui.GuiGraphics graphics, int i, int j) {
+    public void renderToolTip(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int i, int j) {
 
     }
 
@@ -172,7 +172,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
     }
 
     //? if >=1.21.9 {
-    /*@Override
+    @Override
     public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
         return handleClick(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button()) || IWindowWidget.super.mouseClicked(mouseButtonEvent, bl);
     }
@@ -189,8 +189,8 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         return handleDragging(mouseButtonEvent.x(), mouseButtonEvent.y(), mouseButtonEvent.button(), d, e) ;
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public boolean mouseClicked(double d, double e, int i) {
         return handleClick(d, e, i) || IWindowWidget.super.mouseClicked(d, e, i);
     }
@@ -206,7 +206,7 @@ public abstract class FactoryScreenWindow<T extends AbstractContainerScreen<?>> 
         if (IWindowWidget.super.mouseDragged(x, y, i, dx, dy)) return true;
         return handleDragging(x, y, i, dx, dy);
     }
-    //?}
+    *///?}
 
     public boolean handleClick(double d, double e, int i) {
         if (!isVisible()) return false;

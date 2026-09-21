@@ -1,25 +1,25 @@
 //? if <26.3 {
-package wily.factoryapi.base;
+/*package wily.factoryapi.base;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 //? fabric {
 //?} else if forge {
-/*import net.minecraftforge.common.ForgeHooks;
+/^import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 //? if <1.21.6 {
 import net.minecraftforge.eventbus.api.EventPriority;
 //?}
-*///?} else if neoforge {
-/*import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
+^///?} else if neoforge {
+/^import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.bus.api.EventPriority;
-*///?}
+^///?}
 //? if >=1.21.2 {
-/*import wily.factoryapi.mixin.base.FuelValuesAccessor;
+import wily.factoryapi.mixin.base.FuelValuesAccessor;
 import net.minecraft.world.level.block.entity.FuelValues;
-*///?}
+//?}
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.FactoryAPIPlatform;
@@ -34,44 +34,44 @@ public class FuelManager {
         return getBurnTime(item.getDefaultInstance());
     }
 
-    /**
+    /^*
      * The vanilla-registered fuels are used by Fabric, but not by Forge/NeoForge, as it allows itemstack-based fuels.
      * @return Map of the vanilla-registered fuels
-     * */
+     * ^/
     public static Map<Item, Integer> getMap(){
         //? if <1.21.2 {
-        return AbstractFurnaceBlockEntity.getFuel();
-        //?} else {
-        /*FuelValues fuelValues = getFuelValues();
+        /^return AbstractFurnaceBlockEntity.getFuel();
+        ^///?} else {
+        FuelValues fuelValues = getFuelValues();
         return fuelValues == null ? Collections.emptyMap() : ((FuelValuesAccessor)fuelValues).getValues();
-        *///?}
+        //?}
     }
 
     //? if >=1.21.2 {
-    /*public static FuelValues getFuelValues(){
+    public static FuelValues getFuelValues(){
         return FactoryAPI.currentServer == null ? FactoryAPIClient.hasLevel() ? FactoryAPIClient.getLevel().fuelValues() : null : FactoryAPI.currentServer.fuelValues();
     }
-    *///?}
+    //?}
 
     public static int getBurnTime(ItemStack stack){
         if (stack.isEmpty()) return 0;
         //? if forge {
-        /*//? if <1.21.2 {
+        /^//? if <1.21.2 {
         return ForgeHooks.getBurnTime(stack, null);
         //?} else {
-        /^FuelValues fuelValues = getFuelValues();
+        /^¹FuelValues fuelValues = getFuelValues();
         int ret = stack.getBurnTime(null);
         return ForgeEventFactory.getItemBurnTime(stack, ret == -1 ? fuelValues == null ? 0 : fuelValues.burnDuration(stack) : ret, null);
-        ^///?}
-        *///?} else if neoforge {
-        /*return stack.getBurnTime(null/^? if >1.21.2 {^//^, getFuelValues()^//^?}^/);
-        *///?} else {
+        ¹^///?}
+        ^///?} else if neoforge {
+        /^return stack.getBurnTime(null/^¹? if >1.21.2 {¹^//^¹, getFuelValues()¹^//^¹?}¹^/);
+        ^///?} else {
         //? if <1.21.2 {
-        return Objects.requireNonNullElse(net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.get(stack.getItem()), 0);
-        //?} else {
-        /*FuelValues fuelValues = getFuelValues();
+        /^return Objects.requireNonNullElse(net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.get(stack.getItem()), 0);
+        ^///?} else {
+        FuelValues fuelValues = getFuelValues();
         return fuelValues == null ? 0 : fuelValues.burnDuration(stack);
-        *///?}
+        //?}
         //?}
     }
 
@@ -86,22 +86,22 @@ public class FuelManager {
     public static void add(Item item, int burnTime){
         //? if fabric {
         //? if <1.21.2 {
-        net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.add(item, burnTime);
-        //?} else if >=26.1 {
-        /*net.fabricmc.fabric.api.registry.FuelValueEvents.BUILD.register((call, c) -> call.add(item, burnTime));
-        *///?} else {
-        /*net.fabricmc.fabric.api.registry.FuelRegistryEvents.BUILD.register((call, c)->call.add(item, burnTime));
-        *///?}
+        /^net.fabricmc.fabric.api.registry.FuelRegistry.INSTANCE.add(item, burnTime);
+        ^///?} else if >=26.1 {
+        net.fabricmc.fabric.api.registry.FuelValueEvents.BUILD.register((call, c) -> call.add(item, burnTime));
+        //?} else {
+        /^net.fabricmc.fabric.api.registry.FuelRegistryEvents.BUILD.register((call, c)->call.add(item, burnTime));
+        ^///?}
         //?} elif (forge && <1.21.6) || neoforge {
-        /*FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, FurnaceFuelBurnTimeEvent.class, e-> {
+        /^FactoryAPIPlatform.getForgeEventBus().addListener(EventPriority.NORMAL,false, FurnaceFuelBurnTimeEvent.class, e-> {
             if (e.getItemStack().is(item)) e.setBurnTime(burnTime);
         });
-        *///?} elif forge {
-        /*FurnaceFuelBurnTimeEvent.BUS.addListener(e-> {
+        ^///?} elif forge {
+        /^FurnaceFuelBurnTimeEvent.BUS.addListener(e-> {
             if (e.getItemStack().is(item)) e.setBurnTime(burnTime);
         });
-        *///?} else
-        /*throw new AssertionError();*/
+        ^///?} else
+        /^throw new AssertionError();^/
     }
 }
-//?}
+*///?}

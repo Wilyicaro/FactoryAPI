@@ -4,8 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 //? if >=26.2 {
-/*import net.minecraft.client.gui.Hud;
-*///?}
+import net.minecraft.client.gui.Hud;
+//?}
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -44,14 +44,14 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
     }
 
     //? if <26.2 {
-    static UIAccessor of(Gui gui) {
+    /*static UIAccessor of(Gui gui) {
         return (UIAccessor) gui;
     }
-    //?} else {
-    /*static UIAccessor of(Hud hud) {
+    *///?} else {
+    static UIAccessor of(Hud hud) {
         return (UIAccessor) hud;
     }
-    *///?}
+    //?}
 
     @Nullable
     Screen getScreen();
@@ -81,23 +81,23 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
             putStaticElement("serverIp."+serverData.ip,true);
         Inventory inventory = minecraft.player == null ? null : minecraft.player.getInventory();
         if (inventory != null) {
-            List<ItemStack> items = inventory./*? if >1.21.4 {*//*getNonEquipmentItems()*//*?} else {*/items/*?}*/;
+            List<ItemStack> items = inventory./*? if >1.21.4 {*/getNonEquipmentItems()/*?} else {*//*items*//*?}*/;
             for (int i = 0; i < items.size(); i++) {
                 int index = i;
                 getElements().put("inventory." + index, () -> items.get(index));
             }
             //? if >1.21.4 {
-            /*Inventory.EQUIPMENT_SLOT_MAPPING.forEach((i, equipmentSlot)->{
+            Inventory.EQUIPMENT_SLOT_MAPPING.forEach((i, equipmentSlot)->{
                 if (equipmentSlot == EquipmentSlot.OFFHAND) return;
                 getElements().put("inventory.armor." + equipmentSlot.getIndex(), () -> inventory.getItem(i));
             });
-            *///?} else {
-            for (int i = 0; i < inventory.armor.size(); i++) {
+            //?} else {
+            /*for (int i = 0; i < inventory.armor.size(); i++) {
                 int index = i;
                 getElements().put("inventory.armor." + index, () -> inventory.armor.get(index));
             }
-            //?}
-            getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*//*inventory.getItem(Inventory.SLOT_OFFHAND)*//*?} else {*/inventory.offhand.get(0)/*?}*/);
+            *///?}
+            getElements().put("inventory.offhand", () -> /*? if >1.21.4 {*/inventory.getItem(Inventory.SLOT_OFFHAND)/*?} else {*//*inventory.offhand.get(0)*//*?}*/);
         }
         putSupplierComponent("username", () -> Component.literal(minecraft.getUser().getName()));
         if (getScreen() instanceof MenuAccess<?> access) {
@@ -226,23 +226,23 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).pushPose();
                 int color = getInteger(name+".renderColor", 0xFFFFFFFF);
                 //? if <1.21.6 {
-                FactoryScreenUtil.enableBlend();
+                /*FactoryScreenUtil.enableBlend();
                 FactoryGuiGraphics.of(guiGraphics).setColor(color);
-                //?} else
-                //FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);
+                *///?} else
+                FactoryGuiGraphics.of(guiGraphics).setBlitColor(color);
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).translate(getDouble(name + ".translateX", 0), getDouble(name + ".translateY", 0), getDouble(name + ".translateZ", 0));
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).scale(getFloat(name + ".scaleX", 1), getFloat(name + ".scaleY", 1), getFloat(name + ".scaleZ", 1));
                 //? if >26.1 {
-                /*renderable.extractRenderState(guiGraphics, i, j, f);
-                *///?} else {
-                renderable.render(guiGraphics, i, j, f);
-                //?}
+                renderable.extractRenderState(guiGraphics, i, j, f);
+                //?} else {
+                /*renderable.render(guiGraphics, i, j, f);
+                *///?}
                 FactoryGuiMatrixStack.of(guiGraphics.pose()).popPose();
                 FactoryScreenUtil.disableBlend();
                 //? if <1.21.6 {
-                FactoryGuiGraphics.of(guiGraphics).clearColor();
-                //?} else
-                //FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
+                /*FactoryGuiGraphics.of(guiGraphics).clearColor();
+                *///?} else
+                FactoryGuiGraphics.of(guiGraphics).clearBlitColor();
 
             }
         };
@@ -310,11 +310,11 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return getBoolean(name, false);
     }
 
-    default net.minecraft.resources.ResourceLocation getResourceLocation(String name, net.minecraft.resources.ResourceLocation defaultValue) {
-        return getElementValue(name, defaultValue, net.minecraft.resources.ResourceLocation.class);
+    default net.minecraft.resources.Identifier getResourceLocation(String name, net.minecraft.resources.Identifier defaultValue) {
+        return getElementValue(name, defaultValue, net.minecraft.resources.Identifier.class);
     }
 
-    default net.minecraft.resources.ResourceLocation getResourceLocation(String name) {
+    default net.minecraft.resources.Identifier getResourceLocation(String name) {
         return getResourceLocation(name, null);
     }
 

@@ -5,11 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 //? if >=1.20.5 {
-/*import net.minecraft.core.Holder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-*///?}
+//?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +17,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
@@ -34,18 +34,18 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 /*import net.neoforged.neoforge.fluids.FluidStack;
 *///?}
 
-public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataComponentHolder*//*?}*/ {
+public class FluidInstance /*? if >=1.20.5 && !forge {*/implements DataComponentHolder/*?}*/ {
     private final Fluid fluid;
     private int amount;
     //? if <1.20.5 || forge {
-    private CompoundTag tag;
-    //?} else
-    //private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);
+    /*private CompoundTag tag;
+    *///?} else
+    private PatchedDataComponentMap components = new PatchedDataComponentMap(PatchedDataComponentMap.EMPTY);
 
 
-    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 || forge {*/ CompoundTag/*?} else {*/ /*DataComponentPatch*//*?}*/.CODEC.fieldOf(/*? if <1.20.5 || forge {*/ "nbt"/*?} else {*/ /*"components"*//*?}*/).forGetter(FluidInstance::/*? if <1.20.5 || forge {*/ getNonNullTag/*?} else {*//*getComponentsPatch*//*?}*/)).apply(i,FluidInstance::new));
+    public static final Codec<FluidInstance> CODEC = RecordCodecBuilder.create(i-> i.group(BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(FluidInstance::getFluid), Codec.INT.fieldOf("amount").forGetter(FluidInstance::getAmount), /*? if <1.20.5 || forge {*/ /*CompoundTag*//*?} else {*/ DataComponentPatch/*?}*/.CODEC.fieldOf(/*? if <1.20.5 || forge {*/ /*"nbt"*//*?} else {*/ "components"/*?}*/).forGetter(FluidInstance::/*? if <1.20.5 || forge {*/ /*getNonNullTag*//*?} else {*/getComponentsPatch/*?}*/)).apply(i,FluidInstance::new));
     //? if >=1.20.5
-    //public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);
+    public static final StreamCodec<RegistryFriendlyByteBuf,FluidInstance> STREAM_CODEC = StreamCodec.of(FluidInstance::encode, FluidInstance::decode);
     public static final FluidInstance EMPTY = new FluidInstance(Fluids.EMPTY,0);
 
 
@@ -53,12 +53,12 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         this.fluid = fluid;
         this.amount = amount;
     }
-    public FluidInstance(Fluid fluid, int amount, /*? if <1.20.5 || forge {*/ CompoundTag tag/*?} else {*/ /*DataComponentPatch components*//*?}*/){
+    public FluidInstance(Fluid fluid, int amount, /*? if <1.20.5 || forge {*/ /*CompoundTag tag*//*?} else {*/ DataComponentPatch components/*?}*/){
         this(fluid,amount);
         //? if <1.20.5 || forge {
-        this.tag = tag.copy();
-        //?} else
-        //this.components = PatchedDataComponentMap.fromPatch(DataComponentMap.builder().build(),components);
+        /*this.tag = tag.copy();
+        *///?} else
+        this.components = PatchedDataComponentMap.fromPatch(DataComponentMap.builder().build(),components);
     }
 
     public static FluidInstance empty() {
@@ -82,12 +82,12 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
     }
 
     //? if <1.20.5 || forge {
-    public CompoundTag getNonNullTag() {
+    /*public CompoundTag getNonNullTag() {
         return getTag() == null ? new CompoundTag() : getTag();
     }
-    //?}
+    *///?}
     //? if <1.20.5 || forge {
-    public CompoundTag getTag() {
+    /*public CompoundTag getTag() {
         return tag;
     }
 
@@ -100,8 +100,8 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
             setTag(new CompoundTag());
         return tag;
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public DataComponentMap getComponents() {
         return components;
     }
@@ -126,7 +126,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
         this.components.setAll(components);
     }
 
-    *///?}
+    //?}
 
     public Fluid getFluid(){
         return fluid;
@@ -150,7 +150,7 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
 
     //? if fabric {
     public FluidVariant toVariant(){
-        return FluidVariant.of(fluid,/*? if <1.20.5 {*/ tag/*?} else {*/ /*getComponentsPatch()*//*?}*/);
+        return FluidVariant.of(fluid,/*? if <1.20.5 {*/ /*tag*//*?} else {*/ getComponentsPatch()/*?}*/);
     }
     //?} else if neoforge || forge {
     /*private FluidStack stack;
@@ -232,26 +232,26 @@ public class FluidInstance /*? if >=1.20.5 && !forge {*//*implements DataCompone
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj) || obj instanceof FluidInstance i && i.isFluidEqual(this) && i.getAmount() == getAmount() &&/*? if <1.20.5 || forge {*/  Objects.equals(tag, i.tag) /*?} else {*//*components.equals(i.components)*//*?}*/;
+        return super.equals(obj) || obj instanceof FluidInstance i && i.isFluidEqual(this) && i.getAmount() == getAmount() &&/*? if <1.20.5 || forge {*/  /*Objects.equals(tag, i.tag) *//*?} else {*/components.equals(i.components)/*?}*/;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fluid, amount, /*? if <1.20.5 || forge {*/  tag /*?} else {*//*components*//*?}*/);
+        return Objects.hash(fluid, amount, /*? if <1.20.5 || forge {*/  /*tag *//*?} else {*/components/*?}*/);
     }
 
-    public static void encode( /*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf, FluidInstance instance){
+    public static void encode( /*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/RegistryFriendlyByteBuf /*?}*/ buf, FluidInstance instance){
         buf.writeInt(instance.getAmount());
         if (instance.isEmpty()) return;
-        buf.writeResourceLocation(BuiltInRegistries.FLUID.getKey(instance.getFluid()));
+        buf.writeIdentifier(BuiltInRegistries.FLUID.getKey(instance.getFluid()));
         //? if <1.20.5 || forge {
-        buf.writeNbt(instance.getNonNullTag());
-        //?} else
-        //DataComponentPatch.STREAM_CODEC.encode(buf,instance.getComponentsPatch());
+        /*buf.writeNbt(instance.getNonNullTag());
+        *///?} else
+        DataComponentPatch.STREAM_CODEC.encode(buf,instance.getComponentsPatch());
     }
-    public static FluidInstance decode(/*? if <1.20.5 {*/FriendlyByteBuf/*?} else {*//*RegistryFriendlyByteBuf *//*?}*/ buf){
+    public static FluidInstance decode(/*? if <1.20.5 {*//*FriendlyByteBuf*//*?} else {*/RegistryFriendlyByteBuf /*?}*/ buf){
         int amount = buf.readInt();
         if (amount <= 0) return EMPTY;
-        return new FluidInstance(FactoryAPIPlatform.getRegistryValue(buf.readResourceLocation(),BuiltInRegistries.FLUID), amount, /*? if <1.20.5 || forge {*/buf.readNbt()/*?} else {*//*DataComponentPatch.STREAM_CODEC.decode(buf)*//*?}*/);
+        return new FluidInstance(FactoryAPIPlatform.getRegistryValue(buf.readIdentifier(),BuiltInRegistries.FLUID), amount, /*? if <1.20.5 || forge {*//*buf.readNbt()*//*?} else {*/DataComponentPatch.STREAM_CODEC.decode(buf)/*?}*/);
     }
 }

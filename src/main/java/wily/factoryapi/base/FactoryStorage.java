@@ -5,9 +5,9 @@ import wily.factoryapi.util.ListMap;
 
 public record FactoryStorage<T extends IPlatformHandler>(Class<T> type) {
 
-    public static final ListMap<net.minecraft.resources.ResourceLocation, FactoryStorage<?>> STORAGES = new ListMap<>();
+    public static final ListMap<net.minecraft.resources.Identifier, FactoryStorage<?>> STORAGES = new ListMap<>();
 
-    public static <T extends FactoryStorage<?>> T register(net.minecraft.resources.ResourceLocation location, T storage){
+    public static <T extends FactoryStorage<?>> T register(net.minecraft.resources.Identifier location, T storage){
         STORAGES.put(location,storage);
         return storage;
     }

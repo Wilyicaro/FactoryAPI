@@ -1,5 +1,5 @@
 //? if >=1.21.4 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.color.item.ItemTintSource;
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ItemTintSources.class)
 public interface ItemTintSourcesAccessor {
     @Accessor("ID_MAPPER")
-    static ExtraCodecs.LateBoundIdMapper<net.minecraft.resources.ResourceLocation, MapCodec<? extends ItemTintSource>> getIdMapper() {
+    static ExtraCodecs.LateBoundIdMapper<net.minecraft.resources.Identifier, MapCodec<? extends ItemTintSource>> getIdMapper() {
         return null;
     }
 }
-*///?}
+//?}

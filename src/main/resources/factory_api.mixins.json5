@@ -6,20 +6,20 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     //? if <1.21.4 {
-    "BlockEntityWithoutLevelRendererMixin",
-    //?} else {
-    /*"SpecialModelRenderersAccessor",
+    /*"BlockEntityWithoutLevelRendererMixin",
+    *///?} else {
+    "SpecialModelRenderersAccessor",
     "ItemModelsAccessor",
     "ItemTintSourcesAccessor",
-    *///?}
+    //?}
     //? if fabric {
     "fabric.LevelRendererMixin",
     "fabric.ModelBlockRendererMixin",
     //?}
     //? if >=1.21.2 {
-    /*"EntityRenderStateMixin",
+    "EntityRenderStateMixin",
     "EntityRendererMixin",
-    *///?}
+    //?}
     //? if >1.20.2 {
     "RealmsAvailabilityAccessor",
     //?}
@@ -27,15 +27,15 @@
     /*"forge.ForgeGuiMixin",
     *///?}
     //? if >=1.21.5 {
-    /*"RenderPipelinesAccessor",
-    *///?}
+    "RenderPipelinesAccessor",
+    //?}
     //? if >=1.21.9 {
-    /*"BakedSheetGlyphAccessor",
-    *///?}
+    "BakedSheetGlyphAccessor",
+    //?}
     "SpriteLoaderMixin",
     //? if >=26.2 {
-    /*"ActualGuiMixin",
-    *///?}
+    "ActualGuiMixin",
+    //?}
     "AbstractContainerScreenMixin",
     "AbstractWidgetMixin",
     "GuiGraphicsMixin",
@@ -71,8 +71,8 @@
     "neoforge.ItemCapabilityMixin",
     *///?}
     //? if <1.21.2 {
-    "RecipeManagerAccessor",
-    //?} else if <26.3 {
+    /*"RecipeManagerAccessor",
+    *///?} else if <26.3 {
     /*"FuelValuesAccessor",
     *///?}
     "IngredientMixin",

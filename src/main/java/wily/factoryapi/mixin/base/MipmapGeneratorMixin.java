@@ -12,12 +12,12 @@ import wily.factoryapi.base.client.FactoryOptions;
 @Mixin(MipmapGenerator.class)
 public class MipmapGeneratorMixin {
     //? if <1.21.11 {
-    @Inject(method = "alphaBlend", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "alphaBlend", at = @At("HEAD"), cancellable = true)
     private static void alphaBlend(int i, int j, int k, int l, boolean bl, CallbackInfoReturnable<Integer> cir) {
         if (FactoryOptions.NEAREST_MIPMAP_SCALING.get()) cir.setReturnValue(l);
     }
-    //?} else {
-    /*@WrapOperation(method = "generateMipLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ARGB;meanLinear(IIII)I"))
+    *///?} else {
+    @WrapOperation(method = "generateMipLevels", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ARGB;meanLinear(IIII)I"))
     private static int alphaBlend(int i, int j, int k, int l, Operation<Integer> original) {
         if (FactoryOptions.NEAREST_MIPMAP_SCALING.get()) return l;
         return original.call(i, j, k, l);
@@ -26,5 +26,5 @@ public class MipmapGeneratorMixin {
     private static void darkenedAlphaBlend(int i, int j, int k, int l, CallbackInfoReturnable<Integer> cir) {
         if (FactoryOptions.NEAREST_MIPMAP_SCALING.get()) cir.setReturnValue(l);
     }
-    *///?}
+    //?}
 }

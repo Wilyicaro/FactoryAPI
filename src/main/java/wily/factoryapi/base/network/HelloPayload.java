@@ -2,10 +2,10 @@ package wily.factoryapi.base.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 //? if >=26.3 {
-/*import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-*///?}
+//?}
 import net.minecraft.server.level.ServerPlayer;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
@@ -15,9 +15,9 @@ import wily.factoryapi.util.ModInfo;
 
 import java.util.Collection;
 //? if >=26.3 {
-/*import java.util.List;
+import java.util.List;
 import java.util.function.Function;
-*///?}
+//?}
 import java.util.stream.Collectors;
 
 public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<HelloPayload> identifier) implements CommonNetwork.Payload {
@@ -25,15 +25,15 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
     public static final CommonNetwork.Identifier<HelloPayload> ID_C2S = CommonNetwork.Identifier.create(FactoryAPI.modIdentifier("hello_c2s"),HelloPayload::createC2S);
 
     //? if >=26.3 {
-    /*private static final StreamCodec<RegistryFriendlyByteBuf, Collection<String>> MOD_IDS_STREAM_CODEC = ByteBufCodecs.<RegistryFriendlyByteBuf, String>list().apply(ByteBufCodecs.STRING_UTF8.cast()).map(Function.identity(), List::copyOf);
-    *///?}
+    private static final StreamCodec<RegistryFriendlyByteBuf, Collection<String>> MOD_IDS_STREAM_CODEC = ByteBufCodecs.<RegistryFriendlyByteBuf, String>list().apply(ByteBufCodecs.STRING_UTF8.cast()).map(Function.identity(), List::copyOf);
+    //?}
 
     public HelloPayload(CommonNetwork.PlayBuf playBuf, CommonNetwork.Identifier<HelloPayload> identifier) {
         //? if <26.3 {
-        this(playBuf.get().readList(FriendlyByteBuf::readUtf), identifier);
-        //?} else {
-        /*this(MOD_IDS_STREAM_CODEC.decode(playBuf.get()), identifier);
-        *///?}
+        /*this(playBuf.get().readList(FriendlyByteBuf::readUtf), identifier);
+        *///?} else {
+        this(MOD_IDS_STREAM_CODEC.decode(playBuf.get()), identifier);
+        //?}
     }
 
     public static HelloPayload createS2C(CommonNetwork.PlayBuf playBuf){
@@ -60,16 +60,16 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
         CommonNetwork.sendToPlayer(serverPlayer, new HelloPayload(FactoryAPIPlatform.getVisibleModsStream().map(ModInfo::getId).collect(Collectors.toSet()), HelloPayload.ID_S2C), true);
         FactoryConfig.COMMON_STORAGES.values().forEach(handler -> CommonNetwork.sendToPlayer(serverPlayer, CommonConfigSyncPayload.of(CommonConfigSyncPayload.ID_S2C, handler), true));
         //? if >=1.21.2 {
-        /*CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
-         *///?}
+        CommonNetwork.sendToPlayer(serverPlayer, CommonRecipeManager.ClientPayload.getInstance(), true);
+         //?}
     }
 
     @Override
     public void encode(CommonNetwork.PlayBuf buf) {
         //? if <26.3 {
-        buf.get().writeCollection(modIds, FriendlyByteBuf::writeUtf);
-        //?} else {
-        /*MOD_IDS_STREAM_CODEC.encode(buf.get(), modIds);
-        *///?}
+        /*buf.get().writeCollection(modIds, FriendlyByteBuf::writeUtf);
+        *///?} else {
+        MOD_IDS_STREAM_CODEC.encode(buf.get(), modIds);
+        //?}
     }
 }

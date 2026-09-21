@@ -1,7 +1,7 @@
 package wily.factoryapi.base.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 
 public interface FactoryGuiMatrixStack {
@@ -44,7 +44,7 @@ public interface FactoryGuiMatrixStack {
 		};
 	}
 
-	static FactoryGuiMatrixStack of(net.minecraft.client.gui.GuiGraphics graphics) {
+	static FactoryGuiMatrixStack of(net.minecraft.client.gui.GuiGraphicsExtractor graphics) {
 		return new FactoryGuiMatrixStack() {
 			private FactoryGuiMatrixStack delegate = of(graphics.pose());
 			@Override

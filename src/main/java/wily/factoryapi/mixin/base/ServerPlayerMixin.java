@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 public abstract class ServerPlayerMixin extends Player implements FactoryExtraMenuSupplier.PrepareMenu {
 
     public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, /*? if <1.21.6 {*/ blockPos, f,/*?}*/ gameProfile);
+        super(level, /*? if <1.21.6 {*/ /*blockPos, f,*//*?}*/ gameProfile);
     }
 
     @Shadow protected abstract void nextContainerCounter();
@@ -45,10 +45,10 @@ public abstract class ServerPlayerMixin extends Player implements FactoryExtraMe
             if (abstractContainerMenu == null) {
                 if (this.isSpectator()) {
                     //? if >=26.1 {
-                    /*this.sendOverlayMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED));
-                    *///?} else {
-                    this.displayClientMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
-                    //?}
+                    this.sendOverlayMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED));
+                    //?} else {
+                    /*this.displayClientMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
+                    *///?}
                 }
 
                 return Optional.empty();

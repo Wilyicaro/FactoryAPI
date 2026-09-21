@@ -1,7 +1,7 @@
 package wily.factoryapi.base.client;
 
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.base.ArbitrarySupplier;
 
 import java.util.function.BooleanSupplier;
@@ -12,11 +12,11 @@ public interface WidgetAccessor {
         return (WidgetAccessor) widget;
     }
 
-    void setSpriteOverride(net.minecraft.resources.ResourceLocation sprite);
+    void setSpriteOverride(net.minecraft.resources.Identifier sprite);
 
-    void setHighlightedSpriteOverride(net.minecraft.resources.ResourceLocation sprite);
+    void setHighlightedSpriteOverride(net.minecraft.resources.Identifier sprite);
 
-    net.minecraft.resources.ResourceLocation getSpriteOverride();
+    net.minecraft.resources.Identifier getSpriteOverride();
 
     Consumer<AbstractWidget> getOnPressOverride();
 

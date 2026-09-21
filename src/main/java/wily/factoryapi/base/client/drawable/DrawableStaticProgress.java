@@ -8,15 +8,15 @@ public class DrawableStaticProgress extends AbstractDrawableStatic<DrawableStati
         super(drawable, posX, posY);
     }
 
-    public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics, float percentage){
+    public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics, float percentage){
         drawable.drawProgress(graphics,getX(),getY(), percentage);
     }
 
-    public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics, int progress, int max){
+    public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int progress, int max){
         drawable.drawProgress(graphics,getX(),getY(), progress, max);
     }
 
-    public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics, Progress progress){
+    public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics, Progress progress){
         drawable.drawProgress(graphics,getX(),getY(),progress);
     }
 }

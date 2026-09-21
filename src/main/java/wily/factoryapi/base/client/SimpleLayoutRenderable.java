@@ -1,7 +1,7 @@
 package wily.factoryapi.base.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -28,16 +28,16 @@ public abstract class SimpleLayoutRenderable implements Renderable, LayoutElemen
     public static SimpleLayoutRenderable create(Function<SimpleLayoutRenderable, Renderable> simpleRender){
         return new SimpleLayoutRenderable() {
             //? if >=26.1 {
-            /*@Override
+            @Override
             public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
                 simpleRender.apply(this).extractRenderState(graphics, mouseX, mouseY, a);
             }
-            *///?} else {
-            @Override
+            //?} else {
+            /*@Override
             public void render(GuiGraphics guiGraphics, int i, int j, float f) {
                 simpleRender.apply(this).render(guiGraphics,i,j,f);
             }
-            //?}
+            *///?}
         };
     }
 
@@ -50,16 +50,16 @@ public abstract class SimpleLayoutRenderable implements Renderable, LayoutElemen
     public static SimpleLayoutRenderable createDrawString(Component message, int xOffset, int yOffset, int width, int height, int color, boolean shadow){
         return new SimpleLayoutRenderable(width, height) {
             //? if >=26.1 {
-            /*@Override
+            @Override
             public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
                 graphics.text(Minecraft.getInstance().font, message, getX() + xOffset, getY() + yOffset, color, shadow);
             }
-            *///?} else {
-            @Override
+            //?} else {
+            /*@Override
             public void render(GuiGraphics guiGraphics, int i, int j, float f) {
                 guiGraphics.drawString(Minecraft.getInstance().font, message, getX() + xOffset, getY() + yOffset, color, shadow);
             }
-            //?}
+            *///?}
         };
     }
 

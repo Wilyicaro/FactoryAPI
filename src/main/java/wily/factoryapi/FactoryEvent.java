@@ -2,9 +2,9 @@ package wily.factoryapi;
 
 //? if fabric {
 //? if >=1.20.5 {
-/*import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
+import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-*///?}
+//?}
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
@@ -65,12 +65,12 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 //? if >=1.20.5 {
-/*import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackSelectionConfig;
 import net.minecraft.server.packs.repository.KnownPack;
-*///?}
+//?}
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PathPackResources;
@@ -80,7 +80,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
@@ -254,10 +254,10 @@ public class FactoryEvent<T> {
 
     public static void registerReloadListener(PackType type, PreparableReloadListener reloadListener) {
         //? if fabric {
-        net.minecraft.resources.ResourceLocation location = FactoryAPI.identifier(reloadListener.getName());
+        net.minecraft.resources.Identifier location = FactoryAPI.identifier(reloadListener.getName());
         ResourceManagerHelper.get(type).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
-            public net.minecraft.resources.ResourceLocation getFabricId() {
+            public net.minecraft.resources.Identifier getFabricId() {
                 return location;
             }
 
@@ -267,16 +267,16 @@ public class FactoryEvent<T> {
             }
 
             //? if >=1.21.9 {
-            /*@Override
+            @Override
             public CompletableFuture<Void> reload(SharedState sharedState, Executor executor, PreparationBarrier preparationBarrier, Executor executor2) {
                 return reloadListener.reload(sharedState, executor, preparationBarrier, executor2);
             }
-            *///?} else {
-            @Override
-            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /*? if <1.21.2 {*/ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,/*?}*/ Executor executor, Executor executor2) {
-                return reloadListener.reload(preparationBarrier,resourceManager,/*? if <1.21.2 {*/profilerFiller, profilerFiller2,/*?}*/executor,executor2);
+            //?} else {
+            /*@Override
+            public CompletableFuture<Void> reload(PreparationBarrier preparationBarrier, ResourceManager resourceManager, /^? if <1.21.2 {^//^ProfilerFiller profilerFiller, ProfilerFiller profilerFiller2,^//^?}^/ Executor executor, Executor executor2) {
+                return reloadListener.reload(preparationBarrier,resourceManager,/^? if <1.21.2 {^//^profilerFiller, profilerFiller2,^//^?}^/executor,executor2);
             }
-            //?}
+            *///?}
         });
         //?} elif forge && <1.21.6 {
         /*if (type == PackType.CLIENT_RESOURCES) FactoryAPIClient.registerReloadListener(reloadListener);
@@ -306,11 +306,11 @@ public class FactoryEvent<T> {
 
     @FunctionalInterface
     public interface PackRegistry {
-        void register(String path, net.minecraft.resources.ResourceLocation name, Component component, Pack.Position position, boolean enabledByDefault);
-        default void register(String path, net.minecraft.resources.ResourceLocation name, boolean enabledByDefault) {
+        void register(String path, net.minecraft.resources.Identifier name, Component component, Pack.Position position, boolean enabledByDefault);
+        default void register(String path, net.minecraft.resources.Identifier name, boolean enabledByDefault) {
             register(path, name, Component.translatable(name.getNamespace() + ".builtin." + name.getPath()), Pack.Position.TOP, enabledByDefault);
         }
-        default void registerResourcePack(net.minecraft.resources.ResourceLocation location, boolean enabledByDefault) {
+        default void registerResourcePack(net.minecraft.resources.Identifier location, boolean enabledByDefault) {
             register("resourcepacks/"+location.getPath(), location, enabledByDefault);
         }
         default void registerResourcePack(String pathName, boolean enabledByDefault) {
@@ -318,14 +318,14 @@ public class FactoryEvent<T> {
         }
     }
 
-    public static Pack createBuiltInPack(net.minecraft.resources.ResourceLocation name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath) {
+    public static Pack createBuiltInPack(net.minecraft.resources.Identifier name, Component displayName, boolean defaultEnabled, PackType type, Pack.Position position, Path resourcePath) {
         //? if <=1.20.1 {
         /*return Pack.readMetaAndCreate(name.toString(), displayName,false, s-> new PathPackResources(s, resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
         *///?} else if <1.20.5 {
-        return Pack.readMetaAndCreate(name.toString(), displayName,false, new PathPackResources.PathResourcesSupplier(resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
-        //?} else {
-        /*return Pack.readMetaAndCreate(new PackLocationInfo( name.toString(), displayName,PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled), Optional.of(new KnownPack(name.getNamespace(),name.toString(), SharedConstants.getCurrentVersion()/^? if <1.21.6 {^/.getId()/^?} else {^//^.id()^//^?}^/))), new PathPackResources.PathResourcesSupplier(resourcePath), type, new PackSelectionConfig(false,position,false));
-        *///?}
+        /*return Pack.readMetaAndCreate(name.toString(), displayName,false, new PathPackResources.PathResourcesSupplier(resourcePath,true), type, position, PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled));
+        *///?} else {
+        return Pack.readMetaAndCreate(new PackLocationInfo( name.toString(), displayName,PackSource.create(PackSource.BUILT_IN::decorate, defaultEnabled), Optional.of(new KnownPack(name.getNamespace(),name.toString(), SharedConstants.getCurrentVersion()/*? if <1.21.6 {*//*.getId()*//*?} else {*/.id()/*?}*/))), new PathPackResources.PathResourcesSupplier(resourcePath), type, new PackSelectionConfig(false,position,false));
+        //?}
     }
 
     public static void registerBuiltInPacks(Consumer<PackRegistry> registry) {
@@ -381,17 +381,17 @@ public class FactoryEvent<T> {
             @Override
             public <T extends CommonNetwork.Payload> void register(boolean c2s, CommonNetwork.Identifier<T> id) {
                 //? <1.20.5 {
-                if (c2s) ServerPlayNetworking.registerGlobalReceiver(id.location(), (m, l, h, b, s) -> id.decode(b).applyServer(()->h.player));
+                /*if (c2s) ServerPlayNetworking.registerGlobalReceiver(id.location(), (m, l, h, b, s) -> id.decode(b).applyServer(()->h.player));
                 else if (FactoryAPI.isClient()) FactoryAPIClient.registerPayload(id);
-                //?} else {
-                /*if (c2s) {
-                    PayloadTypeRegistry./^? if <26.1 {^/playC2S/^?} else {^//^serverboundPlay^//^?}^/().register(id.type(),id.codec());
+                *///?} else {
+                if (c2s) {
+                    PayloadTypeRegistry./*? if <26.1 {*//*playC2S*//*?} else {*/serverboundPlay/*?}*/().register(id.type(),id.codec());
                     ServerPlayNetworking.registerGlobalReceiver(id.type(), (payload, context)-> payload.applyServer(context::player));
                 }else {
-                    PayloadTypeRegistry./^? if <26.1 {^/playS2C/^?} else {^//^clientboundPlay^//^?}^/().register(id.type(),id.codec());
+                    PayloadTypeRegistry./*? if <26.1 {*//*playS2C*//*?} else {*/clientboundPlay/*?}*/().register(id.type(),id.codec());
                     if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) FactoryAPIClient.registerPayload(id);
                 }
-                *///?}
+                //?}
             }
         });
          //?} elif forge {
@@ -432,22 +432,22 @@ public class FactoryEvent<T> {
     }
 
     //? if >=1.20.5 {
-    /*public static <C> void setItemComponent(Item item, DataComponentType<C> type, C value) {
+    public static <C> void setItemComponent(Item item, DataComponentType<C> type, C value) {
         //? if fabric {
         DefaultItemComponentEvents.MODIFY.register(c->  c.modify(item, bc-> bc.set(type,value)));
         //?} elif forge && <1.21.6 {
-        /^MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, GatherComponentsEvent.class, e-> {
+        /*MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, GatherComponentsEvent.class, e-> {
             if (e.getOwner() == item) e.register(type,value);
         });
-        ^///?} elif forge {
-        /^GatherComponentsEvent.BUS.addListener(e-> {
+        *///?} elif forge {
+        /*GatherComponentsEvent.BUS.addListener(e-> {
             if (e.getOwner() == item) e.register(type,value);
         });
-        ^///?} elif neoforge && <26.2 {
-        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, bc -> bc.set(type,value)));
-        ^///?} elif neoforge {
-        /^FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, (bc, ctx, item1) -> bc.set(type,value)));
-        ^///?}
+        *///?} elif neoforge && <26.2 {
+        /*FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, bc -> bc.set(type,value)));
+        *///?} elif neoforge {
+        /*FactoryAPIPlatform.getModEventBus().addListener(ModifyDefaultComponentsEvent.class, e-> e.modify(item, (bc, ctx, item1) -> bc.set(type,value)));
+        *///?}
     }
-    *///?}
+    //?}
 }

@@ -1,19 +1,19 @@
 package wily.factoryapi.mixin.base;
 
 //? if <1.21.5 {
-import net.minecraft.client.renderer.block.model.Variant;
+/*import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.MultiVariant;
-//?} else if <26.1 {
+*///?} else if <26.1 {
 /*import net.minecraft.util.random.WeightedList;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.resources.model.WeightedVariants;
 *///?} else {
-/*import net.minecraft.util.random.WeightedList;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.WeightedVariants;
-*///?}
+//?}
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -27,10 +27,10 @@ import wily.factoryapi.base.client.FactoryOptions;
 import java.util.List;
 import java.util.function.Function;
 
-@Mixin(/*? if >1.21.4 {*//*WeightedVariants*//*?} else {*/MultiVariant/*?}*/.class)
+@Mixin(/*? if >1.21.4 {*/WeightedVariants/*?} else {*//*MultiVariant*//*?}*/.class)
 public class MultiVariantMixin {
     //? if <1.21.5 {
-    @Mutable
+    /*@Mutable
     @Shadow @Final private List<Variant> variants;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -39,8 +39,8 @@ public class MultiVariantMixin {
             this.variants = List.of(variants.get(0));
         }
     }
-    //?} else {
-    /*@Mutable
+    *///?} else {
+    @Mutable
     @Shadow @Final private WeightedList<BlockStateModel> list;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -49,5 +49,5 @@ public class MultiVariantMixin {
             this.list = WeightedList.of(list.unwrap().getFirst().value());
         }
     }
-    *///?}
+    //?}
 }

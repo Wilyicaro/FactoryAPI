@@ -1,7 +1,7 @@
 //? if <1.20.5 && (forge || neoforge) {
 /*package wily.factoryapi.mixin.base.forge;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? forge {
 /^import net.minecraftforge.client.gui.overlay.ForgeGui;
 ^///?} else {

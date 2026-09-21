@@ -3,19 +3,19 @@ package wily.factoryapi.base.client;
 import com.google.gson.JsonElement;
 import com.mojang.realmsclient.RealmsMainScreen;
 //? if >=1.21.6 {
-/*import com.mojang.realmsclient.gui.screens.configuration.RealmsBackupScreen;
+import com.mojang.realmsclient.gui.screens.configuration.RealmsBackupScreen;
 import com.mojang.realmsclient.gui.screens.configuration.RealmsInviteScreen;
-*///?} else {
-import com.mojang.realmsclient.gui.screens.RealmsBackupScreen;
+//?} else {
+/*import com.mojang.realmsclient.gui.screens.RealmsBackupScreen;
 import com.mojang.realmsclient.gui.screens.RealmsInviteScreen;
-//?}
+*///?}
 import com.mojang.realmsclient.gui.screens.RealmsConfirmScreen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -24,12 +24,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.screens.*;
 //? if <1.20.5 {
-import net.minecraft.client.gui.screens.controls.ControlsScreen;
+/*import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
-//?} else {
-/*import net.minecraft.client.gui.screens.options.*;
+*///?} else {
+import net.minecraft.client.gui.screens.options.*;
 import net.minecraft.client.gui.screens.options.controls.*;
-*///?}
+//?}
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.inventory.*;
@@ -42,7 +42,7 @@ import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.realms.RealmsScreen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -64,7 +64,7 @@ import java.util.stream.IntStream;
 
 public class UIDefinitionManager implements ResourceManagerReloadListener {
     public static final String UI_DEFINITIONS = "ui_definitions";
-    public static final ListMap<net.minecraft.resources.ResourceLocation, Class<?>> NAMED_UI_TARGETS =
+    public static final ListMap<net.minecraft.resources.Identifier, Class<?>> NAMED_UI_TARGETS =
             new ListMap.Builder<String, Class<?>>().
                     put("screen", Screen.class).
                     put("accessibility_onboarding_screen", AccessibilityOnboardingScreen.class).
@@ -89,22 +89,22 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                     put("create_world_screen", CreateWorldScreen.class).
                     put("edit_world_screen", EditWorldScreen.class).
                     put("join_multiplayer_screen", JoinMultiplayerScreen.class).
-                    /*? if <1.21.9 {*/put("edit_server_screen", EditServerScreen.class)/*?}*/.
+                    /*? if <1.21.9 {*//*put("edit_server_screen", EditServerScreen.class)*//*?}*/.
                     put("direct_join_server_screen", DirectJoinServerScreen.class).
                     put("realms_main_screen", RealmsMainScreen.class).
                     put("realms_screen", RealmsScreen.class).
                     put("realms_confirm_screen", RealmsConfirmScreen.class).
                     put("realms_backup_screen", RealmsBackupScreen.class).
                     put("realms_invite_screen", RealmsInviteScreen.class).
-                    /*? if <26.3 {*/put("share_to_lan_screen", /*? if <26.2 {*/ShareToLanScreen/*?} else {*//*MultiplayerOptionsScreen*//*?}*/.class)./*?} else {*/
-                    /*put("world_options_screen", WorldOptionsScreen.class).*//*?}*/
+                    /*? if <26.3 {*//*put("share_to_lan_screen", /^? if <26.2 {^//^ShareToLanScreen^//^?} else {^/MultiplayerOptionsScreen/^?}^/.class).*//*?} else {*/
+                    put("world_options_screen", WorldOptionsScreen.class)./*?}*/
                     put("advancements_screen", AdvancementsScreen.class).
                     put("stats_screen", StatsScreen.class).
                     put("confirm_screen", ConfirmScreen.class).
                     put("level_loading_screen", LevelLoadingScreen.class).
                     put("progress_screen", ProgressScreen.class).
-                    put("generic_message_screen", /*? if <1.20.5 {*/GenericDirtMessageScreen/*?} else {*//*GenericMessageScreen*//*?}*/.class)
-                    /*? if <1.21.9 {*/.put("receiving_level_screen", ReceivingLevelScreen.class)/*?}*/.
+                    put("generic_message_screen", /*? if <1.20.5 {*//*GenericDirtMessageScreen*//*?} else {*/GenericMessageScreen/*?}*/.class)
+                    /*? if <1.21.9 {*//*.put("receiving_level_screen", ReceivingLevelScreen.class)*//*?}*/.
                     put("connect_screen", ConnectScreen.class).
                     put("pause_screen", PauseScreen.class).
                     put("inventory_screen", InventoryScreen.class).
@@ -129,14 +129,14 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                     put("in_bed_chat_screen", InBedChatScreen.class).
                     put("book_edit_screen", BookEditScreen.class).
                     put("book_view_screen", BookViewScreen.class).
-                    /*? if >=1.21.6 {*//*put("book_sign_screen", BookSignScreen.class).*//*?}*/
+                    /*? if >=1.21.6 {*/put("book_sign_screen", BookSignScreen.class)./*?}*/
                     put("gui", Gui.class).
                     mapKeys(FactoryAPI::vanillaIdentifier).
                     build();
-    public static final ListMap<net.minecraft.resources.ResourceLocation, Function<Screen, Screen>> DEFAULT_SCREENS_MAP = new ListMap.Builder<String, Function<Screen, Screen>>().put("title", s -> new TitleScreen()).put("options", s -> new OptionsScreen(s, Minecraft.getInstance().options/*? if >=26.1 && <26.3 {*//*, Minecraft.getInstance().level != null*//*?}*/)).put("language_select", s -> new LanguageSelectScreen(s, Minecraft.getInstance().options, Minecraft.getInstance().getLanguageManager())).
-            put("video_settings", s -> new VideoSettingsScreen(s,/*? if >=1.21 {*//*Minecraft.getInstance() ,*//*?}*/ Minecraft.getInstance().options)).
+    public static final ListMap<net.minecraft.resources.Identifier, Function<Screen, Screen>> DEFAULT_SCREENS_MAP = new ListMap.Builder<String, Function<Screen, Screen>>().put("title", s -> new TitleScreen()).put("options", s -> new OptionsScreen(s, Minecraft.getInstance().options/*? if >=26.1 && <26.3 {*//*, Minecraft.getInstance().level != null*//*?}*/)).put("language_select", s -> new LanguageSelectScreen(s, Minecraft.getInstance().options, Minecraft.getInstance().getLanguageManager())).
+            put("video_settings", s -> new VideoSettingsScreen(s,/*? if >=1.21 {*/Minecraft.getInstance() ,/*?}*/ Minecraft.getInstance().options)).
             put("skin_customization", s -> new SkinCustomizationScreen(s, Minecraft.getInstance().options)).
-            put("online_options", s -> /*? if <1.21 {*/OnlineOptionsScreen.createOnlineOptionsScreen(Minecraft.getInstance(), s, Minecraft.getInstance().options)/*?} else {*//*new OnlineOptionsScreen(s, Minecraft.getInstance().options)*//*?}*/).
+            put("online_options", s -> /*? if <1.21 {*//*OnlineOptionsScreen.createOnlineOptionsScreen(Minecraft.getInstance(), s, Minecraft.getInstance().options)*//*?} else {*/new OnlineOptionsScreen(s, Minecraft.getInstance().options)/*?}*/).
             put("controls", s -> new ControlsScreen(s, Minecraft.getInstance().options)).
             put("mouse_settings", s -> new MouseSettingsScreen(s, Minecraft.getInstance().options)).put("key_binds", s -> new KeyBindsScreen(s, Minecraft.getInstance().options)).
             put("chat_options", s -> new ChatOptionsScreen(s, Minecraft.getInstance().options)).put("accessibility_options", s -> new AccessibilityOptionsScreen(s, Minecraft.getInstance().options)).
@@ -145,7 +145,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
             build();
 
 
-    public static void registerNamedUITarget(net.minecraft.resources.ResourceLocation id, Class<?> uiClass) {
+    public static void registerNamedUITarget(net.minecraft.resources.Identifier id, Class<?> uiClass) {
         NAMED_UI_TARGETS.put(id, uiClass);
     }
 
@@ -153,7 +153,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         registerNamedUITarget(FactoryAPI.vanillaIdentifier(path), uiClass);
     }
 
-    public static void registerDefaultScreen(net.minecraft.resources.ResourceLocation id, Function<Screen, Screen> defaultScreen) {
+    public static void registerDefaultScreen(net.minecraft.resources.Identifier id, Function<Screen, Screen> defaultScreen) {
         DEFAULT_SCREENS_MAP.put(id, defaultScreen);
     }
 
@@ -175,8 +175,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public interface WidgetAction<P, W extends AbstractWidget> {
-        ListMap<net.minecraft.resources.ResourceLocation, WidgetAction<?, AbstractWidget>> map = new ListMap.Builder<String, WidgetAction<?, AbstractWidget>>().put("open_default_screen", create(net.minecraft.resources.ResourceLocation.CODEC, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(DEFAULT_SCREENS_MAP.getOrDefault(s, s1 -> null).apply(a.getScreen())))).put("open_config_screen", create(Codec.STRING, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(FactoryAPIClient.getConfigScreen(FactoryAPIPlatform.getModInfo(s), a.getScreen())))).put("reload_ui", create(Codec.EMPTY.codec(), (s) -> (a, w, t) -> a.reloadUI())).put("run_command", createRunCommand(s -> true)).put("run_windows_command", createRunCommand(s -> Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command", createRunCommand(s -> Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command", createRunCommand(s -> Util.getPlatform() == Util.OS.OSX)).put("toggle_datapacks", createToggleDatapacks()).mapKeys(FactoryAPI::vanillaIdentifier).build();
-        Codec<WidgetAction<?, AbstractWidget>> CODEC = map.createCodec(net.minecraft.resources.ResourceLocation.CODEC);
+        ListMap<net.minecraft.resources.Identifier, WidgetAction<?, AbstractWidget>> map = new ListMap.Builder<String, WidgetAction<?, AbstractWidget>>().put("open_default_screen", create(net.minecraft.resources.Identifier.CODEC, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(DEFAULT_SCREENS_MAP.getOrDefault(s, s1 -> null).apply(a.getScreen())))).put("open_config_screen", create(Codec.STRING, (s) -> (a, w, t) -> FactoryScreenUtil.setScreen(FactoryAPIClient.getConfigScreen(FactoryAPIPlatform.getModInfo(s), a.getScreen())))).put("reload_ui", create(Codec.EMPTY.codec(), (s) -> (a, w, t) -> a.reloadUI())).put("run_command", createRunCommand(s -> true)).put("run_windows_command", createRunCommand(s -> Util.getPlatform() == Util.OS.WINDOWS)).put("run_linux_command", createRunCommand(s -> Util.getPlatform() == Util.OS.LINUX)).put("run_osx_command", createRunCommand(s -> Util.getPlatform() == Util.OS.OSX)).put("toggle_datapacks", createToggleDatapacks()).mapKeys(FactoryAPI::vanillaIdentifier).build();
+        Codec<WidgetAction<?, AbstractWidget>> CODEC = map.createCodec(net.minecraft.resources.Identifier.CODEC);
 
         Codec<P> getCodec();
 
@@ -289,7 +289,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     }
 
     public interface ElementType {
-        ListMap<net.minecraft.resources.ResourceLocation, ElementType> map = new ListMap<>();
+        ListMap<net.minecraft.resources.Identifier, ElementType> map = new ListMap<>();
 
         ElementType CHILDREN = registerConditional("children", (definition, accessorFunction, name, e) -> parseAllElements(definition, accessorFunction, e, s -> e.get("applyPrefix").asBoolean(true) ? (name+"."+s) : s));
         ElementType ADD_BUTTON = registerConditional("add_button", (definition, accessorFunction, name, e) -> {
@@ -359,7 +359,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         ElementType PUT_COMPONENT = registerConditional("put_component", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseComponentElement(name, d)));
         ElementType PUT_STRING = registerCodec("put_string", Codec.STRING);
         ElementType PUT_BOOLEAN = registerConditional("put_boolean", (definition, accessorFunction, name, e) -> parseElement(definition, name, e, "value", (s, d) -> parseBoolean(name, d)));
-        ElementType PUT_RESOURCE_LOCATION = registerCodec("put_resource_location", net.minecraft.resources.ResourceLocation.CODEC);
+        ElementType PUT_RESOURCE_LOCATION = registerCodec("put_resource_location", net.minecraft.resources.Identifier.CODEC);
         ElementType PUT_VEC3 = registerCodec("put_vec3", DynamicUtil.VEC3_OBJECT_CODEC);
         ElementType PUT_VEC2 = registerCodec("put_vec2", DynamicUtil.VEC2_CODEC);
         ElementType BLIT = registerConditional("blit", ElementType::parseBlitElements);
@@ -385,8 +385,8 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static void parseWidgetElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
             parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "order");
             parseElements(uiDefinition, elementName, element, (s, d) -> parseComponentElement(elementName, s, d), "message", "tooltip");
-            parseElement(uiDefinition, elementName, element, "spriteOverride", net.minecraft.resources.ResourceLocation.CODEC);
-            parseElement(uiDefinition, elementName, element, "highlightedSpriteOverride", net.minecraft.resources.ResourceLocation.CODEC);
+            parseElement(uiDefinition, elementName, element, "spriteOverride", net.minecraft.resources.Identifier.CODEC);
+            parseElement(uiDefinition, elementName, element, "highlightedSpriteOverride", net.minecraft.resources.Identifier.CODEC);
             parseElement(uiDefinition, elementName, element, "isVisible", ElementType::parseBoolean);
         }
 
@@ -403,10 +403,10 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static void parseBlitElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElement(uiDefinition, elementName, element, "texture", net.minecraft.resources.ResourceLocation.CODEC);
+            parseElement(uiDefinition, elementName, element, "texture", net.minecraft.resources.Identifier.CODEC);
             parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "uvX", "uvY", "width", "height", "imageWidth", "imageHeight", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".texture", net.minecraft.resources.ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blit(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0), a.getInteger(elementName + ".imageWidth", 256), a.getInteger(elementName + ".imageHeight", 256))))))));
+            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".texture", net.minecraft.resources.Identifier.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blit(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0), a.getInteger(elementName + ".imageWidth", 256), a.getInteger(elementName + ".imageHeight", 256))))))));
         }
 
         static void parseTranslationElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
@@ -414,17 +414,17 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static void parseBlitSpriteElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElement(uiDefinition, elementName, element, "sprite", net.minecraft.resources.ResourceLocation.CODEC);
+            parseElement(uiDefinition, elementName, element, "sprite", net.minecraft.resources.Identifier.CODEC);
             parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
+            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.Identifier.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
         }
 
         static void parseBlitCustomSpriteElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
-            parseElement(uiDefinition, elementName, element, "sprite", net.minecraft.resources.ResourceLocation.CODEC);
+            parseElement(uiDefinition, elementName, element, "sprite", net.minecraft.resources.Identifier.CODEC);
             parseElements(uiDefinition, elementName, element, ElementType::parseNumber, "x", "y", "width", "height", "textureWidth", "textureHeight", "uvX", "uvY", "renderColor", "order", "amount");
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.ResourceLocation.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".textureWidth", 0), a.getInteger(elementName + ".textureHeight", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
+            uiDefinition.addStatic(UIDefinition.createAfterInitWithAmount(elementName, a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".sprite", net.minecraft.resources.Identifier.class).ifPresent(t -> FactoryGuiGraphics.of(guiGraphics).blitSprite(t, a.getInteger(elementName + ".textureWidth", 0), a.getInteger(elementName + ".textureHeight", 0), a.getInteger(elementName + ".uvX", 0), a.getInteger(elementName + ".uvY", 0), a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".width", 0), a.getInteger(elementName + ".height", 0))))))));
         }
 
         static void parseTextElements(UIDefinition uiDefinition, String elementName, Dynamic<?> element) {
@@ -436,7 +436,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         static void parseDrawStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
             parseTextElements(uiDefinition, elementName, element);
             parseTranslationElements(uiDefinition, elementName, element);
-            uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics./*? if >=26.1 {*//*text*//*?} else {*/drawString/*?}*/(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
+            uiDefinition.addStatic(UIDefinition.createAfterInit(a -> accessorFunction.apply(a).addRenderable(elementName, (a.createModifiableRenderable(elementName, (guiGraphics, i, j, f) -> a.getElement(elementName + ".component", Component.class).ifPresent(c -> guiGraphics./*? if >=26.1 {*/text/*?} else {*//*drawString*//*?}*/(Minecraft.getInstance().font, c, a.getInteger(elementName + ".x", 0), a.getInteger(elementName + ".y", 0), a.getInteger(elementName + ".color", 0xFFFFFFFF), a.getBoolean(elementName + ".shadow", true))))))));
         }
 
         static void parseDrawMultilineStringElements(UIDefinition uiDefinition, Function<UIAccessor, UIAccessor> accessorFunction, String elementName, Dynamic<?> element) {
@@ -469,18 +469,18 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                                 int x = a.getInteger(elementName + ".x", 0);
                                 int y = a.getInteger(elementName + ".y", 0);
                                 //? if >=26.1 {
-                                /*if (a.getBoolean(elementName + ".isFake", false))
+                                if (a.getBoolean(elementName + ".isFake", false))
                                     guiGraphics.fakeItem(s, x, y);
                                 else guiGraphics.item(s, x, y);
                                 if (a.getBoolean(elementName + ".allowDecorations", true))
                                     guiGraphics.itemDecorations(Minecraft.getInstance().font, s, x, y);
-                                *///?} else {
-                                if (a.getBoolean(elementName + ".isFake", false))
+                                //?} else {
+                                /*if (a.getBoolean(elementName + ".isFake", false))
                                     guiGraphics.renderFakeItem(s, x, y);
                                 else guiGraphics.renderItem(s, x, y);
                                 if (a.getBoolean(elementName + ".allowDecorations", true))
                                     guiGraphics.renderItemDecorations(Minecraft.getInstance().font, s, x, y);
-                                //?}
+                                *///?}
                             }
                     )));
                 });
@@ -496,18 +496,18 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                 int x = a.getInteger(elementName + ".x", 0);
                 int y = a.getInteger(elementName + ".y", 0);
                 //? if >=26.1 {
-                /*if (a.getBoolean(elementName + ".isFake", false))
+                if (a.getBoolean(elementName + ".isFake", false))
                     guiGraphics.fakeItem(s, x, y);
                 else guiGraphics.item(s, x, y);
                 if (a.getBoolean(elementName + ".allowDecorations", true))
                     guiGraphics.itemDecorations(Minecraft.getInstance().font, s, x, y);
-                *///?} else {
-                if (a.getBoolean(elementName + ".isFake", false))
+                //?} else {
+                /*if (a.getBoolean(elementName + ".isFake", false))
                      guiGraphics.renderFakeItem(s, x, y);
                 else guiGraphics.renderItem(s, x, y);
                 if (a.getBoolean(elementName + ".allowDecorations", true))
                     guiGraphics.renderItemDecorations(Minecraft.getInstance().font, s, x, y);
-                //?}
+                *///?}
             }))))));
         }
 
@@ -556,10 +556,10 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static ElementValue<Component> parseExternalComponentElement(String elementName, String field, Dynamic<?> element) {
-            return element.get("baseDir").flatMap(net.minecraft.resources.ResourceLocation.CODEC::parse).result().map(r-> {
+            return element.get("baseDir").flatMap(net.minecraft.resources.Identifier.CODEC::parse).result().map(r-> {
                 Map<String,Component> componentByLang = new HashMap<>();
                 for (String s : Minecraft.getInstance().getLanguageManager().getLanguages().keySet()) {
-                    net.minecraft.resources.ResourceLocation location = r.withSuffix("/" + s + ".txt");
+                    net.minecraft.resources.Identifier location = r.withSuffix("/" + s + ".txt");
                     Optional<Resource> externalComponent = Minecraft.getInstance().getResourceManager().getResource(location);
                     externalComponent.ifPresent(resource -> {
                         MutableComponent c = DynamicUtil.getComponentCodec().parse(element).result().map(Component::copy).orElseGet(Component::empty);
@@ -613,14 +613,14 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         }
 
         static ElementType get(String id) {
-            return get(net.minecraft.resources.ResourceLocation.tryParse(id));
+            return get(net.minecraft.resources.Identifier.tryParse(id));
         }
 
-        static ElementType get(net.minecraft.resources.ResourceLocation id) {
+        static ElementType get(net.minecraft.resources.Identifier id) {
             return map.getOrDefault(id, PUT_NUMBER);
         }
 
-        static net.minecraft.resources.ResourceLocation getId(ElementType type) {
+        static net.minecraft.resources.Identifier getId(ElementType type) {
             return map.getKeyOrDefault(type, null);
         }
 
@@ -656,13 +656,13 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
             return register(FactoryAPI.vanillaIdentifier(path), type);
         }
 
-        static ElementType register(net.minecraft.resources.ResourceLocation id, ElementType type) {
+        static ElementType register(net.minecraft.resources.Identifier id, ElementType type) {
             map.put(id, type);
             return type;
         }
     }
 
-    public final ListMap<net.minecraft.resources.ResourceLocation, UIDefinition> map = new ListMap<>();
+    public final ListMap<net.minecraft.resources.Identifier, UIDefinition> map = new ListMap<>();
     public final List<UIDefinition> staticList = new ArrayList<>();
 
     public final void applyStatic(UIAccessor accessor) {
@@ -673,7 +673,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         accessor.getDefinitions().addAll(map.values());
     }
 
-    record UIDefinitionEntry(net.minecraft.resources.ResourceLocation id, UIDefinition.Instance uiDefinition, int priority, boolean replace)
+    record UIDefinitionEntry(net.minecraft.resources.Identifier id, UIDefinition.Instance uiDefinition, int priority, boolean replace)
     {
     }
 
@@ -724,7 +724,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
     public static <T> UIDefinition.Instance fromDynamicWithTarget(String name, Dynamic<T> dynamic) {
         String targetType = dynamic.get("targetType").asString("id");
 
-        Class<?> targetClass = dynamic.get("targetUI").asString().map(s -> targetType.equals("id") ? NAMED_UI_TARGETS.get(net.minecraft.resources.ResourceLocation.tryParse(s)) : targetType.equals("class") ? getClassFromString(name, s) : null).result().orElse(null);
+        Class<?> targetClass = dynamic.get("targetUI").asString().map(s -> targetType.equals("id") ? NAMED_UI_TARGETS.get(net.minecraft.resources.Identifier.tryParse(s)) : targetType.equals("class") ? getClassFromString(name, s) : null).result().orElse(null);
         Component targetTitle = targetType.equals("screenTitle") ? dynamic.get("targetUI").flatMap(DynamicUtil.getComponentCodec()::parse).result().orElse(null) : null;
 
         String targetRange = dynamic.get("targetRange").asString("instance");
@@ -747,7 +747,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
         uiDefinition.getDefinitions().clear();
     }
 
-    public void openDefaultScreenAndAddDefinition(Optional<net.minecraft.resources.ResourceLocation> defaultScreen, UIDefinition uiDefinition) {
+    public void openDefaultScreenAndAddDefinition(Optional<net.minecraft.resources.Identifier> defaultScreen, UIDefinition uiDefinition) {
         Screen s = defaultScreen.map(DEFAULT_SCREENS_MAP::get).orElse(parent-> new Screen(Component.empty()) {}).apply(FactoryScreenUtil.getScreen());
         UIAccessor.of(s).addStatic(uiDefinition);
         FactoryScreenUtil.setScreen(s);

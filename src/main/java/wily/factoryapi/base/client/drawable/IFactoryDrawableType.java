@@ -1,7 +1,7 @@
 package wily.factoryapi.base.client.drawable;
 
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import wily.factoryapi.base.client.FactoryGuiGraphics;
 import wily.factoryapi.base.Progress;
 import wily.factoryapi.util.FactoryScreenUtil;
@@ -10,10 +10,10 @@ import wily.factoryapi.util.ProgressElementRenderUtil;
 
 public interface IFactoryDrawableType {
     IFactoryDrawableType EMPTY = new IFactoryDrawableType() {
-        public void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
+        public void draw(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int x, int y) {
         }
 
-        public net.minecraft.resources.ResourceLocation texture() {
+        public net.minecraft.resources.Identifier texture() {
             return null;
         }
 
@@ -42,10 +42,10 @@ public interface IFactoryDrawableType {
         return EMPTY;
     }
 
-    net.minecraft.resources.ResourceLocation texture();
+    net.minecraft.resources.Identifier texture();
 
-    record DrawableImage(net.minecraft.resources.ResourceLocation texture, int uvX, int uvY, int width, int height, boolean isSprite) implements IFactoryDrawableType {
-        public DrawableImage(net.minecraft.resources.ResourceLocation texture, int uvX, int uvY, int width, int height){
+    record DrawableImage(net.minecraft.resources.Identifier texture, int uvX, int uvY, int width, int height, boolean isSprite) implements IFactoryDrawableType {
+        public DrawableImage(net.minecraft.resources.Identifier texture, int uvX, int uvY, int width, int height){
             this(texture,uvX,uvY,width,height,false);
         }
 
@@ -58,26 +58,26 @@ public interface IFactoryDrawableType {
         }
     }
 
-    static DrawableImage create(net.minecraft.resources.ResourceLocation texture, int uvX, int uvY, int width, int height){
+    static DrawableImage create(net.minecraft.resources.Identifier texture, int uvX, int uvY, int width, int height){
         return new DrawableImage(texture, uvX, uvY, width, height);
     }
 
-    static DrawableImage create(net.minecraft.resources.ResourceLocation texture,  int width, int height){
+    static DrawableImage create(net.minecraft.resources.Identifier texture,  int width, int height){
         return new DrawableImage(texture, 0, 0, width, height);
     }
 
-    static DrawableImage create(net.minecraft.resources.ResourceLocation texture,  int width, int height, boolean isSprite){
+    static DrawableImage create(net.minecraft.resources.Identifier texture,  int width, int height, boolean isSprite){
         return new DrawableImage(texture, 0, 0, width, height, isSprite);
     }
 
     record DrawableProgress(IFactoryDrawableType drawable, boolean reverse, Direction plane) implements Wrapper{
-        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics,int x, int y, float percentage){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics,int x, int y, float percentage){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y,percentage,this);
         }
-        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics,int x, int y, int progress, int max){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics,int x, int y, int progress, int max){
             ProgressElementRenderUtil.renderDefaultProgress(graphics,x,y, Math.max(0, (float) progress / max),this);
         }
-        public void drawProgress(net.minecraft.client.gui.GuiGraphics graphics, int relativeX, int relativeY, Progress progress){
+        public void drawProgress(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int relativeX, int relativeY, Progress progress){
             progress.forEach(p->drawProgress(graphics,relativeX + p.x, relativeY + p.y, p.get(), p.maxProgress));
         }
 
@@ -93,7 +93,7 @@ public interface IFactoryDrawableType {
         return create(texture(),uvX() + (direction.isHorizontal() ? width(): 0),uvY() + (direction.isVertical() ? height(): 0),width(),height());
     }
 
-    default void drawAsFluidTank(net.minecraft.client.gui.GuiGraphics graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
+    default void drawAsFluidTank(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int x, int y, FluidInstance instance, int capacity, boolean hasColor){
         ProgressElementRenderUtil.renderFluidTank(graphics,x,y,this,instance,capacity,hasColor);
     }
 
@@ -101,7 +101,7 @@ public interface IFactoryDrawableType {
         return FactoryScreenUtil.isMouseOver(mouseX,mouseY,posX,posY,width(),height());
     }
 
-    default void draw(net.minecraft.client.gui.GuiGraphics graphics, int x, int y) {
+    default void draw(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int x, int y) {
         if (isSprite()) FactoryGuiGraphics.of(graphics).blitSprite(texture(),x,y,width(),height());
         else {
             FactoryGuiGraphics.of(graphics).blit(texture(),x,y,uvX(),uvY(),width(),height());
@@ -116,7 +116,7 @@ public interface IFactoryDrawableType {
     interface Wrapper extends IFactoryDrawableType {
         IFactoryDrawableType drawable();
         @Override
-        default net.minecraft.resources.ResourceLocation texture() {
+        default net.minecraft.resources.Identifier texture() {
             return drawable().texture();
         }
 

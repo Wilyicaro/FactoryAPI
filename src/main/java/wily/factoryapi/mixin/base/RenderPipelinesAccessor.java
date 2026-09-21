@@ -1,7 +1,7 @@
 //? if >=1.21.5 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.RenderPipelines;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -13,4 +13,4 @@ public interface RenderPipelinesAccessor {
         return renderPipeline;
     }
 }
-*///?}
+//?}

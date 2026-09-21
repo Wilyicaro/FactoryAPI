@@ -19,8 +19,8 @@ public final class FactoryGuiElement {
     public static final FactoryGuiElement VEHICLE_HEALTH = new FactoryGuiElement("vehicle_health");
     public static final FactoryGuiElement EXPERIENCE_BAR = new FactoryGuiElement("experience_bar");
     //? if >=1.21.6 {
-    /*public static final FactoryGuiElement LOCATOR_BAR = new FactoryGuiElement("locator_bar");
-    *///?}
+    public static final FactoryGuiElement LOCATOR_BAR = new FactoryGuiElement("locator_bar");
+    //?}
     public static final FactoryGuiElement JUMP_METER = new FactoryGuiElement("jump_meter");
     public static final FactoryGuiElement SELECTED_ITEM_NAME = new FactoryGuiElement("selected_item_name");
     public static final FactoryGuiElement SPECTATOR_TOOLTIP = new FactoryGuiElement("spectator_tooltip");
@@ -53,22 +53,22 @@ public final class FactoryGuiElement {
     }
 
     public interface GuiRender {
-        void render(net.minecraft.client.gui.GuiGraphics graphics);
+        void render(net.minecraft.client.gui.GuiGraphicsExtractor graphics);
 
         static FactoryEvent<GuiRender> createEvent() {
             return new FactoryEvent<>(e -> graphics -> e.invokeAll(guiRender -> guiRender.render(graphics)));
         }
     }
 
-    public void prepareMixin(net.minecraft.client.gui.GuiGraphics graphics, CallbackInfo info) {
+    public void prepareMixin(net.minecraft.client.gui.GuiGraphicsExtractor graphics, CallbackInfo info) {
         prepareMixin(graphics, FactoryScreenUtil.getGuiAccessor(), info);
     }
 
-    public void finalizeMixin(net.minecraft.client.gui.GuiGraphics graphics) {
+    public void finalizeMixin(net.minecraft.client.gui.GuiGraphicsExtractor graphics) {
         finalizeMixin(graphics, FactoryScreenUtil.getGuiAccessor());
     }
 
-    public void prepareMixin(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor, CallbackInfo info) {
+    public void prepareMixin(net.minecraft.client.gui.GuiGraphicsExtractor graphics, UIAccessor accessor, CallbackInfo info) {
         setVisible(isVisible(accessor));
         if (!isVisible()) {
             info.cancel();
@@ -77,7 +77,7 @@ public final class FactoryGuiElement {
         prepareRender(graphics, accessor);
     }
 
-    public void finalizeMixin(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
+    public void finalizeMixin(net.minecraft.client.gui.GuiGraphicsExtractor graphics, UIAccessor accessor) {
         if (!isVisible()) {
             return;
         }
@@ -96,7 +96,7 @@ public final class FactoryGuiElement {
         return ColorUtil.mergeColors(accessor.getInteger(name + ".renderColor", -1), (isHud() && accessor.getBoolean(name + ".hud.renderColor", true) ? accessor.getInteger("hud.renderColor", -1) : -1));
     }
 
-    public void prepareRender(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
+    public void prepareRender(net.minecraft.client.gui.GuiGraphicsExtractor graphics, UIAccessor accessor) {
         pre.invoker.render(graphics);
         FactoryGuiMatrixStack.of(graphics.pose()).pushPose();
         FactoryScreenUtil.applyOffset(graphics, getOffset("translateX", accessor), getOffset("translateY", accessor), getOffset("translateZ", accessor));
@@ -106,14 +106,14 @@ public final class FactoryGuiElement {
         modifiedPre.invoker.render(graphics);
     }
 
-    public void finalizeRender(net.minecraft.client.gui.GuiGraphics graphics, UIAccessor accessor) {
+    public void finalizeRender(net.minecraft.client.gui.GuiGraphicsExtractor graphics, UIAccessor accessor) {
         modifiedPost.invoker.render(graphics);
         int color = getColor(accessor);
         FactoryGuiMatrixStack.of(graphics.pose()).popPose();
         //? if >=1.21.6 {
-        /*if (color != -1) FactoryGuiGraphics.of(graphics).clearBlitColor();
-        *///?} else
-        if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
+        if (color != -1) FactoryGuiGraphics.of(graphics).clearBlitColor();
+        //?} else
+        //if (color != -1) FactoryGuiGraphics.of(graphics).clearColor(true);
         post.invoker.render(graphics);
     }
 

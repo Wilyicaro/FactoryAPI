@@ -1,7 +1,7 @@
 package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -65,19 +65,19 @@ public abstract class AbstractContainerScreenMixin extends Screen {
     }
 
     //? if <26.1 {
-    //? if >1.20.1 {
-    @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"), cancellable = true)
+    /*//? if >1.20.1 {
+    @Inject(method = "renderBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphicsExtractor;FII)V"), cancellable = true)
     protected void renderBackground(CallbackInfo ci) {
         if (!UIAccessor.of(this).getBoolean("hasContainerBackground",true)) ci.cancel();
     }
     //?} else {
     
-    /*@Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
+    /^@Shadow protected abstract void renderBg(GuiGraphics guiGraphics, float f, int i, int j);
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphics;FII)V"))
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderBg(Lnet/minecraft/client/gui/GuiGraphicsExtractor;FII)V"))
     protected void render(AbstractContainerScreen instance, GuiGraphics guiGraphics, float v, int i, int j) {
         if (UIAccessor.of(this).getBoolean("hasContainerBackground",true)) renderBg(guiGraphics,v,i,j);
     }
+    ^///?}
     *///?}
-    //?}
 }

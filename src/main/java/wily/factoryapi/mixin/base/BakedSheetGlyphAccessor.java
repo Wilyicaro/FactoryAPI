@@ -1,5 +1,5 @@
 //? if >=1.21.9 {
-/*package wily.factoryapi.mixin.base;
+package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.gui.font.glyphs.BakedSheetGlyph;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,4 +14,4 @@ public interface BakedSheetGlyphAccessor {
     @Accessor("down")
     float getBottom();
 }
-*///?}
+//?}

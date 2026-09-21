@@ -6,14 +6,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 //? if >=26.2 {
-/*import net.minecraft.world.entity.EntityTypes;
-*///?}
+import net.minecraft.world.entity.EntityTypes;
+//?}
 import net.minecraft.world.entity.item.ItemEntity;
 import org.joml.Quaternionf;
 
 public class DirectionUtil {
     public static Direction nearestRotation(float rotateX, float rotateY, boolean invertYAxis){
-        Entity entity = new ItemEntity(/*? if <26.2 {*/EntityType/*?} else {*//*EntityTypes*//*?}*/.ITEM,null);
+        Entity entity = new ItemEntity(/*? if <26.2 {*//*EntityType*//*?} else {*/EntityTypes/*?}*/.ITEM,null);
         entity.setXRot(rotateX);
         entity.setYRot(rotateY);
         Direction d =Direction.orderedByNearest(entity)[0];

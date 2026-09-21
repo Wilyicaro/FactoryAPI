@@ -3,8 +3,8 @@ package wily.factoryapi.util;
 //? if >1.21.4 && <26.3 {
 /*import com.mojang.blaze3d.opengl.GlStateManager;
  *///?} else if <26.3 {
-import com.mojang.blaze3d.platform.GlStateManager;
-//?}
+/*import com.mojang.blaze3d.platform.GlStateManager;
+*///?}
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,14 +12,14 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 //? if <26.2 {
-import net.minecraft.client.renderer.MultiBufferSource;
-//?} else {
-/*import net.minecraft.client.gui.Hud;
-*///?}
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?} else {
+import net.minecraft.client.gui.Hud;
+//?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -51,46 +51,46 @@ public class FactoryScreenUtil {
     public static void drawString(FactoryGuiMatrixStack stack, String text, int x, int y, int color, boolean shadow) {
         Font font = mc.font;
         //? if >=1.21.6 {
-        /*switch (stack) {
-            case net.minecraft.client.gui.GuiGraphics graphics -> graphics./^? if >=26.1 {^//^text^//^?} else {^/ drawString/^?}^/(font, text, x, y, color, shadow);
+        switch (stack) {
+            case net.minecraft.client.gui.GuiGraphicsExtractor graphics -> graphics./*? if >=26.1 {*/text/*?} else {*/ /*drawString*//*?}*/(font, text, x, y, color, shadow);
             case PoseStack poseStack -> {
                 //? if <26.2 {
-                MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-				font.drawInBatch(/^? if >=1.21.2 {^//^Component.literal(text)^//^?} else {^/ text/^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
+                /*MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
+				font.drawInBatch(/^? if >=1.21.2 {^/Component.literal(text)/^?} else {^/ /^text^//^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^//^, font.isBidirectional()^//^?}^/);
                 disableDepthTest();
                 source.endBatch();
                 enableDepthTest();
-                //?}
+                *///?}
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + stack);
 		}
-        *///?} else {
-        MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
-        font.drawInBatch(/*? if >=1.21.2 {*//*Component.literal(text)*//*?} else {*/ text/*?}*/, (float) x, (float) y, color, shadow, stack.<PoseStack>getNative().last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/*? if <1.21.6 {*/, font.isBidirectional()/*?}*/);
+        //?} else {
+        /*MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
+        font.drawInBatch(/^? if >=1.21.2 {^/Component.literal(text)/^?} else {^/ /^text^//^?}^/, (float) x, (float) y, color, shadow, stack.<PoseStack>getNative().last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^//^, font.isBidirectional()^//^?}^/);
         disableDepthTest();
         source.endBatch();
         enableDepthTest();
-        //?}
+        *///?}
     }
 
     public static void disableDepthTest(){
         //? if <26.2
-        GlStateManager._disableDepthTest();
+        //GlStateManager._disableDepthTest();
     }
 
     public static void enableDepthTest(){
         //? if <26.2
-        GlStateManager._enableDepthTest();
+        //GlStateManager._enableDepthTest();
     }
 
     public static void disableBlend(){
         //? if <26.2
-        GlStateManager._disableBlend();
+        //GlStateManager._disableBlend();
     }
 
     public static void enableBlend(){
         //? if <26.2
-        GlStateManager._enableBlend();
+        //GlStateManager._enableBlend();
     }
 
     public static void setShaderColor(float r, float g, float b, float a) {
@@ -112,7 +112,7 @@ public class FactoryScreenUtil {
     }
 
     //? if <1.21.6 {
-    public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
+    /*public static void renderGuiBlock(GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
         Item item = state.getBlock().asItem();
         graphics.pose().pushPose();
         graphics.pose().translate(i + 8F, j + 8F, 250F);
@@ -132,16 +132,16 @@ public class FactoryScreenUtil {
                 mc.getBlockRenderer().renderSingleBlock(state, graphics.pose(), FactoryGuiGraphics.of(graphics).getBufferSource(), 15728880, OverlayTexture.NO_OVERLAY);
             }
         } else {
-            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY /*? if >1.21.4 {*//*, Vec3.ZERO*//*?}*/);
+            blockEntityRenderer.render(be, FactoryAPIClient.getGamePartialTick(true),graphics.pose(),FactoryGuiGraphics.of(graphics).getBufferSource(),15728880, OverlayTexture.NO_OVERLAY /^? if >1.21.4 {^/, Vec3.ZERO/^?}^/);
         }
         graphics.flush();
         graphics.pose().popPose();
     }
-    //?} else {
-    /*public static void renderGuiBlock(net.minecraft.client.gui.GuiGraphics graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
+    *///?} else {
+    public static void renderGuiBlock(net.minecraft.client.gui.GuiGraphicsExtractor graphics, @Nullable BlockEntity be, BlockState state, int i, int j, float scaleX, float scaleY, float rotateX, float rotateY) {
         throw new IllegalStateException("Not implemented in 1.21.6+!");
     }
-    *///?}
+    //?}
 
     public static void playButtonDownSound(float grave) {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, grave));
@@ -151,19 +151,19 @@ public class FactoryScreenUtil {
         return (mouseX >= posX && mouseX < posX + sizeX && mouseY >= posY && mouseY < posY + sizeY);
     }
 
-    public static void applyOffset(net.minecraft.client.gui.GuiGraphics graphics, float x, float y, float z) {
+    public static void applyOffset(net.minecraft.client.gui.GuiGraphicsExtractor graphics, float x, float y, float z) {
         if (x != 0 || y != 0 | z != 0) FactoryGuiMatrixStack.of(graphics.pose()).translate(x, y, z);
     }
 
-    public static void applyScale(net.minecraft.client.gui.GuiGraphics graphics, float x, float y, float z) {
+    public static void applyScale(net.minecraft.client.gui.GuiGraphicsExtractor graphics, float x, float y, float z) {
         if (x != 1 || y != 1 || z != 1) FactoryGuiMatrixStack.of(graphics.pose()).scale(x, y, z);
     }
 
-    public static void applyColor(net.minecraft.client.gui.GuiGraphics graphics, int color) {
+    public static void applyColor(net.minecraft.client.gui.GuiGraphicsExtractor graphics, int color) {
         //? if >=1.21.6 {
-        /*if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
-        *///?} else
-        if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
+        if (color != -1) FactoryGuiGraphics.of(graphics).setBlitColor(color);
+        //?} else
+        //if (color != -1) FactoryGuiGraphics.of(graphics).setColor(color, true);
     }
 
     public static UIAccessor getScreenAccessor(){
@@ -176,23 +176,23 @@ public class FactoryScreenUtil {
 
     @ApiStatus.Internal
     public static void setScreen(Screen screen) {
-        Minecraft.getInstance()/*? if >=26.2 {*//*.gui*//*?}*/.setScreen(screen);
+        Minecraft.getInstance()/*? if >=26.2 {*/.gui/*?}*/.setScreen(screen);
     }
 
     @ApiStatus.Internal
     public static Screen getScreen() {
-        return Minecraft.getInstance()/*? if <26.2 {*/.screen/*?} else {*//*.gui.screen()*//*?}*/;
+        return Minecraft.getInstance()/*? if <26.2 {*//*.screen*//*?} else {*/.gui.screen()/*?}*/;
     }
 
     //? if <26.2 {
-    @ApiStatus.Internal
+    /*@ApiStatus.Internal
     public static Gui getGuiOrHud(Minecraft minecraft) {
         return minecraft.gui;
     }
-    //?} else {
-    /*@ApiStatus.Internal
+    *///?} else {
+    @ApiStatus.Internal
     public static Hud getGuiOrHud(Minecraft minecraft) {
         return minecraft.gui.hud;
     }
-    *///?}
+    //?}
 }

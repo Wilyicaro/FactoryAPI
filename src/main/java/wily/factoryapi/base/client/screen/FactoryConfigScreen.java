@@ -8,7 +8,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
@@ -51,19 +51,19 @@ public class FactoryConfigScreen extends Screen {
     }
 
     //? if >=26.1 {
-    /*@Override
+    @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
         graphics.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
-    *///?} else {
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
+    //?} else {
+    /*public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         //? if <=1.20.1
         //renderBackground(guiGraphics);
         super.render(guiGraphics, i, j, f);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
-    //?}
+    *///?}
 
     @Override
     public void onClose() {
@@ -110,24 +110,24 @@ public class FactoryConfigScreen extends Screen {
                 return arg2 == null ? new Entry(ImmutableList.of(arg), arg3) : new Entry(ImmutableList.of(arg, arg2), arg3);
             }
             //? if >=26.1 {
-            /*@Override
+            @Override
             public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
                 extractContent(graphics, mouseX, mouseY, hovered, a, getContentY());
             }
-            *///?} else if >=1.21.9 {
+            //?} else if >=1.21.9 {
             /*@Override
             public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f) {
                 renderContent(guiGraphics, i, j, bl, f, getContentY());
             }
             *///?} else {
-            @Override
+            /*@Override
             public void render(GuiGraphics arg, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
                 renderContent(arg, n, o, bl, f, j);
             }
-            //?}
+            *///?}
 
             //? if >=26.1 {
-            /*public void extractContent(GuiGraphicsExtractor graphics, int i, int j, boolean bl, float f, int contentY) {
+            public void extractContent(GuiGraphicsExtractor graphics, int i, int j, boolean bl, float f, int contentY) {
                 int p = 0;
                 int q = this.screen.width / 2 - 155;
 
@@ -137,8 +137,8 @@ public class FactoryConfigScreen extends Screen {
                     p += 160;
                 }
             }
-            *///?} else {
-            public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f, int contentY) {
+            //?} else {
+            /*public void renderContent(GuiGraphics guiGraphics, int i, int j, boolean bl, float f, int contentY) {
                 int p = 0;
                 int q = this.screen.width / 2 - 155;
 
@@ -148,7 +148,7 @@ public class FactoryConfigScreen extends Screen {
                     p += 160;
                 }
             }
-            //?}
+            *///?}
 
             @Override
             public List<? extends GuiEventListener> children() {

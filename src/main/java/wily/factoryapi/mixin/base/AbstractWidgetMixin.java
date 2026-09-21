@@ -1,15 +1,15 @@
 package wily.factoryapi.mixin.base;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 //? if >=1.20.5 {
-/*import net.minecraft.client.gui.components.WidgetTooltipHolder;
-*///?} else {
+import net.minecraft.client.gui.components.WidgetTooltipHolder;
+//?} else {
 //?}
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,23 +30,23 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
 
     @Shadow public boolean visible;
 
-    @Unique net.minecraft.resources.ResourceLocation overrideSprite = null;
-    @Unique net.minecraft.resources.ResourceLocation highlightedOverrideSprite = null;
+    @Unique net.minecraft.resources.Identifier overrideSprite = null;
+    @Unique net.minecraft.resources.Identifier highlightedOverrideSprite = null;
     @Unique Consumer<AbstractWidget> onPressOverride = null;
     @Unique ArbitrarySupplier<Boolean> visibility = ArbitrarySupplier.empty();
 
     @Override
-    public void setSpriteOverride(net.minecraft.resources.ResourceLocation sprite) {
+    public void setSpriteOverride(net.minecraft.resources.Identifier sprite) {
         this.overrideSprite = sprite;
     }
 
     @Override
-    public void setHighlightedSpriteOverride(net.minecraft.resources.ResourceLocation sprite) {
+    public void setHighlightedSpriteOverride(net.minecraft.resources.Identifier sprite) {
         this.highlightedOverrideSprite = sprite;
     }
 
     @Override
-    public net.minecraft.resources.ResourceLocation getSpriteOverride() {
+    public net.minecraft.resources.Identifier getSpriteOverride() {
         return isHoveredOrFocused() ? highlightedOverrideSprite : overrideSprite;
     }
     @Override
@@ -70,16 +70,16 @@ public abstract class AbstractWidgetMixin implements WidgetAccessor, GuiEventLis
     }
 
     //? if >=26.1 {
-    /*@Inject(method = "extractRenderState", at = @At("HEAD"))
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
     public void extractRenderState(GuiGraphicsExtractor arg, int i, int j, float f, CallbackInfo ci) {
         if (visibility.isPresent()) visible = visibility.get();
     }
-    *///?} else {
-    @Inject(method = "render", at = @At("HEAD"))
+    //?} else {
+    /*@Inject(method = "render", at = @At("HEAD"))
     public void render(GuiGraphics arg, int i, int j, float f, CallbackInfo ci) {
         if (visibility.isPresent()) visible = visibility.get();
     }
-    //?}
+    *///?}
 
     @Inject(method = "onClick", at = @At("HEAD"))
     public void onClick(CallbackInfo ci) {

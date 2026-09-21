@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Screen.class)
 public interface ScreenAccessor {
 	//? if >=1.21.6 {
-	/*@Invoker
+	@Invoker
 	static void callDefaultHandleClickEvent(ClickEvent clickEvent, Minecraft minecraft, Screen screen) {
 		throw new UnsupportedOperationException();
 	}
-	*///?}
+	//?}
 }

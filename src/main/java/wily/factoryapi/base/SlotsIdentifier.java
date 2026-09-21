@@ -3,8 +3,8 @@ package wily.factoryapi.base;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 //? if >=26.2 {
-/*import net.minecraft.network.chat.TextColor;
-*///?}
+import net.minecraft.network.chat.TextColor;
+//?}
 
 import java.awt.*;
 
@@ -22,10 +22,10 @@ public record SlotsIdentifier(ChatFormatting color, String name,Component compon
     public Color getColor(){
         return new Color(
                 //? if <26.2 {
-                color.getColor()
-                //?} else {
-                /*TextColor.fromLegacyFormat(color) instanceof TextColor color ? color.getValue() : 0
-                *///?}
+                /*color.getColor()
+                *///?} else {
+                TextColor.fromLegacyFormat(color) instanceof TextColor color ? color.getValue() : 0
+                //?}
         );
     }
 

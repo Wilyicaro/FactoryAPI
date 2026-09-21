@@ -19,10 +19,10 @@ import java.util.Map;
 
 @Mixin(TextureAtlas.class)
 public class TextureAtlasMixin implements FactoryGuiGraphics.AtlasAccessor {
-    @Shadow private Map<net.minecraft.resources.ResourceLocation, TextureAtlasSprite> texturesByName;
+    @Shadow private Map<net.minecraft.resources.Identifier, TextureAtlasSprite> texturesByName;
     //? if <=1.20.1 {
     /*@Shadow @Final
-    private net.minecraft.resources.ResourceLocation location;
+    private net.minecraft.resources.Identifier location;
     @Unique
     private TextureAtlasSprite missingSprite;
     @Inject(method="upload", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/texture/TextureAtlas;texturesByName:Ljava/util/Map;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
@@ -33,14 +33,14 @@ public class TextureAtlasMixin implements FactoryGuiGraphics.AtlasAccessor {
         }
     }
     @Inject(method = "getSprite", at = @At("HEAD"), cancellable = true)
-    public void getSprite(net.minecraft.resources.ResourceLocation resourceLocation, CallbackInfoReturnable<TextureAtlasSprite> cir) {
+    public void getSprite(net.minecraft.resources.Identifier resourceLocation, CallbackInfoReturnable<TextureAtlasSprite> cir) {
         TextureAtlasSprite textureAtlasSprite = this.texturesByName.getOrDefault(resourceLocation, this.missingSprite);
         if (textureAtlasSprite == null) throw new IllegalStateException("Tried to lookup sprite, but atlas is not initialized");
         cir.setReturnValue(textureAtlasSprite);
     }
     *///?}
     @Override
-    public Map<net.minecraft.resources.ResourceLocation, TextureAtlasSprite> getTexturesByName() {
+    public Map<net.minecraft.resources.Identifier, TextureAtlasSprite> getTexturesByName() {
         return texturesByName;
     }
 }
