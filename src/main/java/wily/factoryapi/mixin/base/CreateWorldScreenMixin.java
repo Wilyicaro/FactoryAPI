@@ -2,6 +2,9 @@ package wily.factoryapi.mixin.base;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
+//? if >=26.2 {
+/*import net.minecraft.client.gui.components.tabs.MenuTabBar;
+*///?}
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -18,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.base.client.DatapackRepositoryAccessor;
 import wily.factoryapi.base.client.UIAccessor;
+import wily.factoryapi.util.FactoryScreenUtil;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -36,7 +40,11 @@ public abstract class CreateWorldScreenMixin extends Screen implements DatapackR
     @Shadow protected abstract void tryApplyNewDataPacks(PackRepository arg, boolean bl, Consumer<WorldDataConfiguration> consumer);
 
 
+    //? if <26.2 {
     @Shadow @Nullable private TabNavigationBar tabNavigationBar;
+    //?} else {
+    /*@Shadow @Nullable private MenuTabBar tabNavigationBar;
+    *///?}
 
     @Inject(method = "init", at = @At("RETURN"))
     public void init(CallbackInfo ci) {
@@ -52,7 +60,7 @@ public abstract class CreateWorldScreenMixin extends Screen implements DatapackR
     @Override
     public void tryApplyNewDataPacks(PackRepository repository) {
         tryApplyNewDataPacks(repository, false, data -> {
-            if (this instanceof UIAccessor accessor) Minecraft.getInstance().setScreen(accessor.getScreen());
+            if (this instanceof UIAccessor accessor) FactoryScreenUtil.setScreen(accessor.getScreen());
         });
     }
 }

@@ -8,6 +8,9 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+//? if >=26.2 {
+/*import net.minecraft.world.level.block.entity.BlockEntityTypes;
+*///?}
 import org.jetbrains.annotations.NotNull;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.ItemContainerPlatform;
@@ -76,7 +79,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
             beTag.put(getStorageKey(), tag);
             //? if >=1.21.9 {
             /^//TODO Check if this will cause problems when placing the block
-            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(BlockEntityType.CHEST, beTag));
+            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(/^¹? if <26.2 {¹^/BlockEntityType/^¹?} else {¹^//^¹BlockEntityTypes¹^//^¹?}¹^/.CHEST, beTag));
             ^///?} else {
             container.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
             //?}
@@ -199,7 +202,7 @@ public class FactoryItemFluidHandler extends FactoryFluidHandler implements IPla
             beTag.put(getStorageKey(),tag);
             //? if >=1.21.9 {
             /^//TODO Check if this will cause problems when placing the block
-            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(BlockEntityType.CHEST, beTag));
+            container.set(DataComponents.BLOCK_ENTITY_DATA, TypedEntityData.of(/^¹? if <26.2 {¹^/BlockEntityType/^¹?} else {¹^//^¹BlockEntityTypes¹^//^¹?}¹^/.CHEST, beTag));
             ^///?} else {
             container.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(beTag));
              //?}

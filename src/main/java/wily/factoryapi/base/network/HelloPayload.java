@@ -1,6 +1,11 @@
 package wily.factoryapi.base.network;
 
 import net.minecraft.network.FriendlyByteBuf;
+//? if >=26.3 {
+/*import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+*///?}
 import net.minecraft.server.level.ServerPlayer;
 import wily.factoryapi.FactoryAPI;
 import wily.factoryapi.FactoryAPIClient;
@@ -9,14 +14,26 @@ import wily.factoryapi.base.config.FactoryConfig;
 import wily.factoryapi.util.ModInfo;
 
 import java.util.Collection;
+//? if >=26.3 {
+/*import java.util.List;
+import java.util.function.Function;
+*///?}
 import java.util.stream.Collectors;
 
 public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<HelloPayload> identifier) implements CommonNetwork.Payload {
     public static final CommonNetwork.Identifier<HelloPayload> ID_S2C = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("hello_s2c"),HelloPayload::createS2C);
     public static final CommonNetwork.Identifier<HelloPayload> ID_C2S = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("hello_c2s"),HelloPayload::createC2S);
 
+    //? if >=26.3 {
+    /*private static final StreamCodec<RegistryFriendlyByteBuf, Collection<String>> MOD_IDS_STREAM_CODEC = ByteBufCodecs.<RegistryFriendlyByteBuf, String>list().apply(ByteBufCodecs.STRING_UTF8.cast()).map(Function.identity(), List::copyOf);
+    *///?}
+
     public HelloPayload(CommonNetwork.PlayBuf playBuf, CommonNetwork.Identifier<HelloPayload> identifier) {
+        //? if <26.3 {
         this(playBuf.get().readList(FriendlyByteBuf::readUtf), identifier);
+        //?} else {
+        /*this(MOD_IDS_STREAM_CODEC.decode(playBuf.get()), identifier);
+        *///?}
     }
 
     public static HelloPayload createS2C(CommonNetwork.PlayBuf playBuf){
@@ -49,6 +66,10 @@ public record HelloPayload(Collection<String> modIds, CommonNetwork.Identifier<H
 
     @Override
     public void encode(CommonNetwork.PlayBuf buf) {
+        //? if <26.3 {
         buf.get().writeCollection(modIds, FriendlyByteBuf::writeUtf);
+        //?} else {
+        /*MOD_IDS_STREAM_CODEC.encode(buf.get(), modIds);
+        *///?}
     }
 }

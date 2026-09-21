@@ -3,7 +3,9 @@ package wily.factoryapi.base.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.model.geom.EntityModelSet;
+//? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 //? if >=1.21.4 {
 /*import net.minecraft.client.renderer.special.SpecialModelRenderer;
 *///?}

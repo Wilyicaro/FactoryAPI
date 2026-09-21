@@ -3,6 +3,9 @@ package wily.factoryapi.base.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+//? if >=26.2 {
+/*import net.minecraft.client.gui.Hud;
+*///?}
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -40,9 +43,15 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         return (UIAccessor) screen;
     }
 
+    //? if <26.2 {
     static UIAccessor of(Gui gui) {
         return (UIAccessor) gui;
     }
+    //?} else {
+    /*static UIAccessor of(Hud hud) {
+        return (UIAccessor) hud;
+    }
+    *///?}
 
     @Nullable
     Screen getScreen();
@@ -63,7 +72,7 @@ public interface UIAccessor extends UIDefinition, VariableResolver {
         putStaticElement("windowHeight", minecraft.getWindow().getHeight());
         putStaticElement("width", minecraft.getWindow().getGuiScaledWidth());
         putStaticElement("height", minecraft.getWindow().getGuiScaledHeight());
-        getElements().put("hasScreen", ()-> FactoryAPIClient.getScreen() != null);
+        getElements().put("hasScreen", ()-> FactoryScreenUtil.getScreen() != null);
         if (getChildrenRenderables() != null)
             getElements().put("renderablesCount", getChildrenRenderables()::size);
         FactoryAPIPlatform.getMods().forEach(i -> putStaticElement("loadedMods." + i.getId(), true));

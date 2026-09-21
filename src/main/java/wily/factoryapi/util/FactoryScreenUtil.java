@@ -1,8 +1,8 @@
 package wily.factoryapi.util;
 
-//? if >1.21.4 {
+//? if >1.21.4 && <26.3 {
 /*import com.mojang.blaze3d.opengl.GlStateManager;
- *///?} else {
+ *///?} else if <26.3 {
 import com.mojang.blaze3d.platform.GlStateManager;
 //?}
 import com.mojang.blaze3d.platform.Lighting;
@@ -15,7 +15,12 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+//? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?} else {
+/*import net.minecraft.client.gui.Hud;
+*///?}
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -28,6 +33,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
 import wily.factoryapi.FactoryAPIClient;
@@ -48,11 +54,13 @@ public class FactoryScreenUtil {
         /*switch (stack) {
             case net.minecraft.client.gui.GuiGraphics graphics -> graphics./^? if >=26.1 {^//^text^//^?} else {^/ drawString/^?}^/(font, text, x, y, color, shadow);
             case PoseStack poseStack -> {
+                //? if <26.2 {
                 MultiBufferSource.BufferSource source = mc.renderBuffers().bufferSource();
 				font.drawInBatch(/^? if >=1.21.2 {^//^Component.literal(text)^//^?} else {^/ text/^?}^/, (float) x, (float) y, color, shadow, poseStack.last().pose(), source, Font.DisplayMode.NORMAL, 0, 15728880/^? if <1.21.6 {^/, font.isBidirectional()/^?}^/);
                 disableDepthTest();
                 source.endBatch();
                 enableDepthTest();
+                //?}
 			}
 			default -> throw new IllegalStateException("Unexpected value: " + stack);
 		}
@@ -66,18 +74,22 @@ public class FactoryScreenUtil {
     }
 
     public static void disableDepthTest(){
+        //? if <26.2
         GlStateManager._disableDepthTest();
     }
 
     public static void enableDepthTest(){
+        //? if <26.2
         GlStateManager._enableDepthTest();
     }
 
     public static void disableBlend(){
+        //? if <26.2
         GlStateManager._disableBlend();
     }
 
     public static void enableBlend(){
+        //? if <26.2
         GlStateManager._enableBlend();
     }
 
@@ -155,10 +167,32 @@ public class FactoryScreenUtil {
     }
 
     public static UIAccessor getScreenAccessor(){
-        return UIAccessor.of(FactoryAPIClient.getScreen());
+        return UIAccessor.of(FactoryScreenUtil.getScreen());
     }
 
     public static UIAccessor getGuiAccessor(){
-        return UIAccessor.of(mc.gui);
+        return UIAccessor.of(getGuiOrHud(mc));
     }
+
+    @ApiStatus.Internal
+    public static void setScreen(Screen screen) {
+        Minecraft.getInstance()/*? if >=26.2 {*//*.gui*//*?}*/.setScreen(screen);
+    }
+
+    @ApiStatus.Internal
+    public static Screen getScreen() {
+        return Minecraft.getInstance()/*? if <26.2 {*/.screen/*?} else {*//*.gui.screen()*//*?}*/;
+    }
+
+    //? if <26.2 {
+    @ApiStatus.Internal
+    public static Gui getGuiOrHud(Minecraft minecraft) {
+        return minecraft.gui;
+    }
+    //?} else {
+    /*@ApiStatus.Internal
+    public static Hud getGuiOrHud(Minecraft minecraft) {
+        return minecraft.gui.hud;
+    }
+    *///?}
 }

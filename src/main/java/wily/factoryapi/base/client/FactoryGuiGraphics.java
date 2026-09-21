@@ -14,7 +14,9 @@ import net.minecraft.client.gui.GuiSpriteManager;
 *///?}
 
 import net.minecraft.client.renderer.GameRenderer;
+//? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -26,9 +28,11 @@ import java.util.Map;
 public interface FactoryGuiGraphics {
     net.minecraft.client.gui.GuiGraphics context();
 
+    //? if <26.2 {
     MultiBufferSource.BufferSource getBufferSource();
     void pushBufferSource(MultiBufferSource.BufferSource bufferSource);
     void popBufferSource();
+    //?}
 
     FactoryGuiMatrixStack pose();
 

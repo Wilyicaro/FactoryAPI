@@ -4,6 +4,9 @@ package wily.factoryapi.base.network;
 /*import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+//? if >=26.3 {
+/^import net.minecraft.network.codec.ByteBufCodecs;
+^///?}
 import net.minecraft.network.codec.StreamCodec;
 *///?} else {
 import wily.factoryapi.FactoryAPI;
@@ -82,13 +85,32 @@ public class CommonRecipeManager {
     public record ClientPayload(Map<RecipeType<?>,Map<net.minecraft.resources.ResourceLocation,RecipeHolder<?>>> syncRecipeTypes) implements CommonNetwork.Payload {
         public static final CommonNetwork.Identifier<ClientPayload> ID = CommonNetwork.Identifier.create(FactoryAPI.createModLocation("send_client_recipes"), ClientPayload::new);
         private static final ClientPayload instance = new ClientPayload(new HashMap<>());
+        //? if >=26.3 {
+        /^private static final StreamCodec<RegistryFriendlyByteBuf, Map<Identifier, RecipeHolder<?>>> IDENTIFIER_RECIPE_HOLDER_MAP_STREAM_CODEC = ByteBufCodecs.map(HashMap::new, Identifier.STREAM_CODEC, RecipeHolder.STREAM_CODEC);
+        private static final StreamCodec<RegistryFriendlyByteBuf, RecipeType<?>> RECIPE_TYPE_STREAM_CODEC = new StreamCodec<>() {
+			@Override
+			public RecipeType<?> decode(RegistryFriendlyByteBuf input) {
+				return input.readById(BuiltInRegistries.RECIPE_TYPE::byId);
+			}
+
+			@Override
+			public void encode(RegistryFriendlyByteBuf output, RecipeType<?> value) {
+				output.writeById(BuiltInRegistries.RECIPE_TYPE::getId, value);
+			}
+		};
+        private static final StreamCodec<RegistryFriendlyByteBuf, Map<RecipeType<?>, Map<Identifier, RecipeHolder<?>>>> SYNC_RECIPE_TYPES_CODEC = ByteBufCodecs.map(HashMap::new, RECIPE_TYPE_STREAM_CODEC, IDENTIFIER_RECIPE_HOLDER_MAP_STREAM_CODEC);
+        ^///?}
 
         public static ClientPayload getInstance(){
             return instance;
         }
 
         public ClientPayload(CommonNetwork.PlayBuf buf){
+            //? if <26.3 {
             this(buf.get().readMap(b->b.readById(BuiltInRegistries.RECIPE_TYPE::byId), b->b.readMap(FriendlyByteBuf::readResourceLocation, b1->RecipeHolder.STREAM_CODEC.decode(buf.get()))));
+            //?} else {
+            /^this(SYNC_RECIPE_TYPES_CODEC.decode(buf.get()));
+            ^///?}
         }
 
         @Override
@@ -103,7 +125,11 @@ public class CommonRecipeManager {
 
         @Override
         public void encode(CommonNetwork.PlayBuf buf) {
+            //? if <26.3 {
             buf.get().writeMap(syncRecipeTypes, (b,t)-> b.writeById(BuiltInRegistries.RECIPE_TYPE::getId,t),(b,t)-> b.writeMap(t,FriendlyByteBuf::writeResourceLocation,(b1,h)->RecipeHolder.STREAM_CODEC.encode(buf.get(),h)));
+            //?} else {
+            /^SYNC_RECIPE_TYPES_CODEC.encode(buf.get(), syncRecipeTypes);
+            ^///?}
         }
     }
     *///?}

@@ -1,14 +1,25 @@
 package wily.factoryapi.mixin.base;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.UserApiService;
 //? if >=1.20.3 {
+//? if <26.3 {
 import com.mojang.authlib.yggdrasil.ProfileResult;
+//?} else {
+/*import com.mojang.authlib.services.ProfileResult;
+*///?}
 //?}
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
+//? if >=26.3 {
+/*import net.minecraft.server.Services;
+import com.mojang.authlib.minecraft.SessionService;
+import com.mojang.authlib.services.MinecraftServicesDiscoveryService;
+*///?} else {
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+//?}
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -30,7 +41,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import wily.factoryapi.FactoryAPIClient;
 import wily.factoryapi.base.client.MinecraftAccessor;
 import wily.factoryapi.base.client.UIAccessor;
+import wily.factoryapi.util.FactoryScreenUtil;
 
+import java.io.File;
 import java.net.Proxy;
 import java.util.concurrent.CompletableFuture;
 
@@ -74,13 +87,26 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     @Mutable
     @Shadow @Final private RealmsDataFetcher realmsDataFetcher;
 
+    //? if <26.2 {
     @Shadow @Final private SplashManager splashManager;
+    //?}
+
+    //? if >=26.3 {
+    /*@Mutable
+    @Shadow
+    @Final
+    private Services services;
+    *///?}
+
+    @Shadow
+    @Final
+    public File gameDirectory;
 
     //? if >=26.1 {
     /*@Inject(method = "resizeGui",at = @At("RETURN"))
     public void resizeGui(CallbackInfo ci) {
         if (this.level != null) {
-            UIAccessor.of(gui).reloadUI();
+            UIAccessor.of(gui/^? if >=26.2 {^//^.hud^//^?}^/).reloadUI();
             FactoryAPIClient.RESIZE_DISPLAY.invoker.accept(Minecraft.getInstance());
         }
     }
@@ -94,12 +120,14 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
     }
     //?}
 
+    //? if <26.2 {
     @Inject(method = "setScreen",at = @At("RETURN"))
     public void setScreen(Screen screen, CallbackInfo ci) {
         if (this.level != null) {
             UIAccessor.of(gui).reloadUI();
         }
     }
+    //?}
     @Inject(method = "stop",at = @At("RETURN"))
     public void stop(CallbackInfo ci) {
         FactoryAPIClient.STOPPING.invoker.accept(Minecraft.getInstance());
@@ -137,15 +165,15 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
         UIAccessor accessor = UIAccessor.of(Minecraft.getInstance().screen);
         Screen.wrapScreenError(accessor::afterTick, "Ticking screen after tick", Minecraft.getInstance().screen.getClass().getCanonicalName());
     }
-    //?} else {
+    //?} else if <26.2 {
     /*@Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V"))
     public void beforeScreenTick(CallbackInfo ci) {
-        if (FactoryAPIClient.getScreen() != null) UIAccessor.of(FactoryAPIClient.getScreen()).beforeTick();
+        if (FactoryScreenUtil.getScreen() != null) UIAccessor.of(FactoryScreenUtil.getScreen()).beforeTick();
     }
 
     @Inject(method = "tick",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;tick()V", shift = At.Shift.AFTER))
     public void afterScreenTick(CallbackInfo ci) {
-        if (FactoryAPIClient.getScreen() != null) UIAccessor.of(FactoryAPIClient.getScreen()).afterTick();
+        if (FactoryScreenUtil.getScreen() != null) UIAccessor.of(FactoryScreenUtil.getScreen()).afterTick();
     }
     *///?}
 
@@ -155,19 +183,36 @@ public abstract class MinecraftMixin implements MinecraftAccessor {
             LOGGER.warn("Something went wrong, the User cannot be set to null");
             return false;
         }
+        //? if <26.2 {
         this.user = splashManager.user = user;
+        //?} else {
+        /*this.user = gui.splashManager().user;
+        *///?}
         //? if >=1.21.9 {
-        /*MinecraftSessionService session = Minecraft.getInstance().services().sessionService();
+
+
+        /*//? if <26.3 {
+        MinecraftSessionService session = Minecraft.getInstance().services().sessionService();
         YggdrasilAuthenticationService authenticationService = this.offlineDeveloperMode
                 ? YggdrasilAuthenticationService.createOffline(this.proxy)
                 : new YggdrasilAuthenticationService(this.proxy);
+        //?} else {
+        /^SessionService session = Minecraft.getInstance().services().sessionService();
+        MinecraftServicesDiscoveryService discoveryService = MinecraftServicesDiscoveryService.create(this.proxy, !this.offlineDeveloperMode);
+        this.services = Services.create(discoveryService, this.gameDirectory);
+        ^///?}
+
         *///?} else {
         MinecraftSessionService session = Minecraft.getInstance().getMinecraftSessionService();
         boolean offlineDeveloperMode = user.getType() != User.Type.MSA;
         //?}
         //? if >=1.20.3 {
         this.profileFuture = CompletableFuture.supplyAsync(() -> session.fetchProfile(user.getProfileId(), true), Util.nonCriticalIoPool());
+        //? if <26.3 {
         this.userApiService = offlineDeveloperMode ? UserApiService.OFFLINE : authenticationService.createUserApiService(user.getAccessToken());
+        //?} else {
+        /*this.userApiService = offlineDeveloperMode ? UserApiService.OFFLINE : discoveryService.createUserApiService(user.getAccessToken());
+        *///?}
         this.userPropertiesFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 return userApiService.fetchProperties();

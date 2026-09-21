@@ -22,7 +22,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+//? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 //? if <1.21.6 {
 import net.minecraft.client.renderer.RenderType;
 //?}
@@ -83,8 +85,10 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
     @Shadow public abstract Matrix3x2fStack pose();
     *///?}
 
+    //?if <26.2 {
     @Unique
     private MultiBufferSource.BufferSource lastBufferSource;
+    //?}
 
     //? if <=1.20.1
     //@Shadow abstract void innerBlit(ResourceLocation resourceLocation, int i, int j, int k, int l, int m, float f, float g, float h, float n);
@@ -326,6 +330,8 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             }
         }
         *///?}
+
+        //? if <26.2 {
         @Override
         public MultiBufferSource.BufferSource getBufferSource() {
             //? if >=1.21.6 {
@@ -348,6 +354,7 @@ public abstract class GuiGraphicsMixin implements FactoryGuiGraphics.Accessor {
             if (lastBufferSource != null) bufferSource = lastBufferSource;
             //?}
         }
+        //?}
 
         @Override
         public FactoryGuiMatrixStack pose() {

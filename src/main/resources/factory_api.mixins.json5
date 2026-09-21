@@ -33,6 +33,9 @@
     /*"BakedSheetGlyphAccessor",
     *///?}
     "SpriteLoaderMixin",
+    //? if >=26.2 {
+    /*"ActualGuiMixin",
+    *///?}
     "AbstractContainerScreenMixin",
     "AbstractWidgetMixin",
     "GuiGraphicsMixin",
@@ -69,7 +72,7 @@
     *///?}
     //? if <1.21.2 {
     "RecipeManagerAccessor",
-    //?} else {
+    //?} else if <26.3 {
     /*"FuelValuesAccessor",
     *///?}
     "IngredientMixin",

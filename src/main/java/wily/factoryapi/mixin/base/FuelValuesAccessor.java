@@ -1,4 +1,4 @@
-//? if >=1.21.2 {
+//? if >=1.21.2 && <26.3 {
 /*package wily.factoryapi.mixin.base;
 
 import it.unimi.dsi.fastutil.objects.Object2IntSortedMap;

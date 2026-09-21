@@ -10,10 +10,18 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 //? if >=1.21.6 {
-/*import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
+/*//? if <26.2 {
+import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
 import net.minecraft.client.gui.contextualbar.ExperienceBarRenderer;
 import net.minecraft.client.gui.contextualbar.JumpableVehicleBarRenderer;
 import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
+//?} else {
+/^import net.minecraft.client.gui.contextualbar.ContextualBar;
+import net.minecraft.client.gui.contextualbar.ExperienceBar;
+import net.minecraft.client.gui.contextualbar.JumpableVehicleBar;
+import net.minecraft.client.gui.contextualbar.LocatorBar;
+import net.minecraft.client.gui.Hud;
+^///?}
 *///?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -45,7 +53,7 @@ import wily.factoryapi.util.VariablesMap;
 
 import java.util.*;
 
-@Mixin(Gui.class)
+@Mixin(/*? if <26.2 {*/Gui/*?} else {*//*Hud*//*?}*/.class)
 public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     @Shadow private int overlayMessageTime;
 
@@ -316,13 +324,13 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
 
     //? if >=1.21.6 {
     /*//? if !neoforge {
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/" + /^? if <26.2 {^/"ContextualBarRenderer"/^?} else {^//^"ContextualBar"^//^?}^/ + ";extractBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(/^? if <26.2 {^/ContextualBarRenderer/^?} else {^//^ContextualBar^//^?}^/ instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         elementLocalRef.set(switch (instance) {
-            case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
-            case LocatorBarRenderer ignored -> FactoryGuiElement.LOCATOR_BAR;
-            case JumpableVehicleBarRenderer ignored -> FactoryGuiElement.JUMP_METER;
+            case /^? if <26.2 {^/ExperienceBarRenderer/^?} else {^//^ExperienceBar^//^?}^/ ignored -> FactoryGuiElement.EXPERIENCE_BAR;
+            case /^? if <26.2 {^/LocatorBarRenderer/^?} else {^//^LocatorBar^//^?}^/ ignored -> FactoryGuiElement.LOCATOR_BAR;
+            case /^? if <26.2 {^/JumpableVehicleBarRenderer/^?} else {^//^JumpableVehicleBar^//^?}^/ ignored -> FactoryGuiElement.JUMP_METER;
             default -> null;
         });
         FactoryGuiElement factoryGuiElement = elementLocalRef.get();
@@ -330,8 +338,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
+    @WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/" + /^? if <26.2 {^/"ContextualBarRenderer"/^?} else {^//^"ContextualBar"^//^?}^/ + ";extractRenderState(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(/^? if <26.2 {^/ContextualBarRenderer/^?} else {^//^ContextualBar^//^?}^/ instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original, @Share("cli") LocalRef<CallbackInfo> ci, @Share("fge") LocalRef<FactoryGuiElement> elementLocalRef) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = elementLocalRef.get();
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);
@@ -342,13 +350,13 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
     final ThreadLocal<CallbackInfo> ci = new ThreadLocal<>();
     @Unique
     final ThreadLocal<FactoryGuiElement> fge = new ThreadLocal<>();
-    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBar(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+    @WrapOperation(method = "renderContextualInfoBarBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/" + /^¹? if <26.2 {¹^/"ContextualBarRenderer"/^¹?} else {¹^//^¹"ContextualBar"¹^//^¹?}¹^/ + ";extractBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBar(/^¹? if <26.2 {¹^/ContextualBarRenderer/^¹?} else {¹^//^¹ContextualBar¹^//^¹?}¹^/ instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         ci.set(new CallbackInfo("renderContextualBar", true));
         fge.set(switch (instance) {
-            case ExperienceBarRenderer ignored -> FactoryGuiElement.EXPERIENCE_BAR;
-            case LocatorBarRenderer ignored -> FactoryGuiElement.LOCATOR_BAR;
-            case JumpableVehicleBarRenderer ignored -> FactoryGuiElement.JUMP_METER;
+            case /^¹? if <26.2 {¹^/ExperienceBarRenderer/^¹?} else {¹^//^¹ExperienceBar¹^//^¹?}¹^/ ignored -> FactoryGuiElement.EXPERIENCE_BAR;
+            case /^¹? if <26.2 {¹^/LocatorBarRenderer/^¹?} else {¹^//^¹LocatorBar¹^//^¹?}¹^/ ignored -> FactoryGuiElement.LOCATOR_BAR;
+            case /^¹? if <26.2 {¹^/JumpableVehicleBarRenderer/^¹?} else {¹^//^¹JumpableVehicleBar¹^//^¹?}¹^/ ignored -> FactoryGuiElement.JUMP_METER;
             default -> null;
         });
         FactoryGuiElement factoryGuiElement = fge.get();
@@ -356,8 +364,8 @@ public abstract class GuiMixin implements UIAccessor, GuiAccessor {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
     }
 
-    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
-    public void renderExperienceBarReturn(ContextualBarRenderer instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
+    @WrapOperation(method = "renderContextualInfoBar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/" + /^¹? if <26.2 {¹^/"ContextualBarRenderer"/^¹?} else {¹^//^¹"ContextualBar"¹^//^¹?}¹^/ + ";extractRenderState(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"))
+    public void renderExperienceBarReturn(/^¹? if <26.2 {¹^/ContextualBarRenderer/^¹?} else {¹^//^¹ContextualBar¹^//^¹?}¹^/ instance, net.minecraft.client.gui.GuiGraphics graphics, DeltaTracker deltaTracker, Operation<Void> original) {
         if (!ci.get().isCancelled()) original.call(instance, graphics, deltaTracker);
         FactoryGuiElement factoryGuiElement = fge.get();
         if (factoryGuiElement != null) factoryGuiElement.finalizeMixin(graphics, this);

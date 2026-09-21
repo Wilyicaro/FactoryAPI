@@ -108,7 +108,6 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 *///?}
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
@@ -224,7 +223,7 @@ public class FactoryAPIClient {
     }
 
     public static /*? if <1.21.2 {*/ToastComponent/*?} else {*//*ToastManager*//*?}*/getToasts() {
-        return Minecraft.getInstance()./*? if <1.21.2 {*/getToasts/*?} else {*//*getToastManager*//*?}*/();
+        return Minecraft.getInstance()./*? if <1.21.2 {*/getToasts/*?} else if <26.2 {*//*getToastManager*//*?} else {*//*gui.toastManager*//*?}*/();
     }
 
     public static float getPartialTick() {
@@ -249,9 +248,12 @@ public class FactoryAPIClient {
         return Minecraft.getInstance().getWindow()./*? if >=1.21.9 {*//*handle()*//*?} else {*/getWindow()/*?}*/;
     }
 
+    //? if <26.2 {
+    @Deprecated(since = "2.2.10", forRemoval = true)
     public static Screen getScreen() {
         return Minecraft.getInstance().screen;
     }
+    //?}
 
     public static void init() {
         registerConfigScreen(FactoryAPIPlatform.getModInfo(FactoryAPI.MOD_ID), FactoryConfigScreen::createFactoryAPIConfigScreen);
@@ -261,7 +263,7 @@ public class FactoryAPIClient {
             FactoryOptions.CLIENT_STORAGE.load();
         });
         preTick(m-> SECURE_EXECUTOR.executeAll());
-        FactoryGuiElement.HOTBAR.post().register(graphics -> UIAccessor.of(Minecraft.getInstance().gui).getChildrenRenderables().forEach(r -> {
+        FactoryGuiElement.HOTBAR.post().register(graphics -> UIAccessor.of(FactoryScreenUtil.getGuiOrHud(Minecraft.getInstance())).getChildrenRenderables().forEach(r -> {
             //? if >=26.1 {
             /*r.extractRenderState(graphics, 0, 0, getPartialTick());
             *///?} else {
@@ -290,7 +292,7 @@ public class FactoryAPIClient {
         });
         //? if fabric {
         //? if >=1.21.9 {
-        /*IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> vertexConsumers.submitModel(c.getHumanoidArmorModel(entity,stack,slot,contextModel), entity, matrices, /^?if <1.21.11 {^/RenderType/^?} else {^//^RenderTypes^//^?}^/.entityCutout(((IFactoryItem) i).getArmorLocation(stack, slot)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFF, null), i));
+        /*IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> vertexConsumers.submitModel(c.getHumanoidArmorModel(entity,stack,slot,contextModel), entity, matrices, /^?if <1.21.11 {^/RenderType/^?} else {^//^RenderTypes^//^?}^/.entityCutout(((IFactoryItem) i).getArmorLocation(stack, slot)), light, OverlayTexture.NO_OVERLAY, 0xFFFFFF/^? if <26.3 {^/, null/^?}^/), i));
         *///?} else {
         IFactoryItemClientExtension.map.forEach((i,c)-> ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, contextModel)-> c.getHumanoidArmorModel(entity,stack,slot,contextModel).renderToBuffer(matrices,vertexConsumers.getBuffer(RenderType.entityCutout(((IFactoryItem) i).getArmorLocation(stack,/*? if <1.21.2 {*/ entity, /*?}*/slot))), light, OverlayTexture.NO_OVERLAY/*? if <=1.20.6 {*/, 1.0F,1.0F,1.0F, 1.0F/*?}*/),i));
         //?}
@@ -342,7 +344,7 @@ public class FactoryAPIClient {
     public static <T extends AbstractContainerMenu> void handleExtraMenu(SecureExecutor executor, Player player, MenuType<T> menuType, OpenExtraMenuPayload payload) {
         var menu = ((MenuTypeAccessor)menuType).getConstructor() instanceof FactoryExtraMenuSupplier<?> supplier ? (T) supplier.create(payload.menuId(), player.getInventory(), payload.extra()) : menuType.create(payload.menuId(), player.getInventory());
         player.containerMenu = menu;
-        executor.execute(()-> Minecraft.getInstance().setScreen(MenuScreensAccessor.getConstructor(menuType).create(menu, player.getInventory(), payload.component())));
+        executor.execute(()-> FactoryScreenUtil.setScreen(MenuScreensAccessor.getConstructor(menuType).create(menu, player.getInventory(), payload.component())));
     }
 
     public static void setup(Consumer<Minecraft> listener) {
