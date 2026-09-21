@@ -89,7 +89,7 @@ public class UIDefinitionManager implements ResourceManagerReloadListener {
                     put("create_world_screen", CreateWorldScreen.class).
                     put("edit_world_screen", EditWorldScreen.class).
                     put("join_multiplayer_screen", JoinMultiplayerScreen.class).
-                    /*? if <1.21.9 {*//*put("edit_server_screen", EditServerScreen.class)*//*?}*/.
+                    /*? if <1.21.9 {*//*put("edit_server_screen", EditServerScreen.class).*//*?}*/
                     put("direct_join_server_screen", DirectJoinServerScreen.class).
                     put("realms_main_screen", RealmsMainScreen.class).
                     put("realms_screen", RealmsScreen.class).
