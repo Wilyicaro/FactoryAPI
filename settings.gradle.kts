@@ -29,17 +29,18 @@ stonecutter {
             loaders.forEach { version("$version-$it", version).buildscript = "build.${if (it == "fabric" && stonecutter.eval(version, ">=26.1")) "fabricmc" else it}.gradle.kts" }
 
         //Some JDK 17 instances don't work with Forge <=1.20.4, you can just exclude these, so it can be downloaded automatically
-        match("1.20.1", "fabric", "forge")
-        //match("1.20.4", "fabric", "forge", "neoforge")
-        match("1.21.1", "fabric", "forge", "neoforge")
-        //match("1.21.3", "fabric", "forge", "neoforge")
-        //match("1.21.4", "fabric", "forge", "neoforge")
-        match("1.21.5", "fabric", "forge", "neoforge")
-        //match("1.21.8", "fabric", "forge", "neoforge")
-        match("1.21.10", "fabric", "forge", "neoforge")
-        match("1.21.11", "fabric", "forge", "neoforge")
-        match("26.1.2", "fabric", "forge", "neoforge")
-        match("26.3", "fabric", "forge", "neoforge")
+//        match("1.20.1", "fabric", "forge")
+//        //match("1.20.4", "fabric", "forge", "neoforge")
+//        match("1.21.1", "fabric", "forge", "neoforge")
+//        //match("1.21.3", "fabric", "forge", "neoforge")
+//        //match("1.21.4", "fabric", "forge", "neoforge")
+//        match("1.21.5", "fabric", "forge", "neoforge")
+//        //match("1.21.8", "fabric", "forge", "neoforge")
+//        match("1.21.10", "fabric", "forge", "neoforge")
+//        match("1.21.11", "fabric", "forge", "neoforge")
+//        match("26.1.2", "fabric", "forge", "neoforge")
+        match("26.3", "fabric"/*, "forge", "neoforge"*/)
+        match("26.4", "fabric")
         vcsVersion = "26.3-fabric"
     }
 }
