@@ -372,6 +372,12 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 				string(eval(current.version, ">=26.3"), "!renaming_26_3") {
 					replace("com.mojang.blaze3d.textures.GpuTextureView", "com.mojang.renderpearl.api.textures.GpuTextureView")
 				}
+				string(eval(current.version, ">=26.4"), "!renaming_26_4") {
+					replace("com.mojang.renderpearl.api.pipeline.RenderPipeline;", "com.mojang.blaze3d.pipeline.RenderPipeline;")
+				}
+				string(eval(current.version, ">=26.4"), "!renaming_26_4") {
+					replace("Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;", "Lcom/mojang/blaze3d/pipeline/RenderPipeline;")
+				}
 			}
 		}
 	}
